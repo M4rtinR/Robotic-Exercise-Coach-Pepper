@@ -1,3 +1,6 @@
+from random import choices
+
+
 class Policy:
 
     def __init__(self, belief):
@@ -212,16 +215,86 @@ class Policy:
 
     def sample_action(self, state):
         # Find which style state belongs to.
-        # Get random action based on self.transition_matrix probabilities.
-        # Decide whether to move style based on self.belief_distribution and selected action (if it is possible in other styles).
+        style = self._get_style(state)
 
-        return action
+        # Get random action based on self.transition_matrix probabilities.
+        print(len(self.transition_matrix[style - 1][self._get_action(state)]))
+        print(len(range(68)))
+        return choices(range(68), self.transition_matrix[style - 1][self._get_action(state)])[0]
+        '''if style < 7:
+            action = choices(range(68), self.transition_matrix[style - 1][self._get_action(state)])
+            if action == 45:
+                action = self.A_END
+        else:
+            physio_action = choices(range(68), self.transition_matrix[style - 1][self._get_action(state)])
+            action = self.physioActionDict[physio_action]
+
+        return action'''
+
+    def sample_observation(self, state, action):
+        '''
+        Decide whether to move style based on self.belief_distribution and selected action (if it is possible in other
+        styles).
+        :param state: the current state
+        :param action: the chosen behaviour
+        :return: the new state we observe based on belief distribution
+        '''
+
+        new_style = choices(range(1, 13), self.belief_distribution)[0]
+
+        # Check if action is valid in new_style
+        if new_style < 7 and not(43 < action < self.A_END):
+            return new_style * 45 + action if action < self.A_END else new_style * 45 + 44
+        elif new_style >= 7 and action in self.physioActionDict.values():
+            physio_action = next((key for key, value in self.physioActionDict.items() if value == action), None)
+            return 270 + ((new_style - 7) * 53) + physio_action
+
+        # If invalid action we don't move, so return original state.
+        return state
+
+    def _get_action(self, state):
+        # Return the action associated with the given state.
+        if state > 269:
+            return self.physioActionDict[(state - 270) % 53]
+
+        else:
+            if state in [44, 89, 134, 179, 224, 269]:
+                return self.A_END
+            else:
+                return state % 45
+
+    def _get_style(self, state):
+        # Return the style associated with the given state.
+        if state < 45:
+            return 1
+        elif state < 90:
+            return 2
+        elif state < 135:
+            return 3
+        elif state < 180:
+            return 4
+        elif state < 225:
+            return 5
+        elif state < 270:
+            return 6
+        elif state < 323:
+            return 7
+        elif state < 376:
+            return 8
+        elif state < 429:
+            return 9
+        elif state < 482:
+            return 10
+        elif state < 535:
+            return 11
+        else:
+            return 12
 
     def _get_transition_matrix(self):
-        tm = [[[0 for x in range(12)] for x in range(67)] for x in range(67)]
+        tm = [[[0 for x in range(68)] for x in range(68)] for x in range(12)]
 
         for style in range(1, 13):
-            tm[style] = self._get_prob_matrix_from_reward(style)
+            tm[style - 1] = self._get_prob_matrix_from_reward(style)
 
         return tm
 
@@ -285,13 +358,23 @@ class Policy:
         non_neg_rewards = [r + min_reward for r in irl_rewards]
         total_rewards = sum(non_neg_rewards)
 
-        prob_matrix = [[0 for x in range(67)] for x in range(67)]
+        prob_matrix = [[0 for x in range(68)] for x in range(68)]
+        print('before')
+        print(len(prob_matrix), len(prob_matrix[0]))
         if style < 7:
             for state in range(44):
-                prob_matrix[state] = [reward / total_rewards if reward > 0 else 0.00000001 for reward in non_neg_rewards]
-                prob_matrix[67] = non_neg_rewards[44] / total_rewards if non_neg_rewards[44] > 0 else 0.00000001
+                count = 0
+                for reward in non_neg_rewards:
+                    prob_matrix[state][count] = reward / total_rewards if reward > 0 else 0.00000001
+                    count += 1
+                prob_matrix[state][67] = non_neg_rewards[44] / total_rewards if non_neg_rewards[44] > 0 else 0.00000001
         else:
             for state in range(53):
-                prob_matrix[self.physioActionDict[state]] = [reward / total_rewards if reward > 0 else 0.00000001 for reward in non_neg_rewards]
+                count = 0
+                for reward in non_neg_rewards:
+                    prob_matrix[self.physioActionDict[state]][count] = reward / total_rewards if reward > 0 else 0.00000001
+                    count += 1
+        print('after')
+        print(len(prob_matrix), len(prob_matrix[0]))
 
         return prob_matrix

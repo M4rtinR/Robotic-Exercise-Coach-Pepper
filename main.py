@@ -1,17 +1,34 @@
-# This is a sample Python script.
+from policy import Policy
+import random
+import numpy as np
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+def constrainedSumSamplePos(n, total, rangeGap):
+    """Return a randomly chosen list of n positive integers summing to total.
+    Each such list is equally likely to occur."""
+    numpyRange = np.arange(0.0, total, rangeGap)
+    range = np.ndarray.tolist(numpyRange)
+    dividers = sorted(random.sample(range, n - 1))
+    return [a - b for a, b in zip(dividers + [total], [0.0] + dividers)]
+
+def constrainedSumSampleNonneg(n, total, rangeGap):
+    """Return a randomly chosen list of n nonnegative integers summing to total.
+    Each such list is equally likely to occur."""
+
+    return [x - rangeGap for x in constrainedSumSamplePos(n, total + (n * rangeGap), rangeGap)]
 
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    list = [i for i in range(1, 13)]
-    print(list)  # Press Ctrl+F8 to toggle the breakpoint.
-
-
-# Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    print_hi('PyCharm')
+    style_distribution = [x / 100 for x in constrainedSumSamplePos(12, 100, 0.001)]
+    print('style_distribution =', style_distribution)
+    p = Policy(style_distribution)
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    # change to start in max of style_distribution
+    observation = 0
+
+    for i in range(15):
+        action = p.sample_action(observation)
+        print('i =', 0)
+        print('action =', action)
+        observation = p.sample_observation(observation, action)
+        print('observation =', observation)
+        print('/n/n')
