@@ -46,8 +46,9 @@ class PolicyWrapper:
         if goal_level == self.PERSON_GOAL:
             valid_list.extend([self.policy.A_PREINSTRUCTION, self.policy.A_PREINSTRUCTION_FIRSTNAME])
 
-        # Session Goal
-        elif goal_level == self.SESSION_GOAL:
+        # Session, Exercise, Stat and Set Goals will all have the same action categories (different individual actions)
+        elif goal_level == self.SESSION_GOAL or goal_level == self.EXERCISE_GOAL or goal_level == self.STAT_GOAL \
+                or goal_level == self.SET_GOAL:
             valid_list.extend([self.policy.A_POSTINSTRUCTIONPOSITIVE, self.policy.A_POSTINSTRUCTIONNEGATIVE,
                                self.policy.A_QUESTIONING, self.policy.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING,
                                self.policy.A_POSTINSTRUCTIONPOSITIVE_FIRSTNAME,
@@ -118,23 +119,47 @@ class PolicyWrapper:
                     valid_list.extend([self.policy.A_SCOLD, self.policy.A_CONSOLE, self.policy.A_SCOLD_FIRSTNAME,
                                        self.policy.A_CONSOLE_FIRSTNAME])
 
-        # Exercise (shot in squash) Goal
-        elif goal_level == self.EXERCISE_GOAL:
-            
-        # Stat Goal
-        elif goal_level == self.STAT_GOAL:
-            return [self.policy.A_PREINSTRUCTION, self.policy.A_POSTINSTRUCTIONPOSITIVE,
-                    self.policy.A_POSTINSTRUCTIONNEGATIVE, self.policy.A_QUESTIONING]
-
-        # Set Goal
-        elif goal_level == self.SET_GOAL:
-            return [self.policy.A_PREINSTRUCTION, self.policy.A_POSTINSTRUCTIONPOSITIVE,
-                    self.policy.A_POSTINSTRUCTIONNEGATIVE, self.policy.A_QUESTIONING]
-
         # Action Goal (each shot in squash or movement in rehab)
         else:  # goal_level == self.ACTION_GOAL:
-            return [self.policy.A_SILENCE, self.policy.A_PRAISE, self.policy.A_CONCURRENTINSTRUCTIONNEGATIVE,
-                    self.policy.A_CONCURRENTINSTRUCTIONPOSITIVE, self.policy.A_SCOLD, self.policy.A_HUSTLE,
-                    self.policy.A_CONSOLE]
+            valid_list.extend([self.policy.A_SILENCE, self.policy.A_CONCURRENTINSTRUCTIONPOSITIVE,
+                               self.policy.A_QUESTIONING, self.policy.A_POSITIVEMODELING, self.policy.A_HUSTLE,
+                               self.policy.A_CONCURRENTINSTRUCTIONPOSITIVE_QUESTIONING,
+                               self.policy.A_CONCURRENTINSTRUCTIONPOSITIVE_FIRSTNAME,
+                               self.policy.A_QUESTIONING_FIRSTNAME, self.policy.A_HUSTLE_FIRSTNAME,
+                               self.policy.A_CONCURRENTINSTRUCTIONPOSITIVE_POSITIVEMODELING,
+                               self.policy.A_CONCURRENTINSTRUCTIONPOSITIVE_PRAISE,
+                               self.policy.A_POSITIVEMODELLING_HUSTLE, self.policy.A_POSITIVEMODELING_PRAISE])
+            # No phases in action goals, just a behaviour after each shot.
+            if performance == self.MET:
+                valid_list.extend([self.policy.A_PRAISE, self.policy.A_PRAISE_FIRSTNAME])
+            elif performance == self.MUCH_IMPROVED:
+                valid_list.extend([self.policy.A_PRAISE, self.policy.A_PRAISE_FIRSTNAME])
+            elif performance == self.IMPROVED:
+                valid_list.extend([self.policy.A_PRAISE, self.policy.A_PRAISE_FIRSTNAME])
+            elif performance == self.IMPROVED_SWAP:
+                valid_list.extend([self.policy.A_PRAISE, self.policy.A_PRAISE_FIRSTNAME])
+            elif performance == self.STEADY:
+                valid_list.extend([self.policy.A_PRAISE, self.policy.A_PRAISE_FIRSTNAME])
+            elif performance == self.REGRESSED:
+                valid_list.extend([self.policy.A_CONCURRENTINSTRUCTIONNEGATIVE, self.policy.A_NEGATIVEMODELING,
+                                   self.policy.A_SCOLD, self.policy.A_CONSOLE,
+                                   self.policy.A_QUESTIONING_NEGATIVEMODELING, self.policy.A_SCOLD_POSITIVEMODELING,
+                                   self.policy.A_SCOLD_FIRSTNAME, self.policy.A_CONSOLE_FIRSTNAME,
+                                   self.policy.A_CONCURRENTINSTRUCTIONNEGATIVE_NEGATIVEMODELING,
+                                   self.policy.A_POSITIVEMODELING_CONCURRENTINSTRUCTIONNEGATIVE])
+            elif performance == self.REGRESSED_SWAP:
+                valid_list.extend([self.policy.A_CONCURRENTINSTRUCTIONNEGATIVE, self.policy.A_NEGATIVEMODELING,
+                                   self.policy.A_SCOLD, self.policy.A_CONSOLE,
+                                   self.policy.A_QUESTIONING_NEGATIVEMODELING, self.policy.A_SCOLD_POSITIVEMODELING,
+                                   self.policy.A_SCOLD_FIRSTNAME, self.policy.A_CONSOLE_FIRSTNAME,
+                                   self.policy.A_CONCURRENTINSTRUCTIONNEGATIVE_NEGATIVEMODELING,
+                                   self.policy.A_POSITIVEMODELING_CONCURRENTINSTRUCTIONNEGATIVE])
+            else:  # performance == self.MUCH_REGRESSED
+                valid_list.extend([self.policy.A_CONCURRENTINSTRUCTIONNEGATIVE, self.policy.A_NEGATIVEMODELING,
+                                   self.policy.A_SCOLD, self.policy.A_CONSOLE,
+                                   self.policy.A_QUESTIONING_NEGATIVEMODELING, self.policy.A_SCOLD_POSITIVEMODELING,
+                                   self.policy.A_SCOLD_FIRSTNAME, self.policy.A_CONSOLE_FIRSTNAME,
+                                   self.policy.A_CONCURRENTINSTRUCTIONNEGATIVE_NEGATIVEMODELING,
+                                   self.policy.A_POSITIVEMODELING_CONCURRENTINSTRUCTIONNEGATIVE])
 
         return valid_list
