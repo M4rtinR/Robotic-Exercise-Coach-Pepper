@@ -76,6 +76,7 @@ class Policy:
     A_POSITIVEMODELLING_HUSTLE = 65
     A_POSITIVEMODELING_PRAISE = 66
     A_END = 67
+    A_SILENCE = 68
 
     # Rewards for all different styles based on Max-Ent IRL.
     rewardsDict = {1: [-1.75616380e-01, 2.97698764e+00, 3.80941213e+00, 1.26260231e+00,
@@ -218,8 +219,8 @@ class Policy:
         style = self._get_style(state)
 
         # Get random action based on self.transition_matrix probabilities.
-        print(len(self.transition_matrix[style - 1][self._get_action(state)]))
-        print(len(range(68)))
+        # print(len(self.transition_matrix[style - 1][self._get_action(state)]))
+        # print(len(range(68)))
         return choices(range(68), self.transition_matrix[style - 1][self._get_action(state)])[0]
         '''if style < 7:
             action = choices(range(68), self.transition_matrix[style - 1][self._get_action(state)])
@@ -359,8 +360,8 @@ class Policy:
         total_rewards = sum(non_neg_rewards)
 
         prob_matrix = [[0 for x in range(68)] for x in range(68)]
-        print('before')
-        print(len(prob_matrix), len(prob_matrix[0]))
+        # print('before')
+        # print(len(prob_matrix), len(prob_matrix[0]))
         if style < 7:
             for state in range(44):
                 count = 0
@@ -374,7 +375,7 @@ class Policy:
                 for reward in non_neg_rewards:
                     prob_matrix[self.physioActionDict[state]][count] = reward / total_rewards if reward > 0 else 0.00000001
                     count += 1
-        print('after')
-        print(len(prob_matrix), len(prob_matrix[0]))
+        # print('after')
+        # print(len(prob_matrix), len(prob_matrix[0]))
 
         return prob_matrix
