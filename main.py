@@ -1,6 +1,6 @@
 import time
 
-from policy import Policy
+from Policy.policy import Policy
 import random
 import numpy as np
 

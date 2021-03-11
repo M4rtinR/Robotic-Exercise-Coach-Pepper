@@ -1,4 +1,4 @@
-from policy import Policy
+from Policy.policy import Policy
 
 
 class PolicyWrapper:
@@ -28,7 +28,7 @@ class PolicyWrapper:
     REGRESSED_SWAP = 6  # Moved past the target and further from it
     MUCH_REGRESSED = 7  # Moved a lot further away from the target
 
-    def get_action(self, state, goal_level, performance, phase):
+    def get_behaviour(self, state, goal_level, performance, phase):
         valid_behaviours = self._get_valid_list(goal_level, performance, phase)
         behaviour = self.policy.sample_action(state)
         while not(behaviour in valid_behaviours):
