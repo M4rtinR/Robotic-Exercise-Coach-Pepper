@@ -1,12 +1,11 @@
 from datetime import time
 
 from task_behavior_engine.branch import Sequencer, Selector
-from task_behavior_engine.decorator import Until, While, Negate, Repeat
+from task_behavior_engine.decorator import Until, While, Negate, Repeat, UntilCount
 from task_behavior_engine.tree import NodeStatus, Blackboard
 
-from Controller.behavior_tree import CoachingTree
+from CoachingBehaviourTree.nodes import FormatAction, DisplayBehaviour, CheckForBehaviour, GetBehaviour
 from Policy.policy import Policy
-from Policy.policy_wrapper import PolicyWrapper
 
 SHOT_CHOICE = 0
 STAT_CHOICE = 1
@@ -75,6 +74,10 @@ def create_coaching_tree():
     session_goal_intro_questioning_negate = Negate(name="session_goal_intro_questioning_negate", child=session_goal_intro_questioning_sequence)
     session_goal_intro_sequence.add_child(session_goal_intro_questioning_negate)
 
+    # Format selected behaviour if not pre-instruction or questioning (i.e. create the output action)
+    session_goal_intro_action = FormatAction(name="session_goal_intro_action")
+    session_goal_intro_sequence.add_child(session_goal_intro_action)
+
     # Display selected behaviour if not pre-instruction or questioning
     session_goal_intro_output = DisplayBehaviour(name="session_goal_intro_output")
     session_goal_intro_sequence.add_child(session_goal_intro_output)
@@ -129,6 +132,9 @@ def create_coaching_tree():
     baseline_goal_start = TimestepCue(name="baseline_goal_started_timestep")
     baseline_goal_start_until = Until(name="baseline_goal_start_until", child=baseline_goal_start)
     gen_baseline_goal.add_child(baseline_goal_start_until)
+    # Format baseline pre-instruction behaviour
+    baseline_goal_intro_action = FormatAction(name="baseline_goal_intro_action")
+    gen_baseline_goal.add_child(baseline_goal_intro_action)
     # Display baseline pre-instruction behaviour
     baseline_goal_intro = DisplayBehaviour(name="baseline_goal_intro")
     gen_baseline_goal.add_child(baseline_goal_intro)
@@ -148,6 +154,10 @@ def create_coaching_tree():
     shot_goal_intro_questioning_negate = Negate(name="shot_goal_intro_questioning_negate", child=shot_goal_intro_questioning_sequence)
     shot_goal_intro_sequence.add_child(shot_goal_intro_questioning_negate)
 
+    # Format selected behaviour if not pre-instruction or questioning (i.e. create the output action)
+    shot_goal_intro_action = FormatAction(name="shot_goal_intro_action")
+    shot_goal_intro_sequence.add_child(shot_goal_intro_action)
+
     # Display selected behaviour if not pre-instruction or questioning
     shot_goal_intro_output = DisplayBehaviour(name="shot_goal_intro_output")
     shot_goal_intro_sequence.add_child(shot_goal_intro_output)
@@ -165,6 +175,10 @@ def create_coaching_tree():
     stat_goal_start = TimestepCue(name="stat_goal_started_timestep")
     stat_goal_start_until = Until(name="stat_goal_start_until", child=stat_goal_start)
     gen_stat_goal.add_child(stat_goal_start_until)
+
+    # Format pre-instruction behaviour (i.e. create the output action)
+    stat_goal_intro_action = FormatAction(name="stat_goal_intro_action")
+    gen_stat_goal.add_child(stat_goal_intro_action)
 
     # Display pre-instruction behaviour
     stat_goal_intro_output = DisplayBehaviour(name="stat_goal_intro_output")
@@ -199,12 +213,20 @@ def create_coaching_tree():
     set_goal_intro_pre_instr_negate = Negate(name="set_goal_intro_pre_instr_negate", child=set_goal_intro_check_for_pre_instr)
     set_goal_intro_sequence.add_child(set_goal_intro_pre_instr_negate)
 
+    # Format selected behaviour if not pre-instruction or questioning (i.e. create the output action)
+    set_goal_intro_action = FormatAction(name="set_goal_intro_action")
+    set_goal_intro_sequence.add_child(set_goal_intro_action)
+
     # Display selected behaviour if not pre-instruction or questioning
     set_goal_intro_output = DisplayBehaviour(name="set_goal_intro_output")
     set_goal_intro_sequence.add_child(set_goal_intro_output)
 
     set_goal_intro_while = While(name="set_goal_intro_while", child=set_goal_intro_sequence)
     gen_set_goal.add_chil(set_goal_intro_while)
+
+    # Format pre-instruction behaviour (i.e. create the output action)
+    set_goal_pre_instr_intro_action = FormatAction(name="set_goal_pre_instr_intro_action")
+    gen_set_goal.add_child(set_goal_pre_instr_intro_action)
 
     # Display pre-instruction behaviour for set
     set_goal_pre_instr_intro_output = DisplayBehaviour(name="set_goal_pre_instr_intro_output")
@@ -226,11 +248,14 @@ def create_coaching_tree():
     # Get coaching behaviour from policy for individual action/shot
     set_goal_individual_action_behav = GetBehaviour(name="set_goal_individual_action_behaviour")
     set_goal_individual_action_sequence.add_child(set_goal_individual_action_behav)
+    # Format individual action coaching behaviour
+    set_goal_individual_action = FormatAction(name="set_goal_individual_action")
+    set_goal_individual_action_sequence.add_child(set_goal_individual_action)
     # Display individual action caoching behaviour
     set_goal_individual_action_output = DisplayBehaviour(name="set_goal_individual_action_output")
     set_goal_individual_action_sequence.add_child(set_goal_individual_action_output)
 
-    set_goal_individual_action_repeat = Repeat(name="set_goal_individual_action_repeat", child=set_goal_individual_action_sequencer)
+    set_goal_individual_action_repeat = Repeat(name="set_goal_individual_action_repeat", child=set_goal_individual_action_sequence)
     set_goal_coaching_selector.add_child(set_goal_individual_action_repeat)
 
     set_goal_coaching_until = Until(name="set_goal_coaching_until", child=set_goal_coaching_selector)
@@ -292,11 +317,18 @@ def get_feedback_loop(name, behav):
     else:  # If end, do the check and then display the behaviour
         feedback_loop_end_sequence = Sequencer(name="feedback_loop_end_sequence")
         feedback_loop_end_sequence.add_child(feedback_loop_check_for_behav)
+        feedback_loop_end_action = FormatAction(name="feedback_loop_end_action")
+        feedback_loop_end_sequence.add_child(feedback_loop_end_action)
         feedback_loop_display_end_output = DisplayBehaviour(name="feedback_loop_display_end_output")
         feedback_loop_end_sequence.add_child(feedback_loop_display_end_output)
         feedback_loop_behav_check_negate.add_child(feedback_loop_end_sequence)
 
     feedback_loop_sequence.add_child(feedback_loop_behav_check_negate)
+
+    # Format selected behaviour if not given behaviour (i.e. create the output action)
+    action_name = name + "_action"
+    feedback_loop_action = FormatAction(name=action_name)
+    feedback_loop_sequence.add_child(feedback_loop_action)
 
     # Display behaviour if not given behaviour
     output_name = name + "_output"
