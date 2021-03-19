@@ -2,6 +2,7 @@ from task_behavior_engine.node import Node
 from task_behavior_engine.tree import NodeStatus
 
 from CoachingBehaviourTree.action import Action
+from CoachingBehaviourTree.behaviour_library import BehaviourLibraryFunctions
 from Policy.policy_wrapper import PolicyWrapper
 
 
@@ -27,7 +28,7 @@ class GetBehaviour(Node):
         policy = PolicyWrapper(self.belief)
         nodedata.behaviour = policy.get_behaviour(self.state, self.goal_level, self.performance, self.phase)
         nodedata.observation = policy.get_observation(self.state, nodedata.behaviour)
-        return NodeStatus(NodeStatus.SUCCESS, "Obtained behaviour " + nodedata.behaviour)
+        return NodeStatus(NodeStatus.SUCCESS, "Obtained behaviour " + str(nodedata.behaviour))
 
     def cleanup(self, nodedata):
         # This might delete the behaviour from the blackboard before it has been formatted into an action.
@@ -50,15 +51,13 @@ class FormatAction(Node):
         self.phase = nodedata.get_data('phase')              # PHASE_START or PHASE_END
         self.score = nodedata.get_data('score')              # Numerical score from sensor relating to a stat (can be None)
         self.target = nodedata.get_data('target')            # Numerical target score for stat (can be None)
+        self.behaviour_lib = nodedata.get_data('bl')         # The behaviour library to be used in generating actions
 
     def run(self, nodedata):
-        pre_msg = get_pre_msg(nodedata.get_data('behaviour'), self.goal_level, self.performance, self.phase)
-        post_msg = get_post_msg(nodedata.get_data('behaviour'), self.goal_level, self.performance, self.phase)
+        pre_msg = self.behaviour_lib.get_pre_msg(nodedata.get_data('behaviour'), self.goal_level, self.performance, self.phase)
+        post_msg = self.behaviour_lib.get_post_msg(nodedata.get_data('behaviour'), self.goal_level, self.performance, self.phase)
         nodedata.action = Action(pre_msg, self.score, self.target, post_msg)
         return NodeStatus(NodeStatus.SUCCESS, "Created action from given behaviour.")
-
-    def cleanup(self, nodedata):
-
 
 class CheckForBehaviour(Node):
     def __init__(self, name, *args, **kwargs):
@@ -70,10 +69,16 @@ class CheckForBehaviour(Node):
             *args, **kwargs)
 
     def configure(self, nodedata):
+        self.behaviour = nodedata.get_data('behaviour')              # The behaviour selected from the policy
+        self.check_behaviour = nodedata.get_data('check_behaviour')  # The behaviour to check against
 
-    def run(self, nodedata):
-
-    def cleanup(self, nodedata):
+    def run(self):
+        # TODO: Update for variants of check_behaviour.
+        # SUCCESS if next behaviour is given behaviour, else FAIL
+        if self.behaviour == self.check_behaviour:
+            return NodeStatus(NodeStatus.SUCCESS, "Behaviour " + str(self.check_behaviour) + " found in the form " + str(self.behaviour))
+        else:
+            return NodeStatus(NodeStatus.FAIL, "Behaviour " + str(self.check_behaviour) + " not found.")
 
 
 class DisplayBehaviour(Node):

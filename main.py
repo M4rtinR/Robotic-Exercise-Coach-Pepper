@@ -1,8 +1,12 @@
 import time
 
+from CoachingBehaviourTree.behaviour_library import BehaviourLibraryFunctions, squash_behaviour_library
 from Policy.policy import Policy
 import random
 import numpy as np
+
+from Policy.policy_wrapper import PolicyWrapper
+
 
 def constrainedSumSamplePos(n, total, rangeGap):
     """Return a randomly chosen list of n positive integers summing to total.
@@ -712,7 +716,13 @@ def getActionName(code):
 
 
 if __name__ == '__main__':
-    style_distribution = [x / 100 for x in constrainedSumSamplePos(12, 100, 0.001)]
+    bl = BehaviourLibraryFunctions("SquashDict", squash_behaviour_library)
+    print(bl.get_pre_msg(Policy.A_PREINSTRUCTION, PolicyWrapper.SESSION_GOAL, PolicyWrapper.MET, PolicyWrapper.PHASE_END))
+    print(bl.get_pre_msg(Policy.A_PRAISE, PolicyWrapper.ACTION_GOAL, PolicyWrapper.MET, PolicyWrapper.PHASE_START))
+    print(bl.get_post_msg(Policy.A_PRAISE, PolicyWrapper.ACTION_GOAL, PolicyWrapper.MET, PolicyWrapper.PHASE_START))
+    print(bl.get_post_msg(Policy.A_POSTINSTRUCTIONPOSITIVE, PolicyWrapper.SESSION_GOAL, PolicyWrapper.MET, PolicyWrapper.PHASE_START))
+
+    '''style_distribution = [x / 100 for x in constrainedSumSamplePos(12, 100, 0.001)]
     print('style_distribution =', style_distribution, '\n\n')
     p = Policy(style_distribution)
 
@@ -726,4 +736,4 @@ if __name__ == '__main__':
         observation = p.sample_observation(observation, action)
         print('observation =', getStateName(observation))
         print('\n\n')
-        time.sleep(3)
+        time.sleep(3)'''
