@@ -2,7 +2,41 @@ from random import choices
 
 
 class Policy:
+    """
+    The raw policy class which contains the rewards given by Max Ent IRL and uses these to select an appropriate action.
+    ...
+    Attributes
+    ----------
+    Actions :type int
+        69 behaviours which can be selected by the policy to be performed on the robot.
+    rewards_dict :type dict
+        Dictionary containing the reward values for performing each behaviour from each state.
+    physio_action_dict :type dict
+        Dictionary mapping the behaviour number in the reward function to the behaviour code in the list of actions.
+        Necessary because only 53 out of 69 actions were performed by phyios during the observations. Not necessary for
+        coaches even though they only performed 44 out of 69 actions, because their 44 actions are the first 44 actions
+        in the action list anyway so are already in the correct order.
+    belief_distribution :type list[float]
+        The distribution across styles used to sample an observation.
+    transition_matrix :type list[list[list[float]]]
+        The transition matrix generated from the IRL rewards.
 
+    Methods
+    -------
+    sample_action(state)
+        Generate a behaviour based on the transition matrix distribution.
+    sample_observation(state, action)
+        Decide whether to move style based on self.belief_distribution and selected action (if it is possible in other
+        styles).
+    _get_action(state)
+        Get the action associated with the given state.
+    _get_style(state)
+        Get the style associated with the given state.
+    _get_transition_matrix()
+        Generate the transition matrix based on the IRL rewards.
+    _get_prob_matrix_from_reward(style)
+        Helper function for generating transition matrix which generates the matrix for a single given style.
+    """
     def __init__(self, belief):
         self.belief_distribution = belief
         self.transition_matrix = self._get_transition_matrix()
@@ -215,6 +249,11 @@ class Policy:
                         2.77228134e+00]}
 
     def sample_action(self, state):
+        """
+        Generate a behaviour based on the transition matrix distribution.
+        :param state :type int: the state last observed by the policy.
+        :return:type int: a random action from the given state based on transition matrix probabilities.
+        """
         # Find which style state belongs to.
         style = self._get_style(state)
 
@@ -222,24 +261,15 @@ class Policy:
         # print(len(self.transition_matrix[style - 1][self._get_action(state)]))
         # print(len(range(68)))
         return choices(range(68), self.transition_matrix[style - 1][self._get_action(state)])[0]
-        '''if style < 7:
-            action = choices(range(68), self.transition_matrix[style - 1][self._get_action(state)])
-            if action == 45:
-                action = self.A_END
-        else:
-            physio_action = choices(range(68), self.transition_matrix[style - 1][self._get_action(state)])
-            action = self.physioActionDict[physio_action]
-
-        return action'''
 
     def sample_observation(self, state, action):
-        '''
+        """
         Decide whether to move style based on self.belief_distribution and selected action (if it is possible in other
         styles).
-        :param state: the current state
-        :param action: the chosen behaviour
-        :return: the new state we observe based on belief distribution
-        '''
+        :param state :type int: the current state
+        :param action :type int: the chosen behaviour
+        :return state :type int: the new state we observe based on belief distribution
+        """
 
         new_style = choices(range(1, 13), self.belief_distribution)[0]
 
@@ -254,7 +284,11 @@ class Policy:
         return state
 
     def _get_action(self, state):
-        # Return the action associated with the given state.
+        """
+        Get the action associated with the given state.
+        :param state :type int: the state to find the corresponding action from.
+        :return:type int: the action corresponding to the given state.
+        """
         if state > 269:
             return self.physioActionDict[(state - 270) % 53]
 
@@ -265,7 +299,11 @@ class Policy:
                 return state % 45
 
     def _get_style(self, state):
-        # Return the style associated with the given state.
+        """
+        Get the style associated with the given state.
+        :param state :type int: the state to find the corresponding style from.
+        :return:type int: the style which the given state belongs to.
+        """
         if state < 45:
             return 1
         elif state < 90:
@@ -292,6 +330,11 @@ class Policy:
             return 12
 
     def _get_transition_matrix(self):
+        """
+        Generate the transition matrix based on the IRL rewards.
+        :return:type list[list[list[float]]]: the generated transition matrix containing the probability of an action
+            being generated by the policy in each state.
+        """
         tm = [[[0 for x in range(68)] for x in range(68)] for x in range(12)]
 
         for style in range(1, 13):
@@ -354,6 +397,11 @@ class Policy:
                         52: A_END}
 
     def _get_prob_matrix_from_reward(self, style):
+        """
+        Helper function for generating transition matrix which generates the matrix for a single given style.
+        :param style :type int: the style to generate the transition matrix for.
+        :return prob_matrix :type list[list[float]] the transition matrix for the given style based on rewards_dict.
+        """
         irl_rewards = self.rewardsDict[style]
         min_reward = min(irl_rewards)
         non_neg_rewards = [r + min_reward for r in irl_rewards]

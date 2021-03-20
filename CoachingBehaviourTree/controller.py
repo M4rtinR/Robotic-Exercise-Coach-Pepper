@@ -1,16 +1,37 @@
+"""Controller
+
+This script is where the main behaviour tree skeleton is created and where the main method which ticks through the tree
+can be found.
+...
+Methods
+-------
+create_coaching_tree()
+    Responsible for creating the main Behaviour Tree structure.
+get_feedback_loop(name, behav)
+    Creates a subtree which gives feedback at a given goal level.
+__main__()
+    Creates the behaviour tree and ticks through it until it completes.
+"""
+
 from datetime import time
 
 from task_behavior_engine.branch import Sequencer, Selector
 from task_behavior_engine.decorator import Until, While, Negate, Repeat, UntilCount
 from task_behavior_engine.tree import NodeStatus, Blackboard
 
-from CoachingBehaviourTree.nodes import FormatAction, DisplayBehaviour, CheckForBehaviour, GetBehaviour
+from CoachingBehaviourTree.nodes import FormatAction, DisplayBehaviour, CheckForBehaviour, GetBehaviour, GetStats, \
+    GetDuration, CreateSubgoal, TimestepCue
 from Policy.policy import Policy
 
 SHOT_CHOICE = 0
 STAT_CHOICE = 1
 
+
 def create_coaching_tree():
+    """
+    Responsible for creating the main Behaviour Tree structure.
+    :return:type: Sequencer: the root node of the created behaviour tree.
+    """
     b = Blackboard()
     root = Sequencer("coaching root", blackboard=b)
 
@@ -296,7 +317,15 @@ def create_coaching_tree():
     root.add_child(gen_session_goal)
     return root
 
+
 def get_feedback_loop(name, behav):
+    """
+    Creates a subtree which gives feedback at a given goal level.
+    :param name :type str: the name to be used when creating nodes of the tree.
+    :param behav :type int: the behaviour (either A_END or A_PREINSTRUCTION) to check for which will end the feedback
+        loop.
+    :return:type: While: the root While Node of the created feedback loop tree.
+    """
     # Create feedback loop sequencer
     sequence_name = name + "_sequence"
     feedback_loop_sequence = Sequencer(name=sequence_name)
@@ -340,6 +369,9 @@ def get_feedback_loop(name, behav):
 
 
 if __name__ == '__main__':
+    """
+    Creates the behaviour tree and ticks through it until it completes.
+    """
     coaching_tree = create_coaching_tree()
     result = NodeStatus(NodeStatus.ACTIVE)
 
