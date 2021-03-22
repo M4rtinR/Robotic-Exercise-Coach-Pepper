@@ -15,6 +15,8 @@ class PolicyWrapper:
         2 different phases (start and end) which correspond respectively to either an intro or feedback sequence.
     Performance Levels :type int
         8 different performance levels which represent how the user did in their previous action.
+    policy
+        The policy we will query to obtain behaviours and observations.
 
     Methods
     -------

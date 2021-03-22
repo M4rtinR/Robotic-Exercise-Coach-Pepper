@@ -39,6 +39,20 @@ class GetBehaviour(Node):
     """
     Query the policy wrapper for the next behaviour to confirm given the current state of the interaction.
     ...
+    Attributes
+    ----------
+    belief :type list[float]
+        Belief distribution over all 12 policies (based on data from semi-structured interviews with coaches and
+        physios).
+    state :type int
+        Previous state based on observation from policy.
+    goal_level :type int
+        Which level of goal we are currently in (e.g. SET_GOAL).
+    performance :type int
+        Which level of performance the player achieved in their last action/set/shot etc (e.g. MET).
+    phase :type int
+        Whether in the intro or feedback sequences (PHASE_START or PHASE_END).
+
     Methods
     -------
     configure(nodedata)
@@ -101,6 +115,21 @@ class FormatAction(Node):
     """
     Create an instance of the Action class using the given behaviour.
     ...
+    Attributes
+    ----------
+    goal_level :type int
+        Which level of goal we are currently in (e.g. SET_GOAL).
+    performance :type int
+        Which level of performance the player achieved in their last action/set/shot etc (e.g. MET).
+    phase :type int
+        Whether in the intro or feedback sequences (PHASE_START or PHASE_END).
+    score :type float
+        Numerical score from sensor relating to a stat (can be None if no previous data is available).
+    target :type float
+        Numerical target score for stat (can be None).
+    behaviour_lib :type BehaviourLibraryFunctions
+        The behaviour library to be used in generating actions (created at start of session).
+
     Methods
     -------
     configure(nodedata)
@@ -143,7 +172,7 @@ class FormatAction(Node):
         post_msg = self.behaviour_lib.get_post_msg(nodedata.get_data('behaviour'), self.goal_level, self.performance, self.phase)
         if post_msg is not None:
             nodedata.action = Action(pre_msg, self.score, self.target, post_msg)
-        else:
+        else:  # If post_msg is None, we only want to display the pre_msg.
             nodedata.action = Action(pre_msg)
 
         return NodeStatus(NodeStatus.SUCCESS, "Created action from given behaviour.")
@@ -153,6 +182,13 @@ class CheckForBehaviour(Node):
     """
     Compare the currently selected behaviour to a given behaviour category.
     ...
+    Attributes
+    ----------
+    behaviour :type int
+        The current behaviour selected from the policy.
+    check_behaviour :type int
+        The behaviour category to check against.
+
     Methods
     -------
     configure(nodedata)
@@ -202,6 +238,11 @@ class DisplayBehaviour(Node):
     """
     Have the robot perform the formatted action.
     ...
+    Attributes
+    ----------
+    action :type Action
+        The action we want the robot to perform.
+
     Methods
     -------
     configure(nodedata)
@@ -303,6 +344,11 @@ class CreateSubgoal(Node):
     """
     Tell the guide via the API that a new subgoal is required.
     ...
+    Attributes
+    ----------
+    previous_goal_level :type int
+        The goal level (e.g. SESSION_GOAL) we are currently on (before creating a subgoal).
+
     Methods
     -------
     configure(nodedata)
@@ -385,6 +431,13 @@ class DurationCheck(Node):
     """
     Check if the session has reached the time limit selected by the user.
     ...
+    Attributes
+    ----------
+    start_time :type long
+        The time (in seconds) at which the session started.
+    session_duration :type int
+        The time (in minutes) the user requested the session to last.
+
     Methods
     -------
     configure(nodedata)

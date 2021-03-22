@@ -280,8 +280,13 @@ class Policy:
             physio_action = next((key for key, value in self.physioActionDict.items() if value == action), None)
             return 270 + ((new_style - 7) * 53) + physio_action
 
-        # If invalid action we don't move, so return original state.
-        return state
+        # If invalid action we don't change style, so return new action in original style.
+        current_style = self._get_style(state)
+        if current_style < 7:
+            return current_style * 45 + action if action < self.A_END else current_style * 45 + 44
+        else:
+            physio_action = next((key for key, value in self.physioActionDict.items() if value == action), None)
+            return 270 + ((new_style - 7) * 53) + physio_action
 
     def _get_action(self, state):
         """
@@ -404,12 +409,15 @@ class Policy:
         """
         irl_rewards = self.rewardsDict[style]
         min_reward = min(irl_rewards)
+        # Make all rewards non-negative
         non_neg_rewards = [r + min_reward for r in irl_rewards]
         total_rewards = sum(non_neg_rewards)
 
         prob_matrix = [[0 for x in range(68)] for x in range(68)]
         # print('before')
         # print(len(prob_matrix), len(prob_matrix[0]))
+        # Set transition probability for valid actions to be:
+        # the non-neg reward associated with that action / sum of all rewards in that style.
         if style < 7:
             for state in range(44):
                 count = 0

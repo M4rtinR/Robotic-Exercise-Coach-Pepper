@@ -103,6 +103,7 @@ class BehaviourLibraryFunctions:
         """
 
         # TODO: Expand with full list of behaviours etc.
+        # TODO: May need to create random in constructor to avoid the same order of selections all the time.
         r = random.randint(0, 3)
 
         # Check which behaviour we have and randomly select from that dict.
