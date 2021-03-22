@@ -23,6 +23,10 @@ TimestepCue(Node)
     Receive a notification from the guide that an action is required from the robot.
 DurationCheck(Node)
     Check if the session has reached the time limit selected by the user.
+GetUserChoice(Node)
+    Ask for a choice from the user as to their preference on shot or stat to work on.
+EndSetEvent(Node)
+    Check if the user has chosen to end the set.
 """
 
 from time import time
@@ -30,6 +34,7 @@ from time import time
 from task_behavior_engine.node import Node
 from task_behavior_engine.tree import NodeStatus
 
+from CoachingBehaviourTree import controller
 from CoachingBehaviourTree.action import Action
 from CoachingBehaviourTree.behaviour_library import BehaviourLibraryFunctions
 from Policy.policy_wrapper import PolicyWrapper
@@ -473,3 +478,73 @@ class DurationCheck(Node):
             return NodeStatus(NodeStatus.FAIL, "Time limit not yet reached.")
         else:
             return NodeStatus(NodeStatus.SUCCESS, "Session time limit reached.")
+
+
+class GetUserChoice(Node):
+    """
+    Ask for a choice from the user as to their preference on shot or stat to work on.
+    ...
+    Attributes
+    ----------
+    choice_type :type int
+        Whether we are asking the user to choose a shot or a stat (SHOT_CHOICE or STAT_CHOICE).
+    Methods
+    -------
+    run()
+        Ask the user which shot/stat they would like to work on (display options on screen of Pepper).
+    """
+
+    def __init__(self, name, *args, **kwargs):
+        super(GetUserChoice, self).__init__(
+            name,
+            run_cb=self.run,
+            configure_cb=self.configure,
+            *args, **kwargs)
+
+    def configure(self, nodedata):
+        self.choice_type = nodedata.get_data('choice_type')
+
+    def run(self, nodedata):
+        """
+        Display available options on screen (sorted by guide's preferred order) and verbally ask user to pick.
+        :return: NodeStatus.SUCCESS once options have been displayed to user.
+        """
+        # TODO Update once getting actual choice from user. Will probably need two nodes, one for requesting, one for
+        #   waiting for user selection so that the tree doesn't grind to a halt.
+        if self.choice_type == controller.SHOT_CHOICE:
+            nodedata.shot = 1
+        else:
+            nodedata.stat = 1
+        return NodeStatus(NodeStatus.SUCCESS, "Set shot/stat to 1.")
+
+
+class EndSetEvent(Node):
+    """
+        Check if the user has chosen to end the set.
+
+        This option only becomes available after 30 actions in the set have been detected by the sensor.
+        ...
+        Methods
+        -------
+        run()
+            Check if at least 30 shots have been played and if so, check if the user has pressed the button.
+        """
+
+    def __init__(self, name, *args, **kwargs):
+        super(EndSetEvent, self).__init__(
+            name,
+            run_cb=self.run,
+            *args, **kwargs)
+
+    def run(self, nodedata):
+        """
+        Check if at least 30 shots have been played and if so, check if the user has pressed the button.
+        :return: NodeStatus.SUCCESS once the end set button has been pressed by the user, NodeStatus.FAIL otherwise.
+        """
+        # TODO Update once getting actual choice from user. Will probably need two nodes, one for displaying button,
+        #   one for waiting for user selection so that the tree doesn't grind to a halt.
+        nodedata.shotcount += 1  # TODO Set this to 0 when set starts.
+        if nodedata.get_data('shot_count') >= 30:
+            return NodeStatus(NodeStatus.SUCCESS, "Shot set ended.")
+        else:
+            return NodeStatus(NodeStatus.FAIL, "Shot set at " + str(nodedata.get_data('shot_count') + ". Not ended yet."))

@@ -20,7 +20,7 @@ from task_behavior_engine.decorator import Until, While, Negate, Repeat, UntilCo
 from task_behavior_engine.tree import NodeStatus, Blackboard
 
 from CoachingBehaviourTree.nodes import FormatAction, DisplayBehaviour, CheckForBehaviour, GetBehaviour, GetStats, \
-    GetDuration, CreateSubgoal, TimestepCue
+    GetDuration, CreateSubgoal, TimestepCue, DurationCheck, GetUserChoice, EndSetEvent
 from Policy.policy import Policy
 
 SHOT_CHOICE = 0
