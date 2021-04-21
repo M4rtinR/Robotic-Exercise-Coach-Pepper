@@ -103,11 +103,206 @@ class Users(Resource):
 
 
 class Goals(Resource):
-    pass
+    # controller requests new goal and guide posts new goal
+
+    def get(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('userID', required=True)
+        args = parser.parse_args()
+
+        ref = db.reference("/Users")
+        users = ref.get()
+
+        if args['userID'] in [key for key in users]:
+            goals_ref = db.reference("/Users/" + args['userID'] + "/Goals")
+            goals = goals_ref.get()
+
+            return goals, 200
+        else:
+            return {
+                       'message': f"'{args['userID']}' user not found."
+                   }, 404
+
+    def post(self):
+        # controller will post a goal request
+        parser = reqparse.RequestParser()
+
+        parser.add_argument('userID', required=True)
+        parser.add_argument('goal_type', required=True)
+        parser.add_argument('shotOrStat', required=False)
+
+        args = parser.parse_args()  # parse arguments to dictionary
+
+        ref = db.reference("/Users")
+        users = ref.get()
+
+        if args['userID'] in [key for key in users]:
+
+            # create new dataframe containing new values
+            new_data = {
+                'goal_type': args['goal_type'],
+            }
+
+            if not(args['shotOrStat'] is None):
+                new_data['shotOrStat'] = args['shotOrStat']
+
+            ref.child(args['userID']).child('Goals').push(new_data)
+
+            return new_data, 200
+        else:
+            return {
+                       'message': f"'{args['userID']}' user not found."
+                   }, 404
+
+    def put(self):
+        # guide will put new information in the goal once it has created it and controller will update completed once
+        # the correct stage of the behaviour tree has been reached.
+        parser = reqparse.RequestParser()
+        parser.add_argument('userID', required=True)
+        parser.add_argument('goalID', required=True)
+        parser.add_argument('completed', required=True)
+
+        args = parser.parse_args()
+
+        ref = db.reference("/Users")
+        users = ref.get()
+
+        if args['userID'] in [key for key in users]:
+            goals_ref = db.reference("/Users/" + args['userID'] + "/Goals")
+            goals = goals_ref.get()
+
+            if args['goalID'] in [key for key in goals]:
+
+                updated_data = {}
+                updated = 0
+
+                if not (args['completed'] is None):
+                    goals_ref.child(args['goalID']).update({'completed': args['completed']})
+                    updated_data['completed'] = args['completed']
+                    updated = 1
+
+                if updated:
+                    return {args['goalID']: updated_data}, 200
+                else:
+                    return {
+                               'message': f"'{args['goalID']}' invalid arguments."
+                           }, 500
+            else:
+                return {
+                           'message': f"'{args['goalID']}' goal not found."
+                       }, 404
+        else:
+            return {
+                       'message': f"'{args['userID']}' user not found."
+                   }, 404
 
 
 class Actions(Resource):
-    pass
+    # guide posts every time shot is played or goal has been created
+
+    def get(self):
+        # controller will get the actions
+        parser = reqparse.RequestParser()
+        parser.add_argument('userID', required=True)
+        parser.add_argument('goalID', required=True)
+        args = parser.parse_args()
+
+        ref = db.reference("/Users")
+        users = ref.get()
+
+        if args['userID'] in [key for key in users]:
+            goals_ref = db.reference("/Users/" + args['userID'] + "/Goals")
+            goals = goals_ref.get()
+
+            if args['goalID'] in [key for key in goals]:
+                actions_ref = db.reference("/Users/" + args['userID'] + "/Goals/" + args['goalID'] + "/Actions")
+                actions = actions_ref.get()
+
+                return actions, 200
+            else:
+                return {
+                           'message': f"'{args['goalID']}' goal not found."
+                       }, 404
+        else:
+            return {
+                       'message': f"'{args['userID']}' user not found."
+                   }, 404
+
+    def post(self):
+        # guide will post an action every time the user hits a shot
+        parser = reqparse.RequestParser()
+
+        parser.add_argument('userID', required=True)
+        parser.add_argument('goalID', required=True)
+        parser.add_argument('score', required=True)
+        parser.add_argument('target', required=True)
+
+        args = parser.parse_args()  # parse arguments to dictionary
+
+        ref = db.reference("/Users")
+        users = ref.get()
+
+        if args['userID'] in [key for key in users]:
+            goals_ref = db.reference("/Users/" + args['userID'] + "/Goals")
+            goals = goals_ref.get()
+
+            if args['goalID'] in [key for key in goals]:
+                # create new dataframe containing new values
+                new_data = {
+                    'score': args['score'],
+                    'target': args['target']
+                }
+
+                new_post_ref = goals_ref.child(args['goalID']).child('Actions').push(new_data)
+
+                return {new_post_ref.key: new_data}, 200
+            else:
+                return {
+                           'message': f"'{args['goalID']}' goal not found."
+                       }, 404
+        else:
+            return {
+                       'message': f"'{args['userID']}' user not found."
+                   }, 404
+
+    def delete(self):
+        # guide will delete all actions before posting a new one so that the controller is always up to date with the interaction
+        parser = reqparse.RequestParser()
+
+        parser.add_argument('userID', required=True)
+        parser.add_argument('goalID', required=True)
+
+        args = parser.parse_args()  # parse arguments to dictionary
+
+        ref = db.reference("/Users")
+        users = ref.get()
+
+        if args['userID'] in [key for key in users]:
+            goals_ref = db.reference("/Users/" + args['userID'] + "/Goals")
+            goals = goals_ref.get()
+
+            if args['goalID'] in [key for key in goals]:
+                actions_ref = db.reference("/Users/" + args['userID'] + "/Goals/" + args['goalID'] + "/Actions")
+                actions = actions_ref.get()
+
+                if not(actions is None):
+
+                    for action_key in actions:
+                        actions_ref.child(action_key).set({})
+
+                    return {actions_ref.key: actions}, 200
+                else: return {
+                           'message': f"no actions available to delete."
+                       }, 404
+
+            else:
+                return {
+                           'message': f"'{args['goalID']}' goal not found."
+                       }, 404
+        else:
+            return {
+                       'message': f"'{args['userID']}' user not found."
+                   }, 404
 
 
 api.add_resource(Users, '/users')
