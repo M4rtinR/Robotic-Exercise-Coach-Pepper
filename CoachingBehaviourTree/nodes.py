@@ -34,10 +34,11 @@ from time import time
 from task_behavior_engine.node import Node
 from task_behavior_engine.tree import NodeStatus
 
-from CoachingBehaviourTree import controller
 from CoachingBehaviourTree.action import Action
 from CoachingBehaviourTree.behaviour_library import BehaviourLibraryFunctions
 from Policy.policy_wrapper import PolicyWrapper
+import numpy as np
+import random
 
 
 class GetBehaviour(Node):
@@ -89,8 +90,6 @@ class GetBehaviour(Node):
         self.goal_level = nodedata.get_data('goal')          # Which level of goal we are currently in (e.g. SET_GOAL)
         self.performance = nodedata.get_data('performance')  # Which level of performance the player achieved (e.g. MET)
         self.phase = nodedata.get_data('phase')              # PHASE_START or PHASE_END
-        nodedata.behaviour = -1
-        nodedata.observation = self.state
 
     def run(self, nodedata):
         """
@@ -165,6 +164,7 @@ class FormatAction(Node):
         self.score = nodedata.get_data('score')              # Numerical score from sensor relating to a stat (can be None)
         self.target = nodedata.get_data('target')            # Numerical target score for stat (can be None)
         self.behaviour_lib = nodedata.get_data('bl')         # The behaviour library to be used in generating actions
+        self.behaviour = nodedata.get_data('behaviour')      # The type of behaviour to create an action for.
 
     def run(self, nodedata):
         """
@@ -173,8 +173,8 @@ class FormatAction(Node):
             nodes.
         :return: NodeStatus.SUCCESS when an action has been created.
         """
-        pre_msg = self.behaviour_lib.get_pre_msg(nodedata.get_data('behaviour'), self.goal_level, self.performance, self.phase)
-        post_msg = self.behaviour_lib.get_post_msg(nodedata.get_data('behaviour'), self.goal_level, self.performance, self.phase)
+        pre_msg = self.behaviour_lib.get_pre_msg(self.behaviour, self.goal_level, self.performance, self.phase)
+        post_msg = self.behaviour_lib.get_post_msg(self.behaviour, self.goal_level, self.performance, self.phase)
         if post_msg is not None:
             nodedata.action = Action(pre_msg, self.score, self.target, post_msg)
         else:  # If post_msg is None, we only want to display the pre_msg.
@@ -273,7 +273,7 @@ class DisplayBehaviour(Node):
         """
         self.action = nodedata.get_data('action')
 
-    def run(self):
+    def run(self, nodedata):
         """
         Execute the specified action.
         :return: NodeStatus.SUCCESS if action sent successfully to robot, NodeStatus.FAIL otherwise.
@@ -310,9 +310,11 @@ class GetStats(Node):
             NodeStatus.FAIL otherwise.
         """
         # Will be ACTIVE when waiting for data and SUCCESS when got data and added to blackboard, FAIL when connection error.
+        print("In get stats")
         nodedata.motivation = 8
         nodedata.player_ability = 2
         nodedata.sessions = 6
+        print("In node: " + str(nodedata))
         return NodeStatus(NodeStatus.SUCCESS, "Set stats to dummy values.")
 
 
@@ -371,11 +373,13 @@ class CreateSubgoal(Node):
 
     def configure(self, nodedata):
         """
-        Obtain the current goal level (e.g. SESSION_GOAL) from the blackboard.
+        Obtain the current goal level (e.g. SESSION_GOAL) and optional shot/stat choice from the blackboard.
         :param nodedata :type Blackboard: the blackboard associated with this Behaviour Tree containing the goal level.
         :return: None
         """
-        self.previous_goal_level = nodedata.get_data('goal')
+        self.previous_goal_level = nodedata.get_data('goal', -1)
+        self.shot = nodedata.get_data('shot')
+        self.stat = nodedata.get_stat('stat')
 
     def run(self, nodedata):
         """
@@ -385,10 +389,16 @@ class CreateSubgoal(Node):
             or cannot connect to API.
         """
         # Will return SUCCESS once request sent to API, FAIL if called on ACTION_GOAL or connection error.
-        if self.previous_goal_level == 5:
+        if self.previous_goal_level == 6:
+            nodedata.goal = 3
+            return NodeStatus(NodeStatus.SUCCESS, "Created subgoal: 3 from BASELINE_GOAL")
+        elif self.previous_goal_level > 6:
             return NodeStatus(NodeStatus.FAIL, "Cannot create subgoal of ACTION_GOAL.")
         else:
-            nodedata.goal = self.previous_goal_level + 1
+            if self.previous_goal_level ==  PolicyWrapper.EXERCISE_GOAL and self.stat is None:
+                nodedata.goal = 6
+            else:
+                nodedata.goal = self.previous_goal_level + 1
             return NodeStatus(NodeStatus.SUCCESS, "Created subgoal: " + str(self.previous_goal_level + 1))
 
 
@@ -511,7 +521,7 @@ class GetUserChoice(Node):
         """
         # TODO Update once getting actual choice from user. Will probably need two nodes, one for requesting, one for
         #   waiting for user selection so that the tree doesn't grind to a halt.
-        if self.choice_type == controller.SHOT_CHOICE:
+        if self.choice_type == 0:  # controller.SHOT_CHOICE = 0
             nodedata.shot = 1
         else:
             nodedata.stat = 1
@@ -533,8 +543,12 @@ class EndSetEvent(Node):
     def __init__(self, name, *args, **kwargs):
         super(EndSetEvent, self).__init__(
             name,
+            configure_cb=self.configure,
             run_cb=self.run,
             *args, **kwargs)
+
+    def configure(self):
+        self.shotcount = 0
 
     def run(self, nodedata):
         """
@@ -543,8 +557,108 @@ class EndSetEvent(Node):
         """
         # TODO Update once getting actual choice from user. Will probably need two nodes, one for displaying button,
         #   one for waiting for user selection so that the tree doesn't grind to a halt.
-        nodedata.shotcount += 1  # TODO Set this to 0 when set starts.
-        if nodedata.get_data('shot_count') >= 30:
+        self.shotcount += 1  # TODO Set this to 0 when set starts.
+        if self.shotcount >= 30:
             return NodeStatus(NodeStatus.SUCCESS, "Shot set ended.")
         else:
             return NodeStatus(NodeStatus.FAIL, "Shot set at " + str(nodedata.get_data('shot_count') + ". Not ended yet."))
+
+class InitialiseBlackboard(Node):
+    """
+    Node to initialise the belief distribution and initial state of the interaction before selecting the first coaching
+    behaviour.
+    ...
+    Attributes
+    ----------
+
+
+    Methods
+    -------
+    configure(nodedata)
+        Set up the initial values needed to calculate the belief distribution.
+    run(nodedata)
+        Calculate the belief distribution for this session and use it to calculate the start state.
+    _constrainedSumSamplePos(n, total, rangeGap)
+        Helper function used when generating a random belief distribution.
+    _get_start(style)
+        Helper function to get the start state based on the given style.
+    """
+
+    def __init__(self, name, *args, **kwargs):
+        super(InitialiseBlackboard, self).__init__(
+            name,
+            run_cb=self.run,
+            configure_cb=self.configure,
+            *args, **kwargs)
+
+    def configure(self, nodedata):
+        """
+        Set up the initial values needed to calculate the belief distribution.
+        :param nodedata :type Blackboard: the blackboard associated with this Behaviour Tree containing all relevant
+            state information.
+        :return: None
+        """
+        pass
+
+    def run(self, nodedata):
+        """
+        Calculate the belief distribution for this session and use it to calculate the start state.
+        :param nodedata :type Blackboard: the blackboard on which we will store the calculated belief and start state.
+        :return: NodeStatus.SUCCESS when the belief distribution has been calculated and all values stored in the
+            blackboard.
+        """
+
+        # TODO: update this with actual belief distribution.
+        belief_distribution = [x / 100 for x in self._constrainedSumSamplePos(12, 100, 0.001)]
+        nodedata.belief = belief_distribution
+
+        style = 0
+        max_style = 0
+        max_belief = 0.0
+        for b in belief_distribution:
+            if b > max_belief:
+                max_belief = b
+                max_style = style
+            style += 1
+
+        nodedata.state = self._get_start(max_style)
+        nodedata.performance = PolicyWrapper.MET
+        nodedata.phase = PolicyWrapper.PHASE_START
+        nodedata.bl = BehaviourLibraryFunctions
+        nodedata.start_time = 0  # TODO: update with actual time.
+        return NodeStatus(NodeStatus.SUCCESS, "Set belief distribution " + str(belief_distribution) + ". Start state ="
+                          + str(nodedata.get_data('state')))
+
+    def _constrainedSumSamplePos(self, n, total, rangeGap):
+        """Return a randomly chosen list of n positive integers summing to total.
+        Each such list is equally likely to occur."""
+        numpyRange = np.arange(0.0, total, rangeGap)
+        range = np.ndarray.tolist(numpyRange)
+        dividers = sorted(random.sample(range, n - 1))
+        return [a - b for a, b in zip(dividers + [total], [0.0] + dividers)]
+
+    def _get_start(self, style):
+        if style == 0:
+            return 0
+        elif style == 1:
+            return 45
+        elif style == 2:
+            return 90
+        elif style == 3:
+            return 135
+        elif style == 4:
+            return 180
+        elif style == 5:
+            return 225
+        elif style == 6:
+            return 270
+        elif style == 7:
+            return 323
+        elif style == 8:
+            return 376
+        elif style == 9:
+            return 429
+        elif style == 10:
+            return 482
+        else:
+            return 535

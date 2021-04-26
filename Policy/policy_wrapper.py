@@ -37,6 +37,7 @@ class PolicyWrapper:
     STAT_GOAL = 3
     SET_GOAL = 4
     ACTION_GOAL = 5
+    BASELINE_GOAL = 6
 
     # Phases
     PHASE_START = 0
@@ -84,6 +85,17 @@ class PolicyWrapper:
         # Person Goal
         if goal_level == self.PERSON_GOAL:
             valid_list.extend([self.policy.A_PREINSTRUCTION, self.policy.A_PREINSTRUCTION_FIRSTNAME])
+
+        # Baseline Goal
+        if goal_level == self.BASELINE_GOAL:
+            if phase == self.PHASE_START:
+                valid_list.extend([self.policy.A_PREINSTRUCTION, self.policy.A_PREINSTRUCTION_QUESTIONING,
+                                   self.policy.A_PREINSTRUCTION_FIRSTNAME,
+                                   self.policy.A_PREINSTRUCTION_POSITIVEMODELING,
+                                   self.policy.A_PREINSTRUCTION_NEGATIVEMODELING,
+                                   self.policy.A_POSITIVEMODELING_PREINSTRUCTION])
+            else:
+                valid_list.append(self.policy.A_PRAISE)
 
         # Session, Exercise, Stat and Set Goals will all have the same action categories (different individual actions)
         elif goal_level == self.SESSION_GOAL or goal_level == self.EXERCISE_GOAL or goal_level == self.STAT_GOAL \
