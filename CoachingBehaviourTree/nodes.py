@@ -395,11 +395,61 @@ class CreateSubgoal(Node):
         elif self.previous_goal_level > 6:
             return NodeStatus(NodeStatus.FAIL, "Cannot create subgoal of ACTION_GOAL.")
         else:
-            if self.previous_goal_level ==  PolicyWrapper.EXERCISE_GOAL and self.stat is None:
+            if self.previous_goal_level == PolicyWrapper.EXERCISE_GOAL and self.stat is None:
                 nodedata.goal = 6
             else:
                 nodedata.goal = self.previous_goal_level + 1
             return NodeStatus(NodeStatus.SUCCESS, "Created subgoal: " + str(self.previous_goal_level + 1))
+
+
+class EndSubgoal(Node):
+    """
+    Tell the guide via the API that the subgoal is completed.
+    ...
+    Attributes
+    ----------
+    goal_level :type int
+        The goal level (e.g. SESSION_GOAL) we are currently on (which is now completed).
+
+    Methods
+    -------
+    configure(nodedata)
+        Obtain the current goal level (e.g. SESSION_GOAL) from the blackboard.
+    run(nodedata)
+        Send request to the API for the guide to complete the goal.
+    """
+    # TODO: Dummy class which will eventually communicate with guide via API
+    def __init__(self, name, *args, **kwargs):
+        super(EndSubgoal, self).__init__(
+            name,
+            run_cb=self.run,
+            configure_cb=self.configure,
+            *args, **kwargs)
+
+    def configure(self, nodedata):
+        """
+        Obtain the current goal level (e.g. SESSION_GOAL) from the blackboard.
+        :param nodedata :type Blackboard: the blackboard associated with this Behaviour Tree containing the goal level.
+        :return: None
+        """
+        self.goal_level = nodedata.get_data('goal', -1)
+
+    def run(self, nodedata):
+        """
+        Send request to the API for the guide to create a subgoal.
+        :param nodedata :type Blackboard: the blackboard on which we will update the goal level.
+        :return: NodeStatus.SUCCESS when request is sent to API, NodeStatus.FAIL if current goal level is ACTION_GOAL
+            or cannot connect to API.
+        """
+        # Will return SUCCESS once request sent to API, FAIL if called on goal > 6 or connection error.
+        if self.goal_level > 6:
+            return NodeStatus(NodeStatus.FAIL, "Cannot create subgoal of " + str(self.goal_level))
+        else:
+            if self.goal_level == PolicyWrapper.BASELINE_GOAL:
+                nodedata.goal = PolicyWrapper.EXERCISE_GOAL
+            else:
+                nodedata.goal = self.goal_level - 1
+            return NodeStatus(NodeStatus.SUCCESS, "Completed subgoal: " + str(self.goal_level - 1))
 
 
 class TimestepCue(Node):
