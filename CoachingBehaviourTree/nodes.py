@@ -35,7 +35,8 @@ from task_behavior_engine.node import Node
 from task_behavior_engine.tree import NodeStatus
 
 from CoachingBehaviourTree.action import Action
-from CoachingBehaviourTree.behaviour_library import BehaviourLibraryFunctions
+from CoachingBehaviourTree.behaviour_library import BehaviourLibraryFunctions, squash_behaviour_library
+from Policy.policy import Policy
 from Policy.policy_wrapper import PolicyWrapper
 import numpy as np
 import random
@@ -86,10 +87,14 @@ class GetBehaviour(Node):
         """
 
         self.belief = nodedata.get_data('belief')            # Belief distribution over policies.
-        self.state = nodedata.get_data('state')              # Previous state based on observation.
         self.goal_level = nodedata.get_data('goal')          # Which level of goal we are currently in (e.g. SET_GOAL)
         self.performance = nodedata.get_data('performance')  # Which level of performance the player achieved (e.g. MET)
         self.phase = nodedata.get_data('phase')              # PHASE_START or PHASE_END
+        self.previous_phase = nodedata.get_data('previous_phase', PolicyWrapper.PHASE_START)  # PHASE_START or PHASE_END
+        if self.previous_phase == PolicyWrapper.PHASE_START:
+            self.state = nodedata.get_data('state')  # Previous state based on observation.
+        else:
+            self.state = nodedata.get_data('feedback_state')
 
     def run(self, nodedata):
         """
@@ -110,9 +115,7 @@ class GetBehaviour(Node):
             state information.
         :return: None
         """
-        # This might delete the behaviour from the blackboard before it has been formatted into an action.
-        nodedata.behaviour = -1
-        nodedata.observation = self.state
+        nodedata.previous_phase = PolicyWrapper.PHASE_START
 
 
 class FormatAction(Node):
@@ -158,6 +161,7 @@ class FormatAction(Node):
             state and behaviour information.
         :return: None
         """
+        print("FormatAction nodedata: " + str(nodedata))
         self.goal_level = nodedata.get_data('goal')          # Which level of goal we are currently in (e.g. SET_GOAL)
         self.performance = nodedata.get_data('performance')  # Which level of performance the player achieved (e.g. MET)
         self.phase = nodedata.get_data('phase')              # PHASE_START or PHASE_END
@@ -222,7 +226,7 @@ class CheckForBehaviour(Node):
         self.behaviour = nodedata.get_data('behaviour')              # The behaviour selected from the policy
         self.check_behaviour = nodedata.get_data('check_behaviour')  # The behaviour to check against
 
-    def run(self):
+    def run(self, nodedata):
         """
         Check if the current behaviour is a member of the given check_behaviour category
         e.g. A_PREINSTRUCTION_POSITIVEMODELLING is a member of the A_PREINSTRUCTION category.
@@ -233,10 +237,27 @@ class CheckForBehaviour(Node):
         """
         # TODO: Update for variants of check_behaviour.
         # SUCCESS if next behaviour is given behaviour, else FAIL
-        if self.behaviour == self.check_behaviour:
+        if self._is_example_of_behaviour(self.behaviour, self.check_behaviour):
+            print("Returning SUCCESS from CheckForBehaviour, behaviour found = " + str(self.behaviour))
             return NodeStatus(NodeStatus.SUCCESS, "Behaviour " + str(self.check_behaviour) + " found in the form " + str(self.behaviour))
         else:
             return NodeStatus(NodeStatus.FAIL, "Behaviour " + str(self.check_behaviour) + " not found.")
+
+    def _is_example_of_behaviour(self, behaviour, check_behaviour):
+        if check_behaviour == Policy.A_PREINSTRUCTION:
+            check_list = [Policy.A_PREINSTRUCTION, Policy.A_PREINSTRUCTION_PRAISE, Policy.A_PREINSTRUCTION_QUESTIONING,
+                          Policy.A_PREINSTRUCTION_POSITIVEMODELING, Policy.A_POSITIVEMODELING_PREINSTRUCTION,
+                          Policy.A_PREINSTRUCTION_FIRSTNAME, Policy.A_PREINSTRUCTION_MANUALMANIPULATION,
+                          Policy.A_PREINSTRUCTION_NEGATIVEMODELING, Policy.A_MANUALMANIPULATION_PREINSTRUCTION]
+        else:
+            check_list = [Policy.A_QUESTIONING, Policy. A_PREINSTRUCTION_QUESTIONING, Policy.A_QUESTIONING_FIRSTNAME,
+                          Policy.A_QUESTIONING_POSITIVEMODELING, Policy.A_POSITIVEMODELING_QUESTIONING,
+                          Policy.A_CONCURRENTINSTRUCTIONPOSITIVE_QUESTIONING, Policy.A_MANUALMANIPULATION_QUESTIONING,
+                          Policy.A_POSTINSTRUCTIONNEGATIVE_QUESTIONING, Policy.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING,
+                          Policy.A_QUESTIONING_NEGATIVEMODELING]
+
+        return True if behaviour in check_list else False
+
 
 
 class DisplayBehaviour(Node):
@@ -314,7 +335,8 @@ class GetStats(Node):
         nodedata.motivation = 8
         nodedata.player_ability = 2
         nodedata.sessions = 6
-        print("In node: " + str(nodedata))
+        print("After setting stats in GetStats: " + str(nodedata))
+        print("Returning SUCCESS from GetStats")
         return NodeStatus(NodeStatus.SUCCESS, "Set stats to dummy values.")
 
 
@@ -344,6 +366,7 @@ class GetDuration(Node):
         """
         # Will be ACTIVE when waiting for data and SUCCESS when got data and added to blackboard, FAIL when connection error.
         nodedata.session_duration = 20
+        print("Returning SUCCESS from GetDuration, session duration = " + str(nodedata.session_duration))
         return NodeStatus(NodeStatus.SUCCESS, "Set session duration to dummy value 20.")
 
 
@@ -379,7 +402,7 @@ class CreateSubgoal(Node):
         """
         self.previous_goal_level = nodedata.get_data('goal', -1)
         self.shot = nodedata.get_data('shot')
-        self.stat = nodedata.get_stat('stat')
+        self.stat = nodedata.get_data('stat')
 
     def run(self, nodedata):
         """
@@ -391,14 +414,17 @@ class CreateSubgoal(Node):
         # Will return SUCCESS once request sent to API, FAIL if called on ACTION_GOAL or connection error.
         if self.previous_goal_level == 6:
             nodedata.goal = 3
+            print("Returning SUCCESS from CreateSubGoal, new goal level = " + str(nodedata.goal))
             return NodeStatus(NodeStatus.SUCCESS, "Created subgoal: 3 from BASELINE_GOAL")
         elif self.previous_goal_level > 6:
+            print("Returning FAIL from CreateSubGoal, previous goal level = " + str(self.previous_goal_level))
             return NodeStatus(NodeStatus.FAIL, "Cannot create subgoal of ACTION_GOAL.")
         else:
             if self.previous_goal_level == PolicyWrapper.EXERCISE_GOAL and self.stat is None:
                 nodedata.goal = 6
             else:
                 nodedata.goal = self.previous_goal_level + 1
+            print("Returning SUCCESS from CreateSubGoal, new goal level = " + str(nodedata.goal))
             return NodeStatus(NodeStatus.SUCCESS, "Created subgoal: " + str(self.previous_goal_level + 1))
 
 
@@ -526,7 +552,7 @@ class DurationCheck(Node):
         self.start_time = nodedata.get_data('start_time')
         self.session_duration = nodedata.get_data('session_duration')
 
-    def run(self):
+    def run(self, nodedata):
         """
         Compare the requested session duration to the amount of time the session has been running.
         :return: NodeStatus.FAIL when session duration has not been reached, NodeStatus.SUCCESS otherwise.
@@ -674,7 +700,9 @@ class InitialiseBlackboard(Node):
         nodedata.state = self._get_start(max_style)
         nodedata.performance = PolicyWrapper.MET
         nodedata.phase = PolicyWrapper.PHASE_START
-        nodedata.bl = BehaviourLibraryFunctions
+        nodedata.bl = BehaviourLibraryFunctions("SquashDict", squash_behaviour_library)
+        print(nodedata.bl.get_pre_msg(Policy.A_PREINSTRUCTION, PolicyWrapper.SESSION_GOAL, PolicyWrapper.MET,
+                             PolicyWrapper.PHASE_END))
         nodedata.start_time = 0  # TODO: update with actual time.
         return NodeStatus(NodeStatus.SUCCESS, "Set belief distribution " + str(belief_distribution) + ". Start state ="
                           + str(nodedata.get_data('state')))
