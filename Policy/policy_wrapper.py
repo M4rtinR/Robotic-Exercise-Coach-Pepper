@@ -82,12 +82,14 @@ class PolicyWrapper:
         """
         valid_list = []
 
+        print('goal_level = ' + str(goal_level))
         # Person Goal
         if goal_level == self.PERSON_GOAL:
+            print('Creating list for person goal')
             valid_list.extend([self.policy.A_PREINSTRUCTION, self.policy.A_PREINSTRUCTION_FIRSTNAME])
 
         # Baseline Goal
-        if goal_level == self.BASELINE_GOAL:
+        elif goal_level == self.BASELINE_GOAL:
             if phase == self.PHASE_START:
                 valid_list.extend([self.policy.A_PREINSTRUCTION, self.policy.A_PREINSTRUCTION_QUESTIONING,
                                    self.policy.A_PREINSTRUCTION_FIRSTNAME,

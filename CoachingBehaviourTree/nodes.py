@@ -85,7 +85,8 @@ class GetBehaviour(Node):
             state information.
         :return: None
         """
-
+        print("Configuring GetBehaviour")
+        print(str(nodedata))
         self.belief = nodedata.get_data('belief')            # Belief distribution over policies.
         self.goal_level = nodedata.get_data('goal')          # Which level of goal we are currently in (e.g. SET_GOAL)
         self.performance = nodedata.get_data('performance')  # Which level of performance the player achieved (e.g. MET)
@@ -103,9 +104,13 @@ class GetBehaviour(Node):
             for accesses by other nodes.
         :return: NodeStatus.SUCCESS when a behaviour and observation has been obtained from the policy wrapper.
         """
+        print('GetBehaviour, self.goal_level = ' + str(self.goal_level) + ', nodedata.goal = ' + str(nodedata.goal))
         policy = PolicyWrapper(self.belief)  # TODO: generate this at start of interaction and store on blackboard.
         nodedata.behaviour = policy.get_behaviour(self.state, self.goal_level, self.performance, self.phase)
+        # print('Got behaviour: ' + str(nodedata.behaviour))
         nodedata.observation = policy.get_observation(self.state, nodedata.behaviour)
+        # print('Got observation: ' + str(nodedata.behaviour))
+        print("Returning SUCCESS from GetBehaviour, nodedata = " + str(nodedata))
         return NodeStatus(NodeStatus.SUCCESS, "Obtained behaviour " + str(nodedata.behaviour))
 
     def cleanup(self, nodedata):
@@ -161,7 +166,7 @@ class FormatAction(Node):
             state and behaviour information.
         :return: None
         """
-        print("FormatAction nodedata: " + str(nodedata))
+        # print("FormatAction nodedata: " + str(nodedata))
         self.goal_level = nodedata.get_data('goal')          # Which level of goal we are currently in (e.g. SET_GOAL)
         self.performance = nodedata.get_data('performance')  # Which level of performance the player achieved (e.g. MET)
         self.phase = nodedata.get_data('phase')              # PHASE_START or PHASE_END
@@ -184,6 +189,7 @@ class FormatAction(Node):
         else:  # If post_msg is None, we only want to display the pre_msg.
             nodedata.action = Action(pre_msg)
 
+        print("Returning SUCCESS from FormatAction, action = " + str(nodedata.action))
         return NodeStatus(NodeStatus.SUCCESS, "Created action from given behaviour.")
 
 
@@ -241,6 +247,7 @@ class CheckForBehaviour(Node):
             print("Returning SUCCESS from CheckForBehaviour, behaviour found = " + str(self.behaviour))
             return NodeStatus(NodeStatus.SUCCESS, "Behaviour " + str(self.check_behaviour) + " found in the form " + str(self.behaviour))
         else:
+            print("Returning FAIL from CheckForBehaviour, behaviour not found = " + str(self.check_behaviour) + ", input behaviour = " + str(self.behaviour))
             return NodeStatus(NodeStatus.FAIL, "Behaviour " + str(self.check_behaviour) + " not found.")
 
     def _is_example_of_behaviour(self, behaviour, check_behaviour):
@@ -300,6 +307,7 @@ class DisplayBehaviour(Node):
         :return: NodeStatus.SUCCESS if action sent successfully to robot, NodeStatus.FAIL otherwise.
         """
         print(str(self.action))
+        print("Returning SUCCESS from DisplayBehaviour")
         return NodeStatus(NodeStatus.SUCCESS, "Printed action message to output.")
 
 
@@ -331,12 +339,12 @@ class GetStats(Node):
             NodeStatus.FAIL otherwise.
         """
         # Will be ACTIVE when waiting for data and SUCCESS when got data and added to blackboard, FAIL when connection error.
-        print("In get stats")
+        # print("In get stats")
         nodedata.motivation = 8
         nodedata.player_ability = 2
         nodedata.sessions = 6
-        print("After setting stats in GetStats: " + str(nodedata))
-        print("Returning SUCCESS from GetStats")
+        # print("After setting stats in GetStats: " + str(nodedata))
+        print("Returning SUCCESS from GetStats, stats = " + str(nodedata))
         return NodeStatus(NodeStatus.SUCCESS, "Set stats to dummy values.")
 
 
@@ -469,12 +477,14 @@ class EndSubgoal(Node):
         """
         # Will return SUCCESS once request sent to API, FAIL if called on goal > 6 or connection error.
         if self.goal_level > 6:
+            print("Returning FAIL from EndSubgoal, goal_level = " + str(self.goal_level))
             return NodeStatus(NodeStatus.FAIL, "Cannot create subgoal of " + str(self.goal_level))
         else:
             if self.goal_level == PolicyWrapper.BASELINE_GOAL:
                 nodedata.goal = PolicyWrapper.EXERCISE_GOAL
             else:
                 nodedata.goal = self.goal_level - 1
+            print("Returning SUCCESS from EndSubgoal, new subgoal level = " + str(nodedata.goal))
             return NodeStatus(NodeStatus.SUCCESS, "Completed subgoal: " + str(self.goal_level - 1))
 
 
@@ -515,6 +525,7 @@ class TimestepCue(Node):
         nodedata.phase = PolicyWrapper.PHASE_START
         nodedata.target = 0.80
         nodedata.score = 0.79
+        print("Returning SUCCESS from TimestepCue, stats = " + str(nodedata))
         return NodeStatus(NodeStatus.SUCCESS, "Set timestep cue values to dummy values MET, PHASE_START, 0.80, 0.79.")
 
 
@@ -561,8 +572,10 @@ class DurationCheck(Node):
         # Will return FAIL when when duration has not been reached. SUCCESS when it has.
         current_time = time()
         if (current_time - self.start_time) < self.session_duration:
+            print("Returning FAIL from DurationCheck - time limit not yet reached, current time = " + str(current_time))
             return NodeStatus(NodeStatus.FAIL, "Time limit not yet reached.")
         else:
+            print("Returning SUCCESS from DurationCheck - Time limit reached, current time = " + str(current_time))
             return NodeStatus(NodeStatus.SUCCESS, "Session time limit reached.")
 
 
@@ -601,6 +614,7 @@ class GetUserChoice(Node):
             nodedata.shot = 1
         else:
             nodedata.stat = 1
+        print("Returning SUCCESS from GetUserChoice, shot = " + str(nodedata.shot) + ", stat = " + str(nodedata.stat))
         return NodeStatus(NodeStatus.SUCCESS, "Set shot/stat to 1.")
 
 
@@ -635,8 +649,10 @@ class EndSetEvent(Node):
         #   one for waiting for user selection so that the tree doesn't grind to a halt.
         self.shotcount += 1  # TODO Set this to 0 when set starts.
         if self.shotcount >= 30:
+            print("Returning SUCCESS from EndSetEvent, shot count = " + str(self.shotcount))
             return NodeStatus(NodeStatus.SUCCESS, "Shot set ended.")
         else:
+            print("Returning Fail from EndSetEvent, shot count = " + str(self.shotcount))
             return NodeStatus(NodeStatus.FAIL, "Shot set at " + str(nodedata.get_data('shot_count') + ". Not ended yet."))
 
 class InitialiseBlackboard(Node):
@@ -701,9 +717,8 @@ class InitialiseBlackboard(Node):
         nodedata.performance = PolicyWrapper.MET
         nodedata.phase = PolicyWrapper.PHASE_START
         nodedata.bl = BehaviourLibraryFunctions("SquashDict", squash_behaviour_library)
-        print(nodedata.bl.get_pre_msg(Policy.A_PREINSTRUCTION, PolicyWrapper.SESSION_GOAL, PolicyWrapper.MET,
-                             PolicyWrapper.PHASE_END))
         nodedata.start_time = 0  # TODO: update with actual time.
+        print("Returning SUCCESS from InitialiseBlackboard")
         return NodeStatus(NodeStatus.SUCCESS, "Set belief distribution " + str(belief_distribution) + ". Start state ="
                           + str(nodedata.get_data('state')))
 

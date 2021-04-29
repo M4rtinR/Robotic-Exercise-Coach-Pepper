@@ -31,6 +31,17 @@ squash_behaviour_library = {
                    2: 'pre_instruction_person_start_pre_2', 3: 'pre_instruction_person_start_pre_3'},
     '0_1_-1_1_0': {0: 'pre_instruction_person_end_pre_0', 1: 'pre_instruction_person_end_pre_1',
                    2: 'pre_instruction_person_end_pre_2', 3: 'pre_instruction_person_end_pre_3'},
+    # For testing purposes only:
+    '0_1_0_0_0': {0: 'pre_instruction_person_met_end_pre_0', 1: 'pre_instruction_person_met_end_pre_1',
+                  2: 'pre_instruction_person_met_end_pre_2', 3: 'pre_instruction_person_met_end_pre_3'},
+    '0_1_0_0_1': {0: 'pre_instruction_person_met_end_post_0', 1: 'pre_instruction_person_met_end_post_1',
+                  2: 'pre_instruction_person_met_end_post_2', 3: 'pre_instruction_person_met_end_post_3'},
+    # For testing purposes only:
+    '0_44_0_0_0': {0: 'pre_instruction_firstname_person_met_end_pre_0', 1: 'pre_instruction_firstname_person_met_end_pre_1',
+                  2: 'pre_instruction_firstname_person_met_end_pre_2', 3: 'pre_instruction_firstname_person_met_end_pre_3'},
+    '0_44_0_0_1': {0: 'pre_instruction_firstname_person_met_end_post_0', 1: 'pre_instruction_person_met_end_post_1',
+                  2: 'pre_instruction_firstname_person_met_end_post_2', 3: 'pre_instruction_firstname_person_met_end_post_3'},
+
     '0_44_-1_0_0': {0: 'pre_instruction_firstname_person_start_pre_0',
                     1: 'pre_instruction_firstname_person_start_pre_1',
                     2: 'pre_instruction_firstname_person_start_pre_2',
@@ -2440,7 +2451,7 @@ squash_behaviour_library = {
     '1_40_1_1_1': {0: 'praise_firstname_session_muchimproved_end_post_0',
                    1: 'praise_firstname_session_muchimproved_end_post_1',
                    2: 'praise_firstname_session_muchimproved_end_post_2',
-                3: 'praise_firstname_session_muchimproved_end_post_3'},
+                   3: 'praise_firstname_session_muchimproved_end_post_3'},
     '1_40_2_0_0': {0: 'praise_firstname_session_improved_start_pre_0',
                    1: 'praise_firstname_session_improved_start_pre_1',
                    2: 'praise_firstname_session_improved_start_pre_2',
@@ -2455,7 +2466,7 @@ squash_behaviour_library = {
                    2: 'praise_firstname_session_improved_end_post_2',
                    3: 'praise_firstname_session_improved_end_post_3'},
     '1_40_3_0_0': {0: 'praise_firstname_session_improvedswap_start_pre_0',
-                1: 'praise_firstname_session_improvedswap_start_pre_1',
+                   1: 'praise_firstname_session_improvedswap_start_pre_1',
                    2: 'praise_firstname_session_improvedswap_start_pre_2',
                    3: 'praise_firstname_session_improvedswap_start_pre_3'},
     '1_40_3_0_1': {0: 'praise_firstname_session_improvedswap_start_post_0',
@@ -3163,8 +3174,10 @@ squash_behaviour_library = {
                   1: 'pre_instruction_exercise_muchimproved_start_post_1',
                   2: 'pre_instruction_exercise_muchimproved_start_post_2',
                   3: 'pre_instruction_exercise_muchimproved_start_post_3'},
-    '2_1_2_0_0': {0: 'pre_instruction_exercise_improved_start_pre_0', 1: 'pre_instruction_exercise_improved_start_pre_1',
-                  2: 'pre_instruction_exercise_improved_start_pre_2', 3: 'pre_instruction_exercise_improved_start_pre_3'},
+    '2_1_2_0_0': {0: 'pre_instruction_exercise_improved_start_pre_0',
+                  1: 'pre_instruction_exercise_improved_start_pre_1',
+                  2: 'pre_instruction_exercise_improved_start_pre_2',
+                  3: 'pre_instruction_exercise_improved_start_pre_3'},
     '2_1_2_0_1': {0: 'pre_instruction_exercise_improved_start_post_0',
                   1: 'pre_instruction_exercise_improved_start_post_1',
                   2: 'pre_instruction_exercise_improved_start_post_2',
@@ -5543,7 +5556,7 @@ squash_behaviour_library = {
     '2_40_1_1_1': {0: 'praise_firstname_exercise_muchimproved_end_post_0',
                    1: 'praise_firstname_exercise_muchimproved_end_post_1',
                    2: 'praise_firstname_exercise_muchimproved_end_post_2',
-                3: 'praise_firstname_exercise_muchimproved_end_post_3'},
+                   3: 'praise_firstname_exercise_muchimproved_end_post_3'},
     '2_40_2_0_0': {0: 'praise_firstname_exercise_improved_start_pre_0',
                    1: 'praise_firstname_exercise_improved_start_pre_1',
                    2: 'praise_firstname_exercise_improved_start_pre_2',
@@ -5553,12 +5566,14 @@ squash_behaviour_library = {
                    2: 'praise_firstname_exercise_improved_start_post_2',
                    3: 'praise_firstname_exercise_improved_start_post_3'},
     '2_40_2_1_0': {0: 'praise_firstname_exercise_improved_end_pre_0', 1: 'praise_firstname_exercise_improved_end_pre_1',
-                   2: 'praise_firstname_exercise_improved_end_pre_2', 3: 'praise_firstname_exercise_improved_end_pre_3'},
-    '2_40_2_1_1': {0: 'praise_firstname_exercise_improved_end_post_0', 1: 'praise_firstname_exercise_improved_end_post_1',
+                   2: 'praise_firstname_exercise_improved_end_pre_2',
+                   3: 'praise_firstname_exercise_improved_end_pre_3'},
+    '2_40_2_1_1': {0: 'praise_firstname_exercise_improved_end_post_0',
+                   1: 'praise_firstname_exercise_improved_end_post_1',
                    2: 'praise_firstname_exercise_improved_end_post_2',
                    3: 'praise_firstname_exercise_improved_end_post_3'},
     '2_40_3_0_0': {0: 'praise_firstname_exercise_improvedswap_start_pre_0',
-                1: 'praise_firstname_exercise_improvedswap_start_pre_1',
+                   1: 'praise_firstname_exercise_improvedswap_start_pre_1',
                    2: 'praise_firstname_exercise_improvedswap_start_pre_2',
                    3: 'praise_firstname_exercise_improvedswap_start_pre_3'},
     '2_40_3_0_1': {0: 'praise_firstname_exercise_improvedswap_start_post_0',
@@ -5574,8 +5589,10 @@ squash_behaviour_library = {
                    2: 'praise_firstname_exercise_improvedswap_end_post_2',
                    3: 'praise_firstname_exercise_improvedswap_end_post_3'},
     '2_40_4_0_0': {0: 'praise_firstname_exercise_steady_start_pre_0', 1: 'praise_firstname_exercise_steady_start_pre_1',
-                   2: 'praise_firstname_exercise_steady_start_pre_2', 3: 'praise_firstname_exercise_steady_start_pre_3'},
-    '2_40_4_0_1': {0: 'praise_firstname_exercise_steady_start_post_0', 1: 'praise_firstname_exercise_steady_start_post_1',
+                   2: 'praise_firstname_exercise_steady_start_pre_2',
+                   3: 'praise_firstname_exercise_steady_start_pre_3'},
+    '2_40_4_0_1': {0: 'praise_firstname_exercise_steady_start_post_0',
+                   1: 'praise_firstname_exercise_steady_start_post_1',
                    2: 'praise_firstname_exercise_steady_start_post_2',
                    3: 'praise_firstname_exercise_steady_start_post_3'},
     '2_40_4_1_0': {0: 'praise_firstname_exercise_steady_end_pre_0', 1: 'praise_firstname_exercise_steady_end_pre_1',
@@ -6172,8 +6189,10 @@ squash_behaviour_library = {
     # Positive Modelling - Praise
     #
     '2_66_0_0_0': {0: 'posmodelling_praise_exercise_met_start_pre_0', 1: 'posmodelling_praise_exercise_met_start_pre_1',
-                   2: 'posmodelling_praise_exercise_met_start_pre_2', 3: 'posmodelling_praise_exercise_met_start_pre_3'},
-    '2_66_0_0_1': {0: 'posmodelling_praise_exercise_met_start_post_0', 1: 'posmodelling_praise_exercise_met_start_post_1',
+                   2: 'posmodelling_praise_exercise_met_start_pre_2',
+                   3: 'posmodelling_praise_exercise_met_start_pre_3'},
+    '2_66_0_0_1': {0: 'posmodelling_praise_exercise_met_start_post_0',
+                   1: 'posmodelling_praise_exercise_met_start_post_1',
                    2: 'posmodelling_praise_exercise_met_start_post_2',
                    3: 'posmodelling_praise_exercise_met_start_post_3'},
     '2_66_0_1_0': {0: 'posmodelling_praise_exercise_met_end_pre_0', 1: 'posmodelling_praise_exercise_met_end_pre_1',
@@ -6236,7 +6255,8 @@ squash_behaviour_library = {
                    1: 'posmodelling_praise_exercise_steady_start_post_1',
                    2: 'posmodelling_praise_exercise_steady_start_post_2',
                    3: 'posmodelling_praise_exercise_steady_start_post_3'},
-    '2_66_4_1_0': {0: 'posmodelling_praise_exercise_steady_end_pre_0', 1: 'posmodelling_praise_exercise_steady_end_pre_1',
+    '2_66_4_1_0': {0: 'posmodelling_praise_exercise_steady_end_pre_0',
+                   1: 'posmodelling_praise_exercise_steady_end_pre_1',
                    2: 'posmodelling_praise_exercise_steady_end_pre_2',
                    3: 'posmodelling_praise_exercise_steady_end_pre_3'},
     '2_66_4_1_1': {0: 'posmodelling_praise_exercise_steady_end_post_0',
@@ -8646,7 +8666,7 @@ squash_behaviour_library = {
     '3_40_1_1_1': {0: 'praise_firstname_stat_muchimproved_end_post_0',
                    1: 'praise_firstname_stat_muchimproved_end_post_1',
                    2: 'praise_firstname_stat_muchimproved_end_post_2',
-                3: 'praise_firstname_stat_muchimproved_end_post_3'},
+                   3: 'praise_firstname_stat_muchimproved_end_post_3'},
     '3_40_2_0_0': {0: 'praise_firstname_stat_improved_start_pre_0',
                    1: 'praise_firstname_stat_improved_start_pre_1',
                    2: 'praise_firstname_stat_improved_start_pre_2',
@@ -11749,7 +11769,7 @@ squash_behaviour_library = {
     '4_40_1_1_1': {0: 'praise_firstname_set_muchimproved_end_post_0',
                    1: 'praise_firstname_set_muchimproved_end_post_1',
                    2: 'praise_firstname_set_muchimproved_end_post_2',
-                3: 'praise_firstname_set_muchimproved_end_post_3'},
+                   3: 'praise_firstname_set_muchimproved_end_post_3'},
     '4_40_2_0_0': {0: 'praise_firstname_set_improved_start_pre_0',
                    1: 'praise_firstname_set_improved_start_pre_1',
                    2: 'praise_firstname_set_improved_start_pre_2',
@@ -11764,7 +11784,7 @@ squash_behaviour_library = {
                    2: 'praise_firstname_set_improved_end_post_2',
                    3: 'praise_firstname_set_improved_end_post_3'},
     '4_40_3_0_0': {0: 'praise_firstname_set_improvedswap_start_pre_0',
-                1: 'praise_firstname_set_improvedswap_start_pre_1',
+                   1: 'praise_firstname_set_improvedswap_start_pre_1',
                    2: 'praise_firstname_set_improvedswap_start_pre_2',
                    3: 'praise_firstname_set_improvedswap_start_pre_3'},
     '4_40_3_0_1': {0: 'praise_firstname_set_improvedswap_start_post_0',
@@ -13065,41 +13085,41 @@ squash_behaviour_library = {
     #
     # Praise
     #
-    '6_12_-1_1_0': {0: 'praise_baseline_end_pre_0', 1: 'praise_baseline_end_pre_1', 2: 'praise_baseline_end_pre__2',
+    '6_12_-1_1_0': {0: 'praise_baseline_end_pre_0', 1: 'praise_baseline_end_pre_1', 2: 'praise_baseline_end_pre_2',
                     3: 'praise_baseline_end_pre_3'},
 
-   #
-   # Pre-instruction - Questioning
-   #
-   '6_16_-1_0_0': {0: 'preinstruction_questioning_baseline_start_pre_0',
-                   1: 'preinstruction_questioning_baseline_start_pre_1',
-                   2: 'preinstruction_questioning_baseline_start_pre__2',
-                   3: 'preinstruction_questioning_baseline_start_pre_3'},
+    #
+    # Pre-instruction - Questioning
+    #
+    '6_16_-1_0_0': {0: 'preinstruction_questioning_baseline_start_pre_0',
+                    1: 'preinstruction_questioning_baseline_start_pre_1',
+                    2: 'preinstruction_questioning_baseline_start_pre_2',
+                    3: 'preinstruction_questioning_baseline_start_pre_3'},
 
-   #
-   # Pre-instruction - Positive Modelling
-   #
-   '6_17_-1_0_0': {0: 'preinstruction_posmodelling_baseline_start_pre_0',
-                   1: 'preinstruction_posmodelling_baseline_start_pre_1',
-                   2: 'preinstruction_posmodelling_baseline_start_pre__2',
-                   3: 'preinstruction_posmodelling_baseline_start_pre_3'},
+    #
+    # Pre-instruction - Positive Modelling
+    #
+    '6_17_-1_0_0': {0: 'preinstruction_posmodelling_baseline_start_pre_0',
+                    1: 'preinstruction_posmodelling_baseline_start_pre_1',
+                    2: 'preinstruction_posmodelling_baseline_start_pre_2',
+                    3: 'preinstruction_posmodelling_baseline_start_pre_3'},
 
-   #
-   # Positive Modelling - Pre-instruction
-   #
-   '6_36_-1_0_0': {0: 'posmodelling_preinstruction_baseline_start_pre_0',
-                   1: 'posmodelling_preinstruction_baseline_start_pre_1',
-                   2: 'posmodelling_preinstruction_baseline_start_pre__2',
-                   3: 'posmodelling_preinstruction_baseline_start_pre_3'},
+    #
+    # Positive Modelling - Pre-instruction
+    #
+    '6_36_-1_0_0': {0: 'posmodelling_preinstruction_baseline_start_pre_0',
+                    1: 'posmodelling_preinstruction_baseline_start_pre_1',
+                    2: 'posmodelling_preinstruction_baseline_start_pre_2',
+                    3: 'posmodelling_preinstruction_baseline_start_pre_3'},
 
-   #
-   # Pre-instruction - First Name
-   #
-   '6_44_-1_0_0': {0: 'preinstruction_firstname_baseline_start_pre_0',
-                   1: 'preinstruction_firstname_baseline_start_pre_1',
-                   2: 'preinstruction_firstname_baseline_start_pre__2',
-                   3: 'preinstruction_firstname_baseline_start_pre_3'}
-
+    #
+    # Pre-instruction - First Name
+    #
+    '6_44_-1_0_0': {0: 'preinstruction_firstname_baseline_start_pre_0',
+                    1: 'preinstruction_firstname_baseline_start_pre_1',
+                    2: 'preinstruction_firstname_baseline_start_pre_2',
+                    3: 'preinstruction_firstname_baseline_start_pre_3'}
+}
 
 
 @dataclass
@@ -13138,14 +13158,19 @@ class BehaviourLibraryFunctions:
         :return: msg :type str: random utterance corresponding to the given parameters
         """
 
-        # TODO: Expand with full list of behaviours etc.
-        r = random.randint(0, 3)
+        # TODO: Replace with actual behaviours, not codes.
 
-        # Check which behaviour we have and randomly select from that dict.
-        if behaviour == Policy.A_PREINSTRUCTION:
-            msg = self.behaviours[str(behaviour) + '_' + str(goal_level)][r]
-        elif behaviour == Policy.A_PRAISE:
-            msg = self.behaviours[str(behaviour) + ''][r]
+        if behaviour > 68 or behaviour < 1 or goal_level > 6 or goal_level < 0 or performance > 7 or performance < -1 or phase > 1 or phase < -1:
+            msg = "Error: I don't know how to perform that behaviour."
+        else:
+            r = random.randint(0, 3)
+
+            if phase is None or phase == -1:
+                phase = 1 if goal_level == PolicyWrapper.ACTION_GOAL else 0
+            elif performance is None and not(goal_level == PolicyWrapper.ACTION_GOAL or goal_level == PolicyWrapper.BASELINE_GOAL or goal_level == PolicyWrapper.PERSON_GOAL):
+                performance = -1
+
+            msg = self.behaviours[str(goal_level) + '_' + str(behaviour) + '_' + str(performance) + '_' + str(phase) + '_0'][r]
 
         return msg
 
@@ -13161,14 +13186,20 @@ class BehaviourLibraryFunctions:
 
         # TODO: Expand with full list of behaviours etc.
         # TODO: May need to create random in constructor to avoid the same order of selections all the time.
-        r = random.randint(0, 3)
 
-        # Check which behaviour we have and randomly select from that dict.
-        if behaviour == Policy.A_PREINSTRUCTION:
-            msg = None
-        elif behaviour == Policy.A_POSTINSTRUCTIONPOSITIVE:
-            msg = self.behaviours[str(behaviour) + '_' + str(goal_level) + '_' + str(performance) + '_' + str(phase) + '_' + str(self.POST_MSG)][r]
-        elif behaviour == Policy.A_PRAISE:
-            msg = None
+        if behaviour > 68 or behaviour < 1 or goal_level > 6 or goal_level < 0 or performance > 7 or performance < -1 or phase > 1 or phase < -1:
+            msg = "Error: I don't know how to perform that behaviour."
+        elif goal_level == PolicyWrapper.ACTION_GOAL:
+            msg = "Error: No post behaviours found for ACTION GOAL."
+        else:
+            r = random.randint(0, 3)
+
+            if phase is None or phase == -1:
+                phase = 1 if goal_level == PolicyWrapper.ACTION_GOAL else 0
+            elif performance is None and not(goal_level == PolicyWrapper.ACTION_GOAL or goal_level == PolicyWrapper.BASELINE_GOAL or goal_level == PolicyWrapper.PERSON_GOAL):
+                performance = -1
+
+            msg = self.behaviours[str(goal_level) + '_' + str(behaviour) + '_' + str(performance) + '_' + str(phase) + '_1'][r]
+
 
         return msg
