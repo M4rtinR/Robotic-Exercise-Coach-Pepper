@@ -92,7 +92,6 @@ class PolicyWrapper:
                 valid_list.extend([self.policy.A_PREINSTRUCTION, self.policy.A_PREINSTRUCTION_QUESTIONING,
                                    self.policy.A_PREINSTRUCTION_FIRSTNAME,
                                    self.policy.A_PREINSTRUCTION_POSITIVEMODELING,
-                                   self.policy.A_PREINSTRUCTION_NEGATIVEMODELING,
                                    self.policy.A_POSITIVEMODELING_PREINSTRUCTION])
             else:
                 valid_list.append(self.policy.A_PRAISE)
@@ -178,25 +177,35 @@ class PolicyWrapper:
                                self.policy.A_CONCURRENTINSTRUCTIONPOSITIVE_FIRSTNAME,
                                self.policy.A_QUESTIONING_FIRSTNAME, self.policy.A_HUSTLE_FIRSTNAME,
                                self.policy.A_CONCURRENTINSTRUCTIONPOSITIVE_POSITIVEMODELING,
-                               self.policy.A_CONCURRENTINSTRUCTIONPOSITIVE_PRAISE,
-                               self.policy.A_POSITIVEMODELLING_HUSTLE, self.policy.A_POSITIVEMODELING_PRAISE])
+                               self.policy.A_POSITIVEMODELLING_HUSTLE])
             # No phases in action goals, just a behaviour after each shot.
             if performance == self.MET:
-                valid_list.extend([self.policy.A_PRAISE, self.policy.A_PRAISE_FIRSTNAME])
+                valid_list.extend([self.policy.A_PRAISE, self.policy.A_PRAISE_FIRSTNAME,
+                                   self.policy.A_CONCURRENTINSTRUCTIONPOSITIVE_PRAISE,
+                                   self.policy.A_POSITIVEMODELING_PRAISE])
             elif performance == self.MUCH_IMPROVED:
-                valid_list.extend([self.policy.A_PRAISE, self.policy.A_PRAISE_FIRSTNAME])
+                valid_list.extend([self.policy.A_PRAISE, self.policy.A_PRAISE_FIRSTNAME,
+                                   self.policy.A_CONCURRENTINSTRUCTIONPOSITIVE_PRAISE,
+                                   self.policy.A_POSITIVEMODELING_PRAISE])
             elif performance == self.IMPROVED:
-                valid_list.extend([self.policy.A_PRAISE, self.policy.A_PRAISE_FIRSTNAME])
+                valid_list.extend([self.policy.A_PRAISE, self.policy.A_PRAISE_FIRSTNAME,
+                                   self.policy.A_CONCURRENTINSTRUCTIONPOSITIVE_PRAISE,
+                                   self.policy.A_POSITIVEMODELING_PRAISE])
             elif performance == self.IMPROVED_SWAP:
-                valid_list.extend([self.policy.A_PRAISE, self.policy.A_PRAISE_FIRSTNAME])
+                valid_list.extend([self.policy.A_PRAISE, self.policy.A_PRAISE_FIRSTNAME,
+                                   self.policy.A_CONCURRENTINSTRUCTIONPOSITIVE_PRAISE,
+                                   self.policy.A_POSITIVEMODELING_PRAISE])
             elif performance == self.STEADY:
-                valid_list.extend([self.policy.A_PRAISE, self.policy.A_PRAISE_FIRSTNAME])
+                valid_list.extend([self.policy.A_PRAISE, self.policy.A_PRAISE_FIRSTNAME,
+                                   self.policy.A_CONCURRENTINSTRUCTIONPOSITIVE_PRAISE,
+                                   self.policy.A_POSITIVEMODELING_PRAISE])
             elif performance == self.REGRESSED:
                 valid_list.extend([self.policy.A_CONCURRENTINSTRUCTIONNEGATIVE, self.policy.A_NEGATIVEMODELING,
                                    self.policy.A_SCOLD, self.policy.A_CONSOLE,
                                    self.policy.A_QUESTIONING_NEGATIVEMODELING, self.policy.A_SCOLD_POSITIVEMODELING,
                                    self.policy.A_SCOLD_FIRSTNAME, self.policy.A_CONSOLE_FIRSTNAME,
                                    self.policy.A_CONCURRENTINSTRUCTIONNEGATIVE_NEGATIVEMODELING,
+                                   self.policy.A_CONCURRENTINSTRUCTIONNEGATIVE_FIRSTNAME,
                                    self.policy.A_POSITIVEMODELING_CONCURRENTINSTRUCTIONNEGATIVE])
             elif performance == self.REGRESSED_SWAP:
                 valid_list.extend([self.policy.A_CONCURRENTINSTRUCTIONNEGATIVE, self.policy.A_NEGATIVEMODELING,
@@ -204,6 +213,7 @@ class PolicyWrapper:
                                    self.policy.A_QUESTIONING_NEGATIVEMODELING, self.policy.A_SCOLD_POSITIVEMODELING,
                                    self.policy.A_SCOLD_FIRSTNAME, self.policy.A_CONSOLE_FIRSTNAME,
                                    self.policy.A_CONCURRENTINSTRUCTIONNEGATIVE_NEGATIVEMODELING,
+                                   self.policy.A_CONCURRENTINSTRUCTIONNEGATIVE_FIRSTNAME,
                                    self.policy.A_POSITIVEMODELING_CONCURRENTINSTRUCTIONNEGATIVE])
             else:  # performance == self.MUCH_REGRESSED
                 valid_list.extend([self.policy.A_CONCURRENTINSTRUCTIONNEGATIVE, self.policy.A_NEGATIVEMODELING,
@@ -211,6 +221,7 @@ class PolicyWrapper:
                                    self.policy.A_QUESTIONING_NEGATIVEMODELING, self.policy.A_SCOLD_POSITIVEMODELING,
                                    self.policy.A_SCOLD_FIRSTNAME, self.policy.A_CONSOLE_FIRSTNAME,
                                    self.policy.A_CONCURRENTINSTRUCTIONNEGATIVE_NEGATIVEMODELING,
+                                   self.policy.A_CONCURRENTINSTRUCTIONNEGATIVE_FIRSTNAME,
                                    self.policy.A_POSITIVEMODELING_CONCURRENTINSTRUCTIONNEGATIVE])
 
         return valid_list
