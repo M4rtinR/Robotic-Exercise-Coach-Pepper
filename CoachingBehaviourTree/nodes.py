@@ -714,7 +714,7 @@ class InitialiseBlackboard(Node):
             style += 1
 
         nodedata.state = self._get_start(max_style)
-        nodedata.performance = PolicyWrapper.MET
+        nodedata.performance = -1
         nodedata.phase = PolicyWrapper.PHASE_START
         nodedata.bl = BehaviourLibraryFunctions("SquashDict", squash_behaviour_library)
         nodedata.start_time = 0  # TODO: update with actual time.

@@ -161,6 +161,9 @@ class Goals(Resource):
         parser.add_argument('userID', required=True)
         parser.add_argument('goalID', required=True)
         parser.add_argument('completed', required=True)
+        parser.add_argument('performance', required=False)
+        parser.add_argument('target', required=False)
+        parser.add_argument('score', required=False)
 
         args = parser.parse_args()
 
@@ -179,6 +182,21 @@ class Goals(Resource):
                 if not (args['completed'] is None):
                     goals_ref.child(args['goalID']).update({'completed': args['completed']})
                     updated_data['completed'] = args['completed']
+                    updated = 1
+
+                if not (args['performance'] is None):
+                    goals_ref.child(args['goalID']).update({'performance': args['performance']})
+                    updated_data['performance'] = args['performance']
+                    updated = 1
+
+                if not (args['target'] is None):
+                    goals_ref.child(args['goalID']).update({'target': args['target']})
+                    updated_data['target'] = args['target']
+                    updated = 1
+
+                if not (args['score'] is None):
+                    goals_ref.child(args['goalID']).update({'score': args['score']})
+                    updated_data['score'] = args['score']
                     updated = 1
 
                 if updated:
