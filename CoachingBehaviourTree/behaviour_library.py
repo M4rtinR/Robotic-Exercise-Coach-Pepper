@@ -13082,6 +13082,7 @@ squash_behaviour_library = {
     '6_1_-1_0_0': {0: 'pre_instruction_baseline_start_pre_0', 1: 'pre_instruction_baseline_start_pre_1',
                    2: 'pre_instruction_baseline_start_pre__2', 3: 'pre_instruction_baseline_start_pre_3'},
 
+
     #
     # Praise
     #
@@ -13116,6 +13117,33 @@ squash_behaviour_library = {
     # Pre-instruction - First Name
     #
     '6_44_-1_0_0': {0: 'preinstruction_firstname_baseline_start_pre_0',
+                    1: 'preinstruction_firstname_baseline_start_pre_1',
+                    2: 'preinstruction_firstname_baseline_start_pre_2',
+                    3: 'preinstruction_firstname_baseline_start_pre_3'},
+
+    # For debugging purposes TODO: remove after debugging:
+    '6_1_0_0_0': {0: 'pre_instruction_baseline_start_pre_0', 1: 'pre_instruction_baseline_start_pre_1',
+                   2: 'pre_instruction_baseline_start_pre__2', 3: 'pre_instruction_baseline_start_pre_3'},
+
+    '6_12_0_1_0': {0: 'praise_baseline_end_pre_0', 1: 'praise_baseline_end_pre_1', 2: 'praise_baseline_end_pre_2',
+                    3: 'praise_baseline_end_pre_3'},
+
+    '6_16_0_0_0': {0: 'preinstruction_questioning_baseline_start_pre_0',
+                    1: 'preinstruction_questioning_baseline_start_pre_1',
+                    2: 'preinstruction_questioning_baseline_start_pre_2',
+                    3: 'preinstruction_questioning_baseline_start_pre_3'},
+
+    '6_17_0_0_0': {0: 'preinstruction_posmodelling_baseline_start_pre_0',
+                    1: 'preinstruction_posmodelling_baseline_start_pre_1',
+                    2: 'preinstruction_posmodelling_baseline_start_pre_2',
+                    3: 'preinstruction_posmodelling_baseline_start_pre_3'},
+
+    '6_36_0_0_0': {0: 'posmodelling_preinstruction_baseline_start_pre_0',
+                    1: 'posmodelling_preinstruction_baseline_start_pre_1',
+                    2: 'posmodelling_preinstruction_baseline_start_pre_2',
+                    3: 'posmodelling_preinstruction_baseline_start_pre_3'},
+
+    '6_44_0_0_0': {0: 'preinstruction_firstname_baseline_start_pre_0',
                     1: 'preinstruction_firstname_baseline_start_pre_1',
                     2: 'preinstruction_firstname_baseline_start_pre_2',
                     3: 'preinstruction_firstname_baseline_start_pre_3'}

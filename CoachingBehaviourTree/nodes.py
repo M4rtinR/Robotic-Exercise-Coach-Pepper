@@ -107,7 +107,7 @@ class GetBehaviour(Node):
         print('GetBehaviour, self.goal_level = ' + str(self.goal_level) + ', nodedata.goal = ' + str(nodedata.goal))
         policy = PolicyWrapper(self.belief)  # TODO: generate this at start of interaction and store on blackboard.
         nodedata.behaviour = policy.get_behaviour(self.state, self.goal_level, self.performance, self.phase)
-        # print('Got behaviour: ' + str(nodedata.behaviour))
+        print('Got behaviour: ' + str(nodedata.behaviour))
         nodedata.observation = policy.get_observation(self.state, nodedata.behaviour)
         # print('Got observation: ' + str(nodedata.behaviour))
         print("Returning SUCCESS from GetBehaviour, nodedata = " + str(nodedata))
@@ -373,7 +373,7 @@ class GetDuration(Node):
             and data has been stored in the blackboard, NodeStatus.FAIL otherwise.
         """
         # Will be ACTIVE when waiting for data and SUCCESS when got data and added to blackboard, FAIL when connection error.
-        nodedata.session_duration = 20
+        nodedata.session_duration = 2
         print("Returning SUCCESS from GetDuration, session duration = " + str(nodedata.session_duration))
         return NodeStatus(NodeStatus.SUCCESS, "Set session duration to dummy value 20.")
 
@@ -408,6 +408,7 @@ class CreateSubgoal(Node):
         :param nodedata :type Blackboard: the blackboard associated with this Behaviour Tree containing the goal level.
         :return: None
         """
+        print("createSubgoal nodedata = " + str(nodedata))
         self.previous_goal_level = nodedata.get_data('goal', -1)
         self.shot = nodedata.get_data('shot')
         self.stat = nodedata.get_data('stat')
@@ -562,6 +563,8 @@ class DurationCheck(Node):
         """
         self.start_time = nodedata.get_data('start_time')
         self.session_duration = nodedata.get_data('session_duration')
+        # Only use until getting actual time:
+        self.current_time = 0
 
     def run(self, nodedata):
         """
@@ -570,12 +573,12 @@ class DurationCheck(Node):
         """
         # TODO update once getting actual time from user
         # Will return FAIL when when duration has not been reached. SUCCESS when it has.
-        current_time = time()
-        if (current_time - self.start_time) < self.session_duration:
-            print("Returning FAIL from DurationCheck - time limit not yet reached, current time = " + str(current_time))
+        self.current_time += 1
+        if (self.current_time - self.start_time) < self.session_duration:
+            print("Returning FAIL from DurationCheck - time limit not yet reached, current time = " + str(self.current_time))
             return NodeStatus(NodeStatus.FAIL, "Time limit not yet reached.")
         else:
-            print("Returning SUCCESS from DurationCheck - Time limit reached, current time = " + str(current_time))
+            print("Returning SUCCESS from DurationCheck - Time limit reached, current time = " + str(self.current_time))
             return NodeStatus(NodeStatus.SUCCESS, "Session time limit reached.")
 
 
