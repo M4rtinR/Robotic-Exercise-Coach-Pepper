@@ -421,7 +421,7 @@ class CreateSubgoal(Node):
         """
         # Will return SUCCESS once request sent to API, FAIL if called on ACTION_GOAL or connection error.
         if self.previous_goal_level == 6:
-            nodedata.goal = 3
+            nodedata.new_goal = 3
             print("Returning SUCCESS from CreateSubGoal, new goal level = " + str(nodedata.goal))
             return NodeStatus(NodeStatus.SUCCESS, "Created subgoal: 3 from BASELINE_GOAL")
         elif self.previous_goal_level > 6:
@@ -429,10 +429,10 @@ class CreateSubgoal(Node):
             return NodeStatus(NodeStatus.FAIL, "Cannot create subgoal of ACTION_GOAL.")
         else:
             if self.previous_goal_level == PolicyWrapper.EXERCISE_GOAL and self.stat is None:
-                nodedata.goal = 6
+                nodedata.new_goal = 6
             else:
-                nodedata.goal = self.previous_goal_level + 1
-            print("Returning SUCCESS from CreateSubGoal, new goal level = " + str(nodedata.goal))
+                nodedata.new_goal = self.previous_goal_level + 1
+            print("Returning SUCCESS from CreateSubGoal, new goal level = " + str(nodedata.new_goal))
             return NodeStatus(NodeStatus.SUCCESS, "Created subgoal: " + str(self.previous_goal_level + 1))
 
 
@@ -481,10 +481,10 @@ class EndSubgoal(Node):
             return NodeStatus(NodeStatus.FAIL, "Cannot create subgoal of " + str(self.goal_level))
         else:
             if self.goal_level == PolicyWrapper.BASELINE_GOAL:
-                nodedata.goal = PolicyWrapper.EXERCISE_GOAL
+                nodedata.new_goal = PolicyWrapper.EXERCISE_GOAL
             else:
-                nodedata.goal = self.goal_level - 1
-            print("Returning SUCCESS from EndSubgoal, new subgoal level = " + str(nodedata.goal))
+                nodedata.new_goal = self.goal_level - 1
+            print("Returning SUCCESS from EndSubgoal, new subgoal level = " + str(nodedata.new_goal))
             return NodeStatus(NodeStatus.SUCCESS, "Completed subgoal: " + str(self.goal_level - 1))
 
 
@@ -612,9 +612,10 @@ class GetUserChoice(Node):
         #   waiting for user selection so that the tree doesn't grind to a halt.
         if self.choice_type == 0:  # controller.SHOT_CHOICE = 0
             nodedata.shot = 1
+            print("Returning SUCCESS from GetUserChoice, shot = " + str(nodedata.shot))
         else:
             nodedata.stat = 1
-        print("Returning SUCCESS from GetUserChoice, shot = " + str(nodedata.shot) + ", stat = " + str(nodedata.stat))
+            print("Returning SUCCESS from GetUserChoice, stat = " + str(nodedata.stat))
         return NodeStatus(NodeStatus.SUCCESS, "Set shot/stat to 1.")
 
 
