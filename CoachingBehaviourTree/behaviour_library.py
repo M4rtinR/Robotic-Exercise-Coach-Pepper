@@ -13216,9 +13216,9 @@ class BehaviourLibraryFunctions:
         # TODO: May need to create random in constructor to avoid the same order of selections all the time.
 
         if behaviour > 68 or behaviour < 1 or goal_level > 6 or goal_level < 0 or performance > 7 or performance < -1 or phase > 1 or phase < -1:
-            msg = "Error: I don't know how to perform that behaviour."
-        elif goal_level == PolicyWrapper.ACTION_GOAL:
-            msg = "Error: No post behaviours found for ACTION GOAL."
+            return None
+        elif goal_level == PolicyWrapper.ACTION_GOAL or goal_level == PolicyWrapper.PERSON_GOAL:
+            return None
         else:
             r = random.randint(0, 3)
 
@@ -13229,5 +13229,4 @@ class BehaviourLibraryFunctions:
 
             msg = self.behaviours[str(goal_level) + '_' + str(behaviour) + '_' + str(performance) + '_' + str(phase) + '_1'][r]
 
-
-        return msg
+            return msg

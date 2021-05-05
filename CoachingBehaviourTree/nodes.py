@@ -34,6 +34,7 @@ from time import time
 from task_behavior_engine.node import Node
 from task_behavior_engine.tree import NodeStatus
 
+from CoachingBehaviourTree import controller
 from CoachingBehaviourTree.action import Action
 from CoachingBehaviourTree.behaviour_library import BehaviourLibraryFunctions, squash_behaviour_library
 from Policy.policy import Policy
@@ -183,7 +184,11 @@ class FormatAction(Node):
         :return: NodeStatus.SUCCESS when an action has been created.
         """
         pre_msg = self.behaviour_lib.get_pre_msg(self.behaviour, self.goal_level, self.performance, self.phase)
-        post_msg = self.behaviour_lib.get_post_msg(self.behaviour, self.goal_level, self.performance, self.phase)
+        if self.score is None and self.performance is None:
+            post_msg = None
+        else:
+            post_msg = self.behaviour_lib.get_post_msg(self.behaviour, self.goal_level, self.performance, self.phase)
+
         if post_msg is not None:
             nodedata.action = Action(pre_msg, self.score, self.target, post_msg)
         else:  # If post_msg is None, we only want to display the pre_msg.
@@ -245,6 +250,7 @@ class CheckForBehaviour(Node):
         # SUCCESS if next behaviour is given behaviour, else FAIL
         if self._is_example_of_behaviour(self.behaviour, self.check_behaviour):
             print("Returning SUCCESS from CheckForBehaviour, behaviour found = " + str(self.behaviour))
+            controller.completed = controller.COMPLETED_STATUS_FALSE
             return NodeStatus(NodeStatus.SUCCESS, "Behaviour " + str(self.check_behaviour) + " found in the form " + str(self.behaviour))
         else:
             print("Returning FAIL from CheckForBehaviour, behaviour not found = " + str(self.check_behaviour) + ", input behaviour = " + str(self.behaviour))
@@ -329,7 +335,7 @@ class GetStats(Node):
 
     def run(self, nodedata):
         """
-        Set the player's motivation, ability and no. of sessions on the blackboard.
+        Set the player's motivation on the blackboard.
 
         The ability and no. of sessions will be given by the guide. The motivation will vary each session and will have
         to be obtained from the user.
@@ -341,8 +347,8 @@ class GetStats(Node):
         # Will be ACTIVE when waiting for data and SUCCESS when got data and added to blackboard, FAIL when connection error.
         # print("In get stats")
         nodedata.motivation = 8
-        nodedata.player_ability = 2
-        nodedata.sessions = 6
+        #nodedata.player_ability = 2
+        #nodedata.sessions = 6
         # print("After setting stats in GetStats: " + str(nodedata))
         print("Returning SUCCESS from GetStats, stats = " + str(nodedata))
         return NodeStatus(NodeStatus.SUCCESS, "Set stats to dummy values.")
@@ -507,7 +513,11 @@ class TimestepCue(Node):
         super(TimestepCue, self).__init__(
             name,
             run_cb=self.run,
+            configure_cb=self.configure,
             *args, **kwargs)
+
+    def configure(self, nodedata):
+        self.goal_level = nodedata.get_data('goal')
 
     def run(self, nodedata):
         """
@@ -522,6 +532,28 @@ class TimestepCue(Node):
             and added to the blackboard, NodeStatus.FAIL otherwise.
         """
         # Will be ACTIVE when waiting for data and SUCCESS when got data and added to blackboard, FAIL when connection error.
+        if self.goal_level == -1:  # Person goal created after receiving info from guide.
+            if controller.goal_level == 0:  # For person goal should have name, ability and no. of sessions.
+                nodedata.sessions = controller.sessions
+                nodedata.player_ability = controller.ability
+                nodedata.name = controller.name
+                nodedata.phase = PolicyWrapper.PHASE_START
+                print("Returning SUCCESS from TimestepCue player goal, stats = " + str(nodedata))
+                return NodeStatus(NodeStatus.SUCCESS, "Data for person goal obtained from guide:" + str(nodedata))
+            else:
+                print("Returning ACTIVE from TimestepCue player goal")
+                return NodeStatus(NodeStatus.ACTIVE, "Waiting for person goal data from guide.")
+
+        elif self.goal_level == 1:  # For session goal should have performance from previous session.
+            if controller.goal_level == 1:
+                nodedata.performance = controller.performance
+                nodedata.phase = PolicyWrapper.PHASE_START
+                print("Returning SUCCESS from TimestepCue session goal, stats = " + str(nodedata))
+                return NodeStatus(NodeStatus.SUCCESS, "Data for session goal obtained from guide:" + str(nodedata))
+            else:
+                print("Returning ACTIVE from TimestepCue session goal")
+                return NodeStatus(NodeStatus.ACTIVE, "Waiting for session goal data from guide.")
+
         nodedata.performance = PolicyWrapper.MET
         nodedata.phase = PolicyWrapper.PHASE_START
         nodedata.target = 0.80

@@ -5,17 +5,70 @@ import ast
 import firebase_admin
 from firebase_admin import db
 
-cred_obj = firebase_admin.credentials.Certificate(
+from CoachingBehaviourTree import controller
+from Policy.policy_wrapper import PolicyWrapper
+
+'''cred_obj = firebase_admin.credentials.Certificate(
     'racketware-policy-api-firebase-adminsdk-sych1-ac7425f5e6.json')
 default_app = firebase_admin.initialize_app(cred_obj, {
     'databaseURL': 'https://racketware-policy-api-default-rtdb.firebaseio.com/'
-})
+})'''
 
 app = Flask('policy_guide_api')
 api = Api(app)
 
+class TimestepCue(Resource):
+    def post(self):
+        parser = reqparse.RequestParser()
 
-class Users(Resource):
+        parser.add_argument('goal_level', required=True)
+        parser.add_argument('score', required=False)        # For each shot
+        parser.add_argument('target', required=False)       # Stat/Set goal
+        parser.add_argument('avg_score', required=False)    # Stat/Set goal
+        parser.add_argument('performance', required=False)  # Session/Shot goal (performance in last session)
+        parser.add_argument('shot', required=False)         # Shot goal
+        parser.add_argument('stat', required=False)         # Stat goal
+        parser.add_argument('name', required=False)         # Player goal
+        parser.add_argument('sessions', required=False)     # Player goal (total number of sessions for this user)
+        parser.add_argument('ability', required=False)      # Player goal
+
+        args = parser.parse_args()  # parse arguments to dictionary
+        print('recevied post request')
+        if int(args['goal_level']) == PolicyWrapper.PERSON_GOAL:
+            print('player goal setting controller values')
+            controller.goal_level = PolicyWrapper.PERSON_GOAL
+            controller.name = args['name']
+            controller.sessions = int(args['sessions'])
+            controller.ability = int(args['ability'])
+
+            while controller.completed == controller.COMPLETED_STATUS_UNDEFINED:
+                pass
+
+            return {args['goal_level']: controller.completed}, 200
+        elif int(args['goal_level']) == PolicyWrapper.SESSION_GOAL:
+            print('session goal setting controller values')
+            controller.completed = controller.COMPLETED_STATUS_UNDEFINED
+            controller.goal_level = PolicyWrapper.SESSION_GOAL
+            controller.performance = int(args['performance'])
+
+            while controller.completed == controller.COMPLETED_STATUS_UNDEFINED:
+                pass
+
+            return {args['goal_level']: controller.completed}, 200
+
+        # create new dataframe containing new values
+        '''new_data = {
+            'name': args['name'],
+            'skill': args['skill'],
+            'sessions': args['sessions']
+        }'''
+
+        # TODO: Might have to use userID instead of push to retrieve the user info in the controller.
+        # new_post_ref = ref.push(new_data)
+
+        # return {new_post_ref.key: new_data}, 200
+
+'''class Users(Resource):
     def get(self):
         parser = reqparse.RequestParser()
         parser.add_argument('userID', required=True)
@@ -325,7 +378,9 @@ class Actions(Resource):
 
 api.add_resource(Users, '/users')
 api.add_resource(Goals, '/goals')
-api.add_resource(Actions, '/actions')
+api.add_resource(Actions, '/actions')'''
+
+api.add_resource(TimestepCue, '/cue')
 
 if __name__ == '__main__':
     app.run()  # run our Flask app

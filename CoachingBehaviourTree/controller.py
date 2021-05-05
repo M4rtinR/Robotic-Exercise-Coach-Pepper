@@ -12,19 +12,37 @@ get_feedback_loop(name, behav)
 __main__()
     Creates the behaviour tree and ticks through it until it completes.
 """
-
+import threading
 import time
 
 from task_behavior_engine.branch import Sequencer, Selector, Progressor
 from task_behavior_engine.decorator import Until, While, Negate, Repeat, UntilCount
 from task_behavior_engine.tree import NodeStatus, Blackboard
 
+from API import api_classes
 from CoachingBehaviourTree.nodes import FormatAction, DisplayBehaviour, CheckForBehaviour, GetBehaviour, GetStats, \
     GetDuration, CreateSubgoal, TimestepCue, DurationCheck, GetUserChoice, EndSetEvent, InitialiseBlackboard, EndSubgoal
 from Policy.policy import Policy
 
 SHOT_CHOICE = 0
 STAT_CHOICE = 1
+
+COMPLETED_STATUS_UNDEFINED = -1
+COMPLETED_STATUS_FALSE = 0
+COMPLETED_STATUS_TRUE = 1
+
+# Initial values which will be updated when the API gets called by the guide.
+goal_level = -1
+name = ''
+sessions = -1
+ability = -1
+score = -1
+target = -1
+avg_score = -1
+performance = -1
+shot = -1
+stat = -1
+completed = COMPLETED_STATUS_UNDEFINED
 
 
 def create_coaching_tree():
@@ -40,14 +58,18 @@ def create_coaching_tree():
     player_stats_until = Until(name="player_stats_until", child=player_stats)
     root.add_child(player_stats_until)
 
+    player_start = TimestepCue(name="player_start", blackboard=b)
+    root.add_child(player_start)
+    b.save('goal', -1, player_start._id)
+
     # TODO: create new node to initialise blackboard values before GetBehaviour
     initialise = InitialiseBlackboard(name="initialise_blackboard", blackboard=b)
     root.add_child(initialise)
 
     # Share data between player_stats and initialise nodes.
     b.add_remapping(player_stats._id, 'motivation', initialise._id, 'motivation')
-    b.add_remapping(player_stats._id, 'player_ability', initialise._id, 'player_ability')
-    b.add_remapping(player_stats._id, 'sessions', initialise._id, 'sessions')
+    b.add_remapping(player_start._id, 'player_ability', initialise._id, 'player_ability')
+    b.add_remapping(player_start._id, 'sessions', initialise._id, 'sessions')
 
     # Session duration
     duration = GetDuration(name="duration", blackboard=b)
@@ -65,15 +87,6 @@ def create_coaching_tree():
 
     #
     #
-    # Wait for timestep cue (i.e. person goal has been created by guide and we are ready for intro.
-    #
-    #
-    person_goal_start = TimestepCue(name="person_goal_started_timestep", blackboard=b)
-    person_goal_start_until = Until(name="person_goal_start_until", child=person_goal_start)
-    gen_person_goal.add_child(person_goal_start_until)
-
-    #
-    #
     # Display pre-instruction behaviour
     #
     #
@@ -86,9 +99,15 @@ def create_coaching_tree():
     # Share data between initialise, session_goal_start, and session_goal_intro_behav.
     b.add_remapping(initialise._id, 'belief', person_goal_intro_behav._id, 'belief')
     b.add_remapping(initialise._id, 'state', person_goal_intro_behav._id, 'state')
-    b.add_remapping(person_goal_start._id, 'performance', person_goal_intro_behav._id, 'performance')
-    b.add_remapping(person_goal_start._id, 'phase', person_goal_intro_behav._id, 'phase')
+    b.save('performance', performance, person_goal_intro_behav._id)
+    b.add_remapping(player_start._id, 'phase', person_goal_intro_behav._id, 'phase')
     b.add_remapping(person_goal._id, 'new_goal', person_goal_intro_behav._id, 'goal')
+
+    person_goal_intro_check_for_pre = CheckForBehaviour(name="person_goal_intro_check_for_pre", blackboard=b)
+    b.save('check_behaviour', Policy.A_PREINSTRUCTION, person_goal_intro_check_for_pre._id)
+    # Share behaviour between session_goal_intro_behav and session_goal_intro_check_for_pre.
+    b.add_remapping(person_goal_intro_behav._id, 'behaviour', person_goal_intro_check_for_pre._id, 'behaviour')
+    person_goal_intro_sequence.add_child(person_goal_intro_check_for_pre)
 
     # Format selected behaviour (i.e. create the output action)
     person_goal_intro_action = FormatAction(name="person_goal_intro_action", blackboard=b)
@@ -96,10 +115,8 @@ def create_coaching_tree():
 
     # Share data between initialise, person_goal_start, person_goal, person_goal_intro_behav and person_goal_intro_action.
     b.add_remapping(initialise._id, 'bl', person_goal_intro_action._id, 'bl')
-    b.add_remapping(person_goal_start._id, 'performance', person_goal_intro_action._id, 'performance')
-    b.add_remapping(person_goal_start._id, 'phase', person_goal_intro_action._id, 'phase')
-    b.add_remapping(person_goal_start._id, 'score', person_goal_intro_action._id, 'score')
-    b.add_remapping(person_goal_start._id, 'target', person_goal_intro_action._id, 'target')
+    b.save('performance', performance, person_goal_intro_action._id)
+    b.add_remapping(player_start._id, 'phase', person_goal_intro_action._id, 'phase')
     b.add_remapping(person_goal._id, 'new_goal', person_goal_intro_action._id, 'goal')
     b.add_remapping(person_goal_intro_behav._id, 'behaviour', person_goal_intro_action._id, 'behaviour')
 
@@ -139,6 +156,7 @@ def create_coaching_tree():
     session_goal_start = TimestepCue(name="session_goal_started_timestep", blackboard=b)
     session_goal_start_until = Until(name="session_goal_start_until", child=session_goal_start)
     gen_session_goal.add_child(session_goal_start_until)
+    b.add_remapping(session_goal._id, 'new_goal', session_goal_start._id, 'goal')
 
     #
     #
@@ -739,10 +757,7 @@ def get_feedback_loop(name, behav, blackboard, goal_node, initialise_node, previ
     return Negate(name=negate_name, child=feedback_loop_while), feedback_behaviour
 
 
-if __name__ == '__main__':
-    """
-    Creates the behaviour tree and ticks through it until it completes.
-    """
+def main():
     coaching_tree = create_coaching_tree()
     result = NodeStatus(NodeStatus.ACTIVE)
 
@@ -750,3 +765,21 @@ if __name__ == '__main__':
         result = coaching_tree.tick()
         print(result)
         time.sleep(1)
+
+def api_start():
+    api_classes.app.run(debug=True, use_reloader=False)
+
+
+if __name__ == '__main__':
+    """
+    Creates the behaviour tree and ticks through it until it completes.
+    """
+    # Start API
+    x = threading.Thread(target=api_start)
+    x.start()
+    print("Continuing")
+    main()
+    x.join()
+
+
+
