@@ -270,6 +270,7 @@ def create_coaching_tree():
     shot_goal_start = TimestepCue(name="shot_goal_started_timestep", blackboard=b)
     shot_goal_start_until = Until(name="shot_goal_start_until", child=shot_goal_start)
     gen_shot_goal.add_child(shot_goal_start_until)
+    b.add_remapping(shot_goal._id, 'new_goal', shot_goal_start._id, 'goal')
 
     #
     # Display intro shot behaviours until pre-instruction or questioning

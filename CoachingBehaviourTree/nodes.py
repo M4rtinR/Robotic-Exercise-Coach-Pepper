@@ -554,6 +554,16 @@ class TimestepCue(Node):
                 print("Returning ACTIVE from TimestepCue session goal")
                 return NodeStatus(NodeStatus.ACTIVE, "Waiting for session goal data from guide.")
 
+        elif self.goal_level == 2:  # For shot goal should have performance from last time this shot was practiced.
+            if controller.goal_level == 2:
+                nodedata.performance = controller.performance
+                nodedata.phase = PolicyWrapper.PHASE_START
+                print("Returning SUCCESS from TimestepCue shot goal, stats = " + str(nodedata))
+                return NodeStatus(NodeStatus.SUCCESS, "Data for shot goal obtained from guide:" + str(nodedata))
+            else:
+                print("Returning ACTIVE from TimestepCue shot goal")
+                return NodeStatus(NodeStatus.ACTIVE, "Waiting for shot goal data from guide.")
+
         nodedata.performance = PolicyWrapper.MET
         nodedata.phase = PolicyWrapper.PHASE_START
         nodedata.target = 0.80
@@ -647,9 +657,11 @@ class GetUserChoice(Node):
         #   waiting for user selection so that the tree doesn't grind to a halt.
         if self.choice_type == 0:  # controller.SHOT_CHOICE = 0
             nodedata.shot = 1
+            controller.shot = 1
             print("Returning SUCCESS from GetUserChoice, shot = " + str(nodedata.shot))
         else:
             nodedata.stat = 1
+            controller.stat = 1
             print("Returning SUCCESS from GetUserChoice, stat = " + str(nodedata.stat))
         return NodeStatus(NodeStatus.SUCCESS, "Set shot/stat to 1.")
 

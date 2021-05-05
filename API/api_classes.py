@@ -45,6 +45,7 @@ class TimestepCue(Resource):
                 pass
 
             return {args['goal_level']: controller.completed}, 200
+
         elif int(args['goal_level']) == PolicyWrapper.SESSION_GOAL:
             print('session goal setting controller values')
             controller.completed = controller.COMPLETED_STATUS_UNDEFINED
@@ -54,7 +55,32 @@ class TimestepCue(Resource):
             while controller.completed == controller.COMPLETED_STATUS_UNDEFINED:
                 pass
 
-            return {args['goal_level']: controller.completed}, 200
+            new_data = {
+                'completed': controller.completed
+            }
+
+            if not(controller.shot == -1):
+                new_data['shot'] = controller.shot
+
+            return {args['goal_level']: new_data}, 200
+
+        elif int(args['goal_level']) == PolicyWrapper.EXERCISE_GOAL:
+            print('shot goal setting controller values')
+            controller.completed = controller.COMPLETED_STATUS_UNDEFINED
+            controller.goal_level = PolicyWrapper.EXERCISE_GOAL
+            controller.performance = int(args['performance'])
+
+            while controller.completed == controller.COMPLETED_STATUS_UNDEFINED:
+                pass
+
+            new_data = {
+                'completed': controller.completed
+            }
+
+            if not (controller.stat == -1):
+                new_data['stat'] = controller.stat
+
+            return {args['goal_level']: new_data}, 200
 
         # create new dataframe containing new values
         '''new_data = {
