@@ -64,11 +64,19 @@ class PolicyWrapper:
         """
         valid_behaviours = self._get_valid_list(goal_level, performance, phase)
         behaviour = self.policy.sample_action(state)
+        count = 0
         while not(behaviour in valid_behaviours):
             if goal_level == self.ACTION_GOAL:     # If between shots, silence is an appropriate action so each time a
                 behaviour = self.policy.A_SILENCE  # non-valid action is proposed, just use silence.
             else:
-                behaviour = self.policy.sample_action(state)
+                if count <= 10:  # Only try this 10 times and if still no valid behaviour, try the next behaviour in the action sequence.
+                    print("PolicyWrapper <= 10")
+                    behaviour = self.policy.sample_action(state)
+                else:
+                    print("PolicyWrapper > 10")
+                    behaviour = self.policy.sample_action(self.policy.sample_observation(action=behaviour, state=state))
+                    count = 0
+                count += 1
 
         return behaviour
 

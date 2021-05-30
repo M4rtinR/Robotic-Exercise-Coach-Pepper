@@ -1,3 +1,5 @@
+import numpy as np
+import random
 from random import choices
 
 
@@ -266,13 +268,17 @@ class Policy:
         #print(len(self.transition_matrix[style - 1][self._get_action(state)]))
         #print(len(range(68)))
         action = choices(range(68), self.transition_matrix[style - 1][self._get_action(state)])[0]
+        print("action: " + str(action))
         count = 1
         while action == self.A_MANUALMANIPULATION:
             # Manual manipulation is not possible for the robot so if this is the case, get new behaviour
             if count <= 10:  # Either from original state
+                print("count <= 10")
                 action = choices(range(68), self.transition_matrix[style - 1][self._get_action(state)])[0]
             else:  # or from manual manipulation if this is the only behaviour following the original state.
+                print("count > 10")
                 action = choices(range(68), self.transition_matrix[style - 1][action])[0]
+            count += 1
 
         return choices(range(68), self.transition_matrix[style - 1][self._get_action(state)])[0]
 
@@ -286,21 +292,28 @@ class Policy:
         """
 
         new_style = choices(range(1, 13), self.belief_distribution)[0]
+        #new_style = 9
 
         # Check if action is valid in new_style
+        #print(self.transition_matrix[new_style - 1])
+        #actionKey = next((key for key, value in self.physioActionDict.items() if value == 18), None)
+        #print(str(actionKey))
+        #print(self.transition_matrix[new_style - 1][actionKey])
         if new_style < 7 and not(43 < action < self.A_END):
-            return new_style * 45 + action if action < self.A_END else new_style * 45 + 44
+            if sum(self.transition_matrix[new_style - 1][action]) > 0.0:
+                return new_style * 45 + action if action < self.A_END else new_style * 45 + 44
         elif new_style >= 7 and action in self.physioActionDict.values():
             physio_action = next((key for key, value in self.physioActionDict.items() if value == action), None)
-            return 270 + ((new_style - 7) * 53) + physio_action
+            if sum(self.transition_matrix[new_style - 1][physio_action]) > 0.0:
+                return 270 + ((new_style - 7) * 53) + physio_action
 
         # If invalid action we don't change style, so return new action in original style.
         current_style = self._get_style(state)
         if current_style < 7:
-            return current_style * 45 + action if action < self.A_END else current_style * 45 + 44
+            return (current_style - 1) * 45 + action if action < self.A_END else (current_style - 1) * 45 + 44
         else:
             physio_action = next((key for key, value in self.physioActionDict.items() if value == action), None)
-            return 270 + ((new_style - 7) * 53) + physio_action
+            return 270 + ((current_style - 7) * 53) + physio_action
 
     def _get_action(self, state):
         """
@@ -2387,19 +2400,19 @@ class Policy:
         }
 
         tm = [[[0.0 for x in range(68)] for y in range(68)] for z in range(12)]
-        for count in range(11):
+        for count in range(12):
             if count < 6:
                 for row in range(68):
                     if row < 45:
                         for col in range(68):
                             if col < 45:
-                                tm[count][row][col] = switcher[count+1][row][col]
+                                tm[count][row][col] = switcher[count][row][col]
             else:
                 for row in range(68):
                     if row < 53:
                         for col in range(68):
                             if col < 53:
-                                tm[count][self.physioActionDict[row]][self.physioActionDict[col]] = switcher[count+1][row][col]
+                                tm[count][self.physioActionDict[row]][self.physioActionDict[col]] = switcher[count][row][col]
             count += 1
 
         return tm
@@ -2495,3 +2508,16 @@ class Policy:
         # print(len(prob_matrix), len(prob_matrix[0]))
 
         return prob_matrix'''
+
+# Test for debugging purposes
+'''def _constrainedSumSamplePos(n, total, rangeGap):
+    """Return a randomly chosen list of n positive integers summing to total.
+    Each such list is equally likely to occur."""
+    numpyRange = np.arange(0.0, total, rangeGap)
+    range = np.ndarray.tolist(numpyRange)
+    dividers = sorted(random.sample(range, n - 1))
+    return [a - b for a, b in zip(dividers + [total], [0.0] + dividers)]
+
+if __name__ == '__main__':
+    p = Policy([x / 100 for x in _constrainedSumSamplePos(12, 100, 0.001)])
+    print(p.sample_observation(429, 18))'''

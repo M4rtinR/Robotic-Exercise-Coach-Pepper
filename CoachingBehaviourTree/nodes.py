@@ -86,7 +86,7 @@ class GetBehaviour(Node):
             state information.
         :return: None
         """
-        print("Configuring GetBehaviour")
+        print("Configuring GetBehaviour: " + self._name)
         print(str(nodedata))
         self.belief = nodedata.get_data('belief')            # Belief distribution over policies.
         self.goal_level = nodedata.get_data('goal')          # Which level of goal we are currently in (e.g. SET_GOAL)
@@ -167,14 +167,19 @@ class FormatAction(Node):
             state and behaviour information.
         :return: None
         """
+        print("Configuring FormatAction: " + self._name)
         # print("FormatAction nodedata: " + str(nodedata))
         self.goal_level = nodedata.get_data('goal')          # Which level of goal we are currently in (e.g. SET_GOAL)
-        self.performance = nodedata.get_data('performance')  # Which level of performance the player achieved (e.g. MET)
+        self.performance = nodedata.get_data('performance', 0)  # Which level of performance the player achieved (e.g. MET)
         self.phase = nodedata.get_data('phase')              # PHASE_START or PHASE_END
         self.score = nodedata.get_data('score')              # Numerical score from sensor relating to a stat (can be None)
         self.target = nodedata.get_data('target')            # Numerical target score for stat (can be None)
         self.behaviour_lib = nodedata.get_data('bl')         # The behaviour library to be used in generating actions
         self.behaviour = nodedata.get_data('behaviour')      # The type of behaviour to create an action for.
+        self.name = nodedata.get_data('name')                # The name of the current user.
+        self.shot = nodedata.get_data('shot')                # The shot type (can be None)
+        self.hand = nodedata.get_data('hand')                # Forehand or backhand associated with shot (can be None)
+        self.stat = nodedata.get_data('stat')                # The stat type (can be None)
 
     def run(self, nodedata):
         """
@@ -183,11 +188,11 @@ class FormatAction(Node):
             nodes.
         :return: NodeStatus.SUCCESS when an action has been created.
         """
-        pre_msg = self.behaviour_lib.get_pre_msg(self.behaviour, self.goal_level, self.performance, self.phase)
+        pre_msg = self.behaviour_lib.get_pre_msg(self.behaviour, self.goal_level, self.performance, self.phase, self.name, self.shot, self.hand, self.stat)
         if self.score is None and self.performance is None:
             post_msg = None
         else:
-            post_msg = self.behaviour_lib.get_post_msg(self.behaviour, self.goal_level, self.performance, self.phase)
+            post_msg = self.behaviour_lib.get_post_msg(self.behaviour, self.goal_level, self.performance, self.phase, self.name, self.shot, self.hand, self.stat)
 
         if post_msg is not None:
             nodedata.action = Action(pre_msg, self.score, self.target, post_msg)
@@ -234,6 +239,7 @@ class CheckForBehaviour(Node):
             behaviour information.
         :return: None
         """
+        print("Configuring CheckForBehaviour: " + self._name)
         self.behaviour = nodedata.get_data('behaviour')              # The behaviour selected from the policy
         self.check_behaviour = nodedata.get_data('check_behaviour')  # The behaviour to check against
 
@@ -305,6 +311,7 @@ class DisplayBehaviour(Node):
             be performed.
         :return: None
         """
+        print("Configuring DisplayBehaviour: " + self._name)
         self.action = nodedata.get_data('action')
 
     def run(self, nodedata):
@@ -344,6 +351,7 @@ class GetStats(Node):
         :return: NodeStatus.ACTIVE when waiting for data, NodeStatus.SUCCESS when got data and added to blackboard,
             NodeStatus.FAIL otherwise.
         """
+        print("Running GetStats: " + self._name)
         # Will be ACTIVE when waiting for data and SUCCESS when got data and added to blackboard, FAIL when connection error.
         # print("In get stats")
         nodedata.motivation = 8
@@ -378,6 +386,7 @@ class GetDuration(Node):
         :return: NodeStatus.ACTIVE when waiting for user's input, NodeStatus.SUCCESS when user's input has been received
             and data has been stored in the blackboard, NodeStatus.FAIL otherwise.
         """
+        print("Running GetDuration: " + self._name)
         # Will be ACTIVE when waiting for data and SUCCESS when got data and added to blackboard, FAIL when connection error.
         nodedata.session_duration = 2
         print("Returning SUCCESS from GetDuration, session duration = " + str(nodedata.session_duration))
@@ -414,6 +423,7 @@ class CreateSubgoal(Node):
         :param nodedata :type Blackboard: the blackboard associated with this Behaviour Tree containing the goal level.
         :return: None
         """
+        print("Configuring CreateSubgoal: " + self._name)
         print("createSubgoal nodedata = " + str(nodedata))
         self.previous_goal_level = nodedata.get_data('goal', -1)
         self.shot = nodedata.get_data('shot')
@@ -473,6 +483,7 @@ class EndSubgoal(Node):
         :param nodedata :type Blackboard: the blackboard associated with this Behaviour Tree containing the goal level.
         :return: None
         """
+        print("Configuring EndSubgoal: " + self._name)
         self.goal_level = nodedata.get_data('goal', -1)
 
     def run(self, nodedata):
@@ -488,7 +499,10 @@ class EndSubgoal(Node):
             return NodeStatus(NodeStatus.FAIL, "Cannot create subgoal of " + str(self.goal_level))
         else:
             if self.goal_level == PolicyWrapper.BASELINE_GOAL:
+                nodedata.stat = 1
+                nodedata.phase = PolicyWrapper.PHASE_START
                 nodedata.new_goal = PolicyWrapper.EXERCISE_GOAL
+                controller.competed = controller.COMPLETED_STATUS_TRUE
             else:
                 nodedata.new_goal = self.goal_level - 1
             print("Returning SUCCESS from EndSubgoal, new subgoal level = " + str(nodedata.new_goal))
@@ -517,7 +531,9 @@ class TimestepCue(Node):
             *args, **kwargs)
 
     def configure(self, nodedata):
+        print("Configuring TimestepCue: " + self._name)
         self.goal_level = nodedata.get_data('goal')
+        self.phase = nodedata.get_data('phase')
 
     def run(self, nodedata):
         """
@@ -556,13 +572,68 @@ class TimestepCue(Node):
 
         elif self.goal_level == 2:  # For shot goal should have performance from last time this shot was practiced.
             if controller.goal_level == 2:
-                nodedata.performance = controller.performance
-                nodedata.phase = PolicyWrapper.PHASE_START
-                print("Returning SUCCESS from TimestepCue shot goal, stats = " + str(nodedata))
-                return NodeStatus(NodeStatus.SUCCESS, "Data for shot goal obtained from guide:" + str(nodedata))
+                if self.phase == PolicyWrapper.PHASE_END:  # This is actually the end of a baseline goal. Might need to update this so it's not as weirdly laid out.
+                    if controller.completed == controller.COMPLETED_STATUS_UNDEFINED:
+                        nodedata.phase = PolicyWrapper.PHASE_END
+                        nodedata.performance = controller.performance
+                        controller.completed = controller.COMPLETED_STATUS_TRUE
+                        print("Returning SUCCESS from TimestepCue shot goal (end), stats = " + str(nodedata))
+                        return NodeStatus(NodeStatus.SUCCESS, "Data for shot goal obtained from guide:" + str(nodedata))
+                    else:
+                        print("Returning ACTIVE from TimestepCue shot goal")
+                        return NodeStatus(NodeStatus.ACTIVE, "Waiting for shot goal data from guide.")
+                else:
+                    nodedata.performance = controller.performance
+                    nodedata.phase = PolicyWrapper.PHASE_START
+                    print("Returning SUCCESS from TimestepCue shot goal, stats = " + str(nodedata))
+                    return NodeStatus(NodeStatus.SUCCESS, "Data for shot goal obtained from guide:" + str(nodedata))
             else:
                 print("Returning ACTIVE from TimestepCue shot goal")
                 return NodeStatus(NodeStatus.ACTIVE, "Waiting for shot goal data from guide.")
+
+        elif self.goal_level == 3:  # For stat goal should have target and performance from last time this stat was practiced.
+            if controller.goal_level == 3:
+                nodedata.performance = controller.performance
+                nodedata.phase = PolicyWrapper.PHASE_START
+                print("Returning SUCCESS from TimestepCue stat goal, stats = " + str(nodedata))
+                return NodeStatus(NodeStatus.SUCCESS, "Data for stat goal obtained from guide:" + str(nodedata))
+            else:
+                print("Returning ACTIVE from TimestepCue stat goal")
+                return NodeStatus(NodeStatus.ACTIVE, "Waiting for stat goal data from guide.")
+
+        elif self.goal_level == 4:  # For set goal we don't need any information from guide up front, only for feedback.
+            if controller.goal_level == 4:
+                nodedata.phase = PolicyWrapper.PHASE_START
+                controller.shot_count = 0
+                controller.completed = controller.COMPLETED_STATUS_FALSE
+                print("Returning SUCCESS from TimestepCue set goal, stats = " + str(nodedata))
+                return NodeStatus(NodeStatus.SUCCESS, "Data for set goal obtained from guide:" + str(nodedata))
+            else:
+                print("Returning ACTIVE from TimestepCue set goal")
+                return NodeStatus(NodeStatus.ACTIVE, "Waiting for set goal data from guide.")
+
+        elif self.goal_level == 5:
+            if controller.goal_level == 5:
+                nodedata.phase = PolicyWrapper.PHASE_START
+                nodedata.performance = controller.performance
+                nodedata.score = controller.score
+                nodedata.target = controller.target
+                print("Returning SUCCESS from TimestepCue action goal, stats = " + str(nodedata))
+                return NodeStatus(NodeStatus.SUCCESS, "Data for action goal obtained from guide:" + str(nodedata))
+            else:
+                print("Returning ACTIVE from TimestepCue action goal")
+                return NodeStatus(NodeStatus.ACTIVE, "Waiting for action goal data from guide.")
+
+        elif self.goal_level == 6:
+            if controller.goal_level == 4:
+                nodedata.phase = PolicyWrapper.PHASE_START
+                controller.shot_count = 0
+                controller.completed = controller.COMPLETED_STATUS_FALSE
+                print("Returning SUCCESS from TimestepCue baseline goal, stats = " + str(nodedata))
+                return NodeStatus(NodeStatus.SUCCESS, "Data for baseline goal obtained from guide:" + str(nodedata))
+            else:
+                print("Returning ACTIVE from TimestepCue baseline goal")
+                return NodeStatus(NodeStatus.ACTIVE, "Waiting for baseline goal data from guide.")
 
         nodedata.performance = PolicyWrapper.MET
         nodedata.phase = PolicyWrapper.PHASE_START
@@ -603,6 +674,7 @@ class DurationCheck(Node):
         :param nodedata :type Blackboard: the blackboard associated with this Behaviour Tree containing the time data.
         :return: None
         """
+        print("Configuring DurationCheck: " + self._name)
         self.start_time = nodedata.get_data('start_time')
         self.session_duration = nodedata.get_data('session_duration')
         # Only use until getting actual time:
@@ -646,6 +718,7 @@ class GetUserChoice(Node):
             *args, **kwargs)
 
     def configure(self, nodedata):
+        print("Configuring GetUserChoice: " + self._name)
         self.choice_type = nodedata.get_data('choice_type')
 
     def run(self, nodedata):
@@ -658,6 +731,8 @@ class GetUserChoice(Node):
         if self.choice_type == 0:  # controller.SHOT_CHOICE = 0
             nodedata.shot = 1
             controller.shot = 1
+            nodedata.hand = 1  # Forehand
+            controller.hand = 1
             print("Returning SUCCESS from GetUserChoice, shot = " + str(nodedata.shot))
         else:
             nodedata.stat = 1
@@ -686,6 +761,7 @@ class EndSetEvent(Node):
             *args, **kwargs)
 
     def configure(self):
+        print("Configuring EndSetEvent: " + self._name)
         self.shotcount = 0
 
     def run(self, nodedata):
@@ -695,13 +771,13 @@ class EndSetEvent(Node):
         """
         # TODO Update once getting actual choice from user. Will probably need two nodes, one for displaying button,
         #   one for waiting for user selection so that the tree doesn't grind to a halt.
-        self.shotcount += 1  # TODO Set this to 0 when set starts.
-        if self.shotcount >= 30:
-            print("Returning SUCCESS from EndSetEvent, shot count = " + str(self.shotcount))
+        # self.shotcount += 1  # TODO Set this to 0 when set starts.
+        if controller.shot_count >= 30:
+            print("Returning SUCCESS from EndSetEvent, shot count = " + str(controller.shot_count))
             return NodeStatus(NodeStatus.SUCCESS, "Shot set ended.")
         else:
-            print("Returning Fail from EndSetEvent, shot count = " + str(self.shotcount))
-            return NodeStatus(NodeStatus.FAIL, "Shot set at " + str(nodedata.get_data('shot_count') + ". Not ended yet."))
+            print("Returning Fail from EndSetEvent, shot count = " + str(controller.shot_count))
+            return NodeStatus(NodeStatus.FAIL, "Shot set at " + str(controller.shot_count + ". Not ended yet."))
 
 class InitialiseBlackboard(Node):
     """
@@ -738,6 +814,7 @@ class InitialiseBlackboard(Node):
             state information.
         :return: None
         """
+        print("Configuring InitialiseBlackboard: " + self._name)
         pass
 
     def run(self, nodedata):

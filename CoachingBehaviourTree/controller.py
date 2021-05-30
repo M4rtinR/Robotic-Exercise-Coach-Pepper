@@ -41,8 +41,11 @@ target = -1
 avg_score = -1
 performance = -1
 shot = -1
+hand = -1
 stat = -1
 completed = COMPLETED_STATUS_UNDEFINED
+shot_count = 0
+action_score = -1
 
 
 def create_coaching_tree():
@@ -119,6 +122,7 @@ def create_coaching_tree():
     b.add_remapping(player_start._id, 'phase', person_goal_intro_action._id, 'phase')
     b.add_remapping(person_goal._id, 'new_goal', person_goal_intro_action._id, 'goal')
     b.add_remapping(person_goal_intro_behav._id, 'behaviour', person_goal_intro_action._id, 'behaviour')
+    b.add_remapping(player_start._id, 'name', person_goal_intro_action._id, 'name')
 
     # Display pre-instruction behaviour
     person_goal_intro_output = DisplayBehaviour(name="person_goal_intro_output", blackboard=b)
@@ -194,6 +198,7 @@ def create_coaching_tree():
     b.add_remapping(session_goal_start._id, 'target', session_goal_intro_pre_instr_action._id, 'target')
     b.add_remapping(session_goal._id, 'new_goal', session_goal_intro_pre_instr_action._id, 'goal')
     b.add_remapping(session_goal_intro_behav._id, 'behaviour', session_goal_intro_pre_instr_action._id, 'behaviour')
+    b.add_remapping(player_start._id, 'name', session_goal_intro_pre_instr_action._id, 'name')
     session_goal_intro_pre_instr_output = DisplayBehaviour(name="session_goal_intro_pre_instruction_output", blackboard=b)
     session_goal_intro_pre_instr_sequence.add_child(session_goal_intro_pre_instr_output)
     # Share action between session_goal_intro_action and session_goal_intro_output.
@@ -226,6 +231,7 @@ def create_coaching_tree():
     b.add_remapping(session_goal_start._id, 'target', session_goal_intro_action._id, 'target')
     b.add_remapping(session_goal._id, 'new_goal', session_goal_intro_action._id, 'goal')
     b.add_remapping(session_goal_intro_behav._id, 'behaviour', session_goal_intro_action._id, 'behaviour')
+    b.add_remapping(player_start._id, 'name', session_goal_intro_action._id, 'name')
 
 
     # Display selected behaviour if not pre-instruction or questioning
@@ -306,6 +312,7 @@ def create_coaching_tree():
     baseline_goal_start = TimestepCue(name="baseline_goal_started_timestep", blackboard=b)
     baseline_goal_start_until = Until(name="baseline_goal_start_until", child=baseline_goal_start)
     gen_baseline_goal.add_child(baseline_goal_start_until)
+    b.add_remapping(baseline_goal._id, 'new_goal', baseline_goal_start._id, 'goal')
     # Get behaviour from policy (will always be pre-instruction for baseline goal.
     baseline_goal_intro_behav = GetBehaviour(name="baseline_goal_intro_behaviour", blackboard=b)
     gen_baseline_goal.add_child(baseline_goal_intro_behav)
@@ -326,6 +333,9 @@ def create_coaching_tree():
     b.add_remapping(baseline_goal_start._id, 'target', baseline_goal_intro_action._id, 'target')
     b.add_remapping(baseline_goal._id, 'new_goal', baseline_goal_intro_action._id, 'goal')
     b.add_remapping(baseline_goal_intro_behav._id, 'behaviour', baseline_goal_intro_action._id, 'behaviour')
+    b.add_remapping(player_start._id, 'name', baseline_goal_intro_action._id, 'name')
+    b.save('shot', shot, baseline_goal_intro_action._id)
+    b.save('hand', hand, baseline_goal_intro_action._id)
     # Display baseline pre-instruction behaviour
     baseline_goal_intro = DisplayBehaviour(name="baseline_goal_intro", blackboard=b)
     gen_baseline_goal.add_child(baseline_goal_intro)
@@ -335,6 +345,16 @@ def create_coaching_tree():
     baseline_goal_end_set_event = EndSetEvent(name="baseline_goal_end_set_event", blackboard=b)
     baseline_goal_end_set_until = Until(name="baseline_goal_end_set_until", child=baseline_goal_end_set_event)
     gen_baseline_goal.add_child(baseline_goal_end_set_until)
+    # End baseline goal
+    baseline_goal_end = EndSubgoal(name="baseline_goal_end")
+    b.add_remapping(baseline_goal._id, 'new_goal', baseline_goal_end._id, 'goal')
+    gen_baseline_goal.add_child(baseline_goal_end)
+    # Wait for timestep cue with stats for baseline set just played.
+    baseline_goal_end_cue = TimestepCue(name="baseline_goal_end_cue")
+    baseline_goal_end_cue_until = Until(name="baseline_goal_end_cue_until", child=baseline_goal_end_cue)
+    gen_baseline_goal.add_child(baseline_goal_end_cue_until)
+    b.add_remapping(baseline_goal_end._id, 'new_goal', baseline_goal_end_cue_until._id, 'goal')
+    b.add_remapping(baseline_goal_end._id, 'phase', baseline_goal_end_cue_until._id, 'phase')
     shot_goal_intro_pre_instr_sequence.add_child(gen_baseline_goal)
     shot_goal_intro_pre_instr_negate = Negate(name="shot_goal_intro_pre_instr_negate", child=shot_goal_intro_pre_instr_sequence)
     shot_goal_intro_sequence.add_child(shot_goal_intro_pre_instr_negate)
@@ -363,6 +383,9 @@ def create_coaching_tree():
     b.add_remapping(shot_goal_start._id, 'target', shot_goal_intro_action._id, 'target')
     b.add_remapping(shot_goal._id, 'new_goal', shot_goal_intro_action._id, 'goal')
     b.add_remapping(shot_goal_intro_behav._id, 'behaviour', shot_goal_intro_action._id, 'behaviour')
+    b.add_remapping(player_start._id, 'name', shot_goal_intro_action._id, 'name')
+    b.save('shot', shot, shot_goal_intro_action._id)
+    b.save('hand', hand, shot_goal_intro_action._id)
 
     # Display selected behaviour if not pre-instruction or questioning
     shot_goal_intro_output = DisplayBehaviour(name="shot_goal_intro_output", blackboard=b)
@@ -370,7 +393,9 @@ def create_coaching_tree():
     # Share action between shot_goal_intro_action and shot_goal_intro_output.
     b.add_remapping(shot_goal_intro_action._id, 'action', shot_goal_intro_output._id, 'action')
 
-    gen_shot_goal.add_child(shot_goal_intro_sequence)
+    shot_goal_intro_while = While(name="shot_goal_intro_while", child=shot_goal_intro_sequence)
+    shot_goal_intro_while_negate = Negate(name="shot_goal_intro_while_negate", child=shot_goal_intro_while)
+    gen_shot_goal.add_child(shot_goal_intro_while_negate)
 
     #
     # Conduct coaching for stat
@@ -381,14 +406,15 @@ def create_coaching_tree():
     stat_goal = CreateSubgoal(name="create_stat_goal", blackboard=b)
     gen_stat_goal.add_child(stat_goal)
 
-    # Share data between shot_goal, shot_goal_stat_choice and stat_goal.
+    # Share data between shot_goal and stat_goal.
     b.add_remapping(shot_goal._id, 'new_goal', stat_goal._id, 'goal')
-    b.add_remapping(shot_goal_stat_choice._id, 'stat', stat_goal._id, 'stat')
+    b.save('stat', stat, stat_goal._id)
 
     # Wait for timestep cue (i.e. stat goal has been created by guide and we are ready for intro.
     stat_goal_start = TimestepCue(name="stat_goal_started_timestep", blackboard=b)
     stat_goal_start_until = Until(name="stat_goal_start_until", child=stat_goal_start)
     gen_stat_goal.add_child(stat_goal_start_until)
+    b.add_remapping(stat_goal._id, 'new_goal', stat_goal_start._id, 'goal')
 
     # Display intro stat behaviours until pre-instruction
     stat_goal_intro_sequence = Progressor(name="stat_goal_intro_sequence")
@@ -423,6 +449,8 @@ def create_coaching_tree():
     b.add_remapping(stat_goal_start._id, 'target', stat_goal_intro_action._id, 'target')
     b.add_remapping(stat_goal._id, 'new_goal', stat_goal_intro_action._id, 'goal')
     b.add_remapping(stat_goal_intro_behav._id, 'behaviour', stat_goal_intro_action._id, 'behaviour')
+    b.add_remapping(player_start._id, 'name', stat_goal_intro_action._id, 'name')
+    b.save('stat', stat, stat_goal_intro_action._id)
 
     # Display selected behaviour if not pre-instruction
     stat_goal_intro_output = DisplayBehaviour(name="stat_goal_intro_output", blackboard=b)
@@ -445,6 +473,8 @@ def create_coaching_tree():
     b.add_remapping(stat_goal_start._id, 'target', stat_goal_pre_instr_intro_action._id, 'target')
     b.add_remapping(stat_goal._id, 'new_goal', stat_goal_pre_instr_intro_action._id, 'goal')
     b.add_remapping(stat_goal_intro_behav._id, 'behaviour', stat_goal_pre_instr_intro_action._id, 'behaviour')
+    b.add_remapping(player_start._id, 'name', stat_goal_pre_instr_intro_action._id, 'name')
+    b.save('stat', stat, stat_goal_pre_instr_intro_action._id)
 
     # Display pre-instruction behaviour for stat
     stat_goal_pre_instr_intro_output = DisplayBehaviour(name="stat_goal_pre_instr_intro_output", blackboard=b)
@@ -461,7 +491,7 @@ def create_coaching_tree():
     gen_set_goal = Progressor(name="gen_set_goal")
 
     # Create set goal in guide
-    set_goal = CreateSubgoal(name="create_set_goal")
+    set_goal = CreateSubgoal(name="create_set_goal", blackboard=b)
     gen_set_goal.add_child(set_goal)
     # Share data between stat_goal and set_goal.
     b.add_remapping(stat_goal._id, 'new_goal', set_goal._id, 'goal')
@@ -470,6 +500,7 @@ def create_coaching_tree():
     set_goal_start = TimestepCue(name="set_goal_started_timestep", blackboard=b)
     set_goal_start_until = Until(name="set_goal_start_until", child=set_goal_start)
     gen_set_goal.add_child(set_goal_start_until)
+    b.add_remapping(set_goal._id, 'new_goal', set_goal_start._id, 'goal')
 
     # Display intro set behaviours until pre-instruction
     set_goal_intro_sequence = Progressor(name="set_goal_intro_sequence")
@@ -498,12 +529,16 @@ def create_coaching_tree():
     set_goal_intro_sequence.add_child(set_goal_intro_action)
     # Share data between initialise, set_goal_start, set_goal, set_goal_intro_behav and set_goal_intro_action.
     b.add_remapping(initialise._id, 'bl', set_goal_intro_action._id, 'bl')
-    b.add_remapping(set_goal_start._id, 'performance', set_goal_intro_action._id, 'performance')
+    b.add_remapping(stat_goal_start._id, 'performance', set_goal_intro_action._id, 'performance')
     b.add_remapping(set_goal_start._id, 'phase', set_goal_intro_action._id, 'phase')
-    b.add_remapping(set_goal_start._id, 'score', set_goal_intro_action._id, 'score')
-    b.add_remapping(set_goal_start._id, 'target', set_goal_intro_action._id, 'target')
+    b.add_remapping(stat_goal_start._id, 'score', set_goal_intro_action._id, 'score')
+    b.add_remapping(stat_goal_start._id, 'target', set_goal_intro_action._id, 'target')
     b.add_remapping(set_goal._id, 'new_goal', set_goal_intro_action._id, 'goal')
     b.add_remapping(set_goal_intro_behav._id, 'behaviour', set_goal_intro_action._id, 'behaviour')
+    b.add_remapping(player_start._id, 'name', set_goal_intro_action._id, 'name')
+    b.save('shot', shot, set_goal_intro_action._id)
+    b.save('hand', hand, set_goal_intro_action._id)
+    b.save('stat', stat, set_goal_intro_action._id)
 
     # Display selected behaviour if not pre-instruction
     set_goal_intro_output = DisplayBehaviour(name="set_goal_intro_output", blackboard=b)
@@ -526,6 +561,10 @@ def create_coaching_tree():
     b.add_remapping(set_goal_start._id, 'target', set_goal_pre_instr_intro_action._id, 'target')
     b.add_remapping(set_goal._id, 'new_goal', set_goal_pre_instr_intro_action._id, 'goal')
     b.add_remapping(set_goal_intro_behav._id, 'behaviour', set_goal_pre_instr_intro_action._id, 'behaviour')
+    b.add_remapping(player_start._id, 'name', set_goal_pre_instr_intro_action._id, 'name')
+    b.save('shot', shot, set_goal_pre_instr_intro_action._id)
+    b.save('hand', hand, set_goal_pre_instr_intro_action._id)
+    b.save('stat', stat, set_goal_pre_instr_intro_action._id)
 
     # Display pre-instruction behaviour for set
     set_goal_pre_instr_intro_output = DisplayBehaviour(name="set_goal_pre_instr_intro_output", blackboard=b)
@@ -571,6 +610,10 @@ def create_coaching_tree():
     b.add_remapping(set_goal_individual_action_cue._id, 'target', set_goal_individual_action._id, 'target')
     b.add_remapping(action_goal._id, 'new_goal', set_goal_individual_action._id, 'goal')
     b.add_remapping(set_goal_individual_action_behav._id, 'behaviour', set_goal_individual_action._id, 'behaviour')
+    b.add_remapping(player_start._id, 'name', set_goal_individual_action._id, 'name')
+    b.save('shot', shot, set_goal_individual_action._id)
+    b.save('hand', hand, set_goal_individual_action._id)
+    b.save('stat', stat, set_goal_individual_action._id)
     # Display individual action caoching behaviour
     set_goal_individual_action_output = DisplayBehaviour(name="set_goal_individual_action_output", blackboard=b)
     set_goal_individual_action_sequence.add_child(set_goal_individual_action_output)
@@ -588,14 +631,14 @@ def create_coaching_tree():
     set_goal_coaching_until = Until(name="set_goal_coaching_until", child=set_goal_coaching_selector)
     gen_set_goal.add_child(set_goal_coaching_until)
 
-    stat_goal_coaching.add_child(gen_set_goal)
-
     # Set feedback loop until pre-instruction
-    # Wait for timestep cue (i.e. stat goal has been completed by guide and we are ready for feedback behaviours).
+    # Wait for timestep cue (i.e. set goal has been completed by guide and we are ready for feedback behaviours).
     set_goal_end = TimestepCue(name="set_goal_ended_timestep", blackboard=b)
     set_goal_end_until = Until(name="set_goal_end_until", child=set_goal_end)
     gen_set_goal.add_child(set_goal_end_until)
-    set_goal_feedback_loop, set_goal_feedback_behav = get_feedback_loop(name="set_goal_feedback_loop", behav=Policy.A_PREINSTRUCTION, blackboard=b, goal_node=set_goal, initialise_node=initialise, previous_behav_node=set_goal_individual_action_behav, timestep_cue_node=set_goal_end)
+    stat_goal_coaching.add_child(gen_set_goal)
+
+    set_goal_feedback_loop, set_goal_feedback_behav = get_feedback_loop(name="set_goal_feedback_loop", behav=Policy.A_PREINSTRUCTION, blackboard=b, goal_node=set_goal, initialise_node=initialise, previous_behav_node=set_goal_individual_action_behav, timestep_cue_node=set_goal_end, person_node=player_start)
     stat_goal_coaching.add_child(set_goal_feedback_loop)
     # Remap the observation from the feedback loop to be the new state when an intro behaviour is given for the next set.
     b.add_remapping(set_goal_end, 'phase', set_goal_intro_behav, 'previous_phase')
@@ -609,7 +652,7 @@ def create_coaching_tree():
     stat_goal_end = TimestepCue(name="stat_goal_ended_timestep", blackboard=b)
     stat_goal_end_until = Until(name="stat_goal_end_until", child=stat_goal_end)
     gen_stat_goal.add_child(stat_goal_end_until)
-    stat_goal_feedback_loop, stat_goal_feedback_behav = get_feedback_loop(name="stat_goal_feedback_loop", behav=Policy.A_PREINSTRUCTION, blackboard=b, goal_node=stat_goal, initialise_node=initialise, previous_behav_node=set_goal_feedback_behav, timestep_cue_node=stat_goal_end)
+    stat_goal_feedback_loop, stat_goal_feedback_behav = get_feedback_loop(name="stat_goal_feedback_loop", behav=Policy.A_PREINSTRUCTION, blackboard=b, goal_node=stat_goal, initialise_node=initialise, previous_behav_node=set_goal_feedback_behav, timestep_cue_node=stat_goal_end, person_node=player_start)
     gen_stat_goal.add_child(stat_goal_feedback_loop)
     # Remap the observation from the feedback loop to be the new state when an intro behaviour is given for the next stat.
     b.add_remapping(stat_goal_end, 'phase', stat_goal_intro_behav, 'previous_phase')
@@ -623,7 +666,7 @@ def create_coaching_tree():
     shot_goal_end = TimestepCue(name="shot_goal_ended_timestep", blackboard=b)
     shot_goal_end_until = Until(name="shot_goal_end_until", child=shot_goal_end)
     gen_shot_goal.add_child(shot_goal_end_until)
-    shot_goal_feedback_loop, shot_goal_feedback_behav = get_feedback_loop(name="shot_goal_feedback_loop", behav=Policy.A_PREINSTRUCTION, blackboard=b, goal_node=shot_goal, initialise_node=initialise, previous_behav_node=stat_goal_feedback_behav, timestep_cue_node=shot_goal_end)
+    shot_goal_feedback_loop, shot_goal_feedback_behav = get_feedback_loop(name="shot_goal_feedback_loop", behav=Policy.A_PREINSTRUCTION, blackboard=b, goal_node=shot_goal, initialise_node=initialise, previous_behav_node=stat_goal_feedback_behav, timestep_cue_node=shot_goal_end, person_node=player_start)
     gen_shot_goal.add_child(shot_goal_feedback_loop)
     # Remap the observation from the feedback loop to be the new state when an intro behaviour is given for the next shot.
     b.add_remapping(shot_goal_end, 'phase', shot_goal_intro_behav, 'previous_phase')
@@ -642,7 +685,7 @@ def create_coaching_tree():
     session_goal_end = TimestepCue(name="session_goal_ended_timestep", blackboard=b)
     session_goal_end_until = Until(name="session_goal_end_until", child=session_goal_end)
     gen_session_goal.add_child(session_goal_end_until)
-    session_goal_feedback_loop, session_goal_feedback_behav = get_feedback_loop(name="session_goal_feedback_loop", behav=Policy.A_END, blackboard=b, goal_node=session_goal, initialise_node=initialise, previous_behav_node=shot_goal_feedback_behav, timestep_cue_node=session_goal_end)
+    session_goal_feedback_loop, session_goal_feedback_behav = get_feedback_loop(name="session_goal_feedback_loop", behav=Policy.A_END, blackboard=b, goal_node=session_goal, initialise_node=initialise, previous_behav_node=shot_goal_feedback_behav, timestep_cue_node=session_goal_end, person_node=player_start)
     gen_session_goal.add_child(session_goal_feedback_loop)
 
     gen_person_goal.add_child(gen_session_goal)
@@ -659,14 +702,14 @@ def create_coaching_tree():
                                                                                 goal_node=person_goal,
                                                                                 initialise_node=initialise,
                                                                                 previous_behav_node=session_goal_feedback_behav,
-                                                                                timestep_cue_node=person_goal_end)
+                                                                                timestep_cue_node=person_goal_end, person_node=player_start)
     gen_person_goal.add_child(person_goal_feedback_loop)
 
     root.add_child(gen_person_goal)
     return root
 
 
-def get_feedback_loop(name, behav, blackboard, goal_node, initialise_node, previous_behav_node, timestep_cue_node):
+def get_feedback_loop(name, behav, blackboard, goal_node, initialise_node, previous_behav_node, timestep_cue_node, person_node):
     """
     Creates a subtree which gives feedback at a given goal level.
     :param name :type str: the name to be used when creating nodes of the tree.
@@ -717,6 +760,10 @@ def get_feedback_loop(name, behav, blackboard, goal_node, initialise_node, previ
         blackboard.add_remapping(timestep_cue_node._id, 'target', feedback_loop_end_action._id, 'target')
         blackboard.add_remapping(goal_node._id, 'new_goal', feedback_loop_end_action._id, 'goal')
         blackboard.add_remapping(feedback_behaviour._id, 'behaviour', feedback_loop_end_action._id, 'behaviour')
+        blackboard.add_remapping(person_node._id, 'name', feedback_loop_end_action._id, 'name')
+        blackboard.save('shot', shot, feedback_loop_end_action._id)
+        blackboard.save('hand', hand, feedback_loop_end_action._id)
+        blackboard.save('stat', stat, feedback_loop_end_action._id)
 
         feedback_loop_display_end_output = DisplayBehaviour(name="feedback_loop_display_end_output", blackboard=blackboard)
         feedback_loop_end_sequence.add_child(feedback_loop_display_end_output)
@@ -737,6 +784,10 @@ def get_feedback_loop(name, behav, blackboard, goal_node, initialise_node, previ
     blackboard.add_remapping(timestep_cue_node._id, 'target', feedback_loop_action._id, 'target')
     blackboard.add_remapping(goal_node._id, 'new_goal', feedback_loop_action._id, 'goal')
     blackboard.add_remapping(feedback_behaviour._id, 'behaviour', feedback_loop_action._id, 'behaviour')
+    blackboard.add_remapping(person_node._id, 'name', feedback_loop_action._id, 'name')
+    blackboard.save('shot', shot, feedback_loop_action._id)
+    blackboard.save('hand', hand, feedback_loop_action._id)
+    blackboard.save('stat', stat, feedback_loop_action._id)
 
     # Display behaviour if not given behaviour
     output_name = name + "_output"

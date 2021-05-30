@@ -1,9 +1,10 @@
-from flask import Flask
+from flask import Flask, request
 from flask_restful import Resource, Api, reqparse
 import pandas as pd
 import ast
 import firebase_admin
 from firebase_admin import db
+import json
 
 from CoachingBehaviourTree import controller
 from Policy.policy_wrapper import PolicyWrapper
@@ -19,68 +20,198 @@ api = Api(app)
 
 class TimestepCue(Resource):
     def post(self):
-        parser = reqparse.RequestParser()
+        if request.is_json:
+            print("request is json")
+            content = request.get_json()
+            if content['goal_level'] == PolicyWrapper.PERSON_GOAL:
+                print('player goal setting controller values')
+                controller.goal_level = PolicyWrapper.PERSON_GOAL
+                controller.name = content['name']
+                controller.sessions = content['sessions']
+                controller.ability = content['ability']
 
-        parser.add_argument('goal_level', required=True)
-        parser.add_argument('score', required=False)        # For each shot
-        parser.add_argument('target', required=False)       # Stat/Set goal
-        parser.add_argument('avg_score', required=False)    # Stat/Set goal
-        parser.add_argument('performance', required=False)  # Session/Shot goal (performance in last session)
-        parser.add_argument('shot', required=False)         # Shot goal
-        parser.add_argument('stat', required=False)         # Stat goal
-        parser.add_argument('name', required=False)         # Player goal
-        parser.add_argument('sessions', required=False)     # Player goal (total number of sessions for this user)
-        parser.add_argument('ability', required=False)      # Player goal
+                while controller.completed == controller.COMPLETED_STATUS_UNDEFINED:
+                    pass
 
-        args = parser.parse_args()  # parse arguments to dictionary
-        print('recevied post request')
-        if int(args['goal_level']) == PolicyWrapper.PERSON_GOAL:
-            print('player goal setting controller values')
-            controller.goal_level = PolicyWrapper.PERSON_GOAL
-            controller.name = args['name']
-            controller.sessions = int(args['sessions'])
-            controller.ability = int(args['ability'])
+                new_data = {
+                    'completed': controller.completed
+                }
 
-            while controller.completed == controller.COMPLETED_STATUS_UNDEFINED:
-                pass
+                return json.dumps(new_data, indent=4), 200
 
-            return {args['goal_level']: controller.completed}, 200
+            elif content['goal_level'] == PolicyWrapper.SESSION_GOAL:
+                print('session goal setting controller values')
+                controller.completed = controller.COMPLETED_STATUS_UNDEFINED
+                controller.goal_level = PolicyWrapper.SESSION_GOAL
+                controller.performance = content['performance']
 
-        elif int(args['goal_level']) == PolicyWrapper.SESSION_GOAL:
-            print('session goal setting controller values')
-            controller.completed = controller.COMPLETED_STATUS_UNDEFINED
-            controller.goal_level = PolicyWrapper.SESSION_GOAL
-            controller.performance = int(args['performance'])
+                while controller.completed == controller.COMPLETED_STATUS_UNDEFINED:
+                    pass
 
-            while controller.completed == controller.COMPLETED_STATUS_UNDEFINED:
-                pass
+                new_data = {
+                    'completed': controller.completed
+                }
 
-            new_data = {
-                'completed': controller.completed
-            }
+                if not (controller.shot == -1):
+                    new_data['shot'] = {
+                        'shotType': controller.shot,
+                        'hand': controller.hand
+                    }
 
-            if not(controller.shot == -1):
-                new_data['shot'] = controller.shot
+                return json.dumps(new_data, indent=4), 200
 
-            return {args['goal_level']: new_data}, 200
+            elif content['goal_level'] == PolicyWrapper.EXERCISE_GOAL:
+                print('shot goal setting controller values')
+                controller.completed = controller.COMPLETED_STATUS_UNDEFINED
+                controller.goal_level = PolicyWrapper.EXERCISE_GOAL
+                if controller.shot == -1:
+                    controller.shot = content['shotClass']['shotType']
+                    controller.hand = content['shotClass']['hand']
+                controller.score = content['initialScore']
+                controller.performance = content['performance']
 
-        elif int(args['goal_level']) == PolicyWrapper.EXERCISE_GOAL:
-            print('shot goal setting controller values')
-            controller.completed = controller.COMPLETED_STATUS_UNDEFINED
-            controller.goal_level = PolicyWrapper.EXERCISE_GOAL
-            controller.performance = int(args['performance'])
+                while controller.completed == controller.COMPLETED_STATUS_UNDEFINED:
+                    pass
 
-            while controller.completed == controller.COMPLETED_STATUS_UNDEFINED:
-                pass
+                new_data = {
+                    'completed': controller.completed
+                }
 
-            new_data = {
-                'completed': controller.completed
-            }
+                if not (controller.stat == -1):
+                    new_data['stat'] = controller.stat
 
-            if not (controller.stat == -1):
-                new_data['stat'] = controller.stat
+                return json.dumps(new_data, indent=4), 200
 
-            return {args['goal_level']: new_data}, 200
+            elif content['goal_level'] == PolicyWrapper.STAT_GOAL:
+                print('stat goal setting controller values')
+                controller.completed = controller.COMPLETED_STATUS_UNDEFINED
+                controller.goal_level = PolicyWrapper.STAT_GOAL
+                if controller.stat == -1:
+                    controller.stat = content['stat']
+                controller.target = content['tgtValue']
+                controller.performance = content['performance']
+
+                while controller.completed == controller.COMPLETED_STATUS_UNDEFINED:
+                    pass
+
+                new_data = {
+                    'completed': controller.completed
+                }
+
+                return json.dumps(new_data, indent=4), 200
+
+            elif content['goal_level'] == PolicyWrapper.SET_GOAL:  # Also represents baseline goal
+                '''if controller.goal_level == PolicyWrapper.BASELINE_GOAL:  # baseline goal feedback
+                    controller.performance = content['performance']
+                    controller.score = content['score']
+                    controller.goal_level = PolicyWrapper.EXERCISE_GOAL
+                else:'''
+                print('set goal setting controller values')
+                if hasattr(content, 'score'):  # End of set
+                    controller.avg_score = content['score']
+                    controller.target = content['tgtValue']
+                    controller.performance = content['performance']
+                    controller.stat = content['stat']  # Let guide decide what stat to work on based on baseline set.
+                    controller.goal_level = PolicyWrapper.EXERCISE_GOAL
+                    controller.completed = controller.COMPLETED_STATUS_UNDEFINED
+
+                    while controller.completed != controller.COMPLETED_STATUS_TRUE:
+                        pass
+
+                    new_data = {
+                        'completed': controller.completed
+                    }
+
+                    return json.dumps(new_data, indent=4), 200
+                else:  # Start of set
+                    controller.goal_level = PolicyWrapper.SET_GOAL
+                    controller.completed = controller.COMPLETED_STATUS_UNDEFINED
+
+                    while controller.completed != controller.COMPLETED_STATUS_FALSE:
+                        pass
+
+                    new_data = {
+                        'completed': controller.completed
+                    }
+
+                    return json.dumps(new_data, indent=4), 200
+
+            elif content['goal_level'] == PolicyWrapper.ACTION_GOAL:
+                print('action goal setting controller values')
+                controller.action_score = content['score']
+                controller.performance = content['performance']
+                controller.shot_count += controller.shot_count
+
+                new_data = {
+                    'completed': 1
+                }
+
+                return json.dumps(new_data, indent=4), 200
+
+        else:
+
+            parser = reqparse.RequestParser()
+
+            parser.add_argument('goal_level', required=True)
+            parser.add_argument('score', required=False)        # For each shot
+            parser.add_argument('target', required=False)       # Stat/Set goal
+            parser.add_argument('avg_score', required=False)    # Stat/Set goal
+            parser.add_argument('performance', required=False)  # Session/Shot goal (performance in last session)
+            parser.add_argument('shot', required=False)         # Shot goal
+            parser.add_argument('stat', required=False)         # Stat goal
+            parser.add_argument('name', required=False)         # Player goal
+            parser.add_argument('sessions', required=False)     # Player goal (total number of sessions for this user)
+            parser.add_argument('ability', required=False)      # Player goal
+
+            args = parser.parse_args()  # parse arguments to dictionary
+            print('recevied post request')
+            if int(args['goal_level']) == PolicyWrapper.PERSON_GOAL:
+                print('player goal setting controller values')
+                controller.goal_level = PolicyWrapper.PERSON_GOAL
+                controller.name = args['name']
+                controller.sessions = int(args['sessions'])
+                controller.ability = int(args['ability'])
+
+                while controller.completed == controller.COMPLETED_STATUS_UNDEFINED:
+                    pass
+
+                return {args['goal_level']: controller.completed}, 200
+
+            elif int(args['goal_level']) == PolicyWrapper.SESSION_GOAL:
+                print('session goal setting controller values')
+                controller.completed = controller.COMPLETED_STATUS_UNDEFINED
+                controller.goal_level = PolicyWrapper.SESSION_GOAL
+                controller.performance = int(args['performance'])
+
+                while controller.completed == controller.COMPLETED_STATUS_UNDEFINED:
+                    pass
+
+                new_data = {
+                    'completed': controller.completed
+                }
+
+                if not(controller.shot == -1):
+                    new_data['shot'] = controller.shot
+
+                return {args['goal_level']: new_data}, 200
+
+            elif int(args['goal_level']) == PolicyWrapper.EXERCISE_GOAL:
+                print('shot goal setting controller values')
+                controller.completed = controller.COMPLETED_STATUS_UNDEFINED
+                controller.goal_level = PolicyWrapper.EXERCISE_GOAL
+                controller.performance = int(args['performance'])
+
+                while controller.completed == controller.COMPLETED_STATUS_UNDEFINED:
+                    pass
+
+                new_data = {
+                    'completed': controller.completed
+                }
+
+                if not (controller.stat == -1):
+                    new_data['stat'] = controller.stat
+
+                return {args['goal_level']: new_data}, 200
 
         # create new dataframe containing new values
         '''new_data = {

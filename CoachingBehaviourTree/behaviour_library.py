@@ -13176,7 +13176,7 @@ class BehaviourLibraryFunctions:
     behaviours: dict
     POST_MSG: int = 0
 
-    def get_pre_msg(self, behaviour, goal_level, performance, phase):
+    def get_pre_msg(self, behaviour, goal_level, performance, phase, name, shot, hand, stat):
         """
         Accesses the behaviour library dictionary and returns a random pre utterance appropriate to the parameters.
         :param behaviour :type int: the behaviour code e.g. A_PREINSTRUCTION = 1
@@ -13202,7 +13202,7 @@ class BehaviourLibraryFunctions:
 
         return msg
 
-    def get_post_msg(self, behaviour, goal_level, performance, phase):
+    def get_post_msg(self, behaviour, goal_level, performance, phase, name, shot, hand, stat):
         """
         Accesses the behaviour library dictionary and returns a random post utterance appropriate to the parameters.
         :param behaviour :type int: the behaviour code e.g. A_PREINSTRUCTION = 1
