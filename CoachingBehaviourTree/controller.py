@@ -15,14 +15,15 @@ __main__()
 import threading
 import time
 
-from task_behavior_engine.branch import Sequencer, Selector, Progressor
-from task_behavior_engine.decorator import Until, While, Negate, Repeat, UntilCount
+from task_behavior_engine.branch import Sequencer, Selector, Progressor, Runner
+from task_behavior_engine.decorator import Until, While, Negate, Repeat, UntilCount, Succeed
 from task_behavior_engine.tree import NodeStatus, Blackboard
 
 from API import api_classes
 from CoachingBehaviourTree.nodes import FormatAction, DisplayBehaviour, CheckForBehaviour, GetBehaviour, GetStats, \
     GetDuration, CreateSubgoal, TimestepCue, DurationCheck, GetUserChoice, EndSetEvent, InitialiseBlackboard, EndSubgoal
 from Policy.policy import Policy
+from Policy.policy_wrapper import PolicyWrapper
 
 SHOT_CHOICE = 0
 STAT_CHOICE = 1
@@ -46,7 +47,9 @@ stat = -1
 completed = COMPLETED_STATUS_UNDEFINED
 shot_count = 0
 action_score = -1
-
+prev_behav = -1
+matching_behav = 0
+phase = PolicyWrapper.PHASE_START
 
 def create_coaching_tree():
     """
@@ -590,18 +593,20 @@ def create_coaching_tree():
     set_goal_individual_action_cue = TimestepCue(name="set_goal_individual_action_cue", blackboard=b)
     set_goal_individual_action_until = Until(name="set_goal_individual_action_until", child=set_goal_individual_action_cue)
     set_goal_individual_action_sequence.add_child(set_goal_individual_action_until)
+    b.add_remapping(action_goal._id, 'new_goal', set_goal_individual_action_cue._id, 'goal')
+    set_goal_individual_action_behav_sequence = Progressor(name="set_goal_individual_behav_Progressor")
     # Get coaching behaviour from policy for individual action/shot
     set_goal_individual_action_behav = GetBehaviour(name="set_goal_individual_action_behaviour", blackboard=b)
-    set_goal_individual_action_sequence.add_child(set_goal_individual_action_behav)
+    set_goal_individual_action_behav_sequence.add_child(set_goal_individual_action_behav)
     # Share data between initialise, set_goal_intro_behav, set_goal_individual_action_cue and set_goal_individual_action_behav.
     b.add_remapping(initialise._id, 'belief', set_goal_individual_action_behav._id, 'belief')
     b.add_remapping(set_goal_intro_behav._id, 'observation', set_goal_individual_action_behav._id, 'state')
     b.add_remapping(action_goal._id, 'new_goal', set_goal_individual_action_behav._id, 'goal')
-    b.add_remapping(set_goal_individual_action_cue._id, 'performance', set_goal_individual_action_behav, 'performance')
-    b.add_remapping(set_goal_individual_action_cue._id, 'phase', set_goal_individual_action_behav, 'phase')
+    b.add_remapping(set_goal_individual_action_cue._id, 'performance', set_goal_individual_action_behav._id, 'performance')
+    b.add_remapping(set_goal_individual_action_cue._id, 'phase', set_goal_individual_action_behav._id, 'phase')
     # Format individual action coaching behaviour
     set_goal_individual_action = FormatAction(name="set_goal_individual_action", blackboard=b)
-    set_goal_individual_action_sequence.add_child(set_goal_individual_action)
+    set_goal_individual_action_behav_sequence.add_child(set_goal_individual_action)
     # Share data between initialise, set_goal_individual_action_cue, action_goal, set_goal_individual_action_behav and set_goal_individual_action.
     b.add_remapping(initialise._id, 'bl', set_goal_individual_action._id, 'bl')
     b.add_remapping(set_goal_individual_action_cue._id, 'performance', set_goal_individual_action._id, 'performance')
@@ -616,9 +621,11 @@ def create_coaching_tree():
     b.save('stat', stat, set_goal_individual_action._id)
     # Display individual action caoching behaviour
     set_goal_individual_action_output = DisplayBehaviour(name="set_goal_individual_action_output", blackboard=b)
-    set_goal_individual_action_sequence.add_child(set_goal_individual_action_output)
+    set_goal_individual_action_behav_sequence.add_child(set_goal_individual_action_output)
     # Share action between set_goal_pre_instr_intro_action and set_goal_pre_instr_intro_output.
     b.add_remapping(set_goal_individual_action._id, 'action', set_goal_individual_action_output._id, 'action')
+    set_goal_individual_action_behav_succeed = Succeed(name="set_goal_individual_action_behav_succeed", child=set_goal_individual_action_behav_sequence)
+    set_goal_individual_action_sequence.add_child(set_goal_individual_action_behav_succeed)
     # End the action goal
     end_action_goal = EndSubgoal(name="end_action_goal", blackboard=b)
     set_goal_individual_action_sequence.add_child(end_action_goal)
@@ -634,6 +641,7 @@ def create_coaching_tree():
     # Set feedback loop until pre-instruction
     # Wait for timestep cue (i.e. set goal has been completed by guide and we are ready for feedback behaviours).
     set_goal_end = TimestepCue(name="set_goal_ended_timestep", blackboard=b)
+    b.add_remapping(end_action_goal._id, 'new_goal', set_goal_end._id, 'goal')
     set_goal_end_until = Until(name="set_goal_end_until", child=set_goal_end)
     gen_set_goal.add_child(set_goal_end_until)
     stat_goal_coaching.add_child(gen_set_goal)
@@ -720,6 +728,10 @@ def get_feedback_loop(name, behav, blackboard, goal_node, initialise_node, previ
     :return:type: Negate: the root While Node of the created feedback loop tree, negated to allow the tree to continue
         running.
     """
+    # Create overall feedback Progressor
+    overall_name = name + "_overall_sequence"
+    overall_feedback_sequence = Runner(name=overall_name)
+
     # Create feedback loop Progressor
     sequence_name = name + "_sequence"
     feedback_loop_sequence = Progressor(name=sequence_name)
@@ -732,13 +744,13 @@ def get_feedback_loop(name, behav, blackboard, goal_node, initialise_node, previ
     blackboard.add_remapping(initialise_node._id, 'belief', feedback_behaviour._id, 'belief')
     blackboard.add_remapping(previous_behav_node._id, 'observation', feedback_behaviour._id, 'state')
     blackboard.add_remapping(goal_node._id, 'new_goal', feedback_behaviour._id, 'goal')
-    blackboard.add_remapping(timestep_cue_node._id, 'performance', feedback_behaviour, 'performance')
-    blackboard.add_remapping(timestep_cue_node._id, 'phase', feedback_behaviour, 'phase')
+    blackboard.add_remapping(timestep_cue_node._id, 'performance', feedback_behaviour._id, 'performance')
+    blackboard.add_remapping(timestep_cue_node._id, 'phase', feedback_behaviour._id, 'phase')
 
     # Check if given behaviour
     check_behav_name = name + "_check_for_" + behav.__str__()
     feedback_loop_check_for_behav = CheckForBehaviour(name=check_behav_name, blackboard=blackboard)
-    blackboard.save('check_behaviour', behav, feedback_loop_check_for_behav)
+    blackboard.save('check_behaviour', behav, feedback_loop_check_for_behav._id)
     # Share behaviour between feedback_behaviour and feedback_loop_check_for_behav.
     blackboard.add_remapping(feedback_behaviour._id, 'behaviour', feedback_loop_check_for_behav._id, 'behaviour')
     negate_name = name + "_" + behav.__str__() + "_check_negate"
@@ -795,16 +807,17 @@ def get_feedback_loop(name, behav, blackboard, goal_node, initialise_node, previ
     feedback_loop_sequence.add_child(feedback_loop_output)
     # Share action between feedback_loop_end_action and feedback_loop_display_end_output.
     blackboard.add_remapping(feedback_loop_action._id, 'action', feedback_loop_output._id, 'action')
+    overall_feedback_sequence.add_child(feedback_loop_sequence)
 
     # End the goal
     end_goal_name = name + "_end_goal"
     end_goal = EndSubgoal(name=end_goal_name, blackboard=blackboard)
-    feedback_loop_sequence.add_child(end_goal)
+    overall_feedback_sequence.add_child(end_goal)
     # Share goal between goal and end_goal
     blackboard.add_remapping(goal_node._id, 'new_goal', end_goal._id, 'goal')
 
     while_name = name + "_while"
-    feedback_loop_while = While(name=while_name, child=feedback_loop_sequence)
+    feedback_loop_while = While(name=while_name, child=overall_feedback_sequence)
     negate_name = while_name + "_negate"
     return Negate(name=negate_name, child=feedback_loop_while), feedback_behaviour
 

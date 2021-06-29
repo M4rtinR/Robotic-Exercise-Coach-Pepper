@@ -13217,14 +13217,14 @@ class BehaviourLibraryFunctions:
 
         if behaviour > 68 or behaviour < 1 or goal_level > 6 or goal_level < 0 or performance > 7 or performance < -1 or phase > 1 or phase < -1:
             return None
-        elif goal_level == PolicyWrapper.ACTION_GOAL or goal_level == PolicyWrapper.PERSON_GOAL:
+        elif goal_level == PolicyWrapper.ACTION_GOAL or goal_level == PolicyWrapper.PERSON_GOAL or goal_level == PolicyWrapper.BASELINE_GOAL:
             return None
         else:
             r = random.randint(0, 3)
 
             if phase is None or phase == -1:
                 phase = 1 if goal_level == PolicyWrapper.ACTION_GOAL else 0
-            elif performance is None and not(goal_level == PolicyWrapper.ACTION_GOAL or goal_level == PolicyWrapper.BASELINE_GOAL or goal_level == PolicyWrapper.PERSON_GOAL):
+            elif performance is None:
                 performance = -1
 
             msg = self.behaviours[str(goal_level) + '_' + str(behaviour) + '_' + str(performance) + '_' + str(phase) + '_1'][r]

@@ -41,64 +41,113 @@ class TimestepCue(Resource):
 
             elif content['goal_level'] == PolicyWrapper.SESSION_GOAL:
                 print('session goal setting controller values')
-                controller.completed = controller.COMPLETED_STATUS_UNDEFINED
-                controller.goal_level = PolicyWrapper.SESSION_GOAL
-                controller.performance = content['performance']
+                if hasattr(content, 'feedback'):  # End of set
+                    controller.performance = content('performance')
+                    controller.goal_level = PolicyWrapper.SESSION_GOAL
+                    controller.phase = PolicyWrapper.PHASE_END
+                    controller.completed = controller.COMPLETED_STATUS_UNDEFINED
 
-                while controller.completed == controller.COMPLETED_STATUS_UNDEFINED:
-                    pass
+                    while controller.completed == controller.COMPLETED_STATUS_UNDEFINED:
+                        pass
 
-                new_data = {
-                    'completed': controller.completed
-                }
-
-                if not (controller.shot == -1):
-                    new_data['shot'] = {
-                        'shotType': controller.shot,
-                        'hand': controller.hand
+                    new_data = {
+                        'completed': controller.completed
                     }
 
-                return json.dumps(new_data, indent=4), 200
+                    return json.dumps(new_data, indent=4), 200
+                else:
+                    controller.completed = controller.COMPLETED_STATUS_UNDEFINED
+                    controller.goal_level = PolicyWrapper.SESSION_GOAL
+                    controller.performance = content['performance']
+
+                    while controller.completed == controller.COMPLETED_STATUS_UNDEFINED:
+                        pass
+
+                    new_data = {
+                        'completed': controller.completed
+                    }
+
+                    if not (controller.shot == -1):
+                        new_data['shot'] = {
+                            'shotType': controller.shot,
+                            'hand': controller.hand
+                        }
+
+                    return json.dumps(new_data, indent=4), 200
 
             elif content['goal_level'] == PolicyWrapper.EXERCISE_GOAL:
                 print('shot goal setting controller values')
-                controller.completed = controller.COMPLETED_STATUS_UNDEFINED
-                controller.goal_level = PolicyWrapper.EXERCISE_GOAL
-                if controller.shot == -1:
-                    controller.shot = content['shotClass']['shotType']
-                    controller.hand = content['shotClass']['hand']
-                controller.score = content['initialScore']
-                controller.performance = content['performance']
+                if hasattr(content, 'feedback'):  # End of set
+                    controller.score = content('score')
+                    controller.target = content('tgtValue')
+                    controller.performance = content('performance')
+                    controller.goal_level = PolicyWrapper.EXERCISE_GOAL
+                    controller.phase = PolicyWrapper.PHASE_END
+                    controller.completed = controller.COMPLETED_STATUS_UNDEFINED
 
-                while controller.completed == controller.COMPLETED_STATUS_UNDEFINED:
-                    pass
+                    while controller.completed == controller.COMPLETED_STATUS_UNDEFINED:
+                        pass
 
-                new_data = {
-                    'completed': controller.completed
-                }
+                    new_data = {
+                        'completed': controller.completed
+                    }
 
-                if not (controller.stat == -1):
-                    new_data['stat'] = controller.stat
+                    return json.dumps(new_data, indent=4), 200
+                else:
+                    controller.completed = controller.COMPLETED_STATUS_UNDEFINED
+                    controller.goal_level = PolicyWrapper.EXERCISE_GOAL
+                    if controller.shot == -1:
+                        controller.shot = content['shotClass']['shotType']
+                        controller.hand = content['shotClass']['hand']
+                    controller.score = content['initialScore']
+                    controller.performance = content['performance']
 
-                return json.dumps(new_data, indent=4), 200
+                    while controller.completed == controller.COMPLETED_STATUS_UNDEFINED:
+                        pass
+
+                    new_data = {
+                        'completed': controller.completed
+                    }
+
+                    if not (controller.stat == -1):
+                        new_data['stat'] = controller.stat
+
+                    return json.dumps(new_data, indent=4), 200
 
             elif content['goal_level'] == PolicyWrapper.STAT_GOAL:
                 print('stat goal setting controller values')
-                controller.completed = controller.COMPLETED_STATUS_UNDEFINED
-                controller.goal_level = PolicyWrapper.STAT_GOAL
-                if controller.stat == -1:
-                    controller.stat = content['stat']
-                controller.target = content['tgtValue']
-                controller.performance = content['performance']
+                if hasattr(content, 'feedback'):  # End of set
+                    controller.score = content('score')
+                    controller.target = content('tgtValue')
+                    controller.performance = content('performance')
+                    controller.goal_level = PolicyWrapper.STAT_GOAL
+                    controller.phase = PolicyWrapper.PHASE_END
+                    controller.completed = controller.COMPLETED_STATUS_UNDEFINED
 
-                while controller.completed == controller.COMPLETED_STATUS_UNDEFINED:
-                    pass
+                    while controller.completed == controller.COMPLETED_STATUS_UNDEFINED:
+                        pass
 
-                new_data = {
-                    'completed': controller.completed
-                }
+                    new_data = {
+                        'completed': controller.completed
+                    }
 
-                return json.dumps(new_data, indent=4), 200
+                    return json.dumps(new_data, indent=4), 200
+                else:
+                    controller.completed = controller.COMPLETED_STATUS_UNDEFINED
+                    controller.goal_level = PolicyWrapper.STAT_GOAL
+                    if controller.stat == -1:
+                        controller.stat = content['stat']
+                    controller.target = content['tgtValue']
+                    controller.performance = content['performance']
+
+                    while controller.completed == controller.COMPLETED_STATUS_UNDEFINED:
+                        pass
+
+                    new_data = {
+                        'completed': controller.completed
+                    }
+
+                    return json.dumps(new_data, indent=4), 200
 
             elif content['goal_level'] == PolicyWrapper.SET_GOAL:  # Also represents baseline goal
                 '''if controller.goal_level == PolicyWrapper.BASELINE_GOAL:  # baseline goal feedback
@@ -111,8 +160,9 @@ class TimestepCue(Resource):
                     controller.avg_score = content['score']
                     controller.target = content['tgtValue']
                     controller.performance = content['performance']
-                    controller.stat = content['stat']  # Let guide decide what stat to work on based on baseline set.
-                    controller.goal_level = PolicyWrapper.EXERCISE_GOAL
+                    # controller.stat = content['stat']  # Let guide decide what stat to work on based on baseline set.
+                    controller.goal_level = PolicyWrapper.SET_GOAL
+                    controller.phase = PolicyWrapper.PHASE_END
                     controller.completed = controller.COMPLETED_STATUS_UNDEFINED
 
                     while controller.completed != controller.COMPLETED_STATUS_TRUE:
@@ -125,6 +175,7 @@ class TimestepCue(Resource):
                     return json.dumps(new_data, indent=4), 200
                 else:  # Start of set
                     controller.goal_level = PolicyWrapper.SET_GOAL
+                    controller.phase = PolicyWrapper.PHASE_START
                     controller.completed = controller.COMPLETED_STATUS_UNDEFINED
 
                     while controller.completed != controller.COMPLETED_STATUS_FALSE:
@@ -140,7 +191,8 @@ class TimestepCue(Resource):
                 print('action goal setting controller values')
                 controller.action_score = content['score']
                 controller.performance = content['performance']
-                controller.shot_count += controller.shot_count
+                controller.goal_level = PolicyWrapper.ACTION_GOAL
+                controller.shot_count += 1
 
                 new_data = {
                     'completed': 1

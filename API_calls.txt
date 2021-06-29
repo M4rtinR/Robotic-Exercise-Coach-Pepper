@@ -54,9 +54,29 @@
 }
 
 
-# Baseline goal stats.
+# Baseline goal
+{
+    "goal_level": 4
+}
+
+# Set goal
+{
+    "goal_level": 4
+}
+
+# Action goal
+{
+    "goal_level": 5,
+    "score": 0.66,
+    "performance": 2
+}
+
+
+## Feedback
+# Set goal
 {
     "goal_level": 4,
-    "performance": 3,
-    "score": 0.67
+    "score": 0.66,
+    "performance": 2,
+    "tgtValue": 0.8
 }

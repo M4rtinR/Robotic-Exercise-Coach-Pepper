@@ -280,7 +280,11 @@ class Policy:
                 action = choices(range(68), self.transition_matrix[style - 1][action])[0]
             count += 1
 
-        return choices(range(68), self.transition_matrix[style - 1][self._get_action(state)])[0]
+        # Special case when action == 44 (A_END) for coach styles.
+        if style < 7 and action == 44:
+            action = self.A_END
+
+        return action  # choices(range(68), self.transition_matrix[style - 1][self._get_action(state)])[0]
 
     def sample_observation(self, state, action):
         """
@@ -290,6 +294,10 @@ class Policy:
         :param action :type int: the chosen behaviour
         :return state :type int: the new state we observe based on belief distribution
         """
+
+        # If action == silence, nothing changes
+        if action == self.A_SILENCE:
+            return state
 
         new_style = choices(range(1, 13), self.belief_distribution)[0]
         #new_style = 9
@@ -301,7 +309,7 @@ class Policy:
         #print(self.transition_matrix[new_style - 1][actionKey])
         if new_style < 7 and not(43 < action < self.A_END):
             if sum(self.transition_matrix[new_style - 1][action]) > 0.0:
-                return new_style * 45 + action if action < self.A_END else new_style * 45 + 44
+                return (new_style - 1) * 45 + action if action < self.A_END else (new_style - 1) * 45 + 44
         elif new_style >= 7 and action in self.physioActionDict.values():
             physio_action = next((key for key, value in self.physioActionDict.items() if value == action), None)
             if sum(self.transition_matrix[new_style - 1][physio_action]) > 0.0:
