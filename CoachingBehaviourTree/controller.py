@@ -280,6 +280,7 @@ def create_coaching_tree():
     shot_goal_start_until = Until(name="shot_goal_start_until", child=shot_goal_start)
     gen_shot_goal.add_child(shot_goal_start_until)
     b.add_remapping(shot_goal._id, 'new_goal', shot_goal_start._id, 'goal')
+    b.save('phase', phase, shot_goal_start._id)
 
     #
     # Display intro shot behaviours until pre-instruction or questioning
@@ -349,15 +350,15 @@ def create_coaching_tree():
     baseline_goal_end_set_until = Until(name="baseline_goal_end_set_until", child=baseline_goal_end_set_event)
     gen_baseline_goal.add_child(baseline_goal_end_set_until)
     # End baseline goal
-    baseline_goal_end = EndSubgoal(name="baseline_goal_end")
-    b.add_remapping(baseline_goal._id, 'new_goal', baseline_goal_end._id, 'goal')
+    baseline_goal_end = EndSubgoal(name="baseline_goal_end", blackboard=b)
     gen_baseline_goal.add_child(baseline_goal_end)
+    b.add_remapping(baseline_goal._id, 'new_goal', baseline_goal_end._id, 'goal')
     # Wait for timestep cue with stats for baseline set just played.
-    baseline_goal_end_cue = TimestepCue(name="baseline_goal_end_cue")
+    baseline_goal_end_cue = TimestepCue(name="baseline_goal_end_cue", blackboard=b)
     baseline_goal_end_cue_until = Until(name="baseline_goal_end_cue_until", child=baseline_goal_end_cue)
     gen_baseline_goal.add_child(baseline_goal_end_cue_until)
-    b.add_remapping(baseline_goal_end._id, 'new_goal', baseline_goal_end_cue_until._id, 'goal')
-    b.add_remapping(baseline_goal_end._id, 'phase', baseline_goal_end_cue_until._id, 'phase')
+    b.add_remapping(baseline_goal_end._id, 'new_goal', baseline_goal_end_cue._id, 'goal')
+    b.add_remapping(baseline_goal_end._id, 'phase', baseline_goal_end_cue._id, 'phase')
     shot_goal_intro_pre_instr_sequence.add_child(gen_baseline_goal)
     shot_goal_intro_pre_instr_negate = Negate(name="shot_goal_intro_pre_instr_negate", child=shot_goal_intro_pre_instr_sequence)
     shot_goal_intro_sequence.add_child(shot_goal_intro_pre_instr_negate)
@@ -646,7 +647,7 @@ def create_coaching_tree():
     gen_set_goal.add_child(set_goal_end_until)
     stat_goal_coaching.add_child(gen_set_goal)
 
-    set_goal_feedback_loop, set_goal_feedback_behav = get_feedback_loop(name="set_goal_feedback_loop", behav=Policy.A_PREINSTRUCTION, blackboard=b, goal_node=set_goal, initialise_node=initialise, previous_behav_node=set_goal_individual_action_behav, timestep_cue_node=set_goal_end, person_node=player_start)
+    set_goal_feedback_loop, set_goal_feedback_behav, set_goal_feedback_end = get_feedback_loop(name="set_goal_feedback_loop", behav=Policy.A_PREINSTRUCTION, blackboard=b, goal_node=set_goal, initialise_node=initialise, previous_behav_node=set_goal_individual_action_behav, timestep_cue_node=set_goal_end, person_node=player_start)
     stat_goal_coaching.add_child(set_goal_feedback_loop)
     # Remap the observation from the feedback loop to be the new state when an intro behaviour is given for the next set.
     b.add_remapping(set_goal_end, 'phase', set_goal_intro_behav, 'previous_phase')
@@ -658,9 +659,10 @@ def create_coaching_tree():
     # Stat feedback loop until pre-instruction
     # Wait for timestep cue (i.e. stat goal has been completed by guide and we are ready for feedback behaviours).
     stat_goal_end = TimestepCue(name="stat_goal_ended_timestep", blackboard=b)
+    b.add_remapping(set_goal_feedback_end._id, 'new_goal', stat_goal_end._id, 'goal')
     stat_goal_end_until = Until(name="stat_goal_end_until", child=stat_goal_end)
     gen_stat_goal.add_child(stat_goal_end_until)
-    stat_goal_feedback_loop, stat_goal_feedback_behav = get_feedback_loop(name="stat_goal_feedback_loop", behav=Policy.A_PREINSTRUCTION, blackboard=b, goal_node=stat_goal, initialise_node=initialise, previous_behav_node=set_goal_feedback_behav, timestep_cue_node=stat_goal_end, person_node=player_start)
+    stat_goal_feedback_loop, stat_goal_feedback_behav, stat_goal_feedback_end = get_feedback_loop(name="stat_goal_feedback_loop", behav=Policy.A_PREINSTRUCTION, blackboard=b, goal_node=stat_goal, initialise_node=initialise, previous_behav_node=set_goal_feedback_behav, timestep_cue_node=stat_goal_end, person_node=player_start)
     gen_stat_goal.add_child(stat_goal_feedback_loop)
     # Remap the observation from the feedback loop to be the new state when an intro behaviour is given for the next stat.
     b.add_remapping(stat_goal_end, 'phase', stat_goal_intro_behav, 'previous_phase')
@@ -672,9 +674,10 @@ def create_coaching_tree():
     # Shot feedback loop until pre-instruction
     # Wait for timestep cue (i.e. shot goal has been completed by guide and we are ready for feedback behaviours).
     shot_goal_end = TimestepCue(name="shot_goal_ended_timestep", blackboard=b)
+    b.add_remapping(stat_goal_feedback_end._id, 'new_goal', shot_goal_end._id, 'goal')
     shot_goal_end_until = Until(name="shot_goal_end_until", child=shot_goal_end)
     gen_shot_goal.add_child(shot_goal_end_until)
-    shot_goal_feedback_loop, shot_goal_feedback_behav = get_feedback_loop(name="shot_goal_feedback_loop", behav=Policy.A_PREINSTRUCTION, blackboard=b, goal_node=shot_goal, initialise_node=initialise, previous_behav_node=stat_goal_feedback_behav, timestep_cue_node=shot_goal_end, person_node=player_start)
+    shot_goal_feedback_loop, shot_goal_feedback_behav, shot_goal_feedback_end = get_feedback_loop(name="shot_goal_feedback_loop", behav=Policy.A_PREINSTRUCTION, blackboard=b, goal_node=shot_goal, initialise_node=initialise, previous_behav_node=stat_goal_feedback_behav, timestep_cue_node=shot_goal_end, person_node=player_start)
     gen_shot_goal.add_child(shot_goal_feedback_loop)
     # Remap the observation from the feedback loop to be the new state when an intro behaviour is given for the next shot.
     b.add_remapping(shot_goal_end, 'phase', shot_goal_intro_behav, 'previous_phase')
@@ -691,9 +694,10 @@ def create_coaching_tree():
     #
     # Wait for timestep cue (i.e. session goal has been completed by guide and we are ready for feedback behaviours).
     session_goal_end = TimestepCue(name="session_goal_ended_timestep", blackboard=b)
+    b.add_remapping(shot_goal_feedback_end._id, 'new_goal', session_goal_end._id, 'goal')
     session_goal_end_until = Until(name="session_goal_end_until", child=session_goal_end)
     gen_session_goal.add_child(session_goal_end_until)
-    session_goal_feedback_loop, session_goal_feedback_behav = get_feedback_loop(name="session_goal_feedback_loop", behav=Policy.A_END, blackboard=b, goal_node=session_goal, initialise_node=initialise, previous_behav_node=shot_goal_feedback_behav, timestep_cue_node=session_goal_end, person_node=player_start)
+    session_goal_feedback_loop, session_goal_feedback_behav, session_goal_feedback_end = get_feedback_loop(name="session_goal_feedback_loop", behav=Policy.A_END, blackboard=b, goal_node=session_goal, initialise_node=initialise, previous_behav_node=shot_goal_feedback_behav, timestep_cue_node=session_goal_end, person_node=player_start)
     gen_session_goal.add_child(session_goal_feedback_loop)
 
     gen_person_goal.add_child(gen_session_goal)
@@ -703,9 +707,10 @@ def create_coaching_tree():
     #
     # Wait for timestep cue (i.e. session (person goal) has been completed by guide and we are ready for feedback behaviours).
     person_goal_end = TimestepCue(name="person_goal_ended_timestep", blackboard=b)
+    b.add_remapping(session_goal_feedback_end._id, 'new_goal', person_goal_end._id, 'goal')
     person_goal_end_until = Until(name="person_goal_end_until", child=person_goal_end)
     gen_person_goal.add_child(person_goal_end_until)
-    person_goal_feedback_loop, person_goal_feedback_behav = get_feedback_loop(name="person_goal_feedback_loop",
+    person_goal_feedback_loop, person_goal_feedback_behav, person_goal_feedback_end = get_feedback_loop(name="person_goal_feedback_loop",
                                                                                 behav=Policy.A_END, blackboard=b,
                                                                                 goal_node=person_goal,
                                                                                 initialise_node=initialise,
@@ -730,7 +735,7 @@ def get_feedback_loop(name, behav, blackboard, goal_node, initialise_node, previ
     """
     # Create overall feedback Progressor
     overall_name = name + "_overall_sequence"
-    overall_feedback_sequence = Runner(name=overall_name)
+    overall_feedback_sequence = Selector(name=overall_name)
 
     # Create feedback loop Progressor
     sequence_name = name + "_sequence"
@@ -807,19 +812,22 @@ def get_feedback_loop(name, behav, blackboard, goal_node, initialise_node, previ
     feedback_loop_sequence.add_child(feedback_loop_output)
     # Share action between feedback_loop_end_action and feedback_loop_display_end_output.
     blackboard.add_remapping(feedback_loop_action._id, 'action', feedback_loop_output._id, 'action')
-    overall_feedback_sequence.add_child(feedback_loop_sequence)
+    # overall_feedback_sequence.add_child(feedback_loop_sequence)
+
+    while_name = name + "_while"
+    feedback_loop_while = While(name=while_name, child=feedback_loop_sequence)
+    overall_feedback_sequence.add_child(feedback_loop_while)
 
     # End the goal
     end_goal_name = name + "_end_goal"
     end_goal = EndSubgoal(name=end_goal_name, blackboard=blackboard)
-    overall_feedback_sequence.add_child(end_goal)
+    # overall_feedback_sequence.add_child(end_goal)
     # Share goal between goal and end_goal
     blackboard.add_remapping(goal_node._id, 'new_goal', end_goal._id, 'goal')
-
-    while_name = name + "_while"
-    feedback_loop_while = While(name=while_name, child=overall_feedback_sequence)
-    negate_name = while_name + "_negate"
-    return Negate(name=negate_name, child=feedback_loop_while), feedback_behaviour
+    overall_feedback_sequence.add_child(end_goal)
+    # negate_name = while_name + "_negate"
+    # return Negate(name=negate_name, child=feedback_loop_while), feedback_behaviour, end_goal
+    return overall_feedback_sequence, feedback_behaviour, end_goal
 
 
 def main():

@@ -80,3 +80,21 @@
     "performance": 2,
     "tgtValue": 0.8
 }
+
+# Stat goal
+{
+    "goal_level": 3,
+    "feedback": 1,
+    "score": 0.70,
+    "performance": 3,
+    "tgtValue": 0.80
+}
+
+# Shot goal
+{
+    "goal_level": 2,
+    "feedback": 1,
+    "score": 0.70,
+    "performance": 2,
+    "tgtValue": 0.80
+}

@@ -516,11 +516,12 @@ class EndSubgoal(Node):
         else:
             if self.goal_level == PolicyWrapper.BASELINE_GOAL:
                 nodedata.stat = 1
-                nodedata.phase = PolicyWrapper.PHASE_START
+                nodedata.phase = PolicyWrapper.PHASE_END
                 nodedata.new_goal = PolicyWrapper.EXERCISE_GOAL
                 controller.completed = controller.COMPLETED_STATUS_TRUE
             else:
                 nodedata.new_goal = self.goal_level - 1
+                nodedata.phase = PolicyWrapper.PHASE_END
                 controller.completed = controller.COMPLETED_STATUS_TRUE
             print("Returning SUCCESS from EndSubgoal, new subgoal level = " + str(nodedata.new_goal))
             return NodeStatus(NodeStatus.SUCCESS, "Completed subgoal: " + str(self.goal_level - 1))
@@ -579,25 +580,37 @@ class TimestepCue(Node):
 
         elif self.goal_level == 1:  # For session goal should have performance from previous session.
             if controller.goal_level == 1:
-                nodedata.performance = controller.performance
-                nodedata.phase = PolicyWrapper.PHASE_START
-                print("Returning SUCCESS from TimestepCue session goal, stats = " + str(nodedata))
-                return NodeStatus(NodeStatus.SUCCESS, "Data for session goal obtained from guide:" + str(nodedata))
+                if controller.phase == PolicyWrapper.PHASE_END:  # Feedback sequence
+                    nodedata.performance = controller.performance
+                    nodedata.phase = PolicyWrapper.PHASE_END
+                    print("Returning SUCCESS from TimestepCue session goal (end), stats = " + str(nodedata))
+                    return NodeStatus(NodeStatus.SUCCESS, "Data for stat goal obtained from guide:" + str(nodedata))
+                else:
+                    nodedata.performance = controller.performance
+                    nodedata.phase = PolicyWrapper.PHASE_START
+                    print("Returning SUCCESS from TimestepCue session goal, stats = " + str(nodedata))
+                    return NodeStatus(NodeStatus.SUCCESS, "Data for session goal obtained from guide:" + str(nodedata))
             else:
                 print("Returning ACTIVE from TimestepCue session goal")
                 return NodeStatus(NodeStatus.ACTIVE, "Waiting for session goal data from guide.")
 
         elif self.goal_level == 2:  # For shot goal should have performance from last time this shot was practiced.
             if controller.goal_level == 2:
-                if self.phase == PolicyWrapper.PHASE_END:  # This is actually the end of a baseline goal. Might need to update this so it's not as weirdly laid out.
-                    if controller.completed == controller.COMPLETED_STATUS_UNDEFINED:
+                if controller.phase == PolicyWrapper.PHASE_END:
+                    if controller.completed == controller.COMPLETED_STATUS_TRUE:  # This is actually the end of a baseline goal. Might need to update this so it's not as weirdly laid out.
                         nodedata.phase = PolicyWrapper.PHASE_END
                         nodedata.performance = controller.performance
-                        controller.completed = controller.COMPLETED_STATUS_TRUE
+                        print("Returning SUCCESS from TimestepCue shot goal (end), stats = " + str(nodedata))
+                        return NodeStatus(NodeStatus.SUCCESS, "Data for shot goal obtained from guide:" + str(nodedata))
+                    elif controller.completed == controller.COMPLETED_STATUS_FALSE:  # Feedback Sequence
+                        nodedata.performance = controller.performance
+                        nodedata.score = controller.score
+                        nodedata.target = controller.target
+                        nodedata.phase = PolicyWrapper.PHASE_END
                         print("Returning SUCCESS from TimestepCue shot goal (end), stats = " + str(nodedata))
                         return NodeStatus(NodeStatus.SUCCESS, "Data for shot goal obtained from guide:" + str(nodedata))
                     else:
-                        print("Returning ACTIVE from TimestepCue shot goal")
+                        print("Returning ACTIVE from TimestepCue shot goal, controller.completed = COMPLETED_STATUS_UNDEFINED")
                         return NodeStatus(NodeStatus.ACTIVE, "Waiting for shot goal data from guide.")
                 else:
                     nodedata.performance = controller.performance
@@ -605,7 +618,7 @@ class TimestepCue(Node):
                     print("Returning SUCCESS from TimestepCue shot goal, stats = " + str(nodedata))
                     return NodeStatus(NodeStatus.SUCCESS, "Data for shot goal obtained from guide:" + str(nodedata))
             else:
-                print("Returning ACTIVE from TimestepCue shot goal")
+                print("Returning ACTIVE from TimestepCue shot goal, controller.goal_level != 2")
                 return NodeStatus(NodeStatus.ACTIVE, "Waiting for shot goal data from guide.")
 
         elif self.goal_level == 3:  # For stat goal should have target and performance from last time this stat was practiced.
@@ -613,7 +626,6 @@ class TimestepCue(Node):
                 if controller.phase == PolicyWrapper.PHASE_END:  # Feedback sequence
                     nodedata.performance = controller.performance
                     nodedata.phase = PolicyWrapper.PHASE_END
-                    nodedata.performance = controller.performance
                     nodedata.score = controller.score
                     nodedata.target = controller.target
                     print("Returning SUCCESS from TimestepCue stat goal, stats = " + str(nodedata))
