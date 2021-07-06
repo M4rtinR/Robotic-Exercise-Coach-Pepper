@@ -272,7 +272,7 @@ class CheckForBehaviour(Node):
         # SUCCESS if next behaviour is given behaviour, else FAIL
         if self._is_example_of_behaviour(self.behaviour, self.check_behaviour):
             print("Returning SUCCESS from CheckForBehaviour, behaviour found = " + str(self.behaviour))
-            controller.completed = controller.COMPLETED_STATUS_FALSE
+            # controller.completed = controller.COMPLETED_STATUS_FALSE
             return NodeStatus(NodeStatus.SUCCESS, "Behaviour " + str(self.check_behaviour) + " found in the form " + str(self.behaviour))
         else:
             print("Returning FAIL from CheckForBehaviour, behaviour not found = " + str(self.check_behaviour) + ", input behaviour = " + str(self.behaviour))
@@ -552,6 +552,7 @@ class TimestepCue(Node):
         print("Configuring TimestepCue: " + self._name)
         self.goal_level = nodedata.get_data('goal')
         self.phase = nodedata.get_data('phase')
+        controller.completed = controller.COMPLETED_STATUS_FALSE
 
     def run(self, nodedata):
         """

@@ -23,12 +23,14 @@ class TimestepCue(Resource):
         if request.is_json:
             print("request is json")
             content = request.get_json()
-            if content['goal_level'] == PolicyWrapper.PERSON_GOAL:
+            print(content)
+            if int(content['goal_level']) == PolicyWrapper.PERSON_GOAL:
                 print('player goal setting controller values')
                 controller.goal_level = PolicyWrapper.PERSON_GOAL
                 controller.name = content['name']
-                controller.sessions = content['sessions']
-                controller.ability = content['ability']
+                controller.sessions = int(content['sessions'])
+                controller.ability = int(content['ability'])
+                controller.completed = controller.COMPLETED_STATUS_UNDEFINED
 
                 while controller.completed == controller.COMPLETED_STATUS_UNDEFINED:
                     pass
@@ -37,9 +39,9 @@ class TimestepCue(Resource):
                     'completed': controller.completed
                 }
 
-                return json.dumps(new_data, indent=4), 200
+                return new_data, 200
 
-            elif content['goal_level'] == PolicyWrapper.SESSION_GOAL:
+            elif int(content['goal_level']) == PolicyWrapper.SESSION_GOAL:
                 print('session goal setting controller values')
                 if 'feedback' in content:  # End of session
                     print('end of session')
@@ -55,7 +57,7 @@ class TimestepCue(Resource):
                         'completed': controller.completed
                     }
 
-                    return json.dumps(new_data, indent=4), 200
+                    return new_data, 200
                 else:
                     controller.completed = controller.COMPLETED_STATUS_UNDEFINED
                     controller.goal_level = PolicyWrapper.SESSION_GOAL
@@ -75,9 +77,9 @@ class TimestepCue(Resource):
                             'hand': controller.hand
                         }
 
-                    return json.dumps(new_data, indent=4), 200
+                    return new_data, 200
 
-            elif content['goal_level'] == PolicyWrapper.EXERCISE_GOAL:
+            elif int(content['goal_level']) == PolicyWrapper.EXERCISE_GOAL:
                 print('shot goal setting controller values')
                 if 'feedback' in content:  # End of shot
                     print('end of shot')
@@ -95,14 +97,14 @@ class TimestepCue(Resource):
                         'completed': controller.completed
                     }
 
-                    return json.dumps(new_data, indent=4), 200
+                    return new_data, 200
                 else:
                     controller.completed = controller.COMPLETED_STATUS_UNDEFINED
                     controller.goal_level = PolicyWrapper.EXERCISE_GOAL
                     controller.phase = PolicyWrapper.PHASE_START
                     if controller.shot == -1:
-                        controller.shot = content['shotClass']['shotType']
-                        controller.hand = content['shotClass']['hand']
+                        controller.shot = content['shotType']
+                        controller.hand = content['hand']
                     controller.score = content['initialScore']
                     controller.performance = content['performance']
 
@@ -116,9 +118,9 @@ class TimestepCue(Resource):
                     if not (controller.stat == -1):
                         new_data['stat'] = controller.stat
 
-                    return json.dumps(new_data, indent=4), 200
+                    return new_data, 200
 
-            elif content['goal_level'] == PolicyWrapper.STAT_GOAL:
+            elif int(content['goal_level']) == PolicyWrapper.STAT_GOAL:
                 print('stat goal setting controller values')
                 if 'feedback' in content:  # End of stat
                     print('end of stat')
@@ -136,7 +138,7 @@ class TimestepCue(Resource):
                         'completed': controller.completed
                     }
 
-                    return json.dumps(new_data, indent=4), 200
+                    return new_data, 200
                 else:
                     controller.completed = controller.COMPLETED_STATUS_UNDEFINED
                     controller.goal_level = PolicyWrapper.STAT_GOAL
@@ -153,9 +155,9 @@ class TimestepCue(Resource):
                         'completed': controller.completed
                     }
 
-                    return json.dumps(new_data, indent=4), 200
+                    return new_data, 200
 
-            elif content['goal_level'] == PolicyWrapper.SET_GOAL:  # Also represents baseline goal
+            elif int(content['goal_level']) == PolicyWrapper.SET_GOAL:  # Also represents baseline goal
                 '''if controller.goal_level == PolicyWrapper.BASELINE_GOAL:  # baseline goal feedback
                     controller.performance = content['performance']
                     controller.score = content['score']
@@ -179,7 +181,7 @@ class TimestepCue(Resource):
                         'completed': controller.completed
                     }
 
-                    return json.dumps(new_data, indent=4), 200
+                    return new_data, 200
                 else:  # Start of set
                     controller.goal_level = PolicyWrapper.SET_GOAL
                     controller.phase = PolicyWrapper.PHASE_START
@@ -192,9 +194,9 @@ class TimestepCue(Resource):
                         'completed': controller.completed
                     }
 
-                    return json.dumps(new_data, indent=4), 200
+                    return new_data, 200
 
-            elif content['goal_level'] == PolicyWrapper.ACTION_GOAL:
+            elif int(content['goal_level']) == PolicyWrapper.ACTION_GOAL:
                 print('action goal setting controller values')
                 controller.action_score = content['score']
                 controller.performance = content['performance']
@@ -205,7 +207,7 @@ class TimestepCue(Resource):
                     'completed': 1
                 }
 
-                return json.dumps(new_data, indent=4), 200
+                return new_data, 200
 
         else:
 

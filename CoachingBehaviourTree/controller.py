@@ -840,7 +840,7 @@ def main():
         time.sleep(1)
 
 def api_start():
-    api_classes.app.run(debug=True, use_reloader=False)
+    api_classes.app.run(host='0.0.0.0', port=5000)
 
 
 if __name__ == '__main__':
