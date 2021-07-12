@@ -28,10 +28,8 @@
 # Shot goal
 {
     "goal_level": 2,
-    "shotClass": {
-        "hand": 1,
-        "shotType": 6
-    },
+    "shotType": 1,
+    "hand": "FH",
     "initialScore": 0.04,
     "performance": 2,
     "children": {

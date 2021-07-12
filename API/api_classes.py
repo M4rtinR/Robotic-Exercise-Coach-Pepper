@@ -72,10 +72,8 @@ class TimestepCue(Resource):
                     }
 
                     if not (controller.shot == -1):
-                        new_data['shot'] = {
-                            'shotType': controller.shot,
-                            'hand': controller.hand
-                        }
+                        new_data['shotType'] = controller.shot
+                        new_data['hand'] = controller.hand
 
                     return new_data, 200
 
@@ -102,11 +100,18 @@ class TimestepCue(Resource):
                     controller.completed = controller.COMPLETED_STATUS_UNDEFINED
                     controller.goal_level = PolicyWrapper.EXERCISE_GOAL
                     controller.phase = PolicyWrapper.PHASE_START
+
                     if controller.shot == -1:
                         controller.shot = content['shotType']
                         controller.hand = content['hand']
-                    controller.score = content['initialScore']
-                    controller.performance = content['performance']
+                    if content['initialScore'] == "null":
+                        controller.score = None
+                    else:
+                        controller.score = float(content['initialScore'])
+                    if content['performance'] == "":
+                        controller.performance = None
+                    else:
+                        controller.performance = int(controller.performance)
 
                     while controller.completed == controller.COMPLETED_STATUS_UNDEFINED:
                         pass
@@ -125,7 +130,7 @@ class TimestepCue(Resource):
                 if 'feedback' in content:  # End of stat
                     print('end of stat')
                     controller.score = content['score']
-                    controller.target = content['tgtValue']
+                    controller.target = float(content['tgtValue'])
                     controller.performance = content['performance']
                     controller.goal_level = PolicyWrapper.STAT_GOAL
                     controller.phase = PolicyWrapper.PHASE_END
@@ -145,8 +150,11 @@ class TimestepCue(Resource):
                     controller.phase = PolicyWrapper.PHASE_START
                     if controller.stat == -1:
                         controller.stat = content['stat']
-                    controller.target = content['tgtValue']
-                    controller.performance = content['performance']
+                    controller.target = float(content['tgtValue'])
+                    if content['performance'] == "":
+                        controller.performance = None
+                    else:
+                        controller.performance = int(controller.performance)
 
                     while controller.completed == controller.COMPLETED_STATUS_UNDEFINED:
                         pass
@@ -167,7 +175,7 @@ class TimestepCue(Resource):
                 if 'score' in content:  # End of set
                     print('end of set')
                     controller.avg_score = content['score']
-                    controller.target = content['tgtValue']
+                    controller.target = float(content['tgtValue'])
                     controller.performance = content['performance']
                     # controller.stat = content['stat']  # Let guide decide what stat to work on based on baseline set.
                     controller.goal_level = PolicyWrapper.SET_GOAL
@@ -198,7 +206,7 @@ class TimestepCue(Resource):
 
             elif int(content['goal_level']) == PolicyWrapper.ACTION_GOAL:
                 print('action goal setting controller values')
-                controller.action_score = content['score']
+                controller.action_score = float(content['score'])
                 controller.performance = content['performance']
                 controller.goal_level = PolicyWrapper.ACTION_GOAL
                 controller.shot_count += 1

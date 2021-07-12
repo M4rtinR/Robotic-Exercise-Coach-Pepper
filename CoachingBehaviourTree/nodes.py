@@ -33,6 +33,7 @@ from time import time
 
 from task_behavior_engine.node import Node
 from task_behavior_engine.tree import NodeStatus
+from multiprocessing import Process, Pipe
 
 from CoachingBehaviourTree import controller
 from CoachingBehaviourTree.action import Action
@@ -339,6 +340,12 @@ class DisplayBehaviour(Node):
         print("Returning SUCCESS from DisplayBehaviour")
         return NodeStatus(NodeStatus.SUCCESS, "Printed action message to output.")
 
+    def sendBehaviour(self, child_conn):
+        child_conn.send(self.action)
+        child_conn.close()
+
+
+
 
 class GetStats(Node):
     """
@@ -517,11 +524,12 @@ class EndSubgoal(Node):
             if self.goal_level == PolicyWrapper.BASELINE_GOAL:
                 nodedata.stat = 1
                 nodedata.phase = PolicyWrapper.PHASE_END
-                nodedata.new_goal = PolicyWrapper.EXERCISE_GOAL
+                nodedata.new_goal = PolicyWrapper.STAT_GOAL
                 controller.completed = controller.COMPLETED_STATUS_TRUE
             else:
                 nodedata.new_goal = self.goal_level - 1
-                nodedata.phase = PolicyWrapper.PHASE_END
+                nodedata.phase = PolicyWrapper.PHASE_START  # All behaviours have happened so its start of new goal.
+                controller.phase = PolicyWrapper.PHASE_START
                 controller.completed = controller.COMPLETED_STATUS_TRUE
             print("Returning SUCCESS from EndSubgoal, new subgoal level = " + str(nodedata.new_goal))
             return NodeStatus(NodeStatus.SUCCESS, "Completed subgoal: " + str(self.goal_level - 1))
@@ -727,7 +735,7 @@ class DurationCheck(Node):
         self.start_time = nodedata.get_data('start_time')
         self.session_duration = nodedata.get_data('session_duration')
         # Only use until getting actual time:
-        self.current_time = 0
+        self.current_time = controller.time
 
     def run(self, nodedata):
         """
@@ -736,7 +744,7 @@ class DurationCheck(Node):
         """
         # TODO update once getting actual time from user
         # Will return FAIL when when duration has not been reached. SUCCESS when it has.
-        self.current_time += 1
+        # self.current_time += 1
         if (self.current_time - self.start_time) < self.session_duration:
             print("Returning FAIL from DurationCheck - time limit not yet reached, current time = " + str(self.current_time))
             return NodeStatus(NodeStatus.FAIL, "Time limit not yet reached.")

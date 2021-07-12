@@ -41,15 +41,19 @@ score = -1
 target = -1
 avg_score = -1
 performance = -1
-shot = -1
-hand = -1
-stat = -1
+# 0 = DROP, 1 = DRIVE, 19 = VOLLEY_DROP
+shot = 1
+# "FH" or "BH"
+hand = "FH"
+# 0 = RACKET_PREP, 9 = IMPACT_CUT_ANGLE, 10 = FOLLOW_THROUGH_TIME
+stat = 0
 completed = COMPLETED_STATUS_UNDEFINED
 shot_count = 0
 action_score = -1
 prev_behav = -1
 matching_behav = 0
 phase = PolicyWrapper.PHASE_START
+time = 0
 
 def create_coaching_tree():
     """
@@ -80,6 +84,8 @@ def create_coaching_tree():
     # Session duration
     duration = GetDuration(name="duration", blackboard=b)
     root.add_child(duration)
+    b.save('session_duration', 1, duration._id)
+    b.save('start_time', 0, duration._id)
 
     # Add an intro and feedback loop for player goal.
     gen_person_goal = Progressor(name="gen_player_goal")
@@ -374,7 +380,7 @@ def create_coaching_tree():
     b.save('choice_type', STAT_CHOICE, shot_goal_stat_choice._id)
     shot_goal_intro_questioning_sequence.add_child(shot_goal_stat_choice)
     shot_goal_intro_questioning_negate = Negate(name="shot_goal_intro_questioning_negate", child=shot_goal_intro_questioning_sequence)
-    shot_goal_intro_sequence.add_child(shot_goal_intro_questioning_negate)
+    # shot_goal_intro_sequence.add_child(shot_goal_intro_questioning_negate)
 
     # Format selected behaviour if not pre-instruction or questioning (i.e. create the output action)
     shot_goal_intro_action = FormatAction(name="shot_goal_intro_action", blackboard=b)
@@ -505,6 +511,7 @@ def create_coaching_tree():
     set_goal_start_until = Until(name="set_goal_start_until", child=set_goal_start)
     gen_set_goal.add_child(set_goal_start_until)
     b.add_remapping(set_goal._id, 'new_goal', set_goal_start._id, 'goal')
+    b.save('phase', phase, set_goal_start._id)
 
     # Display intro set behaviours until pre-instruction
     set_goal_intro_sequence = Progressor(name="set_goal_intro_sequence")
@@ -648,13 +655,15 @@ def create_coaching_tree():
     stat_goal_coaching.add_child(gen_set_goal)
 
     set_goal_feedback_loop, set_goal_feedback_behav, set_goal_feedback_end = get_feedback_loop(name="set_goal_feedback_loop", behav=Policy.A_PREINSTRUCTION, blackboard=b, goal_node=set_goal, initialise_node=initialise, previous_behav_node=set_goal_individual_action_behav, timestep_cue_node=set_goal_end, person_node=player_start)
-    stat_goal_coaching.add_child(set_goal_feedback_loop)
+    set_goal_feedback_negate = Negate(name="set_goal_feedback_loop_negate", child=set_goal_feedback_loop)
+    stat_goal_coaching.add_child(set_goal_feedback_negate)
     # Remap the observation from the feedback loop to be the new state when an intro behaviour is given for the next set.
     b.add_remapping(set_goal_end, 'phase', set_goal_intro_behav, 'previous_phase')
     b.add_remapping(set_goal_feedback_behav, 'observation', set_goal_intro_behav, 'feedback_state')
 
     stat_goal_coaching_until_count = UntilCount(name="stat_goal_coaching_until_count", max_count=4, child=stat_goal_coaching)
-    gen_stat_goal.add_child(stat_goal_coaching_until_count)
+    stat_goal_coaching_until_negate = Negate(name="stat_goal_coaching_until_negate", child=stat_goal_coaching_until_count)
+    gen_stat_goal.add_child(stat_goal_coaching_until_negate)
 
     # Stat feedback loop until pre-instruction
     # Wait for timestep cue (i.e. stat goal has been completed by guide and we are ready for feedback behaviours).
@@ -668,7 +677,7 @@ def create_coaching_tree():
     b.add_remapping(stat_goal_end, 'phase', stat_goal_intro_behav, 'previous_phase')
     b.add_remapping(stat_goal_feedback_behav, 'observation', stat_goal_intro_behav, 'feedback_state')
 
-    stat_goal_until_count = UntilCount(name="stat_goal_until_count", max_count=2, child=gen_stat_goal)
+    stat_goal_until_count = UntilCount(name="stat_goal_until_count", max_count=1, child=gen_stat_goal)
     gen_shot_goal.add_child(stat_goal_until_count)
 
     # Shot feedback loop until pre-instruction
