@@ -13188,6 +13188,12 @@ class BehaviourLibraryFunctions:
 
         # TODO: Replace with actual behaviours, not codes.
 
+        if performance is None:
+            performance = -1
+
+        if phase is None:
+            phase = -1
+
         if behaviour > 68 or behaviour < 1 or goal_level > 6 or goal_level < 0 or performance > 7 or performance < -1 or phase > 1 or phase < -1:
             msg = "Error: I don't know how to perform that behaviour."
         else:

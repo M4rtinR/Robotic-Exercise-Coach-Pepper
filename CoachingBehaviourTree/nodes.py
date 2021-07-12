@@ -33,7 +33,7 @@ from time import time
 
 from task_behavior_engine.node import Node
 from task_behavior_engine.tree import NodeStatus
-from multiprocessing import Process, Pipe
+from multiprocessing import Process, Queue, Pipe
 
 from CoachingBehaviourTree import controller
 from CoachingBehaviourTree.action import Action
@@ -42,6 +42,10 @@ from Policy.policy import Policy
 from Policy.policy_wrapper import PolicyWrapper
 import numpy as np
 import random
+import sys
+sys.path.insert(1, '/home/martin/PycharmProjects/Connection')
+
+from connection import get_data
 
 
 class GetBehaviour(Node):
@@ -337,6 +341,10 @@ class DisplayBehaviour(Node):
         :return: NodeStatus.SUCCESS if action sent successfully to robot, NodeStatus.FAIL otherwise.
         """
         print(str(self.action))
+        parent_conn,child_conn = Pipe()
+        p = Process(target=get_data, args=(child_conn,))
+        p.start()
+        parent_conn.send(str(self.action))
         print("Returning SUCCESS from DisplayBehaviour")
         return NodeStatus(NodeStatus.SUCCESS, "Printed action message to output.")
 
@@ -531,6 +539,8 @@ class EndSubgoal(Node):
                 nodedata.phase = PolicyWrapper.PHASE_START  # All behaviours have happened so its start of new goal.
                 controller.phase = PolicyWrapper.PHASE_START
                 controller.completed = controller.COMPLETED_STATUS_TRUE
+                if self.goal_level == PolicyWrapper.EXERCISE_GOAL:
+                    controller.session_time += 1
             print("Returning SUCCESS from EndSubgoal, new subgoal level = " + str(nodedata.new_goal))
             return NodeStatus(NodeStatus.SUCCESS, "Completed subgoal: " + str(self.goal_level - 1))
 
@@ -735,7 +745,7 @@ class DurationCheck(Node):
         self.start_time = nodedata.get_data('start_time')
         self.session_duration = nodedata.get_data('session_duration')
         # Only use until getting actual time:
-        self.current_time = controller.time
+        self.current_time = controller.session_time
 
     def run(self, nodedata):
         """

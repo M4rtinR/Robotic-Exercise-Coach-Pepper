@@ -160,7 +160,7 @@ class PolicyWrapper:
                 elif performance == self.REGRESSED_SWAP:
                     valid_list.extend([self.policy.A_SCOLD, self.policy.A_CONSOLE, self.policy.A_SCOLD_FIRSTNAME,
                                        self.policy.A_CONSOLE_FIRSTNAME])
-                else:  # performance == self.MUCH_REGRESSED
+                elif performance == self.MUCH_REGRESSED:  # performance == self.MUCH_REGRESSED
                     valid_list.extend([self.policy.A_SCOLD, self.policy.A_CONSOLE, self.policy.A_SCOLD_FIRSTNAME,
                                        self.policy.A_CONSOLE_FIRSTNAME])
             else:  # phase == self.PHASE_END
@@ -187,7 +187,7 @@ class PolicyWrapper:
                 elif performance == self.REGRESSED_SWAP:
                     valid_list.extend([self.policy.A_SCOLD, self.policy.A_CONSOLE, self.policy.A_SCOLD_FIRSTNAME,
                                        self.policy.A_CONSOLE_FIRSTNAME])
-                else:  # performance == self.MUCH_REGRESSED
+                elif performance == self.MUCH_REGRESSED:  # performance == self.MUCH_REGRESSED
                     valid_list.extend([self.policy.A_SCOLD, self.policy.A_CONSOLE, self.policy.A_SCOLD_FIRSTNAME,
                                        self.policy.A_CONSOLE_FIRSTNAME])
 
@@ -237,7 +237,7 @@ class PolicyWrapper:
                                    self.policy.A_CONCURRENTINSTRUCTIONNEGATIVE_NEGATIVEMODELING,
                                    self.policy.A_CONCURRENTINSTRUCTIONNEGATIVE_FIRSTNAME,
                                    self.policy.A_POSITIVEMODELING_CONCURRENTINSTRUCTIONNEGATIVE])
-            else:  # performance == self.MUCH_REGRESSED
+            elif performance == self.MUCH_REGRESSED:  # performance == self.MUCH_REGRESSED
                 valid_list.extend([self.policy.A_CONCURRENTINSTRUCTIONNEGATIVE, self.policy.A_NEGATIVEMODELING,
                                    self.policy.A_SCOLD, self.policy.A_CONSOLE,
                                    self.policy.A_QUESTIONING_NEGATIVEMODELING, self.policy.A_SCOLD_POSITIVEMODELING,
