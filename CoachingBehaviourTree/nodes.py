@@ -42,10 +42,7 @@ from Policy.policy import Policy
 from Policy.policy_wrapper import PolicyWrapper
 import numpy as np
 import random
-import sys
-sys.path.insert(1, '/home/martin/PycharmProjects/Connection')
-
-from connection import get_data
+import requests
 
 
 class GetBehaviour(Node):
@@ -341,10 +338,10 @@ class DisplayBehaviour(Node):
         :return: NodeStatus.SUCCESS if action sent successfully to robot, NodeStatus.FAIL otherwise.
         """
         print(str(self.action))
-        parent_conn,child_conn = Pipe()
-        p = Process(target=get_data, args=(child_conn,))
-        p.start()
-        parent_conn.send(str(self.action))
+        output = {
+            "utterance": str(self.action)
+        }
+        r = requests.post('http://137.195.210.192:4999/output', json=output)
         print("Returning SUCCESS from DisplayBehaviour")
         return NodeStatus(NodeStatus.SUCCESS, "Printed action message to output.")
 
