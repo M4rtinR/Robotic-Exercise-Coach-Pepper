@@ -36,7 +36,8 @@ class TimestepCue(Resource):
                     pass
 
                 new_data = {
-                    'completed': controller.completed
+                    'completed': controller.completed,
+                    'shotSet': 0
                 }
 
                 return new_data, 200
@@ -68,7 +69,8 @@ class TimestepCue(Resource):
                         pass
 
                     new_data = {
-                        'completed': controller.completed
+                        'completed': controller.completed,
+                        'shotSet': 0
                     }
 
                     if not (controller.shot == -1):
@@ -113,11 +115,12 @@ class TimestepCue(Resource):
                     else:
                         controller.performance = int(controller.performance)
 
-                    while controller.completed == controller.COMPLETED_STATUS_UNDEFINED:
+                    while controller.completed != controller.COMPLETED_STATUS_TRUE:
                         pass
 
                     new_data = {
-                        'completed': controller.completed
+                        'completed': controller.completed,
+                        'shotSet': 1
                     }
 
                     if not (controller.stat == -1):
@@ -160,7 +163,8 @@ class TimestepCue(Resource):
                         pass
 
                     new_data = {
-                        'completed': controller.completed
+                        'completed': controller.completed,
+                        'shotSet': 0
                     }
 
                     return new_data, 200
@@ -199,7 +203,8 @@ class TimestepCue(Resource):
                         pass
 
                     new_data = {
-                        'completed': controller.completed
+                        'completed': controller.completed,
+                        'shotSet': 1
                     }
 
                     return new_data, 200
@@ -207,7 +212,22 @@ class TimestepCue(Resource):
             elif int(content['goal_level']) == PolicyWrapper.ACTION_GOAL:
                 print('action goal setting controller values')
                 controller.action_score = float(content['score'])
-                controller.performance = content['performance']
+                performanceValue = PolicyWrapper.MET
+                if content['performance'] == 'Very Low':
+                    performanceValue = PolicyWrapper.MUCH_REGRESSED
+                elif content['performance'] == 'Very High':
+                    performanceValue = PolicyWrapper.REGRESSED_SWAP
+                elif content['performance'] == 'Low':
+                    performanceValue = PolicyWrapper.REGRESSED
+                elif content['performance'] == 'High':
+                    performanceValue = PolicyWrapper.MET
+                elif content['performance'] == 'Under':
+                    performanceValue = PolicyWrapper.STEADY
+                elif content['performance'] == 'Over':
+                    performanceValue = PolicyWrapper.IMPROVED
+                elif content['performance'] == 'Good!':
+                    performanceValue = PolicyWrapper.MUCH_IMPROVED
+                controller.performance = performanceValue
                 controller.goal_level = PolicyWrapper.ACTION_GOAL
                 controller.shot_count += 1
 

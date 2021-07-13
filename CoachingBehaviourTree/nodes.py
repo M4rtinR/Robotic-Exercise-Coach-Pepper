@@ -837,7 +837,8 @@ class EndSetEvent(Node):
         # TODO Update once getting actual choice from user. Will probably need two nodes, one for displaying button,
         #   one for waiting for user selection so that the tree doesn't grind to a halt.
         # self.shotcount += 1  # TODO Set this to 0 when set starts.
-        if self.shotcount >= 5:
+        if self.shotcount >= 30:
+            controller.completed = controller.COMPLETED_STATUS_TRUE
             print("Returning SUCCESS from EndSetEvent, shot count = " + str(self.shotcount))
             return NodeStatus(NodeStatus.SUCCESS, "Shot set ended.")
         else:
