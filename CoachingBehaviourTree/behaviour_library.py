@@ -13149,7 +13149,7 @@ squash_behaviour_library = {
                     3: 'preinstruction_firstname_baseline_start_pre_3'}
 }
 
-def _get_utterance(goal_level, behaviour, user_name, phase, hand, shot, stat, performance):
+'''def _get_utterance(goal_level, behaviour, user_name, phase, hand, shot, stat, performance):
     utterance = ""
     name = ""
     if behaviour in [Policy.A_PREINSTRUCTION_FIRSTNAME, Policy.A_POSTINSTRUCTIONPOSITIVE_FIRSTNAME,
@@ -13438,7 +13438,7 @@ def _get_utterance(goal_level, behaviour, user_name, phase, hand, shot, stat, pe
                                self.policy.A_CONCURRENTINSTRUCTIONNEGATIVE_FIRSTNAME,
                                self.policy.A_POSITIVEMODELING_CONCURRENTINSTRUCTIONNEGATIVE])
 
-    return utterance
+    return utterance'''
 
 
 @dataclass

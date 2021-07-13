@@ -341,7 +341,7 @@ class DisplayBehaviour(Node):
         output = {
             "utterance": str(self.action)
         }
-        r = requests.post('http://137.195.210.192:4999/output', json=output)
+        r = requests.post('http://192.168.43.19:4999/output', json=output)
         print("Returning SUCCESS from DisplayBehaviour")
         return NodeStatus(NodeStatus.SUCCESS, "Printed action message to output.")
 
@@ -631,6 +631,7 @@ class TimestepCue(Node):
                 else:
                     nodedata.performance = controller.performance
                     nodedata.phase = PolicyWrapper.PHASE_START
+                    controller.goal_level = PolicyWrapper.SET_GOAL
                     print("Returning SUCCESS from TimestepCue shot goal, stats = " + str(nodedata))
                     return NodeStatus(NodeStatus.SUCCESS, "Data for shot goal obtained from guide:" + str(nodedata))
             else:
