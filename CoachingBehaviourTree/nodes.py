@@ -202,6 +202,7 @@ class FormatAction(Node):
             nodes.
         :return: NodeStatus.SUCCESS when an action has been created.
         """
+        logging.info("Formatting action: behaviour = {behaviour}, goal_level = {goal_level}, performance = {performance}, name = {name}, shot = {shot}, hand = {hand}, stat = {stat}".format(behaviour=self.behaviour, goal_level=self.goal_level, performance=self.performance, name=self.name, shot=self.shot, hand=self.hand, stat=self.stat))
         if not(self.behaviour == Policy.A_SILENCE):
             pre_msg = self.behaviour_lib.get_pre_msg(self.behaviour, self.goal_level, self.performance, self.phase, self.name, self.shot, self.hand, self.stat)
             if self.score is None and self.performance is None:
@@ -338,6 +339,7 @@ class DisplayBehaviour(Node):
         :return: NodeStatus.SUCCESS if action sent successfully to robot, NodeStatus.FAIL otherwise.
         """
         print(str(self.action))
+        logging.info("Displaying action ".format(self.action))
         output = {
             "utterance": str(self.action)
         }
@@ -382,9 +384,9 @@ class GetStats(Node):
         print("Running GetStats: " + self._name)
         # Will be ACTIVE when waiting for data and SUCCESS when got data and added to blackboard, FAIL when connection error.
         # print("In get stats")
-        nodedata.motivation = 8
-        logging.info("Stats set, motivation = %i", nodedata.motivation)
-        #nodedata.player_ability = 2
+        nodedata.motivation = controller.motivation
+        nodedata.player_ability = controller.ability
+        logging.info("Stats set, motivation = {motivation}, ability = {ability}".format(motivation=nodedata.motivation, ability=nodedata.player_ability))
         #nodedata.sessions = 6
         # print("After setting stats in GetStats: " + str(nodedata))
         print("Returning SUCCESS from GetStats, stats = " + str(nodedata))
@@ -418,6 +420,7 @@ class GetDuration(Node):
         print("Running GetDuration: " + self._name)
         # Will be ACTIVE when waiting for data and SUCCESS when got data and added to blackboard, FAIL when connection error.
         nodedata.session_duration = 2
+        logging.info("Set session duration to: {duration}".format(duration=nodedata.session_duration))
         print("Returning SUCCESS from GetDuration, session duration = " + str(nodedata.session_duration))
         return NodeStatus(NodeStatus.SUCCESS, "Set session duration to dummy value 20.")
 
@@ -468,6 +471,7 @@ class CreateSubgoal(Node):
         # Will return SUCCESS once request sent to API, FAIL if called on ACTION_GOAL or connection error.
         if self.previous_goal_level == 6:
             nodedata.new_goal = 3
+            logging.info("Created subgoal, new goal level = {}".format(nodedata.new_goal))
             print("Returning SUCCESS from CreateSubGoal, new goal level = " + str(nodedata.goal))
             return NodeStatus(NodeStatus.SUCCESS, "Created subgoal: 3 from BASELINE_GOAL")
         elif self.previous_goal_level > 6:
@@ -478,6 +482,7 @@ class CreateSubgoal(Node):
                 nodedata.new_goal = 6
             else:
                 nodedata.new_goal = self.previous_goal_level + 1
+            logging.info("Created subgoal, new goal level = {}".format(nodedata.new_goal))
             print("Returning SUCCESS from CreateSubGoal, new goal level = " + str(nodedata.new_goal))
             return NodeStatus(NodeStatus.SUCCESS, "Created subgoal: " + str(self.previous_goal_level + 1))
 
@@ -539,6 +544,7 @@ class EndSubgoal(Node):
                 controller.completed = controller.COMPLETED_STATUS_TRUE
                 if self.goal_level == PolicyWrapper.EXERCISE_GOAL:
                     controller.session_time += 1
+            logging.info("Ended subgoal {old_goal}. New goal level = {new_goal}.".format(old_goal=self.goal_level, new_goal=nodedata.new_goal))
             print("Returning SUCCESS from EndSubgoal, new subgoal level = " + str(nodedata.new_goal))
             return NodeStatus(NodeStatus.SUCCESS, "Completed subgoal: " + str(self.goal_level - 1))
 
@@ -755,9 +761,12 @@ class DurationCheck(Node):
         # Will return FAIL when when duration has not been reached. SUCCESS when it has.
         # self.current_time += 1
         if (self.current_time - self.start_time) < self.session_duration:
+            logging.info("Session time limit NOT reached, current duration = {a - b}, session limit = {limit}.".format(a=self.current_time, b=self.start_time, limit=self.session_duration))
             print("Returning FAIL from DurationCheck - time limit not yet reached, current time = " + str(self.current_time))
             return NodeStatus(NodeStatus.FAIL, "Time limit not yet reached.")
         else:
+            logging.info("Session time limit reached, current duration = {a - b}, session limit = {limit}.".format(
+                a=self.current_time, b=self.start_time, limit=self.session_duration))
             print("Returning SUCCESS from DurationCheck - Time limit reached, current time = " + str(self.current_time))
             return NodeStatus(NodeStatus.SUCCESS, "Session time limit reached.")
 
@@ -840,6 +849,7 @@ class EndSetEvent(Node):
         # self.shotcount += 1  # TODO Set this to 0 when set starts.
         if self.shotcount >= 30:
             controller.completed = controller.COMPLETED_STATUS_TRUE
+            logging.info("Shot set completed.")
             print("Returning SUCCESS from EndSetEvent, shot count = " + str(self.shotcount))
             return NodeStatus(NodeStatus.SUCCESS, "Shot set ended.")
         else:
@@ -910,7 +920,7 @@ class InitialiseBlackboard(Node):
         nodedata.phase = PolicyWrapper.PHASE_START
         nodedata.bl = BehaviourLibraryFunctions("SquashDict", squash_behaviour_library)
         nodedata.start_time = 0  # TODO: update with actual time.
-        logging.info("Chosen policy = %s", max_style)
+        logging.info("Chosen policy = {}".format(max_style))
         print("Returning SUCCESS from InitialiseBlackboard")
         return NodeStatus(NodeStatus.SUCCESS, "Set belief distribution " + str(belief_distribution) + ". Start state ="
                           + str(nodedata.get_data('state')))

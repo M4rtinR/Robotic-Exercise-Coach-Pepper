@@ -39,6 +39,7 @@ goal_level = -1
 name = ''
 sessions = -1
 ability = -1
+motivation = -1
 score = -1
 target = -1
 avg_score = -1
@@ -843,7 +844,7 @@ def get_feedback_loop(name, behav, blackboard, goal_node, initialise_node, previ
 
 def main():
     loggingFilename = "" + participantNo + ".log"
-    logging.basicConfig(format='%(levelname)s:%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.DEBUG, filename=loggingFilename)
+    logging.basicConfig(format='%(levelname)s:%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.INFO, filename=loggingFilename)
     logging.info("Logging started")
     coaching_tree = create_coaching_tree()
     result = NodeStatus(NodeStatus.ACTIVE)
@@ -864,8 +865,8 @@ if __name__ == '__main__':
     # Start API
     x = threading.Thread(target=api_start)
     x.start()
-    logging.debug("Continuing")
     main()
+    logging.debug("Continuing")
     x.join()
 
 

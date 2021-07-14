@@ -5,6 +5,7 @@ import ast
 import firebase_admin
 from firebase_admin import db
 import json
+import logging
 
 from CoachingBehaviourTree import controller
 from Policy.policy_wrapper import PolicyWrapper
@@ -24,8 +25,9 @@ class TimestepCue(Resource):
             print("request is json")
             content = request.get_json()
             print(content)
+            logging.info("Received data from app: {}".format(content))
             if int(content['goal_level']) == PolicyWrapper.PERSON_GOAL:
-                print('player goal setting controller values')
+                logging.info("Received data from app: {}".format(content))
                 controller.goal_level = PolicyWrapper.PERSON_GOAL
                 controller.name = content['name']
                 controller.sessions = int(content['sessions'])

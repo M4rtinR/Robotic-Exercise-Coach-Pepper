@@ -13205,7 +13205,7 @@ class BehaviourLibraryFunctions:
                 performance = -1
 
             msg = self.behaviours[str(goal_level) + '_' + str(behaviour) + '_' + str(performance) + '_' + str(phase) + '_0'][r]'''
-            msg = self.get_utterance(self, goal_level, behaviour, name, phase, hand, shot, stat, performance)
+            msg = self._get_utterance(self, goal_level, behaviour, name, phase, hand, shot, stat, performance)
 
         return msg
 
