@@ -14,6 +14,7 @@ __main__()
 """
 import threading
 import time
+import logging
 
 from task_behavior_engine.branch import Sequencer, Selector, Progressor, Runner
 from task_behavior_engine.decorator import Until, While, Negate, Repeat, UntilCount, Succeed
@@ -33,6 +34,7 @@ COMPLETED_STATUS_FALSE = 0
 COMPLETED_STATUS_TRUE = 1
 
 # Initial values which will be updated when the API gets called by the guide.
+participantNo = "Test"
 goal_level = -1
 name = ''
 sessions = -1
@@ -840,12 +842,15 @@ def get_feedback_loop(name, behav, blackboard, goal_node, initialise_node, previ
 
 
 def main():
+    loggingFilename = "" + participantNo + ".log"
+    logging.basicConfig(format='%(levelname)s:%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.DEBUG, filename=loggingFilename)
+    logging.info("Logging started")
     coaching_tree = create_coaching_tree()
     result = NodeStatus(NodeStatus.ACTIVE)
 
     while result == NodeStatus.ACTIVE:
         result = coaching_tree.tick()
-        print(result)
+        logging.debug(result)
         time.sleep(1)
 
 def api_start():
@@ -859,7 +864,7 @@ if __name__ == '__main__':
     # Start API
     x = threading.Thread(target=api_start)
     x.start()
-    print("Continuing")
+    logging.debug("Continuing")
     main()
     x.join()
 

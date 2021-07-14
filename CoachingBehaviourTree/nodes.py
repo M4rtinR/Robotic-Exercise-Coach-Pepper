@@ -28,7 +28,7 @@ GetUserChoice(Node)
 EndSetEvent(Node)
     Check if the user has chosen to end the set.
 """
-
+import logging
 from time import time
 
 from task_behavior_engine.node import Node
@@ -383,6 +383,7 @@ class GetStats(Node):
         # Will be ACTIVE when waiting for data and SUCCESS when got data and added to blackboard, FAIL when connection error.
         # print("In get stats")
         nodedata.motivation = 8
+        logging.info("Stats set, motivation = %i", nodedata.motivation)
         #nodedata.player_ability = 2
         #nodedata.sessions = 6
         # print("After setting stats in GetStats: " + str(nodedata))
@@ -909,6 +910,7 @@ class InitialiseBlackboard(Node):
         nodedata.phase = PolicyWrapper.PHASE_START
         nodedata.bl = BehaviourLibraryFunctions("SquashDict", squash_behaviour_library)
         nodedata.start_time = 0  # TODO: update with actual time.
+        logging.info("Chosen policy = %s", max_style)
         print("Returning SUCCESS from InitialiseBlackboard")
         return NodeStatus(NodeStatus.SUCCESS, "Set belief distribution " + str(belief_distribution) + ". Start state ="
                           + str(nodedata.get_data('state')))
