@@ -1,70 +1,70 @@
 Squash
-		compoundMappings.put(15, 22);
-		compoundMappings.put(16, 23);
-		compoundMappings.put(17, 24);
-		compoundMappings.put(18, 25);
-		compoundMappings.put(19, 28);
-		compoundMappings.put(20, 39);
-		compoundMappings.put(21, 42);
-		compoundMappings.put(22, 70);
-		compoundMappings.put(23, 71);
-		compoundMappings.put(24, 72);
-		compoundMappings.put(25, 73);
-		compoundMappings.put(26, 74);
-		compoundMappings.put(27, 86);
-		compoundMappings.put(28, 87);
-		compoundMappings.put(29, 88);
-		compoundMappings.put(30, 89);
-		compoundMappings.put(31, 92);
-		compoundMappings.put(32, 100);
-		compoundMappings.put(33, 101);
-		compoundMappings.put(34, 121);
-		compoundMappings.put(35, 122);
-		compoundMappings.put(36, 129);
-		compoundMappings.put(37, 132);
-		compoundMappings.put(38, 149);
-		compoundMappings.put(39, 186);
-		compoundMappings.put(40, 202);
-		compoundMappings.put(41, 216);
-		compoundMappings.put(42, 218);
-		compoundMappings.put(43, 234);
+		compoundMappings.put(15, 22); preinstruction_manualmanipulation
+		compoundMappings.put(16, 23); preinstruction_questioning
+		compoundMappings.put(17, 24); preinstruction_positivemodelling
+		compoundMappings.put(18, 25); preinstruction_negativemodelling
+		compoundMappings.put(19, 28); preinstruction_praise
+		compoundMappings.put(20, 39); concurrentinstructionpositive_questioning
+		compoundMappings.put(21, 42); concurrentinstructionpositive_firstname
+		compoundMappings.put(22, 70); postinstructionpositive_manualmanipulation
+		compoundMappings.put(23, 71); postinstructionpositive_questioning
+		compoundMappings.put(24, 72); postinstructionpositive_positivemodelling
+		compoundMappings.put(25, 73); postinstructionpositive_negativemodelling
+		compoundMappings.put(26, 74); postinstructionpositive_firstname
+		compoundMappings.put(27, 86); postinstructionnegative_manualmanipulation
+		compoundMappings.put(28, 87); postinstructionnegative_questioning
+		compoundMappings.put(29, 88); postinstructionnegative_positivemodelling
+		compoundMappings.put(30, 89); postinstructionnegative_negativemodelling
+		compoundMappings.put(31, 92); postinstructionnegative_praise
+		compoundMappings.put(32, 100); manualmanipulation_postinstructionpositive
+		compoundMappings.put(33, 101); manualmanipulation_postinstructionnegative
+		compoundMappings.put(34, 121); questioning_negativemodelling
+		compoundMappings.put(35, 122); questioning_firstname
+		compoundMappings.put(36, 129); positivemodelling_preinstruction
+		compoundMappings.put(37, 132); positivemodelling_postinstructionpositive
+		compoundMappings.put(38, 149); negativemodelling_postinstructionnegative
+		compoundMappings.put(39, 186); hustle_firstname
+		compoundMappings.put(40, 202); praise_firstname
+		compoundMappings.put(41, 216); scold_positivemodelling
+		compoundMappings.put(42, 218); scold_firstname
+		compoundMappings.put(43, 234); console_firstname
 
 Physio
-		compoundMappings.put(15, 22);
-		compoundMappings.put(16, 24);
-		compoundMappings.put(17, 25);
-		compoundMappings.put(18, 26);
-		compoundMappings.put(19, 34);
-		compoundMappings.put(20, 38);
-		compoundMappings.put(21, 40);
-		compoundMappings.put(22, 42);
-		compoundMappings.put(23, 44);
-		compoundMappings.put(24, 54);
-		compoundMappings.put(25, 57);
-		compoundMappings.put(26, 58);
-		compoundMappings.put(27, 70);
-		compoundMappings.put(28, 72);
-		compoundMappings.put(29, 73);
-		compoundMappings.put(30, 74);
-		compoundMappings.put(31, 89);
-		compoundMappings.put(32, 90);
-		compoundMappings.put(33, 97);
-		compoundMappings.put(34, 98);
-		compoundMappings.put(35, 99);
-		compoundMappings.put(36, 100);
-		compoundMappings.put(37, 101);
-		compoundMappings.put(38, 103);
-		compoundMappings.put(39, 104);
-		compoundMappings.put(40, 106);
-		compoundMappings.put(41, 107);
-		compoundMappings.put(42, 108);
-		compoundMappings.put(43, 110);
-		compoundMappings.put(44, 120);
-		compoundMappings.put(45, 121);
-		compoundMappings.put(46, 122);
-		compoundMappings.put(47, 130);
-		compoundMappings.put(48, 135);
-		compoundMappings.put(49, 139);
-		compoundMappings.put(50, 140);
-		compoundMappings.put(51, 186);
-		compoundMappings.put(52, 202);
+		compoundMappings.put(15, 22); preinstruction_manualmanipulation
+		compoundMappings.put(16, 24); preinstruction_positivemodelling
+		compoundMappings.put(17, 25); preinstruction_negativemodelling
+		compoundMappings.put(18, 26); preinstruction_firstname
+		compoundMappings.put(19, 34); concurrentinstructionpositive_concurrentinstructionpositive
+		compoundMappings.put(20, 38); concurrentinstructionpositive_manualmanipulation
+		compoundMappings.put(21, 40); concurrentinstructionpositive_positivemodelling
+		compoundMappings.put(22, 42); concurrentinstructionpositive_firstname
+		compoundMappings.put(23, 44); concurrentinstructionpositive_praise
+		compoundMappings.put(24, 54); concurrentinstructionnegative_manualmanipulation
+		compoundMappings.put(25, 57); concurrentinstructionnegative_negativemodelling
+		compoundMappings.put(26, 58); concurrentinstructionnegative_firstname
+		compoundMappings.put(27, 70); postinstructionpositive_manualmanipulation
+		compoundMappings.put(28, 72); postinstructionpositive_positivemodelling
+		compoundMappings.put(29, 73); postinstructionpositive_negativemodelling
+		compoundMappings.put(30, 74); postinstructionpositive_firstname
+		compoundMappings.put(31, 89); postinstructionnegative_negativemodelling
+		compoundMappings.put(32, 90); postinstructionnegative_firstname
+		compoundMappings.put(33, 97); manualmanipulation_preinstruction
+		compoundMappings.put(34, 98); manualmanipulation_concurrentinstructionpositive
+		compoundMappings.put(35, 99); manualmanipulation_concurrentinstructionnegative
+		compoundMappings.put(36, 100); manualmanipulation_postinstructionpositive
+		compoundMappings.put(37, 101); manualmanipulation_postinstructionnegative
+		compoundMappings.put(38, 103); manualmanipulation_questioning
+		compoundMappings.put(39, 104); manualmanipulation_positivemodelling
+		compoundMappings.put(40, 106); manualmanipulation_firstname
+		compoundMappings.put(41, 107); manualmanipulation_hustle
+		compoundMappings.put(42, 108); mnaualmanipulation_praise
+		compoundMappings.put(43, 110); manualmanipulation_console
+		compoundMappings.put(44, 120); questioning_positivemodelling
+		compoundMappings.put(45, 121); questioning_negativemodelling
+		compoundMappings.put(46, 122); questioning_firstname
+		compoundMappings.put(47, 130); positivemodelling_concurrentinstructionpositive
+		compoundMappings.put(48, 135); positivemodelling_questioning
+		compoundMappings.put(49, 139); positivemodelling_hustle
+		compoundMappings.put(50, 140); positivemodelling_praise
+		compoundMappings.put(51, 186); hustle_firstname
+		compoundMappings.put(52, 202); praise_firstname
