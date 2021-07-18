@@ -267,6 +267,7 @@ class Policy:
         print(len(self.transition_matrix[style-1]))
         #print(len(self.transition_matrix[style - 1][self._get_action(state)]))
         #print(len(range(68)))
+        print(self.transition_matrix[style - 1][self._get_action(state)])
         action = choices(range(68), self.transition_matrix[style - 1][self._get_action(state)])[0]
         print("action: " + str(action))
         count = 1

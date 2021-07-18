@@ -82,11 +82,15 @@ class PolicyWrapper:
                     behaviour = self.policy.sample_action(state)
                 else:
                     print("PolicyWrapper > 10")
-                    if behaviour == self.policy.A_END:  # If behaviour == end then start from start again.
-                        behaviour = self.policy.A_START
-                    state = self.policy.sample_observation(action=behaviour, state=state)
-                    behaviour = self.policy.sample_action(state)
-                    count = 0
+                    # TODO: Remove this if else and figure out what's going on with centroids.
+                    if goal_level in [self.PERSON_GOAL, self.SESSION_GOAL, self.EXERCISE_GOAL, self.STAT_GOAL, self.SET_GOAL, self.BASELINE_GOAL]:
+                        behaviour = self.policy.A_PREINSTRUCTION
+                    else:
+                        if behaviour == self.policy.A_END:  # If behaviour == end then start from start again.
+                            behaviour = self.policy.A_START
+                        state = self.policy.sample_observation(action=behaviour, state=state)
+                        behaviour = self.policy.sample_action(state)
+                        count = 0
                 count += 1
 
         return behaviour

@@ -892,6 +892,12 @@ class InitialiseBlackboard(Node):
         :return: None
         """
         print("Configuring InitialiseBlackboard: " + self._name)
+        self.motivation = nodedata.get_data('motivation')
+        self.ability = nodedata.get_data('player_ability')
+        if self.ability < 3:
+            self.experience = "low"
+        else:
+            self.experience = "high"
         pass
 
     def run(self, nodedata):
@@ -902,8 +908,8 @@ class InitialiseBlackboard(Node):
             blackboard.
         """
 
-        # TODO: update this with actual belief distribution.
-        belief_distribution = [x / 100 for x in self._constrainedSumSamplePos(12, 100, 0.001)]
+        belief_distribution = [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0] if self.experience == "high" else [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0]
+        # belief_distribution = [x / 100 for x in self._constrainedSumSamplePos(12, 100, 0.001)]
         nodedata.belief = belief_distribution
 
         style = 0

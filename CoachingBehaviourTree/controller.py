@@ -81,7 +81,7 @@ def create_coaching_tree():
 
     # Share data between player_stats and initialise nodes.
     b.add_remapping(player_stats._id, 'motivation', initialise._id, 'motivation')
-    b.add_remapping(player_start._id, 'player_ability', initialise._id, 'player_ability')
+    b.save('player_ability', ability, initialise._id)
     b.add_remapping(player_start._id, 'sessions', initialise._id, 'sessions')
 
     # Session duration
