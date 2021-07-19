@@ -343,7 +343,7 @@ class DisplayBehaviour(Node):
         output = {
             "utterance": str(self.action)
         }
-        r = requests.post('http://192.168.43.19:4999/output', json=output)
+        r = requests.post('http://192.168.1.174:4999/output', json=output)
         print("Returning SUCCESS from DisplayBehaviour")
         return NodeStatus(NodeStatus.SUCCESS, "Printed action message to output.")
 
@@ -761,12 +761,12 @@ class DurationCheck(Node):
         # Will return FAIL when when duration has not been reached. SUCCESS when it has.
         # self.current_time += 1
         if (self.current_time - self.start_time) < self.session_duration:
-            logging.info("Session time limit NOT reached, current duration = {a - b}, session limit = {limit}.".format(a=self.current_time, b=self.start_time, limit=self.session_duration))
+            logging.info("Session time limit NOT reached, current duration = {a}, session limit = {limit}.".format(a=self.current_time - self.start_time, limit=self.session_duration))
             print("Returning FAIL from DurationCheck - time limit not yet reached, current time = " + str(self.current_time))
             return NodeStatus(NodeStatus.FAIL, "Time limit not yet reached.")
         else:
-            logging.info("Session time limit reached, current duration = {a - b}, session limit = {limit}.".format(
-                a=self.current_time, b=self.start_time, limit=self.session_duration))
+            logging.info("Session time limit reached, current duration = {a}, session limit = {limit}.".format(
+                a=self.current_time - self.start_time, limit=self.session_duration))
             print("Returning SUCCESS from DurationCheck - Time limit reached, current time = " + str(self.current_time))
             return NodeStatus(NodeStatus.SUCCESS, "Session time limit reached.")
 

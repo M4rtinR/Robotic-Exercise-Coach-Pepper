@@ -13319,7 +13319,7 @@ class BehaviourLibraryFunctions:
                                    Policy.A_PREINSTRUCTION_NEGATIVEMODELING, Policy.A_POSITIVEMODELING_PREINSTRUCTION]:
 
                     if goal_level == PolicyWrapper.SET_GOAL:
-                        utterance = utterance = utterance + "Play a set of 30 " + hand + " " + shot + "s please"
+                        utterance = utterance + "Play a set of 30 " + hand + " " + shot + "s please"
                         if behaviour == Policy.A_PREINSTRUCTION_QUESTIONING:
                             utterance = utterance + ". OK?"
                         if behaviour == Policy.A_PREINSTRUCTION_FIRSTNAME:
@@ -13332,6 +13332,7 @@ class BehaviourLibraryFunctions:
                         elif goal_level == PolicyWrapper.STAT_GOAL:
                             goal_level_insert = "work on your " + stat
 
+                        optional_question = ""
                         if behaviour == Policy.A_PREINSTRUCTION_QUESTIONING:
                             optional_question = "Does that sound good?"
 
@@ -13484,6 +13485,7 @@ class BehaviourLibraryFunctions:
             elif behaviour in [Policy.A_CONCURRENTINSTRUCTIONNEGATIVE,
                                Policy.A_CONCURRENTINSTRUCTIONNEGATIVE_NEGATIVEMODELING,
                                Policy.A_CONCURRENTINSTRUCTIONNEGATIVE_FIRSTNAME]:
+                stat_insert = ""
                 if stat == 0:
                     stat_insert = "Don't let the racket drop"
                 elif stat == 9:
