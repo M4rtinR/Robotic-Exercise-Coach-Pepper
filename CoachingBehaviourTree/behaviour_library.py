@@ -13441,7 +13441,8 @@ class BehaviourLibraryFunctions:
         else:  # goal_level == self.ACTION_GOAL:
             if behaviour in [Policy.A_CONCURRENTINSTRUCTIONPOSITIVE, Policy.A_CONCURRENTINSTRUCTIONPOSITIVE_QUESTIONING,
                              Policy.A_CONCURRENTINSTRUCTIONPOSITIVE_FIRSTNAME,
-                             Policy.A_CONCURRENTINSTRUCTIONPOSITIVE_POSITIVEMODELING]:
+                             Policy.A_CONCURRENTINSTRUCTIONPOSITIVE_POSITIVEMODELING,
+                             Policy.A_POSITIVEMODELING_CONCURRENTINSTRUCTIONPOSITIVE]:
                 stat_insert = ""
                 if stat == 0:
                     stat_insert = "Racket up"
@@ -13464,7 +13465,7 @@ class BehaviourLibraryFunctions:
                     stat_insert = "Where's the follow through going?"
                 utterance = utterance + stat_insert + " " + name
 
-            elif behaviour in [Policy.A_HUSTLE, Policy.A_HUSTLE_FIRSTNAME, Policy.A_POSITIVEMODELLING_HUSTLE]:
+            elif behaviour in [Policy.A_HUSTLE, Policy.A_HUSTLE_FIRSTNAME, Policy.A_POSITIVEMODELING_HUSTLE]:
                 utterance = utterance + "Keep going " + name
 
             elif behaviour in [Policy.A_PRAISE, Policy.A_PRAISE_FIRSTNAME,
@@ -13482,8 +13483,7 @@ class BehaviourLibraryFunctions:
 
             elif behaviour in [Policy.A_CONCURRENTINSTRUCTIONNEGATIVE,
                                Policy.A_CONCURRENTINSTRUCTIONNEGATIVE_NEGATIVEMODELING,
-                               Policy.A_CONCURRENTINSTRUCTIONNEGATIVE_FIRSTNAME,
-                               Policy.A_POSITIVEMODELING_CONCURRENTINSTRUCTIONNEGATIVE]:
+                               Policy.A_CONCURRENTINSTRUCTIONNEGATIVE_FIRSTNAME]:
                 if stat == 0:
                     stat_insert = "Don't let the racket drop"
                 elif stat == 9:
