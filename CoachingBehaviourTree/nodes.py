@@ -109,7 +109,7 @@ class GetBehaviour(Node):
         """
         print('GetBehaviour, self.goal_level = ' + str(self.goal_level) + ', nodedata.goal = ' + str(nodedata.goal))
         policy = PolicyWrapper(self.belief)  # TODO: generate this at start of interaction and store on blackboard.
-        nodedata.behaviour = policy.get_behaviour(self.state, self.goal_level, self.performance, self.phase)
+        nodedata.behaviour, nodedata.obs_behaviour = policy.get_behaviour(self.state, self.goal_level, self.performance, self.phase)
         print('Got behaviour: ' + str(nodedata.behaviour))
 
         # If behaviour occurs 3 times in a row, just skip to pre-instruction.
@@ -123,7 +123,7 @@ class GetBehaviour(Node):
 
         controller.prev_behav = nodedata.behaviour
 
-        nodedata.observation = policy.get_observation(self.state, nodedata.behaviour)
+        nodedata.observation = policy.get_observation(self.state, nodedata.obs_behaviour)
         # print('Got observation: ' + str(nodedata.behaviour))
         print("Returning SUCCESS from GetBehaviour, nodedata = " + str(nodedata))
         return NodeStatus(NodeStatus.SUCCESS, "Obtained behaviour " + str(nodedata.behaviour))
@@ -204,6 +204,24 @@ class FormatAction(Node):
         """
         logging.info("Formatting action: behaviour = {behaviour}, goal_level = {goal_level}, performance = {performance}, name = {name}, shot = {shot}, hand = {hand}, stat = {stat}".format(behaviour=self.behaviour, goal_level=self.goal_level, performance=self.performance, name=self.name, shot=self.shot, hand=self.hand, stat=self.stat))
         if not(self.behaviour == Policy.A_SILENCE):
+            demo = None
+            if self.behaviour in [Policy.A_POSITIVEMODELING, Policy.A_NEGATIVEMODELING,
+                                  Policy.A_PREINSTRUCTION_POSITIVEMODELING, Policy.A_PREINSTRUCTION_NEGATIVEMODELING,
+                                  Policy.A_POSTINSTRUCTIONPOSITIVE_POSITIVE_MODELING,
+                                  Policy.A_POSTINSTRUCTIONPOSITIVE_NEGATIVE_MODELING,
+                                  Policy.A_POSTINSTRUCTIONNEGATIVE_POSITIVEMODELING,
+                                  Policy.A_POSTINSTRUCTIONNEGATIVE_NEGATIVEMODELING,
+                                  Policy.A_QUESTIONING_NEGATIVEMODELING,
+                                  Policy.A_POSITIVEMODELING_POSTINSTRUCTIONPOSITIVE,
+                                  Policy.A_NEGATIVEMODELING_POSTINSTRUCTIONNEGATIVE,
+                                  Policy.A_POSITIVEMODELING_PREINSTRUCTION, Policy.A_SCOLD_POSITIVEMODELING,
+                                  Policy.A_CONCURRENTINSTRUCTIONPOSITIVE_POSITIVEMODELING,
+                                  Policy.A_CONCURRENTINSTRUCTIONNEGATIVE_NEGATIVEMODELING,
+                                  Policy.A_MANUALMANIPULATION_POSITIVEMODELING, Policy.A_QUESTIONING_POSITIVEMODELING,
+                                  Policy.A_POSITIVEMODELING_CONCURRENTINSTRUCTIONPOSITIVE,
+                                  Policy.A_POSITIVEMODELING_QUESTIONING, Policy.A_POSITIVEMODELING_HUSTLE,
+                                  Policy.A_POSITIVEMODELING_PRAISE]:
+                demo = self.behaviour_lib.get_demo_string(self.behaviour, self.goal_level, self.shot, self.hand, self.stat)
             pre_msg = self.behaviour_lib.get_pre_msg(self.behaviour, self.goal_level, self.performance, self.phase, self.name, self.shot, self.hand, self.stat)
             if self.score is None and self.performance is None:
                 post_msg = None
@@ -211,9 +229,9 @@ class FormatAction(Node):
                 post_msg = self.behaviour_lib.get_post_msg(self.behaviour, self.goal_level, self.performance, self.phase, self.name, self.shot, self.hand, self.stat)
 
             if post_msg is not None:
-                nodedata.action = Action(pre_msg, self.score, self.target, post_msg)
+                nodedata.action = Action(pre_msg, self.score, self.target, post_msg, demo)
             else:  # If post_msg is None, we only want to display the pre_msg.
-                nodedata.action = Action(pre_msg)
+                nodedata.action = Action(pre_msg, demo=demo)
         else:
             print("Returning FAIL from FormatAction, behaviour = " + str(self.behaviour))
             return NodeStatus(NodeStatus.FAIL, "Behaviour == A_SILENCE")
@@ -343,7 +361,9 @@ class DisplayBehaviour(Node):
         output = {
             "utterance": str(self.action)
         }
-        r = requests.post('http://192.168.1.174:4999/output', json=output)
+        if self.action.demo is not None:
+            output['demo'] = self.action.demo
+        r = requests.post('http://192.168.1.237:4999/output', json=output)
         print("Returning SUCCESS from DisplayBehaviour")
         return NodeStatus(NodeStatus.SUCCESS, "Printed action message to output.")
 
@@ -382,6 +402,12 @@ class GetStats(Node):
             NodeStatus.FAIL otherwise.
         """
         print("Running GetStats: " + self._name)
+
+        output = {
+            "start": str(1)
+        }
+        r = requests.post('http://192.168.1.237:4999/output', json=output)
+
         # Will be ACTIVE when waiting for data and SUCCESS when got data and added to blackboard, FAIL when connection error.
         # print("In get stats")
         nodedata.motivation = controller.motivation

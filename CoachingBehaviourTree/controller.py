@@ -48,8 +48,8 @@ performance = -1
 shot = 1
 # "FH" or "BH"
 hand = "FH"
-# 0 = RACKET_PREP, 9 = IMPACT_CUT_ANGLE, 10 = FOLLOW_THROUGH_TIME
-stat = 0
+# "racketPreparation" = RACKET_PREP, "impactCutAngle" = IMPACT_CUT_ANGLE, "followThroughTime" = FOLLOW_THROUGH_TIME
+stat = "racketPreparation"
 completed = COMPLETED_STATUS_UNDEFINED
 shot_count = 0
 action_score = -1

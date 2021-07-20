@@ -79,6 +79,9 @@ class TimestepCue(Resource):
                         new_data['shotType'] = controller.shot
                         new_data['hand'] = controller.hand
 
+                    if not (controller.stat == ""):
+                        new_data['stat'] = controller.stat
+
                     return new_data, 200
 
             elif int(content['goal_level']) == PolicyWrapper.EXERCISE_GOAL:
@@ -117,7 +120,7 @@ class TimestepCue(Resource):
                     else:
                         controller.performance = int(controller.performance)
 
-                    while controller.completed != controller.COMPLETED_STATUS_TRUE:
+                    while controller.completed == controller.COMPLETED_STATUS_UNDEFINED:
                         pass
 
                     new_data = {
@@ -188,11 +191,12 @@ class TimestepCue(Resource):
                     controller.phase = PolicyWrapper.PHASE_END
                     controller.completed = controller.COMPLETED_STATUS_UNDEFINED
 
-                    while controller.completed != controller.COMPLETED_STATUS_TRUE:
+                    while controller.completed == controller.COMPLETED_STATUS_UNDEFINED:
                         pass
 
                     new_data = {
-                        'completed': controller.completed
+                        'completed': controller.completed,
+                        'shotSet': 1
                     }
 
                     return new_data, 200
@@ -229,13 +233,22 @@ class TimestepCue(Resource):
                     performanceValue = PolicyWrapper.IMPROVED
                 elif content['performance'] == 'Good!':
                     performanceValue = PolicyWrapper.MUCH_IMPROVED
+                else:
+                    print('no performanceValue found')
                 controller.performance = performanceValue
                 controller.goal_level = PolicyWrapper.ACTION_GOAL
                 controller.shot_count += 1
 
                 new_data = {
-                    'completed': 1
+                    'completed': 1,
+                    'shotSet': 0
                 }
+
+                if controller.shot_count >= 29:
+                    new_data['shotSetComplete'] = 1
+                    new_data['stat'] = controller.stat
+                else:
+                    new_data['shotSetComplete'] = 0
 
                 return new_data, 200
 

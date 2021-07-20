@@ -26,6 +26,7 @@ class Action:
     score: float = None
     target: float = None
     post_msg: str = None
+    demo: str = None
 
     def __str__(self):
         """

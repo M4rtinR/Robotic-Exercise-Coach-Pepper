@@ -68,6 +68,7 @@ class PolicyWrapper:
 
         valid_behaviours = self._get_valid_list(goal_level, performance, phase)
         behaviour = self.policy.sample_action(state)
+        obs_behaviour = behaviour
         count = 0
         if goal_level == self.ACTION_GOAL:
             print("behaviour = ", behaviour, ". valid_behaviours: ", valid_behaviours)
@@ -83,8 +84,33 @@ class PolicyWrapper:
                 else:
                     print("PolicyWrapper > 10")
                     # TODO: Remove this if else and figure out what's going on with centroids.
-                    if goal_level in [self.PERSON_GOAL, self.SESSION_GOAL, self.EXERCISE_GOAL, self.STAT_GOAL, self.SET_GOAL, self.BASELINE_GOAL]:
+                    if behaviour == self.policy.A_MANUALMANIPULATION_QUESTIONING:
+                        behaviour = self.policy.A_QUESTIONING
+                    elif behaviour == self.policy.A_MANUALMANIPULATION_PREINSTRUCTION \
+                            or behaviour == self.policy.A_PREINSTRUCTION_MANUALMANIPULATION:
                         behaviour = self.policy.A_PREINSTRUCTION
+                    elif behaviour == self.policy.A_MANUALMANIPULATION_POSITIVEMODELING:
+                        behaviour = self.policy.A_POSITIVEMODELING
+                    elif behaviour == self.policy.A_MANUALMANIPULATION_CONCURRENTINSTRUCTIONNEGATIVE \
+                            or behaviour == self.policy.A_CONCURRENTINSTRUCTIONNEGATIVE_MANUALMANIPULATION:
+                        behaviour = self.policy.A_CONCURRENTINSTRUCTIONNEGATIVE
+                    elif behaviour == self.policy.A_MANUALMANIPULATION_CONCURRENTINSTRUCTIONPOSITIVE \
+                            or behaviour == self.policy.A_CONCURRENTINSTRUCTIONPOSITIVE_MANUALMANIPULATION:
+                        behaviour = self.policy.A_CONCURRENTINSTRUCTIONPOSITIVE
+                    elif behaviour == self.policy.A_MANUALMANIPULATION_CONSOLE:
+                        behaviour = self.policy.A_CONSOLE
+                    elif behaviour == self.policy.A_MANUALMANIPULATION_FIRSTNAME:
+                        behaviour = self.policy.A_FIRSTNAME
+                    elif behaviour == self.policy.A_MANUALMANIPULATION_HUSTLE:
+                        behaviour = self.policy.A_HUSTLE
+                    elif behaviour == self.policy.A_MANUALMANIPULATION_POSTINSTRUCTIONNEGATIVE \
+                            or behaviour == self.policy.A_POSTINSTRUCTIONNEGATIVE_MANUALMANIPULATION:
+                        behaviour = self.policy.A_POSTINSTRUCTIONNEGATIVE
+                    elif behaviour == self.policy.A_MANUALMANIPULATION_POSTINSTRUCTIONPOSITIVE \
+                            or behaviour == self.policy.A_POSTINSTRUCTIONPOSITIVE_MANUALMANIPULATION:
+                        behaviour = self.policy.A_POSTINSTRUCTIONPOSITIVE
+                    elif behaviour == self.policy.A_MANUALMANIPULATION_PRAISE:
+                        behaviour = self.policy.A_PRAISE
                     else:
                         if behaviour == self.policy.A_END:  # If behaviour == end then start from start again.
                             behaviour = self.policy.A_START
@@ -93,7 +119,7 @@ class PolicyWrapper:
                         count = 0
                 count += 1
 
-        return behaviour
+        return behaviour, obs_behaviour
 
     def _get_valid_list(self, goal_level, performance, phase):
         """
