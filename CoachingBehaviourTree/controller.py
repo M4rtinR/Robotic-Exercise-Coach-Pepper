@@ -44,7 +44,7 @@ score = -1
 target = -1
 avg_score = -1
 performance = -1
-# 0 = DROP, 1 = DRIVE, 19 = VOLLEY_DROP
+# 1 = DRIVE, 5 = LOB
 shot = 1
 # "FH" or "BH"
 hand = "FH"
@@ -57,6 +57,7 @@ prev_behav = -1
 matching_behav = 0
 phase = PolicyWrapper.PHASE_START
 session_time = 0
+used_behaviours = []
 
 def create_coaching_tree():
     """

@@ -112,14 +112,13 @@ class GetBehaviour(Node):
         nodedata.behaviour, nodedata.obs_behaviour = policy.get_behaviour(self.state, self.goal_level, self.performance, self.phase)
         print('Got behaviour: ' + str(nodedata.behaviour))
 
-        # If behaviour occurs 3 times in a row, just skip to pre-instruction.
-        if nodedata.behaviour == controller.prev_behav and (self.goal_level == PolicyWrapper.SESSION_GOAL or self.goal_level == PolicyWrapper.EXERCISE_GOAL or self.goal_level == PolicyWrapper.EXERCISE_GOAL or self.goal_level == PolicyWrapper.BASELINE_GOAL or self.goal_level == PolicyWrapper.SET_GOAL or self.goal_level == PolicyWrapper.STAT_GOAL):
-            if controller.matching_behav:
-                nodedata.behaviour = Policy.A_PREINSTRUCTION
-                print('Got new behaviour: 1')
-                controller.matching_behav = 0
-            else:
-                controller.matching_behav = 1
+        # If behaviour occurs twice, just skip to pre-instruction.
+        if nodedata.behaviour in controller.used_behaviours and (self.goal_level == PolicyWrapper.SESSION_GOAL or self.goal_level == PolicyWrapper.EXERCISE_GOAL or self.goal_level == PolicyWrapper.BASELINE_GOAL or self.goal_level == PolicyWrapper.SET_GOAL or self.goal_level == PolicyWrapper.STAT_GOAL):
+            nodedata.behaviour = Policy.A_PREINSTRUCTION
+            print('Got new behaviour: 1')
+            # controller.matching_behav = 0
+        else:
+            controller.used_behaviours.append(nodedata.behaviour)
 
         controller.prev_behav = nodedata.behaviour
 
@@ -292,6 +291,7 @@ class CheckForBehaviour(Node):
         # TODO: Update for variants of check_behaviour.
         # SUCCESS if next behaviour is given behaviour, else FAIL
         if self._is_example_of_behaviour(self.behaviour, self.check_behaviour):
+            controller.used_behaviours = []
             print("Returning SUCCESS from CheckForBehaviour, behaviour found = " + str(self.behaviour))
             # controller.completed = controller.COMPLETED_STATUS_FALSE
             return NodeStatus(NodeStatus.SUCCESS, "Behaviour " + str(self.check_behaviour) + " found in the form " + str(self.behaviour))

@@ -13218,8 +13218,8 @@ class BehaviourLibraryFunctions:
         shot_utterance = "drop"
         if shot == 1:
             shot_utterance = "drive"
-        elif shot == 19:
-            shot_utterance = "volley drop"
+        elif shot == 5:
+            shot_utterance = "lob"
         stat_utterance = "racket preparation"
         if stat == "impactCutAngle":
             stat_utterance = "racket face angle"
@@ -13246,7 +13246,7 @@ class BehaviourLibraryFunctions:
         # Baseline Goal
         elif goal_level == PolicyWrapper.BASELINE_GOAL:
             if phase == PolicyWrapper.PHASE_START:
-                utterance = utterance + "Play a set of 30 " + hand_utterance + shot_utterance + "s please"
+                utterance = utterance + "To start, play a set of 30 " + hand_utterance + " " + shot_utterance + "s please so I can have a look at your technique"
                 if behaviour == Policy.A_PREINSTRUCTION_QUESTIONING:
                     utterance = utterance + ". OK?"
                 if behaviour == Policy.A_PREINSTRUCTION_FIRSTNAME:
@@ -13331,20 +13331,24 @@ class BehaviourLibraryFunctions:
                 elif behaviour in [Policy.A_PREINSTRUCTION, Policy.A_PREINSTRUCTION_QUESTIONING,
                                    Policy.A_PREINSTRUCTION_FIRSTNAME, Policy.A_PREINSTRUCTION_POSITIVEMODELING,
                                    Policy.A_PREINSTRUCTION_NEGATIVEMODELING, Policy.A_POSITIVEMODELING_PREINSTRUCTION]:
-
+                    stat_advice = "get your racket up early"
+                    if stat == "impactCutAngle":
+                        stat_advice = "try to keep your racket face open"
+                    elif stat == "followThroughTime":
+                        stat_advice = "to extend that follow through towards the target"
                     if goal_level == PolicyWrapper.SET_GOAL:
-                        utterance = utterance + "Play a set of 30 " + hand_utterance + " " + shot_utterance + "s please"
+                        utterance = utterance + "Play another set of 30 " + hand_utterance + " " + shot_utterance + "s please. Remember, " + stat_advice
                         if behaviour == Policy.A_PREINSTRUCTION_QUESTIONING:
                             utterance = utterance + ". OK?"
                         if behaviour == Policy.A_PREINSTRUCTION_FIRSTNAME:
                             utterance = utterance + " " + name
                     else:
                         if goal_level == PolicyWrapper.SESSION_GOAL:
-                            goal_level_insert = "do a solo practice session and I'm going to coach you"
+                            goal_level_insert = "do a solo practice session and I'm going to coach you. We'll work on your " + hand_utterance + " " + shot_utterance
                         elif goal_level == PolicyWrapper.EXERCISE_GOAL:
-                            goal_level_insert = "work on your " + hand_utterance + " " + shot_utterance
+                            goal_level_insert = "focus on your " + hand_utterance + " " + shot_utterance + ", paying specific attention to the " + stat_utterance
                         elif goal_level == PolicyWrapper.STAT_GOAL:
-                            goal_level_insert = "work on your " + stat_utterance
+                            goal_level_insert = "get started with your " + stat_utterance
 
                         optional_question = ""
                         if behaviour == Policy.A_PREINSTRUCTION_QUESTIONING:
@@ -13556,11 +13560,23 @@ class BehaviourLibraryFunctions:
                          Policy.A_NEGATIVEMODELING_POSTINSTRUCTIONNEGATIVE,
                          Policy.A_CONCURRENTINSTRUCTIONNEGATIVE_NEGATIVEMODELING]:
             posNeg = "_neg"
-        statName = "racket_up"
-        if stat == "impactCutAngle":
-            statName = "racket_face"
-        elif stat == "followThroughTime":
-            statName = "follow_through"
 
-        return statName + posNeg
+        demoName = ""
+        if goal_level < 4:
+            demoName = "forehand_drive"
+            if hand == "BH":
+                demoName = "backhand_drive"
+            elif shot == 5:
+                demoName = "lob"
+            # TODO: add neg demos for shot and update pre_instruction utterance for neg demo.
+        else:
+            statName = "racket_up"
+            if stat == "impactCutAngle":
+                statName = "racket_face"
+            elif stat == "followThroughTime":
+                statName = "follow_through"
+
+            demoName = statName + posNeg
+
+        return demoName
 
