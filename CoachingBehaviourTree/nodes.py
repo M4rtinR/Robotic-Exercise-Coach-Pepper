@@ -44,6 +44,8 @@ import numpy as np
 import random
 import requests
 
+post_address = 'http://192.168.43.19:4999/output'
+
 
 class GetBehaviour(Node):
     """
@@ -363,7 +365,7 @@ class DisplayBehaviour(Node):
         }
         if self.action.demo is not None:
             output['demo'] = self.action.demo
-        r = requests.post('http://192.168.1.237:4999/output', json=output)
+        r = requests.post(post_address, json=output)
         print("Returning SUCCESS from DisplayBehaviour")
         return NodeStatus(NodeStatus.SUCCESS, "Printed action message to output.")
 
@@ -406,7 +408,7 @@ class GetStats(Node):
         output = {
             "start": str(1)
         }
-        r = requests.post('http://192.168.1.237:4999/output', json=output)
+        r = requests.post(post_address, json=output)
 
         # Will be ACTIVE when waiting for data and SUCCESS when got data and added to blackboard, FAIL when connection error.
         # print("In get stats")

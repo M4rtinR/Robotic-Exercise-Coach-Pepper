@@ -244,7 +244,7 @@ class TimestepCue(Resource):
                     'shotSet': 0
                 }
 
-                if controller.shot_count >= 29:
+                if controller.shot_count >= 28:
                     new_data['shotSetComplete'] = 1
                     new_data['stat'] = controller.stat
                 else:
