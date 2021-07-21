@@ -29,6 +29,7 @@ EndSetEvent(Node)
     Check if the user has chosen to end the set.
 """
 import logging
+from statistics import mean
 from time import time
 
 from task_behavior_engine.node import Node
@@ -44,7 +45,7 @@ import numpy as np
 import random
 import requests
 
-post_address = 'http://192.168.43.19:4999/output'
+post_address = 'http://192.168.1.237:4999/output'
 
 
 class GetBehaviour(Node):
@@ -225,14 +226,9 @@ class FormatAction(Node):
                 demo = self.behaviour_lib.get_demo_string(self.behaviour, self.goal_level, self.shot, self.hand, self.stat)
             pre_msg = self.behaviour_lib.get_pre_msg(self.behaviour, self.goal_level, self.performance, self.phase, self.name, self.shot, self.hand, self.stat)
             if self.score is None and self.performance is None:
-                post_msg = None
-            else:
-                post_msg = self.behaviour_lib.get_post_msg(self.behaviour, self.goal_level, self.performance, self.phase, self.name, self.shot, self.hand, self.stat)
-
-            if post_msg is not None:
-                nodedata.action = Action(pre_msg, self.score, self.target, post_msg, demo)
-            else:  # If post_msg is None, we only want to display the pre_msg.
                 nodedata.action = Action(pre_msg, demo=demo)
+            else:
+                nodedata.action = Action(pre_msg, self.score, self.target, demo=demo)
         else:
             print("Returning FAIL from FormatAction, behaviour = " + str(self.behaviour))
             return NodeStatus(NodeStatus.FAIL, "Behaviour == A_SILENCE")
@@ -566,6 +562,9 @@ class EndSubgoal(Node):
                 nodedata.new_goal = PolicyWrapper.STAT_GOAL
                 controller.completed = controller.COMPLETED_STATUS_TRUE
             else:
+                if (self.goal_level == PolicyWrapper.SET_GOAL and controller.set_count == 5) or self.goal_level == PolicyWrapper.STAT_GOAL or self.goal_level == PolicyWrapper.EXERCISE_GOAL or self.goal_level == PolicyWrapper.SESSION_GOAL:
+                    controller.goal_level -= 1
+                    controller.phase = PolicyWrapper.PHASE_END
                 nodedata.new_goal = self.goal_level - 1
                 nodedata.phase = PolicyWrapper.PHASE_START  # All behaviours have happened so its start of new goal.
                 controller.phase = PolicyWrapper.PHASE_START
@@ -632,7 +631,7 @@ class TimestepCue(Node):
         elif self.goal_level == 1:  # For session goal should have performance from previous session.
             if controller.goal_level == 1:
                 if controller.phase == PolicyWrapper.PHASE_END:  # Feedback sequence
-                    nodedata.performance = controller.performance
+                    nodedata.performance = round(mean(controller.set_performance_list))
                     nodedata.phase = PolicyWrapper.PHASE_END
                     print("Returning SUCCESS from TimestepCue session goal (end), stats = " + str(nodedata))
                     return NodeStatus(NodeStatus.SUCCESS, "Data for stat goal obtained from guide:" + str(nodedata))
@@ -654,8 +653,8 @@ class TimestepCue(Node):
                         print("Returning SUCCESS from TimestepCue shot goal (end), stats = " + str(nodedata))
                         return NodeStatus(NodeStatus.SUCCESS, "Data for shot goal obtained from guide:" + str(nodedata))
                     elif controller.completed == controller.COMPLETED_STATUS_FALSE:  # Feedback Sequence
-                        nodedata.performance = controller.performance
-                        nodedata.score = controller.score
+                        nodedata.performance = round(mean(controller.set_performance_list))
+                        nodedata.score = mean(controller.set_score_list)
                         nodedata.target = controller.target
                         nodedata.phase = PolicyWrapper.PHASE_END
                         print("Returning SUCCESS from TimestepCue shot goal (end), stats = " + str(nodedata))
@@ -676,9 +675,9 @@ class TimestepCue(Node):
         elif self.goal_level == 3:  # For stat goal should have target and performance from last time this stat was practiced.
             if controller.goal_level == 3:
                 if controller.phase == PolicyWrapper.PHASE_END:  # Feedback sequence
-                    nodedata.performance = controller.performance
+                    nodedata.performance = round(mean(controller.set_performance_list))
                     nodedata.phase = PolicyWrapper.PHASE_END
-                    nodedata.score = controller.score
+                    nodedata.score = mean(controller.score)
                     nodedata.target = controller.target
                     print("Returning SUCCESS from TimestepCue stat goal, stats = " + str(nodedata))
                     return NodeStatus(NodeStatus.SUCCESS, "Data for stat goal obtained from guide:" + str(nodedata))
@@ -877,6 +876,13 @@ class EndSetEvent(Node):
         # self.shotcount += 1  # TODO Set this to 0 when set starts.
         if self.shotcount >= 30:
             controller.completed = controller.COMPLETED_STATUS_TRUE
+            controller.set_count += 1
+
+            output = {
+                "stop": str(1)
+            }
+            r = requests.post(post_address, json=output)
+
             logging.info("Shot set completed.")
             print("Returning SUCCESS from EndSetEvent, shot count = " + str(self.shotcount))
             return NodeStatus(NodeStatus.SUCCESS, "Shot set ended.")

@@ -184,8 +184,10 @@ class TimestepCue(Resource):
                 if 'score' in content:  # End of set
                     print('end of set')
                     controller.avg_score = content['score']
+                    controller.set_score_list.append(float(content['score']))
                     controller.target = float(content['tgtValue'])
                     controller.performance = content['performance']
+                    controller.set_performance_list.append(content['performance'])
                     # controller.stat = content['stat']  # Let guide decide what stat to work on based on baseline set.
                     controller.goal_level = PolicyWrapper.SET_GOAL
                     controller.phase = PolicyWrapper.PHASE_END
@@ -244,7 +246,7 @@ class TimestepCue(Resource):
                     'shotSet': 0
                 }
 
-                if controller.shot_count >= 28:
+                if controller.shot_count >= 29:
                     new_data['shotSetComplete'] = 1
                     new_data['stat'] = controller.stat
                 else:

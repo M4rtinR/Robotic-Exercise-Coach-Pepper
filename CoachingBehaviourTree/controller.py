@@ -58,6 +58,9 @@ matching_behav = 0
 phase = PolicyWrapper.PHASE_START
 session_time = 0
 used_behaviours = []
+set_performance_list = []
+set_score_list = []
+set_count = 0
 
 def create_coaching_tree():
     """
