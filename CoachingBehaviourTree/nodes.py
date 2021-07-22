@@ -893,7 +893,7 @@ class EndSetEvent(Node):
         #   one for waiting for user selection so that the tree doesn't grind to a halt.
         # self.shotcount += 1  # TODO Set this to 0 when set starts.
         if controller.set_count == 1:
-            if time() - controller.start_time >= 10:
+            if time() - controller.start_time >= 600:
                 controller.time_up = True
                 output = {
                     "utterance": "Time up! That's been 10 minutes. Time to see if all that hard work has paid off!"
