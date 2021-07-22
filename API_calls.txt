@@ -1,54 +1,36 @@
 # Player goal
 {
-    "goal_level": 0,
+    "goal_level": "0",
     "name": "Martin",
-    "ability": 5,
-    "sessions": 1,
-    "shotPerformance": {
-        "shotClass": {
-            "shotType": 0,
-            "hand": 1
-        },
-    "score": 0.68
-    }
+    "ability": "5",
+    "sessions": "1"
 }
 
 
 # Session goal
 {
     "goal_level": 1,
-    "performance": 3,
-    "children": {
-        "goal_level": 2,
-        "performance": 2
-    }
+    "performance": 3
 }
 
 
 # Shot goal
 {
-    "goal_level": 2,
-    "shotType": 1,
+    "goal_level": "2",
+    "shotType": "drive",
     "hand": "FH",
-    "initialScore": 0.04,
-    "performance": 2,
-    "children": {
-        "goal_level": 3,
-        "performance": 0
-    }
+    "initialScore": "0.04",
+    "performance": "",
+    "stat": "racketPreparation"
 }
 
 
 # Stat goal
 {
-    "goal_level": 3,
-    "stat": "preparation",
-    "tgtValue": 0.90,
-    "performance": 2,
-    "children": {
-        "goal_level": 4,
-        "performance": 6
-    }
+    "goal_level": "3",
+    "stat": "racketPreparation",
+    "tgtValue": "0.90",
+    "performance": "4"
 }
 
 
@@ -64,19 +46,19 @@
 
 # Action goal
 {
-    "goal_level": 5,
-    "score": 0.66,
-    "performance": 2
+    "goal_level": "5",
+    "score": "0.66",
+    "performance": "Low"
 }
 
 
 ## Feedback
 # Set goal
 {
-    "goal_level": 4,
-    "score": 0.66,
-    "performance": 2,
-    "tgtValue": 0.8
+    "goal_level": "4",
+    "score": "0.66",
+    "performance": "2",
+    "tgtValue": "0.9"
 }
 
 # Stat goal

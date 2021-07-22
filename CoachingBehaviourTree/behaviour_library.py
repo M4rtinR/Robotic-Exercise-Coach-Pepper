@@ -13239,7 +13239,7 @@ class BehaviourLibraryFunctions:
                     name = ""
                 utterance = utterance + "Hello " + name + ", welcome to today's session."
             elif behaviour == Policy.A_END:
-                utterance = "Goodbye"
+                utterance = "It was a pleasure working with you today. Goodbye"
 
         # Baseline Goal
         elif goal_level == PolicyWrapper.BASELINE_GOAL:

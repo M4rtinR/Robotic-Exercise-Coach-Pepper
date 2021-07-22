@@ -45,7 +45,7 @@ import numpy as np
 import random
 import requests
 
-post_address = 'http://192.168.1.237:4999/output'
+post_address = 'http://192.168.1.174:4999/output'
 
 
 class GetBehaviour(Node):
@@ -359,9 +359,25 @@ class DisplayBehaviour(Node):
         output = {
             "utterance": str(self.action)
         }
-        if self.action.demo is not None:
-            output['demo'] = self.action.demo
+        if controller.goal_level == 4:
+            if controller.set_count >= 2:
+                output = {
+                    "utterance": "OK, play a final set of 30 shots to see if what you've been working on has improved!"
+                }
+            elif controller.set_count == 1:
+                utterance = "racket preparation for your forehand drive."
+                if controller.shot == 5:
+                    utterance = "racket face angle at impact on your forehand lob."
+                elif controller.hand == "BH":
+                    utterance = "follow through timing for your backhand drive."
+                output = {
+                    "utterance": "You now have 10 minutes to work on your " + utterance
+                }
+
+        # if self.action.demo is not None:
+        #     output['demo'] = self.action.demo
         r = requests.post(post_address, json=output)
+        controller.start_time = time()
         print("Returning SUCCESS from DisplayBehaviour")
         return NodeStatus(NodeStatus.SUCCESS, "Printed action message to output.")
 
@@ -443,7 +459,7 @@ class GetDuration(Node):
         """
         print("Running GetDuration: " + self._name)
         # Will be ACTIVE when waiting for data and SUCCESS when got data and added to blackboard, FAIL when connection error.
-        nodedata.session_duration = 2
+        nodedata.session_duration = 1
         logging.info("Set session duration to: {duration}".format(duration=nodedata.session_duration))
         print("Returning SUCCESS from GetDuration, session duration = " + str(nodedata.session_duration))
         return NodeStatus(NodeStatus.SUCCESS, "Set session duration to dummy value 20.")
@@ -562,7 +578,8 @@ class EndSubgoal(Node):
                 nodedata.new_goal = PolicyWrapper.STAT_GOAL
                 controller.completed = controller.COMPLETED_STATUS_TRUE
             else:
-                if (self.goal_level == PolicyWrapper.SET_GOAL and controller.set_count == 5) or self.goal_level == PolicyWrapper.STAT_GOAL or self.goal_level == PolicyWrapper.EXERCISE_GOAL or self.goal_level == PolicyWrapper.SESSION_GOAL:
+                if (self.goal_level == PolicyWrapper.SET_GOAL and controller.set_count >= 2) or self.goal_level == PolicyWrapper.STAT_GOAL or self.goal_level == PolicyWrapper.EXERCISE_GOAL or self.goal_level == PolicyWrapper.SESSION_GOAL:
+                    print("Ending subgoal, new controller.goal_level = " + str(controller.goal_level - 1))
                     controller.goal_level -= 1
                     controller.phase = PolicyWrapper.PHASE_END
                 nodedata.new_goal = self.goal_level - 1
@@ -571,6 +588,7 @@ class EndSubgoal(Node):
                 controller.completed = controller.COMPLETED_STATUS_TRUE
                 if self.goal_level == PolicyWrapper.EXERCISE_GOAL:
                     controller.session_time += 1
+                    print("Exercise goal finished, added 1 to session_time. New time = " + str(controller.session_time))
             logging.info("Ended subgoal {old_goal}. New goal level = {new_goal}.".format(old_goal=self.goal_level, new_goal=nodedata.new_goal))
             print("Returning SUCCESS from EndSubgoal, new subgoal level = " + str(nodedata.new_goal))
             return NodeStatus(NodeStatus.SUCCESS, "Completed subgoal: " + str(self.goal_level - 1))
@@ -789,7 +807,7 @@ class DurationCheck(Node):
         # self.current_time += 1
         if (self.current_time - self.start_time) < self.session_duration:
             logging.info("Session time limit NOT reached, current duration = {a}, session limit = {limit}.".format(a=self.current_time - self.start_time, limit=self.session_duration))
-            print("Returning FAIL from DurationCheck - time limit not yet reached, current time = " + str(self.current_time))
+            print("Returning FAIL from DurationCheck - time limit not yet reached, current time = " + str(self.current_time) + ", start_time = " + str(self.start_time) + ", session_duration = " + str(self.session_duration))
             return NodeStatus(NodeStatus.FAIL, "Time limit not yet reached.")
         else:
             logging.info("Session time limit reached, current duration = {a}, session limit = {limit}.".format(
@@ -874,7 +892,20 @@ class EndSetEvent(Node):
         # TODO Update once getting actual choice from user. Will probably need two nodes, one for displaying button,
         #   one for waiting for user selection so that the tree doesn't grind to a halt.
         # self.shotcount += 1  # TODO Set this to 0 when set starts.
-        if self.shotcount >= 30:
+        if controller.set_count == 1:
+            if time() - controller.start_time >= 10:
+                output = {
+                    "utterance": "Time up! That's been 10 minutes. Time to see if all that hard work has paid off!"
+                }
+                r = requests.post(post_address, json=output)
+                logging.info("Training time completed. Total shots played = " + str(self.shotcount))
+                controller.set_count += 1
+                print("Returning SUCCESS from EndSetEvent, shot count = " + str(self.shotcount))
+                return NodeStatus(NodeStatus.SUCCESS, "Shot set ended.")
+            else:
+                print("Returning FAIL from EndSetEvent in training set, shot count = " + str(self.shotcount))
+                return NodeStatus(NodeStatus.FAIL, "Shot set at " + str(self.shotcount) + ". Not ended yet.")
+        elif self.shotcount >= 30:
             controller.completed = controller.COMPLETED_STATUS_TRUE
             controller.set_count += 1
 
