@@ -62,6 +62,7 @@ set_performance_list = []
 set_score_list = []
 set_count = 0
 start_time = 0
+time_up = False
 
 def create_coaching_tree():
     """

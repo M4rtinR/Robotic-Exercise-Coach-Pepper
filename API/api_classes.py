@@ -164,7 +164,7 @@ class TimestepCue(Resource):
                     else:
                         controller.performance = int(controller.performance)
 
-                    while controller.completed == controller.COMPLETED_STATUS_UNDEFINED:
+                    while controller.completed != controller.COMPLETED_STATUS_FALSEg:
                         pass
 
                     new_data = {
@@ -246,9 +246,10 @@ class TimestepCue(Resource):
                     'shotSet': 0
                 }
 
-                if controller.shot_count >= 29:
+                if controller.time_up:
                     new_data['shotSetComplete'] = 1
                     new_data['stat'] = controller.stat
+                    controller.time_up = False
                 else:
                     new_data['shotSetComplete'] = 0
 

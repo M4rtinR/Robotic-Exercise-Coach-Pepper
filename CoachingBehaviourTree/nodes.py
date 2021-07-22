@@ -45,7 +45,7 @@ import numpy as np
 import random
 import requests
 
-post_address = 'http://192.168.1.174:4999/output'
+post_address = 'http://192.168.1.237:4999/output'
 
 
 class GetBehaviour(Node):
@@ -894,6 +894,7 @@ class EndSetEvent(Node):
         # self.shotcount += 1  # TODO Set this to 0 when set starts.
         if controller.set_count == 1:
             if time() - controller.start_time >= 10:
+                controller.time_up = True
                 output = {
                     "utterance": "Time up! That's been 10 minutes. Time to see if all that hard work has paid off!"
                 }
