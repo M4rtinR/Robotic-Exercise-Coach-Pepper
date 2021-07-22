@@ -443,7 +443,7 @@ class GetDuration(Node):
         """
         print("Running GetDuration: " + self._name)
         # Will be ACTIVE when waiting for data and SUCCESS when got data and added to blackboard, FAIL when connection error.
-        nodedata.session_duration = 2
+        nodedata.session_duration = 1
         logging.info("Set session duration to: {duration}".format(duration=nodedata.session_duration))
         print("Returning SUCCESS from GetDuration, session duration = " + str(nodedata.session_duration))
         return NodeStatus(NodeStatus.SUCCESS, "Set session duration to dummy value 20.")
@@ -562,7 +562,7 @@ class EndSubgoal(Node):
                 nodedata.new_goal = PolicyWrapper.STAT_GOAL
                 controller.completed = controller.COMPLETED_STATUS_TRUE
             else:
-                if (self.goal_level == PolicyWrapper.SET_GOAL and controller.set_count == 5) or self.goal_level == PolicyWrapper.STAT_GOAL or self.goal_level == PolicyWrapper.EXERCISE_GOAL or self.goal_level == PolicyWrapper.SESSION_GOAL:
+                if (self.goal_level == PolicyWrapper.SET_GOAL and controller.set_count == 6) or self.goal_level == PolicyWrapper.STAT_GOAL or self.goal_level == PolicyWrapper.EXERCISE_GOAL or self.goal_level == PolicyWrapper.SESSION_GOAL:
                     controller.goal_level -= 1
                     controller.phase = PolicyWrapper.PHASE_END
                 nodedata.new_goal = self.goal_level - 1

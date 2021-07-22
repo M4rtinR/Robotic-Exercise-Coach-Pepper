@@ -13835,12 +13835,12 @@ class BehaviourLibraryFunctions:
 
         demoName = ""
         if goal_level < 4:
-            demoName = "forehand_drive"
+            shotName = "forehand_drive"
             if hand == "BH":
-                demoName = "backhand_drive"
+                shotName = "backhand_drive"
             elif shot == 5:
-                demoName = "lob"
-            # TODO: add neg demos for shot and update pre_instruction utterance for neg demo.
+                shotName = "lob"
+            demoName = shotName + posNeg
         else:
             statName = "racket_up"
             if stat == "impactCutAngle":

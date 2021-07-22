@@ -38,6 +38,7 @@ class TimestepCue(Resource):
                     pass
 
                 new_data = {
+                    'goal_level': 0,
                     'completed': controller.completed,
                     'shotSet': 0
                 }
@@ -57,6 +58,7 @@ class TimestepCue(Resource):
                         pass
 
                     new_data = {
+                        'goal_level': 1,
                         'completed': controller.completed
                     }
 
@@ -71,6 +73,7 @@ class TimestepCue(Resource):
                         pass
 
                     new_data = {
+                        'goal_level': 1,
                         'completed': controller.completed,
                         'shotSet': 0
                     }
@@ -99,6 +102,7 @@ class TimestepCue(Resource):
                         pass
 
                     new_data = {
+                        'goal_level': 2,
                         'completed': controller.completed
                     }
 
@@ -124,6 +128,7 @@ class TimestepCue(Resource):
                         pass
 
                     new_data = {
+                        'goal_level': 2,
                         'completed': controller.completed,
                         'shotSet': 1
                     }
@@ -148,6 +153,7 @@ class TimestepCue(Resource):
                         pass
 
                     new_data = {
+                        'goal_level': 3,
                         'completed': controller.completed
                     }
 
@@ -164,10 +170,11 @@ class TimestepCue(Resource):
                     else:
                         controller.performance = int(controller.performance)
 
-                    while controller.completed == controller.COMPLETED_STATUS_UNDEFINED:
+                    while controller.completed != controller.COMPLETED_STATUS_FALSE:
                         pass
 
                     new_data = {
+                        'goal_level': 3,
                         'completed': controller.completed,
                         'shotSet': 0
                     }
@@ -183,11 +190,17 @@ class TimestepCue(Resource):
                 print('set goal setting controller values')
                 if 'score' in content:  # End of set
                     print('end of set')
-                    controller.avg_score = content['score']
-                    controller.set_score_list.append(float(content['score']))
-                    controller.target = float(content['tgtValue'])
-                    controller.performance = content['performance']
-                    controller.set_performance_list.append(content['performance'])
+                    scoreString = content['score']
+                    if scoreString[-1] == "%":
+                        scoreString = content['score'][:-1]
+                    targetString = content['tgtValue']
+                    if targetString[-1] == "%":
+                        targetString = content['tgtValue'][:-1]
+                    controller.avg_score = float(scoreString)
+                    controller.set_score_list.append(float(scoreString))
+                    controller.target = float(targetString)
+                    controller.performance = int(content['performance'])
+                    controller.set_performance_list.append(int(content['performance']))
                     # controller.stat = content['stat']  # Let guide decide what stat to work on based on baseline set.
                     controller.goal_level = PolicyWrapper.SET_GOAL
                     controller.phase = PolicyWrapper.PHASE_END
@@ -197,6 +210,7 @@ class TimestepCue(Resource):
                         pass
 
                     new_data = {
+                        'goal_level': 4,
                         'completed': controller.completed,
                         'shotSet': 1
                     }
@@ -211,6 +225,7 @@ class TimestepCue(Resource):
                         pass
 
                     new_data = {
+                        'goal_level': 4,
                         'completed': controller.completed,
                         'shotSet': 1
                     }
@@ -242,11 +257,12 @@ class TimestepCue(Resource):
                 controller.shot_count += 1
 
                 new_data = {
+                    'goal_level': 5,
                     'completed': 1,
-                    'shotSet': 0
+                    'shotSet': 1
                 }
 
-                if controller.shot_count >= 29:
+                if controller.shot_count == 29:
                     new_data['shotSetComplete'] = 1
                     new_data['stat'] = controller.stat
                 else:
