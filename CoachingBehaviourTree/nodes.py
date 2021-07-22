@@ -224,7 +224,7 @@ class FormatAction(Node):
                                   Policy.A_POSITIVEMODELING_QUESTIONING, Policy.A_POSITIVEMODELING_HUSTLE,
                                   Policy.A_POSITIVEMODELING_PRAISE]:
                 demo = self.behaviour_lib.get_demo_string(self.behaviour, self.goal_level, self.shot, self.hand, self.stat)
-            pre_msg = self.behaviour_lib.get_pre_msg(self.behaviour, self.goal_level, self.performance, self.phase, self.name, self.shot, self.hand, self.stat)
+            pre_msg = self.behaviour_lib.get_pre_msg(self.behaviour, self.goal_level, self.performance, self.phase, self.name, self.shot, self.hand, self.stat, controller.set_count == 5)
             if self.score is None and self.performance is None:
                 nodedata.action = Action(pre_msg, demo=demo)
             else:
