@@ -629,6 +629,7 @@ class TimestepCue(Node):
                 return NodeStatus(NodeStatus.ACTIVE, "Waiting for person goal data from guide.")
 
         elif self.goal_level == 1:  # For session goal should have performance from previous session.
+            print("TimestepCue, controller.goal_level = " + str(controller.goal_level))
             if controller.goal_level == 1:
                 if controller.phase == PolicyWrapper.PHASE_END:  # Feedback sequence
                     nodedata.performance = round(mean(controller.set_performance_list))

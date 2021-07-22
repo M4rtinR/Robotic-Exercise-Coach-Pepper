@@ -668,7 +668,7 @@ def create_coaching_tree():
     b.add_remapping(set_goal_end, 'phase', set_goal_intro_behav, 'previous_phase')
     b.add_remapping(set_goal_feedback_behav, 'observation', set_goal_intro_behav, 'feedback_state')
 
-    stat_goal_coaching_until_count = UntilCount(name="stat_goal_coaching_until_count", max_count=4, child=stat_goal_coaching)
+    stat_goal_coaching_until_count = UntilCount(name="stat_goal_coaching_until_count", max_count=5, child=stat_goal_coaching)
     stat_goal_coaching_until_negate = Negate(name="stat_goal_coaching_until_negate", child=stat_goal_coaching_until_count)
     gen_stat_goal.add_child(stat_goal_coaching_until_negate)
 
