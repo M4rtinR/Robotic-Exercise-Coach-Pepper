@@ -13176,7 +13176,7 @@ class BehaviourLibraryFunctions:
     behaviours: dict
     POST_MSG: int = 0
 
-    def get_pre_msg(self, behaviour, goal_level, performance, phase, name, shot, hand, stat):
+    def get_pre_msg(self, behaviour, goal_level, performance, phase, name, shot, hand, stat, final_set):
         """
         Accesses the behaviour library dictionary and returns a random pre utterance appropriate to the parameters.
         :param behaviour :type int: the behaviour code e.g. A_PREINSTRUCTION = 1
@@ -13205,11 +13205,11 @@ class BehaviourLibraryFunctions:
                 performance = -1
 
             msg = self.behaviours[str(goal_level) + '_' + str(behaviour) + '_' + str(performance) + '_' + str(phase) + '_0'][r]'''
-            msg = self._get_pre_utterance(goal_level, behaviour, name, phase, hand, shot, stat, performance)
+            msg = self._get_pre_utterance(goal_level, behaviour, name, phase, hand, shot, stat, performance, final_set)
 
         return msg
 
-    def _get_pre_utterance(self, goal_level, behaviour, user_name, phase, hand, shot, stat, performance):
+    def _get_pre_utterance(self, goal_level, behaviour, user_name, phase, hand, shot, stat, performance, final_set):
         utterance = ""
         name = ""
         hand_utterance = "forehand"
@@ -13335,11 +13335,14 @@ class BehaviourLibraryFunctions:
                     elif stat == "followThroughTime":
                         stat_advice = "to extend that follow through towards the target"
                     if goal_level == PolicyWrapper.SET_GOAL:
-                        utterance = utterance + "Play another set of 30 " + hand_utterance + " " + shot_utterance + "s please. Remember, " + stat_advice
-                        if behaviour == Policy.A_PREINSTRUCTION_QUESTIONING:
-                            utterance = utterance + ". OK?"
-                        if behaviour == Policy.A_PREINSTRUCTION_FIRSTNAME:
-                            utterance = utterance + " " + name
+                        if final_set:
+                            utterance = utterance + "Play a final set of 30 " + hand_utterance + " " + shot_utterance + "s please. Let's see how much your " + stat_utterance + " has improved over the session!"
+                        else:
+                            utterance = utterance + "Play another set of 30 " + hand_utterance + " " + shot_utterance + "s please. Remember, " + stat_advice
+                            if behaviour == Policy.A_PREINSTRUCTION_QUESTIONING:
+                                utterance = utterance + ". OK?"
+                            if behaviour == Policy.A_PREINSTRUCTION_FIRSTNAME:
+                                utterance = utterance + " " + name
                     else:
                         if goal_level == PolicyWrapper.SESSION_GOAL:
                             goal_level_insert = "do a solo practice session and I'm going to coach you. We'll work on your " + hand_utterance + " " + shot_utterance
@@ -13361,11 +13364,14 @@ class BehaviourLibraryFunctions:
                     elif stat == "followThroughTime":
                         stat_advice = "stop your follow through too short"
                     if goal_level == PolicyWrapper.SET_GOAL:
-                        utterance = utterance + "Play another set of 30 " + hand_utterance + " " + shot_utterance + "s please. Remember, don't " + stat_advice
-                        if behaviour == Policy.A_PREINSTRUCTION_QUESTIONING:
-                            utterance = utterance + ". OK?"
-                        if behaviour == Policy.A_PREINSTRUCTION_FIRSTNAME:
-                            utterance = utterance + " " + name
+                        if final_set:
+                            utterance = utterance + "Play a final set of 30 " + hand_utterance + " " + shot_utterance + "s please. Let's hope your " + stat_utterance + " hasn't gotten worse over the session!"
+                        else:
+                            utterance = utterance + "Play another set of 30 " + hand_utterance + " " + shot_utterance + "s please. Remember, don't " + stat_advice
+                            if behaviour == Policy.A_PREINSTRUCTION_QUESTIONING:
+                                utterance = utterance + ". OK?"
+                            if behaviour == Policy.A_PREINSTRUCTION_FIRSTNAME:
+                                utterance = utterance + " " + name
                     else:
                         shot_advice = "letting your " + hand_utterance + " " + shot_utterance + " land too short."
                         if shot == 5:

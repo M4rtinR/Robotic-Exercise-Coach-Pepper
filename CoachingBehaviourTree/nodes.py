@@ -943,7 +943,15 @@ class InitialiseBlackboard(Node):
             blackboard.
         """
 
-        belief_distribution = [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0] if self.experience == "high" else [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0]
+        belief_distribution = []
+        if controller.policy == -1:
+            belief_distribution = [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0] if self.experience == "high" else [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0]
+        else:
+            for i in range(12):
+                if controller.policy == i:
+                    belief_distribution.append(1)
+                else:
+                    belief_distribution.append(0)
         # belief_distribution = [x / 100 for x in self._constrainedSumSamplePos(12, 100, 0.001)]
         nodedata.belief = belief_distribution
 

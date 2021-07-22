@@ -50,6 +50,7 @@ shot = 1
 hand = "FH"
 # "racketPreparation" = RACKET_PREP, "impactCutAngle" = IMPACT_CUT_ANGLE, "followThroughTime" = FOLLOW_THROUGH_TIME
 stat = "racketPreparation"
+policy = -1
 completed = COMPLETED_STATUS_UNDEFINED
 shot_count = 0
 action_score = -1
