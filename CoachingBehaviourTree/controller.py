@@ -34,7 +34,7 @@ COMPLETED_STATUS_FALSE = 0
 COMPLETED_STATUS_TRUE = 1
 
 # Initial values which will be updated when the API gets called by the guide.
-participantNo = "Test"
+participantNo = "PS1.2"
 goal_level = -1
 name = ''
 sessions = -1
@@ -47,10 +47,10 @@ performance = -1
 # 1 = DRIVE, 5 = LOB
 shot = 1
 # "FH" or "BH"
-hand = "FH"
+hand = "BH"
 # "racketPreparation" = RACKET_PREP, "impactCutAngle" = IMPACT_CUT_ANGLE, "followThroughTime" = FOLLOW_THROUGH_TIME
-stat = "racketPreparation"
-policy = -1
+stat = "followThroughTime"
+policy = 0
 completed = COMPLETED_STATUS_UNDEFINED
 shot_count = 0
 action_score = -1
@@ -62,6 +62,7 @@ used_behaviours = []
 set_performance_list = []
 set_score_list = []
 set_count = 0
+name = "Jamie"
 
 def create_coaching_tree():
     """

@@ -192,7 +192,7 @@ class FormatAction(Node):
         self.target = nodedata.get_data('target')            # Numerical target score for stat (can be None)
         self.behaviour_lib = nodedata.get_data('bl')         # The behaviour library to be used in generating actions
         self.behaviour = nodedata.get_data('behaviour')      # The type of behaviour to create an action for.
-        self.name = nodedata.get_data('name')                # The name of the current user.
+        self.name = controller.name                # The name of the current user.
         self.shot = nodedata.get_data('shot')                # The shot type (can be None)
         self.hand = nodedata.get_data('hand')                # Forehand or backhand associated with shot (can be None)
         self.stat = nodedata.get_data('stat')                # The stat type (can be None)

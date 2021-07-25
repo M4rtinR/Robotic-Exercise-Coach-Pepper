@@ -13175,6 +13175,7 @@ class BehaviourLibraryFunctions:
     name: str
     behaviours: dict
     POST_MSG: int = 0
+    choice_list = [0, 1, 2, 3]
 
     def get_pre_msg(self, behaviour, goal_level, performance, phase, name, shot, hand, stat, final_set):
         """
@@ -13197,19 +13198,25 @@ class BehaviourLibraryFunctions:
         if behaviour > 68 or behaviour < 1 or goal_level > 6 or goal_level < 0 or performance > 7 or performance < -1 or phase > 1 or phase < -1:
             msg = "Error: I don't know how to perform that behaviour."
         else:
-            '''r = random.randint(0, 3)
+            if len(self.choice_list) == 0:
+                self.choice_list = [0, 1, 2, 3]
 
-            if phase is None or phase == -1:
+            r = random.randint(0, len(self.choice_list))
+
+            choice = self.choice_list[r]
+            self.choice_list.remove(choice)
+
+            '''if phase is None or phase == -1:
                 phase = 1 if goal_level == PolicyWrapper.ACTION_GOAL else 0
             elif performance is None and not(goal_level == PolicyWrapper.ACTION_GOAL or goal_level == PolicyWrapper.BASELINE_GOAL or goal_level == PolicyWrapper.PERSON_GOAL):
                 performance = -1
 
             msg = self.behaviours[str(goal_level) + '_' + str(behaviour) + '_' + str(performance) + '_' + str(phase) + '_0'][r]'''
-            msg = self._get_pre_utterance(goal_level, behaviour, name, phase, hand, shot, stat, performance, final_set)
+            msg = self._get_pre_utterance(goal_level, behaviour, name, phase, hand, shot, stat, performance, final_set, choice)
 
         return msg
 
-    def _get_pre_utterance(self, goal_level, behaviour, user_name, phase, hand, shot, stat, performance, final_set):
+    def _get_pre_utterance(self, goal_level, behaviour, user_name, phase, hand, shot, stat, performance, final_set, utterance_choice):
         utterance = ""
         name = ""
         hand_utterance = "forehand"
@@ -13223,7 +13230,6 @@ class BehaviourLibraryFunctions:
             stat_utterance = "racket face angle"
         elif stat == "followThroughTime":
             stat_utterance = "follow through"
-
         if behaviour in [Policy.A_PREINSTRUCTION_FIRSTNAME, Policy.A_POSTINSTRUCTIONPOSITIVE_FIRSTNAME,
                          Policy.A_POSTINSTRUCTIONNEGATIVE_FIRSTNAME, Policy.A_PRAISE_FIRSTNAME,
                          Policy.A_SCOLD_FIRSTNAME,
@@ -13232,322 +13238,1302 @@ class BehaviourLibraryFunctions:
                          Policy.A_CONCURRENTINSTRUCTIONNEGATIVE_FIRSTNAME]:
             name = user_name
 
-        # Person Goal
-        if goal_level == PolicyWrapper.PERSON_GOAL:
-            if behaviour in [Policy.A_PREINSTRUCTION_FIRSTNAME, Policy.A_PREINSTRUCTION]:
-                if behaviour != Policy.A_PREINSTRUCTION_FIRSTNAME:
-                    name = ""
-                utterance = utterance + "Hello " + name + ", welcome to today's session."
-            elif behaviour == Policy.A_END:
-                utterance = "Goodbye"
+        if utterance_choice == 0:
 
-        # Baseline Goal
-        elif goal_level == PolicyWrapper.BASELINE_GOAL:
-            if phase == PolicyWrapper.PHASE_START:
-                utterance = utterance + "To start, play a set of 30 " + hand_utterance + " " + shot_utterance + "s please so I can have a look at your technique"
-                if behaviour == Policy.A_PREINSTRUCTION_QUESTIONING:
-                    utterance = utterance + ". OK?"
-                if behaviour == Policy.A_PREINSTRUCTION_FIRSTNAME:
-                    utterance = utterance + name
-            else:
-                utterance = "Good"
+            # Person Goal
+            if goal_level == PolicyWrapper.PERSON_GOAL:
+                if behaviour in [Policy.A_PREINSTRUCTION_FIRSTNAME, Policy.A_PREINSTRUCTION]:
+                    if behaviour != Policy.A_PREINSTRUCTION_FIRSTNAME:
+                        name = ""
+                    utterance = utterance + "Hello " + name + ", welcome to today's session."
+                elif behaviour == Policy.A_END:
+                    utterance = "Goodbye"
 
-        # Session, Exercise, Stat and Set Goals will all have the same action categories (different individual actions)
-        elif goal_level == PolicyWrapper.SESSION_GOAL or goal_level == PolicyWrapper.EXERCISE_GOAL \
-                or goal_level == PolicyWrapper.STAT_GOAL or goal_level == PolicyWrapper.SET_GOAL:
-            if phase == PolicyWrapper.PHASE_START:
-                goal_level_insert = ""
-                performance_insert = ""
-                performance_reaction = ""
-                if behaviour in [Policy.A_POSTINSTRUCTIONPOSITIVE, Policy.A_POSTINSTRUCTIONNEGATIVE,
-                                 Policy.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING,
-                                 Policy.A_POSTINSTRUCTIONPOSITIVE_FIRSTNAME,
-                                 Policy.A_POSTINSTRUCTIONNEGATIVE_QUESTIONING,
-                                 Policy.A_POSTINSTRUCTIONNEGATIVE_FIRSTNAME,
-                                 Policy.A_POSTINSTRUCTIONPOSITIVE_POSITIVE_MODELING,
-                                 Policy.A_POSTINSTRUCTIONPOSITIVE_NEGATIVE_MODELING,
-                                 Policy.A_POSTINSTRUCTIONNEGATIVE_POSITIVEMODELING,
-                                 Policy.A_POSTINSTRUCTIONNEGATIVE_NEGATIVEMODELING,
-                                 Policy.A_POSITIVEMODELING_POSTINSTRUCTIONPOSITIVE,
-                                 Policy.A_NEGATIVEMODELING_POSTINSTRUCTIONNEGATIVE]:
-                    if goal_level == PolicyWrapper.SESSION_GOAL:
-                        goal_level_insert = "performance"
-                    elif goal_level == PolicyWrapper.EXERCISE_GOAL:
-                        goal_level_insert = hand_utterance + " " + shot_utterance
-                    elif goal_level == PolicyWrapper.STAT_GOAL or goal_level == PolicyWrapper.SET_GOAL:
-                        goal_level_insert = stat_utterance
+            # Baseline Goal
+            elif goal_level == PolicyWrapper.BASELINE_GOAL:
+                if phase == PolicyWrapper.PHASE_START:
+                    utterance = utterance + "To start, play a set of 30 " + hand_utterance + " " + shot_utterance + "s please so I can have a look at your technique"
+                    if behaviour == Policy.A_PREINSTRUCTION_QUESTIONING:
+                        utterance = utterance + ". OK?"
+                    if behaviour == Policy.A_PREINSTRUCTION_FIRSTNAME:
+                        utterance = utterance + name
+                else:
+                    utterance = "Good"
 
-                    utterance = utterance + "Last time, "
+            # Session, Exercise, Stat and Set Goals will all have the same action categories (different individual actions)
+            elif goal_level == PolicyWrapper.SESSION_GOAL or goal_level == PolicyWrapper.EXERCISE_GOAL \
+                    or goal_level == PolicyWrapper.STAT_GOAL or goal_level == PolicyWrapper.SET_GOAL:
+                if phase == PolicyWrapper.PHASE_START:
+                    goal_level_insert = ""
                     performance_insert = ""
                     performance_reaction = ""
-                    if performance == PolicyWrapper.MET or performance == PolicyWrapper.STEADY:
-                        performance_insert = "stayed consistent"
-                        performance_reaction = "so well done!"
-                    elif performance == PolicyWrapper.MUCH_IMPROVED:
-                        performance_insert = "improved a lot"
-                        performance_reaction = "so well done!"
-                    elif performance == PolicyWrapper.IMPROVED or performance == PolicyWrapper.IMPROVED_SWAP:
-                        performance_insert = "improved"
-                        performance_reaction = "so well done!"
-                    elif performance == PolicyWrapper.REGRESSED or performance == PolicyWrapper.REGRESSED_SWAP:
-                        performance_insert = "got a little worse"
-                        performance_reaction = "but don't worry!"
-                    elif performance == PolicyWrapper.MUCH_REGRESSED:
-                        performance_insert = "got worse"
-                        performance_reaction = "but don't worry!"
-                    if behaviour in [Policy.A_POSTINSTRUCTIONPOSITIVE, Policy.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING,
+                    if behaviour in [Policy.A_POSTINSTRUCTIONPOSITIVE, Policy.A_POSTINSTRUCTIONNEGATIVE,
+                                     Policy.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING,
                                      Policy.A_POSTINSTRUCTIONPOSITIVE_FIRSTNAME,
+                                     Policy.A_POSTINSTRUCTIONNEGATIVE_QUESTIONING,
+                                     Policy.A_POSTINSTRUCTIONNEGATIVE_FIRSTNAME,
                                      Policy.A_POSTINSTRUCTIONPOSITIVE_POSITIVE_MODELING,
                                      Policy.A_POSTINSTRUCTIONPOSITIVE_NEGATIVE_MODELING,
-                                     Policy.A_POSITIVEMODELING_POSTINSTRUCTIONPOSITIVE]:
-                        optional_question = ""
-                        if behaviour == Policy.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING:
-                            optional_question = "didn't it?"
-                        if performance_insert == "":
-                            utterance = "I think this is the first time we've worked on your " + goal_level_insert + " together " + optional_question + name
+                                     Policy.A_POSTINSTRUCTIONNEGATIVE_POSITIVEMODELING,
+                                     Policy.A_POSTINSTRUCTIONNEGATIVE_NEGATIVEMODELING,
+                                     Policy.A_POSITIVEMODELING_POSTINSTRUCTIONPOSITIVE,
+                                     Policy.A_NEGATIVEMODELING_POSTINSTRUCTIONNEGATIVE]:
+                        if goal_level == PolicyWrapper.SESSION_GOAL:
+                            goal_level_insert = "performance"
+                        elif goal_level == PolicyWrapper.EXERCISE_GOAL:
+                            goal_level_insert = hand_utterance + " " + shot_utterance
+                        elif goal_level == PolicyWrapper.STAT_GOAL or goal_level == PolicyWrapper.SET_GOAL:
+                            goal_level_insert = stat_utterance
+
+                        utterance = utterance + "Last time, "
+                        performance_insert = ""
+                        performance_reaction = ""
+                        if performance == PolicyWrapper.MET or performance == PolicyWrapper.STEADY:
+                            performance_insert = "stayed consistent"
+                            performance_reaction = "so well done!"
+                        elif performance == PolicyWrapper.MUCH_IMPROVED:
+                            performance_insert = "improved a lot"
+                            performance_reaction = "so well done!"
+                        elif performance == PolicyWrapper.IMPROVED or performance == PolicyWrapper.IMPROVED_SWAP:
+                            performance_insert = "improved"
+                            performance_reaction = "so well done!"
+                        elif performance == PolicyWrapper.REGRESSED or performance == PolicyWrapper.REGRESSED_SWAP:
+                            performance_insert = "got a little worse"
+                            performance_reaction = "but don't worry!"
+                        elif performance == PolicyWrapper.MUCH_REGRESSED:
+                            performance_insert = "got worse"
+                            performance_reaction = "but don't worry!"
+                        if behaviour in [Policy.A_POSTINSTRUCTIONPOSITIVE, Policy.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING,
+                                         Policy.A_POSTINSTRUCTIONPOSITIVE_FIRSTNAME,
+                                         Policy.A_POSTINSTRUCTIONPOSITIVE_POSITIVE_MODELING,
+                                         Policy.A_POSTINSTRUCTIONPOSITIVE_NEGATIVE_MODELING,
+                                         Policy.A_POSITIVEMODELING_POSTINSTRUCTIONPOSITIVE]:
+                            optional_question = ""
+                            if behaviour == Policy.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING:
+                                optional_question = "didn't it?"
+                            if performance_insert == "":
+                                utterance = "I think this is the first time we've worked on your " + goal_level_insert + " together " + optional_question + name
+                            else:
+                                utterance = utterance + " your " + goal_level_insert + " " + performance_insert + " " + optional_question + " " + name + " " + performance_reaction
                         else:
-                            utterance = utterance + " your " + goal_level_insert + " " + performance_insert + " " + optional_question + " " + name + " " + performance_reaction
-                    else:
-                        optional_question = ""
-                        if behaviour == Policy.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING:
-                            optional_question = "did you?"
-                        if performance_insert == "":
-                            utterance = "I think this is the first time we've worked on your " + goal_level_insert + " together " + optional_question + name
+                            optional_question = ""
+                            if behaviour == Policy.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING:
+                                optional_question = "did you?"
+                            if performance_insert == "":
+                                utterance = "I think this is the first time we've worked on your " + goal_level_insert + " together " + optional_question + name
+                            else:
+                                utterance = utterance + " you didn't do well with your " + goal_level_insert + optional_question
+                    elif behaviour in [Policy.A_QUESTIONING, Policy.A_QUESTIONING_FIRSTNAME,
+                                       Policy.A_QUESTIONING_POSITIVEMODELING,
+                                       Policy.A_POSITIVEMODELING_QUESTIONING, Policy.A_QUESTIONING_NEGATIVEMODELING]:
+                        if goal_level == PolicyWrapper.SESSION_GOAL:
+                            goal_level_insert = "performance"
+                        elif goal_level == PolicyWrapper.EXERCISE_GOAL:
+                            goal_level_insert = hand_utterance + shot_utterance
+                        elif goal_level == PolicyWrapper.STAT_GOAL or goal_level == PolicyWrapper.SET_GOAL:
+                            goal_level_insert = stat_utterance
+                        utterance = utterance + "How did your " + goal_level_insert + " feel last time" + name + "? Touch the back of my hand if it fet good or the top of my head if you think it still needs work."
+
+                    elif behaviour in [Policy.A_PREINSTRUCTION, Policy.A_PREINSTRUCTION_QUESTIONING,
+                                       Policy.A_PREINSTRUCTION_FIRSTNAME, Policy.A_PREINSTRUCTION_POSITIVEMODELING,
+                                       Policy.A_POSITIVEMODELING_PREINSTRUCTION]:
+                        stat_advice = "get your racket up early"
+                        if stat == "impactCutAngle":
+                            stat_advice = "try to keep your racket face open"
+                        elif stat == "followThroughTime":
+                            stat_advice = "to extend that follow through towards the target"
+                        if goal_level == PolicyWrapper.SET_GOAL:
+                            if final_set:
+                                utterance = utterance + "Play a final set of 30 " + hand_utterance + " " + shot_utterance + "s please. Let's see how much your " + stat_utterance + " has improved over the session!"
+                            else:
+                                utterance = utterance + "Play another set of 30 " + hand_utterance + " " + shot_utterance + "s please. Remember, " + stat_advice
+                                if behaviour == Policy.A_PREINSTRUCTION_QUESTIONING:
+                                    utterance = utterance + ". OK?"
+                                if behaviour == Policy.A_PREINSTRUCTION_FIRSTNAME:
+                                    utterance = utterance + " " + name
                         else:
-                            utterance = utterance + " you didn't do well with your " + goal_level_insert + optional_question
-                elif behaviour in [Policy.A_QUESTIONING, Policy.A_QUESTIONING_FIRSTNAME,
-                                   Policy.A_QUESTIONING_POSITIVEMODELING,
-                                   Policy.A_POSITIVEMODELING_QUESTIONING, Policy.A_QUESTIONING_NEGATIVEMODELING]:
+                            if goal_level == PolicyWrapper.SESSION_GOAL:
+                                goal_level_insert = "do a solo practice session and I'm going to coach you. We'll work on your " + hand_utterance + " " + shot_utterance
+                            elif goal_level == PolicyWrapper.EXERCISE_GOAL:
+                                goal_level_insert = "focus on your " + hand_utterance + " " + shot_utterance + ", paying specific attention to the " + stat_utterance
+                            elif goal_level == PolicyWrapper.STAT_GOAL:
+                                goal_level_insert = "get started with your " + stat_utterance
+
+                            optional_question = ""
+                            if behaviour == Policy.A_PREINSTRUCTION_QUESTIONING:
+                                optional_question = "Does that sound good?"
+
+                            utterance = utterance + "Today " + name + ", we're going to " + goal_level_insert + ". " + optional_question
+
+                    elif behaviour == Policy.A_PREINSTRUCTION_NEGATIVEMODELING:
+                        stat_advice = "let your racket preparation drop"
+                        if stat == "impactCutAngle":
+                            stat_advice = "let your racket face close"
+                        elif stat == "followThroughTime":
+                            stat_advice = "stop your follow through too short"
+                        if goal_level == PolicyWrapper.SET_GOAL:
+                            if final_set:
+                                utterance = utterance + "Play a final set of 30 " + hand_utterance + " " + shot_utterance + "s please. Let's hope your " + stat_utterance + " hasn't gotten worse over the session!"
+                            else:
+                                utterance = utterance + "Play another set of 30 " + hand_utterance + " " + shot_utterance + "s please. Remember, don't " + stat_advice
+                                if behaviour == Policy.A_PREINSTRUCTION_QUESTIONING:
+                                    utterance = utterance + ". OK?"
+                                if behaviour == Policy.A_PREINSTRUCTION_FIRSTNAME:
+                                    utterance = utterance + " " + name
+                        else:
+                            shot_advice = "letting your " + hand_utterance + " " + shot_utterance + " land too short."
+                            if shot == 5:
+                                shot_advice = "hitting you " + hand_utterance + " " + shot_utterance + " onto your opponent's volley."
+                            if goal_level == PolicyWrapper.SESSION_GOAL:
+                                goal_level_insert = "do a solo practice session and I'm going to coach you. We'll work on not " + shot_advice
+                            elif goal_level == PolicyWrapper.EXERCISE_GOAL:
+                                goal_level_insert = "focus on not " + shot_advice + ", remembering to not " + stat_advice
+                            elif goal_level == PolicyWrapper.STAT_GOAL:
+                                goal_level_insert = "play some " + shot_utterance + "'s. I need you to remember to not " + stat_advice
+
+                            utterance = utterance + "Today " + name + ", we're going to " + goal_level_insert
+
+                    elif behaviour in [Policy.A_PRAISE, Policy.A_PRAISE_FIRSTNAME, Policy.A_POSITIVEMODELING_PRAISE,
+                                       Policy.A_CONSOLE, Policy.A_CONSOLE_FIRSTNAME]:
+                        if goal_level == PolicyWrapper.SESSION_GOAL:
+                            goal_level_insert = "session"
+                        elif goal_level == PolicyWrapper.EXERCISE_GOAL:
+                            goal_level_insert = "time we worked on your " + hand_utterance + " " + shot_utterance
+                        elif goal_level == PolicyWrapper.STAT_GOAL:
+                            goal_level_insert = "time we worked on your " + stat_utterance
+                        elif goal_level == PolicyWrapper.SET_GOAL:
+                            goal_level_insert = "set"
+
+                        behaviour_insert = ""
+                        if behaviour == Policy.A_CONSOLE or behaviour == Policy.A_CONSOLE_FIRSTNAME:
+                            behaviour_insert = "Unlucky"
+                        else:
+                            behaviour_insert = "Well done"
+                        utterance = utterance + behaviour_insert + " for the last " + goal_level_insert + " " + name
+
+                    elif behaviour in [Policy.A_SCOLD, Policy.A_SCOLD_FIRSTNAME]:
+                        if goal_level == PolicyWrapper.SESSION_GOAL:
+                            goal_level_insert = "session"
+                        elif goal_level == PolicyWrapper.EXERCISE_GOAL:
+                            goal_level_insert = "time we worked on your " + hand_utterance + " " + shot_utterance
+                        elif goal_level == PolicyWrapper.STAT_GOAL:
+                            goal_level_insert = "time we worked on your " + stat_utterance
+                        elif goal_level == PolicyWrapper.SET_GOAL:
+                            goal_level_insert = "set"
+                        utterance = utterance + "That last " + goal_level_insert + " was bad " + name
+
+                else:  # phase == self.PHASE_END
+                    goal_level_insert = ""
+                    performance_insert = ""
+                    performance_reaction = ""
                     if goal_level == PolicyWrapper.SESSION_GOAL:
                         goal_level_insert = "performance"
+                        if behaviour == Policy.A_END:
+                            utterance = "Thank you for practicing with me today!"
                     elif goal_level == PolicyWrapper.EXERCISE_GOAL:
                         goal_level_insert = hand_utterance + shot_utterance
                     elif goal_level == PolicyWrapper.STAT_GOAL or goal_level == PolicyWrapper.SET_GOAL:
                         goal_level_insert = stat_utterance
-                    utterance = utterance + "How did your " + goal_level_insert + " feel last time" + name + "? Touch the back of my hand if it fet good or the top of my head if you think it still needs work."
-
-                elif behaviour in [Policy.A_PREINSTRUCTION, Policy.A_PREINSTRUCTION_QUESTIONING,
-                                   Policy.A_PREINSTRUCTION_FIRSTNAME, Policy.A_PREINSTRUCTION_POSITIVEMODELING,
-                                   Policy.A_POSITIVEMODELING_PREINSTRUCTION]:
-                    stat_advice = "get your racket up early"
-                    if stat == "impactCutAngle":
-                        stat_advice = "try to keep your racket face open"
-                    elif stat == "followThroughTime":
-                        stat_advice = "to extend that follow through towards the target"
-                    if goal_level == PolicyWrapper.SET_GOAL:
-                        if final_set:
-                            utterance = utterance + "Play a final set of 30 " + hand_utterance + " " + shot_utterance + "s please. Let's see how much your " + stat_utterance + " has improved over the session!"
-                        else:
-                            utterance = utterance + "Play another set of 30 " + hand_utterance + " " + shot_utterance + "s please. Remember, " + stat_advice
-                            if behaviour == Policy.A_PREINSTRUCTION_QUESTIONING:
-                                utterance = utterance + ". OK?"
-                            if behaviour == Policy.A_PREINSTRUCTION_FIRSTNAME:
-                                utterance = utterance + " " + name
-                    else:
-                        if goal_level == PolicyWrapper.SESSION_GOAL:
-                            goal_level_insert = "do a solo practice session and I'm going to coach you. We'll work on your " + hand_utterance + " " + shot_utterance
-                        elif goal_level == PolicyWrapper.EXERCISE_GOAL:
-                            goal_level_insert = "focus on your " + hand_utterance + " " + shot_utterance + ", paying specific attention to the " + stat_utterance
-                        elif goal_level == PolicyWrapper.STAT_GOAL:
-                            goal_level_insert = "get started with your " + stat_utterance
-
-                        optional_question = ""
-                        if behaviour == Policy.A_PREINSTRUCTION_QUESTIONING:
-                            optional_question = "Does that sound good?"
-
-                        utterance = utterance + "Today " + name + ", we're going to " + goal_level_insert + ". " + optional_question
-
-                elif behaviour == Policy.A_PREINSTRUCTION_NEGATIVEMODELING:
-                    stat_advice = "let your racket preparation drop"
-                    if stat == "impactCutAngle":
-                        stat_advice = "let your racket face close"
-                    elif stat == "followThroughTime":
-                        stat_advice = "stop your follow through too short"
-                    if goal_level == PolicyWrapper.SET_GOAL:
-                        if final_set:
-                            utterance = utterance + "Play a final set of 30 " + hand_utterance + " " + shot_utterance + "s please. Let's hope your " + stat_utterance + " hasn't gotten worse over the session!"
-                        else:
-                            utterance = utterance + "Play another set of 30 " + hand_utterance + " " + shot_utterance + "s please. Remember, don't " + stat_advice
-                            if behaviour == Policy.A_PREINSTRUCTION_QUESTIONING:
-                                utterance = utterance + ". OK?"
-                            if behaviour == Policy.A_PREINSTRUCTION_FIRSTNAME:
-                                utterance = utterance + " " + name
-                    else:
-                        shot_advice = "letting your " + hand_utterance + " " + shot_utterance + " land too short."
-                        if shot == 5:
-                            shot_advice = "hitting you " + hand_utterance + " " + shot_utterance + " onto your opponent's volley."
-                        if goal_level == PolicyWrapper.SESSION_GOAL:
-                            goal_level_insert = "do a solo practice session and I'm going to coach you. We'll work on not " + shot_advice
-                        elif goal_level == PolicyWrapper.EXERCISE_GOAL:
-                            goal_level_insert = "focus on not " + shot_advice + ", remembering to not " + stat_advice
-                        elif goal_level == PolicyWrapper.STAT_GOAL:
-                            goal_level_insert = "play some " + shot_utterance + "'s. I need you to remember to not " + stat_advice
-
-                        utterance = utterance + "Today " + name + ", we're going to " + goal_level_insert
-
-                elif behaviour in [Policy.A_PRAISE, Policy.A_PRAISE_FIRSTNAME, Policy.A_POSITIVEMODELING_PRAISE,
-                                   Policy.A_CONSOLE, Policy.A_CONSOLE_FIRSTNAME]:
-                    if goal_level == PolicyWrapper.SESSION_GOAL:
-                        goal_level_insert = "session"
-                    elif goal_level == PolicyWrapper.EXERCISE_GOAL:
-                        goal_level_insert = "time we worked on your " + hand_utterance + " " + shot_utterance
-                    elif goal_level == PolicyWrapper.STAT_GOAL:
-                        goal_level_insert = "time we worked on your " + stat_utterance
-                    elif goal_level == PolicyWrapper.SET_GOAL:
-                        goal_level_insert = "set"
-
-                    behaviour_insert = ""
-                    if behaviour == Policy.A_CONSOLE or behaviour == Policy.A_CONSOLE_FIRSTNAME:
-                        behaviour_insert = "Unlucky"
-                    else:
-                        behaviour_insert = "Well done"
-                    utterance = utterance + behaviour_insert + " for the last " + goal_level_insert + " " + name
-
-                elif behaviour in [Policy.A_SCOLD, Policy.A_SCOLD_FIRSTNAME]:
-                    if goal_level == PolicyWrapper.SESSION_GOAL:
-                        goal_level_insert = "session"
-                    elif goal_level == PolicyWrapper.EXERCISE_GOAL:
-                        goal_level_insert = "time we worked on your " + hand_utterance + " " + shot_utterance
-                    elif goal_level == PolicyWrapper.STAT_GOAL:
-                        goal_level_insert = "time we worked on your " + stat_utterance
-                    elif goal_level == PolicyWrapper.SET_GOAL:
-                        goal_level_insert = "set"
-                    utterance = utterance + "That last " + goal_level_insert + " was bad " + name
-
-            else:  # phase == self.PHASE_END
-                goal_level_insert = ""
-                performance_insert = ""
-                performance_reaction = ""
-                if goal_level == PolicyWrapper.SESSION_GOAL:
-                    goal_level_insert = "performance"
-                    if behaviour == Policy.A_END:
-                        utterance = "Thank you for practicing with me today!"
-                elif goal_level == PolicyWrapper.EXERCISE_GOAL:
-                    goal_level_insert = hand_utterance + shot_utterance
-                elif goal_level == PolicyWrapper.STAT_GOAL or goal_level == PolicyWrapper.SET_GOAL:
-                    goal_level_insert = stat_utterance
-                if behaviour in [Policy.A_POSTINSTRUCTIONPOSITIVE, Policy.A_POSTINSTRUCTIONNEGATIVE,
-                                 Policy.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING,
-                                 Policy.A_POSTINSTRUCTIONPOSITIVE_FIRSTNAME,
-                                 Policy.A_POSTINSTRUCTIONNEGATIVE_QUESTIONING,
-                                 Policy.A_POSTINSTRUCTIONNEGATIVE_FIRSTNAME,
-                                 Policy.A_POSTINSTRUCTIONPOSITIVE_POSITIVE_MODELING,
-                                 Policy.A_POSTINSTRUCTIONPOSITIVE_NEGATIVE_MODELING,
-                                 Policy.A_POSTINSTRUCTIONNEGATIVE_POSITIVEMODELING,
-                                 Policy.A_POSTINSTRUCTIONNEGATIVE_NEGATIVEMODELING,
-                                 Policy.A_POSITIVEMODELING_POSTINSTRUCTIONPOSITIVE,
-                                 Policy.A_NEGATIVEMODELING_POSTINSTRUCTIONNEGATIVE]:
-
-                    if performance == PolicyWrapper.MET or performance == PolicyWrapper.STEADY:
-                        performance_insert = "stayed consistent"
-                        performance_reaction = "so well done!"
-                    elif performance == PolicyWrapper.MUCH_IMPROVED:
-                        performance_insert = "improved a lot"
-                        performance_reaction = "so well done!"
-                    elif performance == PolicyWrapper.IMPROVED or performance == PolicyWrapper.IMPROVED_SWAP:
-                        performance_insert = "improved"
-                        performance_reaction = "so well done!"
-                    elif performance == PolicyWrapper.REGRESSED or performance == PolicyWrapper.REGRESSED_SWAP:
-                        performance_insert = "got a little worse"
-                        performance_reaction = "but don't worry!"
-                    elif performance == PolicyWrapper.MUCH_REGRESSED:
-                        performance_insert = "got worse"
-                        performance_reaction = "but don't worry!"
-                    if behaviour in [Policy.A_POSTINSTRUCTIONPOSITIVE, Policy.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING,
+                    if behaviour in [Policy.A_POSTINSTRUCTIONPOSITIVE, Policy.A_POSTINSTRUCTIONNEGATIVE,
+                                     Policy.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING,
                                      Policy.A_POSTINSTRUCTIONPOSITIVE_FIRSTNAME,
+                                     Policy.A_POSTINSTRUCTIONNEGATIVE_QUESTIONING,
+                                     Policy.A_POSTINSTRUCTIONNEGATIVE_FIRSTNAME,
                                      Policy.A_POSTINSTRUCTIONPOSITIVE_POSITIVE_MODELING,
                                      Policy.A_POSTINSTRUCTIONPOSITIVE_NEGATIVE_MODELING,
-                                     Policy.A_POSITIVEMODELING_POSTINSTRUCTIONPOSITIVE]:
-                        optional_question = ""
-                        if behaviour == Policy.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING:
-                            optional_question = "didn't it?"
-                        utterance = utterance + "Your " + goal_level_insert + " " + performance_insert + "there " + optional_question + " " + name + " " + performance_reaction
-                    else:
-                        optional_question = ""
-                        if behaviour == Policy.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING:
-                            optional_question = "did you?"
-                        utterance = utterance + "You didn't manage to improve your " + goal_level_insert + " there " + optional_question
-                elif behaviour in [Policy.A_QUESTIONING, Policy.A_QUESTIONING_FIRSTNAME,
-                                   Policy.A_QUESTIONING_POSITIVEMODELING,
-                                   Policy.A_POSITIVEMODELING_QUESTIONING, Policy.A_QUESTIONING_NEGATIVEMODELING]:
-                    utterance = utterance + "How did your " + goal_level_insert + " feel there " + name + "? Touch the back of my hand if it fet good or the top of my head if you think it still needs work."
+                                     Policy.A_POSTINSTRUCTIONNEGATIVE_POSITIVEMODELING,
+                                     Policy.A_POSTINSTRUCTIONNEGATIVE_NEGATIVEMODELING,
+                                     Policy.A_POSITIVEMODELING_POSTINSTRUCTIONPOSITIVE,
+                                     Policy.A_NEGATIVEMODELING_POSTINSTRUCTIONNEGATIVE]:
 
-                elif behaviour in [Policy.A_PRAISE, Policy.A_PRAISE_FIRSTNAME, Policy.A_POSITIVEMODELING_PRAISE,
-                                   Policy.A_CONSOLE, Policy.A_CONSOLE_FIRSTNAME]:
+                        if performance == PolicyWrapper.MET or performance == PolicyWrapper.STEADY:
+                            performance_insert = "stayed consistent"
+                            performance_reaction = "so well done!"
+                        elif performance == PolicyWrapper.MUCH_IMPROVED:
+                            performance_insert = "improved a lot"
+                            performance_reaction = "so well done!"
+                        elif performance == PolicyWrapper.IMPROVED or performance == PolicyWrapper.IMPROVED_SWAP:
+                            performance_insert = "improved"
+                            performance_reaction = "so well done!"
+                        elif performance == PolicyWrapper.REGRESSED or performance == PolicyWrapper.REGRESSED_SWAP:
+                            performance_insert = "got a little worse"
+                            performance_reaction = "but don't worry!"
+                        elif performance == PolicyWrapper.MUCH_REGRESSED:
+                            performance_insert = "got worse"
+                            performance_reaction = "but don't worry!"
+                        if behaviour in [Policy.A_POSTINSTRUCTIONPOSITIVE, Policy.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING,
+                                         Policy.A_POSTINSTRUCTIONPOSITIVE_FIRSTNAME,
+                                         Policy.A_POSTINSTRUCTIONPOSITIVE_POSITIVE_MODELING,
+                                         Policy.A_POSTINSTRUCTIONPOSITIVE_NEGATIVE_MODELING,
+                                         Policy.A_POSITIVEMODELING_POSTINSTRUCTIONPOSITIVE]:
+                            optional_question = ""
+                            if behaviour == Policy.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING:
+                                optional_question = "didn't it?"
+                            utterance = utterance + "Your " + goal_level_insert + " " + performance_insert + "there " + optional_question + " " + name + " " + performance_reaction
+                        else:
+                            optional_question = ""
+                            if behaviour == Policy.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING:
+                                optional_question = "did you?"
+                            utterance = utterance + "You didn't manage to improve your " + goal_level_insert + " there " + optional_question
+                    elif behaviour in [Policy.A_QUESTIONING, Policy.A_QUESTIONING_FIRSTNAME,
+                                       Policy.A_QUESTIONING_POSITIVEMODELING,
+                                       Policy.A_POSITIVEMODELING_QUESTIONING, Policy.A_QUESTIONING_NEGATIVEMODELING]:
+                        if goal_level == PolicyWrapper.SESSION_GOAL:
+                            goal_level_insert = "squash"
+                        elif goal_level == PolicyWrapper.EXERCISE_GOAL:
+                            goal_level_insert = hand_utterance + shot_utterance
+                        elif goal_level == PolicyWrapper.STAT_GOAL or goal_level == PolicyWrapper.SET_GOAL:
+                            goal_level_insert = stat_utterance
+                        utterance = utterance + "How did your " + goal_level_insert + " feel there " + name + "? Touch the back of my hand if it fet good or the top of my head if you think it still needs work."
 
-                    behaviour_insert = ""
-                    if behaviour == Policy.A_CONSOLE or behaviour == Policy.A_CONSOLE_FIRSTNAME:
-                        behaviour_insert = "Unlucky"
-                    else:
-                        behaviour_insert = "Good"
-                    utterance = utterance + behaviour_insert + " " + name
+                    elif behaviour in [Policy.A_PRAISE, Policy.A_PRAISE_FIRSTNAME, Policy.A_POSITIVEMODELING_PRAISE,
+                                       Policy.A_CONSOLE, Policy.A_CONSOLE_FIRSTNAME]:
 
-                elif behaviour in [Policy.A_SCOLD, Policy.A_SCOLD_FIRSTNAME]:
-                    utterance = utterance + "That was not good " + name
+                        behaviour_insert = ""
+                        if behaviour == Policy.A_CONSOLE or behaviour == Policy.A_CONSOLE_FIRSTNAME:
+                            behaviour_insert = "Unlucky"
+                        else:
+                            behaviour_insert = "Good"
+                        utterance = utterance + behaviour_insert + " " + name
 
-        # Action Goal (each shot in squash or movement in rehab)
-        else:  # goal_level == self.ACTION_GOAL:
-            if behaviour in [Policy.A_CONCURRENTINSTRUCTIONPOSITIVE, Policy.A_CONCURRENTINSTRUCTIONPOSITIVE_QUESTIONING,
-                             Policy.A_CONCURRENTINSTRUCTIONPOSITIVE_FIRSTNAME,
-                             Policy.A_CONCURRENTINSTRUCTIONPOSITIVE_POSITIVEMODELING,
-                             Policy.A_POSITIVEMODELING_CONCURRENTINSTRUCTIONPOSITIVE]:
-                stat_insert = ""
-                if stat == "racketPreparation":
-                    stat_insert = "Racket up"
-                elif stat == "impactCutAngle":
-                    stat_insert = "Keep the racket face open"
-                elif stat == "followThroughTime":
-                    stat_insert = "Extend the follow through"
-                optional_question = ""
-                if behaviour == Policy.A_CONCURRENTINSTRUCTIONPOSITIVE_QUESTIONING:
-                    optional_question = "OK?"
-                utterance = utterance + stat_insert + " " + name + " " + optional_question
+                    elif behaviour in [Policy.A_SCOLD, Policy.A_SCOLD_FIRSTNAME]:
+                        utterance = utterance + "That was not good " + name
 
-            elif behaviour in [Policy.A_QUESTIONING, Policy.A_QUESTIONING_FIRSTNAME]:
-                stat_insert = ""
-                if stat == "racketPreparation":
-                    stat_insert = "Where did your racket start?"
-                elif stat == "impactCutAngle":
-                    stat_insert = "What angle was the racket face at?"
-                elif stat == "followThroughTime":
-                    stat_insert = "Where's the follow through going?"
-                utterance = utterance + stat_insert + " " + name
-
-            elif behaviour in [Policy.A_HUSTLE, Policy.A_HUSTLE_FIRSTNAME, Policy.A_POSITIVEMODELING_HUSTLE]:
-                utterance = utterance + "Keep going " + name
-
-            elif behaviour in [Policy.A_PRAISE, Policy.A_PRAISE_FIRSTNAME,
-                               Policy.A_CONCURRENTINSTRUCTIONPOSITIVE_PRAISE,
-                               Policy.A_POSITIVEMODELING_PRAISE]:
-                stat_insert = ""
-                if behaviour == Policy.A_CONCURRENTINSTRUCTIONPOSITIVE_PRAISE:
+            # Action Goal (each shot in squash or movement in rehab)
+            else:  # goal_level == self.ACTION_GOAL:
+                if behaviour in [Policy.A_CONCURRENTINSTRUCTIONPOSITIVE, Policy.A_CONCURRENTINSTRUCTIONPOSITIVE_QUESTIONING,
+                                 Policy.A_CONCURRENTINSTRUCTIONPOSITIVE_FIRSTNAME,
+                                 Policy.A_CONCURRENTINSTRUCTIONPOSITIVE_POSITIVEMODELING,
+                                 Policy.A_POSITIVEMODELING_CONCURRENTINSTRUCTIONPOSITIVE]:
+                    stat_insert = ""
                     if stat == "racketPreparation":
                         stat_insert = "Racket up"
                     elif stat == "impactCutAngle":
                         stat_insert = "Keep the racket face open"
                     elif stat == "followThroughTime":
                         stat_insert = "Extend the follow through"
-                utterance = utterance + "Good " + name + " " + stat_insert
+                    optional_question = ""
+                    if behaviour == Policy.A_CONCURRENTINSTRUCTIONPOSITIVE_QUESTIONING:
+                        optional_question = "OK?"
+                    utterance = utterance + stat_insert + " " + name + " " + optional_question
 
-            elif behaviour in [Policy.A_CONCURRENTINSTRUCTIONNEGATIVE,
-                               Policy.A_CONCURRENTINSTRUCTIONNEGATIVE_NEGATIVEMODELING,
-                               Policy.A_CONCURRENTINSTRUCTIONNEGATIVE_FIRSTNAME]:
-                stat_insert = ""
-                if stat == "racketPreparation":
-                    stat_insert = "Don't let the racket drop"
-                elif stat == "impactCutAngle":
-                    stat_insert = "Don't let the racket face close"
-                elif stat == "followThroughTime":
-                    stat_insert = "Make sure the follow through doesn't stop"
-                utterance = utterance + stat_insert + " " + name
+                elif behaviour in [Policy.A_QUESTIONING, Policy.A_QUESTIONING_FIRSTNAME]:
+                    stat_insert = ""
+                    if stat == "racketPreparation":
+                        stat_insert = "Where did your racket start?"
+                    elif stat == "impactCutAngle":
+                        stat_insert = "What angle was the racket face at?"
+                    elif stat == "followThroughTime":
+                        stat_insert = "Where's the follow through going?"
+                    utterance = utterance + stat_insert + " " + name
 
-            elif behaviour in [Policy.A_CONSOLE, Policy.A_CONSOLE_FIRSTNAME, Policy.A_SCOLD, Policy.A_SCOLD_FIRSTNAME]:
-                behaviour_insert = ""
-                if behaviour == Policy.A_CONSOLE or behaviour == Policy.A_CONSOLE_FIRSTNAME:
-                    behaviour_insert = "Unlucky"
+                elif behaviour in [Policy.A_HUSTLE, Policy.A_HUSTLE_FIRSTNAME, Policy.A_POSITIVEMODELING_HUSTLE]:
+                    utterance = utterance + "Keep going " + name
+
+                elif behaviour in [Policy.A_PRAISE, Policy.A_PRAISE_FIRSTNAME,
+                                   Policy.A_CONCURRENTINSTRUCTIONPOSITIVE_PRAISE,
+                                   Policy.A_POSITIVEMODELING_PRAISE]:
+                    stat_insert = ""
+                    if behaviour == Policy.A_CONCURRENTINSTRUCTIONPOSITIVE_PRAISE:
+                        if stat == "racketPreparation":
+                            stat_insert = "Racket up"
+                        elif stat == "impactCutAngle":
+                            stat_insert = "Keep the racket face open"
+                        elif stat == "followThroughTime":
+                            stat_insert = "Extend the follow through"
+                    utterance = utterance + "Good " + name + " " + stat_insert
+
+                elif behaviour in [Policy.A_CONCURRENTINSTRUCTIONNEGATIVE,
+                                   Policy.A_CONCURRENTINSTRUCTIONNEGATIVE_NEGATIVEMODELING,
+                                   Policy.A_CONCURRENTINSTRUCTIONNEGATIVE_FIRSTNAME]:
+                    stat_insert = ""
+                    if stat == "racketPreparation":
+                        stat_insert = "Don't let the racket drop"
+                    elif stat == "impactCutAngle":
+                        stat_insert = "Don't let the racket face close"
+                    elif stat == "followThroughTime":
+                        stat_insert = "Make sure the follow through doesn't stop"
+                    utterance = utterance + stat_insert + " " + name
+
+                elif behaviour in [Policy.A_CONSOLE, Policy.A_CONSOLE_FIRSTNAME, Policy.A_SCOLD, Policy.A_SCOLD_FIRSTNAME]:
+                    behaviour_insert = ""
+                    if behaviour == Policy.A_CONSOLE or behaviour == Policy.A_CONSOLE_FIRSTNAME:
+                        behaviour_insert = "Unlucky"
+                    else:
+                        behaviour_insert = "No"
+                    utterance = utterance + behaviour_insert + " " + name
+
+        elif utterance_choice == 1:
+
+            # Person Goal
+            if goal_level == PolicyWrapper.PERSON_GOAL:
+                if behaviour in [Policy.A_PREINSTRUCTION_FIRSTNAME, Policy.A_PREINSTRUCTION]:
+                    if behaviour != Policy.A_PREINSTRUCTION_FIRSTNAME:
+                        name = ""
+                    utterance = utterance + "Welcome " + name + ", to today's coaching session."
+                elif behaviour == Policy.A_END:
+                    utterance = "See you again soon!"
+
+            # Baseline Goal
+            elif goal_level == PolicyWrapper.BASELINE_GOAL:
+                if phase == PolicyWrapper.PHASE_START:
+                    utterance = utterance + "Firstly, 30 " + hand_utterance + " " + shot_utterance + "s to yourself please so I can see what your swing looks like"
+                    if behaviour == Policy.A_PREINSTRUCTION_QUESTIONING:
+                        utterance = utterance + ". OK?"
+                    if behaviour == Policy.A_PREINSTRUCTION_FIRSTNAME:
+                        utterance = utterance + name
                 else:
-                    behaviour_insert = "No"
-                utterance = utterance + behaviour_insert + " " + name
+                    utterance = "Nice one!"
+
+            # Session, Exercise, Stat and Set Goals will all have the same action categories (different individual actions)
+            elif goal_level == PolicyWrapper.SESSION_GOAL or goal_level == PolicyWrapper.EXERCISE_GOAL \
+                    or goal_level == PolicyWrapper.STAT_GOAL or goal_level == PolicyWrapper.SET_GOAL:
+                if phase == PolicyWrapper.PHASE_START:
+                    goal_level_insert = ""
+                    performance_insert = ""
+                    performance_reaction = ""
+                    if behaviour in [Policy.A_POSTINSTRUCTIONPOSITIVE, Policy.A_POSTINSTRUCTIONNEGATIVE,
+                                     Policy.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING,
+                                     Policy.A_POSTINSTRUCTIONPOSITIVE_FIRSTNAME,
+                                     Policy.A_POSTINSTRUCTIONNEGATIVE_QUESTIONING,
+                                     Policy.A_POSTINSTRUCTIONNEGATIVE_FIRSTNAME,
+                                     Policy.A_POSTINSTRUCTIONPOSITIVE_POSITIVE_MODELING,
+                                     Policy.A_POSTINSTRUCTIONPOSITIVE_NEGATIVE_MODELING,
+                                     Policy.A_POSTINSTRUCTIONNEGATIVE_POSITIVEMODELING,
+                                     Policy.A_POSTINSTRUCTIONNEGATIVE_NEGATIVEMODELING,
+                                     Policy.A_POSITIVEMODELING_POSTINSTRUCTIONPOSITIVE,
+                                     Policy.A_NEGATIVEMODELING_POSTINSTRUCTIONNEGATIVE]:
+                        if goal_level == PolicyWrapper.SESSION_GOAL:
+                            goal_level_insert = "squash"
+                        elif goal_level == PolicyWrapper.EXERCISE_GOAL:
+                            goal_level_insert = hand_utterance + " " + shot_utterance
+                        elif goal_level == PolicyWrapper.STAT_GOAL or goal_level == PolicyWrapper.SET_GOAL:
+                            goal_level_insert = stat_utterance
+
+                        utterance = utterance + "Previously, "
+                        performance_insert = ""
+                        performance_reaction = ""
+                        if performance == PolicyWrapper.MET or performance == PolicyWrapper.STEADY:
+                            performance_insert = "remained steady"
+                            performance_reaction = "which was great!"
+                        elif performance == PolicyWrapper.MUCH_IMPROVED:
+                            performance_insert = "got a lot better"
+                            performance_reaction = "which was great!"
+                        elif performance == PolicyWrapper.IMPROVED or performance == PolicyWrapper.IMPROVED_SWAP:
+                            performance_insert = "got better"
+                            performance_reaction = "which was great!"
+                        elif performance == PolicyWrapper.REGRESSED or performance == PolicyWrapper.REGRESSED_SWAP:
+                            performance_insert = "regressed slightly"
+                            performance_reaction = "but that's OK."
+                        elif performance == PolicyWrapper.MUCH_REGRESSED:
+                            performance_insert = "regressed"
+                            performance_reaction = "but that's OK!"
+                        if behaviour in [Policy.A_POSTINSTRUCTIONPOSITIVE, Policy.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING,
+                                         Policy.A_POSTINSTRUCTIONPOSITIVE_FIRSTNAME,
+                                         Policy.A_POSTINSTRUCTIONPOSITIVE_POSITIVE_MODELING,
+                                         Policy.A_POSTINSTRUCTIONPOSITIVE_NEGATIVE_MODELING,
+                                         Policy.A_POSITIVEMODELING_POSTINSTRUCTIONPOSITIVE]:
+                            optional_question = ""
+                            if behaviour == Policy.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING:
+                                optional_question = "didn't it?"
+                            if performance_insert == "":
+                                utterance = "This seems to be the first time we've looked at your " + goal_level_insert + " together " + optional_question + name
+                            else:
+                                utterance = utterance + " your " + goal_level_insert + " " + performance_insert + " " + optional_question + " " + name + " " + performance_reaction
+                        else:
+                            optional_question = ""
+                            if behaviour == Policy.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING:
+                                optional_question = "did you?"
+                            if performance_insert == "":
+                                utterance = "This seems to be the first time we've looked at your " + goal_level_insert + " together " + optional_question + name
+                            else:
+                                utterance = utterance + " your " + goal_level_insert + " " + performance_insert + " " + optional_question + " which was not good."
+                    elif behaviour in [Policy.A_QUESTIONING, Policy.A_QUESTIONING_FIRSTNAME,
+                                       Policy.A_QUESTIONING_POSITIVEMODELING,
+                                       Policy.A_POSITIVEMODELING_QUESTIONING, Policy.A_QUESTIONING_NEGATIVEMODELING]:
+                        if goal_level == PolicyWrapper.SESSION_GOAL:
+                            goal_level_insert = "squash"
+                        elif goal_level == PolicyWrapper.EXERCISE_GOAL:
+                            goal_level_insert = hand_utterance + shot_utterance
+                        elif goal_level == PolicyWrapper.STAT_GOAL or goal_level == PolicyWrapper.SET_GOAL:
+                            goal_level_insert = stat_utterance
+                        utterance = utterance + "Do you think your " + goal_level_insert + " got better last time we worked on it" + name + "?"
+
+                    elif behaviour in [Policy.A_PREINSTRUCTION, Policy.A_PREINSTRUCTION_QUESTIONING,
+                                       Policy.A_PREINSTRUCTION_FIRSTNAME, Policy.A_PREINSTRUCTION_POSITIVEMODELING,
+                                       Policy.A_POSITIVEMODELING_PREINSTRUCTION]:
+                        stat_advice = "the first thing that happens is your racket goes up"
+                        if stat == "impactCutAngle":
+                            stat_advice = "your racket face stays open as you strike the ball"
+                        elif stat == "followThroughTime":
+                            stat_advice = "your follow through goes towards where you want the ball to go"
+                        if goal_level == PolicyWrapper.SET_GOAL:
+                            if final_set:
+                                utterance = utterance + "Time for one last set of 30 " + hand_utterance + " " + shot_utterance + "s please. Hopefully this session has helped you improve your " + stat_utterance + ". Let's find out!"
+                            else:
+                                utterance = utterance + "Lets do another set of 30 " + hand_utterance + " " + shot_utterance + "s. The key thing here is to make sure that " + stat_advice
+                                if behaviour == Policy.A_PREINSTRUCTION_QUESTIONING:
+                                    utterance = utterance + ". OK?"
+                                if behaviour == Policy.A_PREINSTRUCTION_FIRSTNAME:
+                                    utterance = utterance + " " + name
+                        else:
+                            if goal_level == PolicyWrapper.SESSION_GOAL:
+                                goal_level_insert = "I'm going to coach you through a solo practice session. We'll work on your " + hand_utterance + " " + shot_utterance
+                            elif goal_level == PolicyWrapper.EXERCISE_GOAL:
+                                goal_level_insert = "I want you to focus on getting your " + hand_utterance + " " + shot_utterance + " dying in the back corner. It should get past your opponent's volley. One of the key things with the " + hand_utterance + " " + shot_utterance + " is to make sure that " + stat_advice
+                            elif goal_level == PolicyWrapper.STAT_GOAL:
+                                goal_level_insert = "let's make sure on every shot you play, " + stat_advice
+
+                            optional_question = ""
+                            if behaviour == Policy.A_PREINSTRUCTION_QUESTIONING:
+                                optional_question = "Do you agree?"
+
+                            utterance = utterance + "Today " + name + ", " + goal_level_insert + ". " + optional_question
+
+                    elif behaviour == Policy.A_PREINSTRUCTION_NEGATIVEMODELING:
+                        stat_advice = "your racket does not start down by your side"
+                        if stat == "impactCutAngle":
+                            stat_advice = "you don't close the racket face at the point of impact"
+                        elif stat == "followThroughTime":
+                            stat_advice = "you don't let the follow through come round yourself"
+                        if goal_level == PolicyWrapper.SET_GOAL:
+                            if final_set:
+                                utterance = utterance + "Time for one last set of 30 " + hand_utterance + " " + shot_utterance + "s. Your " + stat_utterance + " should not have deteriorated over the session!"
+                            else:
+                                utterance = utterance + "Lets do another set of 30 " + hand_utterance + " " + shot_utterance + "s. The key thing here is to make sure that " + stat_advice
+                                if behaviour == Policy.A_PREINSTRUCTION_QUESTIONING:
+                                    utterance = utterance + ". OK?"
+                                if behaviour == Policy.A_PREINSTRUCTION_FIRSTNAME:
+                                    utterance = utterance + " " + name
+                        else:
+                            shot_advice = "hitting your " + hand_utterance + " " + shot_utterance + " into an area where your opponent can volley it easily."
+                            if goal_level == PolicyWrapper.SESSION_GOAL:
+                                goal_level_insert = "I'm going to coach you through a solo practice session. Make sure you're not " + shot_advice
+                            elif goal_level == PolicyWrapper.EXERCISE_GOAL:
+                                goal_level_insert = "with every shot you play. Make sure you're not " + shot_advice + ". It will help if " + stat_advice
+                            elif goal_level == PolicyWrapper.STAT_GOAL:
+                                goal_level_insert = "I need you to make sure " + stat_advice
+
+                            utterance = utterance + "Today " + name + ", " + goal_level_insert
+
+                    elif behaviour in [Policy.A_PRAISE, Policy.A_PRAISE_FIRSTNAME, Policy.A_POSITIVEMODELING_PRAISE,
+                                       Policy.A_CONSOLE, Policy.A_CONSOLE_FIRSTNAME]:
+                        if goal_level == PolicyWrapper.SESSION_GOAL:
+                            goal_level_insert = "session"
+                        elif goal_level == PolicyWrapper.EXERCISE_GOAL:
+                            goal_level_insert = hand_utterance + " " + shot_utterance + " sets"
+                        elif goal_level == PolicyWrapper.STAT_GOAL:
+                            goal_level_insert = stat_utterance + " work"
+                        elif goal_level == PolicyWrapper.SET_GOAL:
+                            goal_level_insert = "set"
+
+                        behaviour_insert = ""
+                        if behaviour == Policy.A_CONSOLE or behaviour == Policy.A_CONSOLE_FIRSTNAME:
+                            behaviour_insert = " things didn't quite go your way."
+                        else:
+                            behaviour_insert = " you did well!"
+                        utterance = utterance + "In your previous " + goal_level_insert + " " + name + " " + behaviour_insert
+
+                    elif behaviour in [Policy.A_SCOLD, Policy.A_SCOLD_FIRSTNAME]:
+                        if goal_level == PolicyWrapper.SESSION_GOAL:
+                            goal_level_insert = "session"
+                        elif goal_level == PolicyWrapper.EXERCISE_GOAL:
+                            goal_level_insert = hand_utterance + " " + shot_utterance + " sets"
+                        elif goal_level == PolicyWrapper.STAT_GOAL:
+                            goal_level_insert = stat_utterance + " work"
+                        elif goal_level == PolicyWrapper.SET_GOAL:
+                            goal_level_insert = "set"
+                        utterance = utterance + "Your previous " + goal_level_insert + " was not good " + name
+
+                else:  # phase == self.PHASE_END
+                    goal_level_insert = ""
+                    performance_insert = ""
+                    performance_reaction = ""
+                    if goal_level == PolicyWrapper.SESSION_GOAL:
+                        goal_level_insert = "squash"
+                        if behaviour == Policy.A_END:
+                            utterance = "I enjoyed today's session. I hope you did too!"
+                    elif goal_level == PolicyWrapper.EXERCISE_GOAL:
+                        goal_level_insert = hand_utterance + shot_utterance
+                    elif goal_level == PolicyWrapper.STAT_GOAL or goal_level == PolicyWrapper.SET_GOAL:
+                        goal_level_insert = stat_utterance
+                    if behaviour in [Policy.A_POSTINSTRUCTIONPOSITIVE, Policy.A_POSTINSTRUCTIONNEGATIVE,
+                                     Policy.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING,
+                                     Policy.A_POSTINSTRUCTIONPOSITIVE_FIRSTNAME,
+                                     Policy.A_POSTINSTRUCTIONNEGATIVE_QUESTIONING,
+                                     Policy.A_POSTINSTRUCTIONNEGATIVE_FIRSTNAME,
+                                     Policy.A_POSTINSTRUCTIONPOSITIVE_POSITIVE_MODELING,
+                                     Policy.A_POSTINSTRUCTIONPOSITIVE_NEGATIVE_MODELING,
+                                     Policy.A_POSTINSTRUCTIONNEGATIVE_POSITIVEMODELING,
+                                     Policy.A_POSTINSTRUCTIONNEGATIVE_NEGATIVEMODELING,
+                                     Policy.A_POSITIVEMODELING_POSTINSTRUCTIONPOSITIVE,
+                                     Policy.A_NEGATIVEMODELING_POSTINSTRUCTIONNEGATIVE]:
+
+                        performance_insert = ""
+                        performance_reaction = ""
+                        if performance == PolicyWrapper.MET or performance == PolicyWrapper.STEADY:
+                            performance_insert = "remained steady"
+                            performance_reaction = "which was great!"
+                        elif performance == PolicyWrapper.MUCH_IMPROVED:
+                            performance_insert = "got a lot better"
+                            performance_reaction = "which was great!"
+                        elif performance == PolicyWrapper.IMPROVED or performance == PolicyWrapper.IMPROVED_SWAP:
+                            performance_insert = "got better"
+                            performance_reaction = "which was great!"
+                        elif performance == PolicyWrapper.REGRESSED or performance == PolicyWrapper.REGRESSED_SWAP:
+                            performance_insert = "regressed slightly"
+                            performance_reaction = "but that's OK."
+                        elif performance == PolicyWrapper.MUCH_REGRESSED:
+                            performance_insert = "regressed"
+                            performance_reaction = "but that's OK!"
+                        if behaviour in [Policy.A_POSTINSTRUCTIONPOSITIVE, Policy.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING,
+                                         Policy.A_POSTINSTRUCTIONPOSITIVE_FIRSTNAME,
+                                         Policy.A_POSTINSTRUCTIONPOSITIVE_POSITIVE_MODELING,
+                                         Policy.A_POSTINSTRUCTIONPOSITIVE_NEGATIVE_MODELING,
+                                         Policy.A_POSITIVEMODELING_POSTINSTRUCTIONPOSITIVE]:
+                            optional_question = ""
+                            if behaviour == Policy.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING:
+                                optional_question = "didn't it?"
+                            utterance = utterance + "Your " + goal_level_insert + " " + performance_insert + "in that practice " + optional_question + " " + name + " " + performance_reaction
+                        else:
+                            optional_question = ""
+                            if behaviour == Policy.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING:
+                                optional_question = "did you?"
+                            utterance = "Your " + goal_level_insert + " " + performance_insert + " there " + optional_question + " which was not good."
+
+                    elif behaviour in [Policy.A_QUESTIONING, Policy.A_QUESTIONING_FIRSTNAME,
+                                       Policy.A_QUESTIONING_POSITIVEMODELING,
+                                       Policy.A_POSITIVEMODELING_QUESTIONING, Policy.A_QUESTIONING_NEGATIVEMODELING]:
+                        if goal_level == PolicyWrapper.SESSION_GOAL:
+                            goal_level_insert = "squash"
+                        elif goal_level == PolicyWrapper.EXERCISE_GOAL:
+                            goal_level_insert = hand_utterance + shot_utterance
+                        elif goal_level == PolicyWrapper.STAT_GOAL or goal_level == PolicyWrapper.SET_GOAL:
+                            goal_level_insert = stat_utterance
+                        utterance = utterance + "Do you think your " + goal_level_insert + " improved there " + name + "?"
+
+                    elif behaviour in [Policy.A_PRAISE, Policy.A_PRAISE_FIRSTNAME, Policy.A_POSITIVEMODELING_PRAISE,
+                                       Policy.A_CONSOLE, Policy.A_CONSOLE_FIRSTNAME]:
+
+                        behaviour_insert = ""
+                        if behaviour == Policy.A_CONSOLE or behaviour == Policy.A_CONSOLE_FIRSTNAME:
+                            behaviour_insert = "Hard luck there"
+                        else:
+                            behaviour_insert = "That was nicely done"
+                        utterance = utterance + behaviour_insert + " " + name
+
+                    elif behaviour in [Policy.A_SCOLD, Policy.A_SCOLD_FIRSTNAME]:
+                        utterance = utterance + "That was badly done " + name
+
+            # Action Goal (each shot in squash or movement in rehab)
+            else:  # goal_level == self.ACTION_GOAL:
+                if behaviour in [Policy.A_CONCURRENTINSTRUCTIONPOSITIVE,
+                                 Policy.A_CONCURRENTINSTRUCTIONPOSITIVE_QUESTIONING,
+                                 Policy.A_CONCURRENTINSTRUCTIONPOSITIVE_FIRSTNAME,
+                                 Policy.A_CONCURRENTINSTRUCTIONPOSITIVE_POSITIVEMODELING,
+                                 Policy.A_POSITIVEMODELING_CONCURRENTINSTRUCTIONPOSITIVE]:
+                    stat_insert = ""
+                    if stat == "racketPreparation":
+                        stat_insert = "Get the racket high early"
+                    elif stat == "impactCutAngle":
+                        stat_insert = "Open racket face"
+                    elif stat == "followThroughTime":
+                        stat_insert = "Pay attention to the line of the follow through"
+                    optional_question = ""
+                    if behaviour == Policy.A_CONCURRENTINSTRUCTIONPOSITIVE_QUESTIONING:
+                        optional_question = "OK?"
+                    utterance = utterance + stat_insert + " " + name + " " + optional_question
+
+                elif behaviour in [Policy.A_QUESTIONING, Policy.A_QUESTIONING_FIRSTNAME]:
+                    stat_insert = ""
+                    if stat == "racketPreparation":
+                        stat_insert = "Where was the racket prep?"
+                    elif stat == "impactCutAngle":
+                        stat_insert = "Was that an open racket face?"
+                    elif stat == "followThroughTime":
+                        stat_insert = "What line was the follow through on there?"
+                    utterance = utterance + stat_insert + " " + name
+
+                elif behaviour in [Policy.A_HUSTLE, Policy.A_HUSTLE_FIRSTNAME, Policy.A_POSITIVEMODELING_HUSTLE]:
+                    utterance = utterance + "Keep it up " + name
+
+                elif behaviour in [Policy.A_PRAISE, Policy.A_PRAISE_FIRSTNAME,
+                                   Policy.A_CONCURRENTINSTRUCTIONPOSITIVE_PRAISE,
+                                   Policy.A_POSITIVEMODELING_PRAISE]:
+                    stat_insert = ""
+                    if behaviour == Policy.A_CONCURRENTINSTRUCTIONPOSITIVE_PRAISE:
+                        if stat == "racketPreparation":
+                            stat_insert = "racket prep"
+                        elif stat == "impactCutAngle":
+                            stat_insert = "open racket face"
+                        elif stat == "followThroughTime":
+                            stat_insert = "follow through"
+                    utterance = utterance + "Nice " + stat_insert + " " + name
+
+                elif behaviour in [Policy.A_CONCURRENTINSTRUCTIONNEGATIVE,
+                                   Policy.A_CONCURRENTINSTRUCTIONNEGATIVE_NEGATIVEMODELING,
+                                   Policy.A_CONCURRENTINSTRUCTIONNEGATIVE_FIRSTNAME]:
+                    stat_insert = ""
+                    if stat == "racketPreparation":
+                        stat_insert = "Your racket's not high enough"
+                    elif stat == "impactCutAngle":
+                        stat_insert = "That was a closed racket face"
+                    elif stat == "followThroughTime":
+                        stat_insert = "You're not extending the follow through"
+                    utterance = utterance + stat_insert + " " + name
+
+                elif behaviour in [Policy.A_CONSOLE, Policy.A_CONSOLE_FIRSTNAME, Policy.A_SCOLD,
+                                   Policy.A_SCOLD_FIRSTNAME]:
+                    behaviour_insert = ""
+                    if behaviour == Policy.A_CONSOLE or behaviour == Policy.A_CONSOLE_FIRSTNAME:
+                        behaviour_insert = "Hard luck"
+                    else:
+                        behaviour_insert = "Aahh, not good"
+                    utterance = utterance + behaviour_insert + " " + name
+
+        elif utterance_choice == 2:
+            # TODO: 2 and 3
+
+            # Person Goal
+            if goal_level == PolicyWrapper.PERSON_GOAL:
+                if behaviour in [Policy.A_PREINSTRUCTION_FIRSTNAME, Policy.A_PREINSTRUCTION]:
+                    if behaviour != Policy.A_PREINSTRUCTION_FIRSTNAME:
+                        name = ""
+                    utterance = utterance + "Hello " + name + ", welcome to today's session."
+                elif behaviour == Policy.A_END:
+                    utterance = "Goodbye"
+
+            # Baseline Goal
+            elif goal_level == PolicyWrapper.BASELINE_GOAL:
+                if phase == PolicyWrapper.PHASE_START:
+                    utterance = utterance + "To start, play a set of 30 " + hand_utterance + " " + shot_utterance + "s please so I can have a look at your technique"
+                    if behaviour == Policy.A_PREINSTRUCTION_QUESTIONING:
+                        utterance = utterance + ". OK?"
+                    if behaviour == Policy.A_PREINSTRUCTION_FIRSTNAME:
+                        utterance = utterance + name
+                else:
+                    utterance = "Good"
+
+            # Session, Exercise, Stat and Set Goals will all have the same action categories (different individual actions)
+            elif goal_level == PolicyWrapper.SESSION_GOAL or goal_level == PolicyWrapper.EXERCISE_GOAL \
+                    or goal_level == PolicyWrapper.STAT_GOAL or goal_level == PolicyWrapper.SET_GOAL:
+                if phase == PolicyWrapper.PHASE_START:
+                    goal_level_insert = ""
+                    performance_insert = ""
+                    performance_reaction = ""
+                    if behaviour in [Policy.A_POSTINSTRUCTIONPOSITIVE, Policy.A_POSTINSTRUCTIONNEGATIVE,
+                                     Policy.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING,
+                                     Policy.A_POSTINSTRUCTIONPOSITIVE_FIRSTNAME,
+                                     Policy.A_POSTINSTRUCTIONNEGATIVE_QUESTIONING,
+                                     Policy.A_POSTINSTRUCTIONNEGATIVE_FIRSTNAME,
+                                     Policy.A_POSTINSTRUCTIONPOSITIVE_POSITIVE_MODELING,
+                                     Policy.A_POSTINSTRUCTIONPOSITIVE_NEGATIVE_MODELING,
+                                     Policy.A_POSTINSTRUCTIONNEGATIVE_POSITIVEMODELING,
+                                     Policy.A_POSTINSTRUCTIONNEGATIVE_NEGATIVEMODELING,
+                                     Policy.A_POSITIVEMODELING_POSTINSTRUCTIONPOSITIVE,
+                                     Policy.A_NEGATIVEMODELING_POSTINSTRUCTIONNEGATIVE]:
+                        if goal_level == PolicyWrapper.SESSION_GOAL:
+                            goal_level_insert = "performance"
+                        elif goal_level == PolicyWrapper.EXERCISE_GOAL:
+                            goal_level_insert = hand_utterance + " " + shot_utterance
+                        elif goal_level == PolicyWrapper.STAT_GOAL or goal_level == PolicyWrapper.SET_GOAL:
+                            goal_level_insert = stat_utterance
+
+                        utterance = utterance + "Last time, "
+                        performance_insert = ""
+                        performance_reaction = ""
+                        if performance == PolicyWrapper.MET or performance == PolicyWrapper.STEADY:
+                            performance_insert = "stayed consistent"
+                            performance_reaction = "so well done!"
+                        elif performance == PolicyWrapper.MUCH_IMPROVED:
+                            performance_insert = "improved a lot"
+                            performance_reaction = "so well done!"
+                        elif performance == PolicyWrapper.IMPROVED or performance == PolicyWrapper.IMPROVED_SWAP:
+                            performance_insert = "improved"
+                            performance_reaction = "so well done!"
+                        elif performance == PolicyWrapper.REGRESSED or performance == PolicyWrapper.REGRESSED_SWAP:
+                            performance_insert = "got a little worse"
+                            performance_reaction = "but don't worry!"
+                        elif performance == PolicyWrapper.MUCH_REGRESSED:
+                            performance_insert = "got worse"
+                            performance_reaction = "but don't worry!"
+                        if behaviour in [Policy.A_POSTINSTRUCTIONPOSITIVE, Policy.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING,
+                                         Policy.A_POSTINSTRUCTIONPOSITIVE_FIRSTNAME,
+                                         Policy.A_POSTINSTRUCTIONPOSITIVE_POSITIVE_MODELING,
+                                         Policy.A_POSTINSTRUCTIONPOSITIVE_NEGATIVE_MODELING,
+                                         Policy.A_POSITIVEMODELING_POSTINSTRUCTIONPOSITIVE]:
+                            optional_question = ""
+                            if behaviour == Policy.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING:
+                                optional_question = "didn't it?"
+                            if performance_insert == "":
+                                utterance = "I think this is the first time we've worked on your " + goal_level_insert + " together " + optional_question + name
+                            else:
+                                utterance = utterance + " your " + goal_level_insert + " " + performance_insert + " " + optional_question + " " + name + " " + performance_reaction
+                        else:
+                            optional_question = ""
+                            if behaviour == Policy.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING:
+                                optional_question = "did you?"
+                            if performance_insert == "":
+                                utterance = "I think this is the first time we've worked on your " + goal_level_insert + " together " + optional_question + name
+                            else:
+                                utterance = utterance + " you didn't do well with your " + goal_level_insert + optional_question
+                    elif behaviour in [Policy.A_QUESTIONING, Policy.A_QUESTIONING_FIRSTNAME,
+                                       Policy.A_QUESTIONING_POSITIVEMODELING,
+                                       Policy.A_POSITIVEMODELING_QUESTIONING, Policy.A_QUESTIONING_NEGATIVEMODELING]:
+                        if goal_level == PolicyWrapper.SESSION_GOAL:
+                            goal_level_insert = "performance"
+                        elif goal_level == PolicyWrapper.EXERCISE_GOAL:
+                            goal_level_insert = hand_utterance + shot_utterance
+                        elif goal_level == PolicyWrapper.STAT_GOAL or goal_level == PolicyWrapper.SET_GOAL:
+                            goal_level_insert = stat_utterance
+                        utterance = utterance + "How did your " + goal_level_insert + " feel last time" + name + "? Touch the back of my hand if it fet good or the top of my head if you think it still needs work."
+
+                    elif behaviour in [Policy.A_PREINSTRUCTION, Policy.A_PREINSTRUCTION_QUESTIONING,
+                                       Policy.A_PREINSTRUCTION_FIRSTNAME, Policy.A_PREINSTRUCTION_POSITIVEMODELING,
+                                       Policy.A_POSITIVEMODELING_PREINSTRUCTION]:
+                        stat_advice = "get your racket up early"
+                        if stat == "impactCutAngle":
+                            stat_advice = "try to keep your racket face open"
+                        elif stat == "followThroughTime":
+                            stat_advice = "to extend that follow through towards the target"
+                        if goal_level == PolicyWrapper.SET_GOAL:
+                            if final_set:
+                                utterance = utterance + "Play a final set of 30 " + hand_utterance + " " + shot_utterance + "s please. Let's see how much your " + stat_utterance + " has improved over the session!"
+                            else:
+                                utterance = utterance + "Play another set of 30 " + hand_utterance + " " + shot_utterance + "s please. Remember, " + stat_advice
+                                if behaviour == Policy.A_PREINSTRUCTION_QUESTIONING:
+                                    utterance = utterance + ". OK?"
+                                if behaviour == Policy.A_PREINSTRUCTION_FIRSTNAME:
+                                    utterance = utterance + " " + name
+                        else:
+                            if goal_level == PolicyWrapper.SESSION_GOAL:
+                                goal_level_insert = "do a solo practice session and I'm going to coach you. We'll work on your " + hand_utterance + " " + shot_utterance
+                            elif goal_level == PolicyWrapper.EXERCISE_GOAL:
+                                goal_level_insert = "focus on your " + hand_utterance + " " + shot_utterance + ", paying specific attention to the " + stat_utterance
+                            elif goal_level == PolicyWrapper.STAT_GOAL:
+                                goal_level_insert = "get started with your " + stat_utterance
+
+                            optional_question = ""
+                            if behaviour == Policy.A_PREINSTRUCTION_QUESTIONING:
+                                optional_question = "Does that sound good?"
+
+                            utterance = utterance + "Today " + name + ", we're going to " + goal_level_insert + ". " + optional_question
+
+                    elif behaviour == Policy.A_PREINSTRUCTION_NEGATIVEMODELING:
+                        stat_advice = "let your racket preparation drop"
+                        if stat == "impactCutAngle":
+                            stat_advice = "let your racket face close"
+                        elif stat == "followThroughTime":
+                            stat_advice = "stop your follow through too short"
+                        if goal_level == PolicyWrapper.SET_GOAL:
+                            if final_set:
+                                utterance = utterance + "Play a final set of 30 " + hand_utterance + " " + shot_utterance + "s please. Let's hope your " + stat_utterance + " hasn't gotten worse over the session!"
+                            else:
+                                utterance = utterance + "Play another set of 30 " + hand_utterance + " " + shot_utterance + "s please. Remember, don't " + stat_advice
+                                if behaviour == Policy.A_PREINSTRUCTION_QUESTIONING:
+                                    utterance = utterance + ". OK?"
+                                if behaviour == Policy.A_PREINSTRUCTION_FIRSTNAME:
+                                    utterance = utterance + " " + name
+                        else:
+                            shot_advice = "letting your " + hand_utterance + " " + shot_utterance + " land too short."
+                            if shot == 5:
+                                shot_advice = "hitting you " + hand_utterance + " " + shot_utterance + " onto your opponent's volley."
+                            if goal_level == PolicyWrapper.SESSION_GOAL:
+                                goal_level_insert = "do a solo practice session and I'm going to coach you. We'll work on not " + shot_advice
+                            elif goal_level == PolicyWrapper.EXERCISE_GOAL:
+                                goal_level_insert = "focus on not " + shot_advice + ", remembering to not " + stat_advice
+                            elif goal_level == PolicyWrapper.STAT_GOAL:
+                                goal_level_insert = "play some " + shot_utterance + "'s. I need you to remember to not " + stat_advice
+
+                            utterance = utterance + "Today " + name + ", we're going to " + goal_level_insert
+
+                    elif behaviour in [Policy.A_PRAISE, Policy.A_PRAISE_FIRSTNAME, Policy.A_POSITIVEMODELING_PRAISE,
+                                       Policy.A_CONSOLE, Policy.A_CONSOLE_FIRSTNAME]:
+                        if goal_level == PolicyWrapper.SESSION_GOAL:
+                            goal_level_insert = "session"
+                        elif goal_level == PolicyWrapper.EXERCISE_GOAL:
+                            goal_level_insert = "time we worked on your " + hand_utterance + " " + shot_utterance
+                        elif goal_level == PolicyWrapper.STAT_GOAL:
+                            goal_level_insert = "time we worked on your " + stat_utterance
+                        elif goal_level == PolicyWrapper.SET_GOAL:
+                            goal_level_insert = "set"
+
+                        behaviour_insert = ""
+                        if behaviour == Policy.A_CONSOLE or behaviour == Policy.A_CONSOLE_FIRSTNAME:
+                            behaviour_insert = "Unlucky"
+                        else:
+                            behaviour_insert = "Well done"
+                        utterance = utterance + behaviour_insert + " for the last " + goal_level_insert + " " + name
+
+                    elif behaviour in [Policy.A_SCOLD, Policy.A_SCOLD_FIRSTNAME]:
+                        if goal_level == PolicyWrapper.SESSION_GOAL:
+                            goal_level_insert = "session"
+                        elif goal_level == PolicyWrapper.EXERCISE_GOAL:
+                            goal_level_insert = "time we worked on your " + hand_utterance + " " + shot_utterance
+                        elif goal_level == PolicyWrapper.STAT_GOAL:
+                            goal_level_insert = "time we worked on your " + stat_utterance
+                        elif goal_level == PolicyWrapper.SET_GOAL:
+                            goal_level_insert = "set"
+                        utterance = utterance + "That last " + goal_level_insert + " was bad " + name
+
+                else:  # phase == self.PHASE_END
+                    goal_level_insert = ""
+                    performance_insert = ""
+                    performance_reaction = ""
+                    if goal_level == PolicyWrapper.SESSION_GOAL:
+                        goal_level_insert = "performance"
+                        if behaviour == Policy.A_END:
+                            utterance = "Thank you for practicing with me today!"
+                    elif goal_level == PolicyWrapper.EXERCISE_GOAL:
+                        goal_level_insert = hand_utterance + shot_utterance
+                    elif goal_level == PolicyWrapper.STAT_GOAL or goal_level == PolicyWrapper.SET_GOAL:
+                        goal_level_insert = stat_utterance
+                    if behaviour in [Policy.A_POSTINSTRUCTIONPOSITIVE, Policy.A_POSTINSTRUCTIONNEGATIVE,
+                                     Policy.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING,
+                                     Policy.A_POSTINSTRUCTIONPOSITIVE_FIRSTNAME,
+                                     Policy.A_POSTINSTRUCTIONNEGATIVE_QUESTIONING,
+                                     Policy.A_POSTINSTRUCTIONNEGATIVE_FIRSTNAME,
+                                     Policy.A_POSTINSTRUCTIONPOSITIVE_POSITIVE_MODELING,
+                                     Policy.A_POSTINSTRUCTIONPOSITIVE_NEGATIVE_MODELING,
+                                     Policy.A_POSTINSTRUCTIONNEGATIVE_POSITIVEMODELING,
+                                     Policy.A_POSTINSTRUCTIONNEGATIVE_NEGATIVEMODELING,
+                                     Policy.A_POSITIVEMODELING_POSTINSTRUCTIONPOSITIVE,
+                                     Policy.A_NEGATIVEMODELING_POSTINSTRUCTIONNEGATIVE]:
+
+                        if performance == PolicyWrapper.MET or performance == PolicyWrapper.STEADY:
+                            performance_insert = "stayed consistent"
+                            performance_reaction = "so well done!"
+                        elif performance == PolicyWrapper.MUCH_IMPROVED:
+                            performance_insert = "improved a lot"
+                            performance_reaction = "so well done!"
+                        elif performance == PolicyWrapper.IMPROVED or performance == PolicyWrapper.IMPROVED_SWAP:
+                            performance_insert = "improved"
+                            performance_reaction = "so well done!"
+                        elif performance == PolicyWrapper.REGRESSED or performance == PolicyWrapper.REGRESSED_SWAP:
+                            performance_insert = "got a little worse"
+                            performance_reaction = "but don't worry!"
+                        elif performance == PolicyWrapper.MUCH_REGRESSED:
+                            performance_insert = "got worse"
+                            performance_reaction = "but don't worry!"
+                        if behaviour in [Policy.A_POSTINSTRUCTIONPOSITIVE, Policy.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING,
+                                         Policy.A_POSTINSTRUCTIONPOSITIVE_FIRSTNAME,
+                                         Policy.A_POSTINSTRUCTIONPOSITIVE_POSITIVE_MODELING,
+                                         Policy.A_POSTINSTRUCTIONPOSITIVE_NEGATIVE_MODELING,
+                                         Policy.A_POSITIVEMODELING_POSTINSTRUCTIONPOSITIVE]:
+                            optional_question = ""
+                            if behaviour == Policy.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING:
+                                optional_question = "didn't it?"
+                            utterance = utterance + "Your " + goal_level_insert + " " + performance_insert + "there " + optional_question + " " + name + " " + performance_reaction
+                        else:
+                            optional_question = ""
+                            if behaviour == Policy.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING:
+                                optional_question = "did you?"
+                            utterance = utterance + "You didn't manage to improve your " + goal_level_insert + " there " + optional_question
+                    elif behaviour in [Policy.A_QUESTIONING, Policy.A_QUESTIONING_FIRSTNAME,
+                                       Policy.A_QUESTIONING_POSITIVEMODELING,
+                                       Policy.A_POSITIVEMODELING_QUESTIONING, Policy.A_QUESTIONING_NEGATIVEMODELING]:
+                        utterance = utterance + "How did your " + goal_level_insert + " feel there " + name + "? Touch the back of my hand if it fet good or the top of my head if you think it still needs work."
+
+                    elif behaviour in [Policy.A_PRAISE, Policy.A_PRAISE_FIRSTNAME, Policy.A_POSITIVEMODELING_PRAISE,
+                                       Policy.A_CONSOLE, Policy.A_CONSOLE_FIRSTNAME]:
+
+                        behaviour_insert = ""
+                        if behaviour == Policy.A_CONSOLE or behaviour == Policy.A_CONSOLE_FIRSTNAME:
+                            behaviour_insert = "Unlucky"
+                        else:
+                            behaviour_insert = "Good"
+                        utterance = utterance + behaviour_insert + " " + name
+
+                    elif behaviour in [Policy.A_SCOLD, Policy.A_SCOLD_FIRSTNAME]:
+                        utterance = utterance + "That was not good " + name
+
+            # Action Goal (each shot in squash or movement in rehab)
+            else:  # goal_level == self.ACTION_GOAL:
+                if behaviour in [Policy.A_CONCURRENTINSTRUCTIONPOSITIVE,
+                                 Policy.A_CONCURRENTINSTRUCTIONPOSITIVE_QUESTIONING,
+                                 Policy.A_CONCURRENTINSTRUCTIONPOSITIVE_FIRSTNAME,
+                                 Policy.A_CONCURRENTINSTRUCTIONPOSITIVE_POSITIVEMODELING,
+                                 Policy.A_POSITIVEMODELING_CONCURRENTINSTRUCTIONPOSITIVE]:
+                    stat_insert = ""
+                    if stat == "racketPreparation":
+                        stat_insert = "Racket up"
+                    elif stat == "impactCutAngle":
+                        stat_insert = "Keep the racket face open"
+                    elif stat == "followThroughTime":
+                        stat_insert = "Extend the follow through"
+                    optional_question = ""
+                    if behaviour == Policy.A_CONCURRENTINSTRUCTIONPOSITIVE_QUESTIONING:
+                        optional_question = "OK?"
+                    utterance = utterance + stat_insert + " " + name + " " + optional_question
+
+                elif behaviour in [Policy.A_QUESTIONING, Policy.A_QUESTIONING_FIRSTNAME]:
+                    stat_insert = ""
+                    if stat == "racketPreparation":
+                        stat_insert = "Where did your racket start?"
+                    elif stat == "impactCutAngle":
+                        stat_insert = "What angle was the racket face at?"
+                    elif stat == "followThroughTime":
+                        stat_insert = "Where's the follow through going?"
+                    utterance = utterance + stat_insert + " " + name
+
+                elif behaviour in [Policy.A_HUSTLE, Policy.A_HUSTLE_FIRSTNAME, Policy.A_POSITIVEMODELING_HUSTLE]:
+                    utterance = utterance + "Keep going " + name
+
+                elif behaviour in [Policy.A_PRAISE, Policy.A_PRAISE_FIRSTNAME,
+                                   Policy.A_CONCURRENTINSTRUCTIONPOSITIVE_PRAISE,
+                                   Policy.A_POSITIVEMODELING_PRAISE]:
+                    stat_insert = ""
+                    if behaviour == Policy.A_CONCURRENTINSTRUCTIONPOSITIVE_PRAISE:
+                        if stat == "racketPreparation":
+                            stat_insert = "Racket up"
+                        elif stat == "impactCutAngle":
+                            stat_insert = "Keep the racket face open"
+                        elif stat == "followThroughTime":
+                            stat_insert = "Extend the follow through"
+                    utterance = utterance + "Good " + name + " " + stat_insert
+
+                elif behaviour in [Policy.A_CONCURRENTINSTRUCTIONNEGATIVE,
+                                   Policy.A_CONCURRENTINSTRUCTIONNEGATIVE_NEGATIVEMODELING,
+                                   Policy.A_CONCURRENTINSTRUCTIONNEGATIVE_FIRSTNAME]:
+                    stat_insert = ""
+                    if stat == "racketPreparation":
+                        stat_insert = "Don't let the racket drop"
+                    elif stat == "impactCutAngle":
+                        stat_insert = "Don't let the racket face close"
+                    elif stat == "followThroughTime":
+                        stat_insert = "Make sure the follow through doesn't stop"
+                    utterance = utterance + stat_insert + " " + name
+
+                elif behaviour in [Policy.A_CONSOLE, Policy.A_CONSOLE_FIRSTNAME, Policy.A_SCOLD,
+                                   Policy.A_SCOLD_FIRSTNAME]:
+                    behaviour_insert = ""
+                    if behaviour == Policy.A_CONSOLE or behaviour == Policy.A_CONSOLE_FIRSTNAME:
+                        behaviour_insert = "Unlucky"
+                    else:
+                        behaviour_insert = "No"
+                    utterance = utterance + behaviour_insert + " " + name
+
+        else:
+
+            # Person Goal
+            if goal_level == PolicyWrapper.PERSON_GOAL:
+                if behaviour in [Policy.A_PREINSTRUCTION_FIRSTNAME, Policy.A_PREINSTRUCTION]:
+                    if behaviour != Policy.A_PREINSTRUCTION_FIRSTNAME:
+                        name = ""
+                    utterance = utterance + "Hello " + name + ", welcome to today's session."
+                elif behaviour == Policy.A_END:
+                    utterance = "Goodbye"
+
+            # Baseline Goal
+            elif goal_level == PolicyWrapper.BASELINE_GOAL:
+                if phase == PolicyWrapper.PHASE_START:
+                    utterance = utterance + "To start, play a set of 30 " + hand_utterance + " " + shot_utterance + "s please so I can have a look at your technique"
+                    if behaviour == Policy.A_PREINSTRUCTION_QUESTIONING:
+                        utterance = utterance + ". OK?"
+                    if behaviour == Policy.A_PREINSTRUCTION_FIRSTNAME:
+                        utterance = utterance + name
+                else:
+                    utterance = "Good"
+
+            # Session, Exercise, Stat and Set Goals will all have the same action categories (different individual actions)
+            elif goal_level == PolicyWrapper.SESSION_GOAL or goal_level == PolicyWrapper.EXERCISE_GOAL \
+                    or goal_level == PolicyWrapper.STAT_GOAL or goal_level == PolicyWrapper.SET_GOAL:
+                if phase == PolicyWrapper.PHASE_START:
+                    goal_level_insert = ""
+                    performance_insert = ""
+                    performance_reaction = ""
+                    if behaviour in [Policy.A_POSTINSTRUCTIONPOSITIVE, Policy.A_POSTINSTRUCTIONNEGATIVE,
+                                     Policy.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING,
+                                     Policy.A_POSTINSTRUCTIONPOSITIVE_FIRSTNAME,
+                                     Policy.A_POSTINSTRUCTIONNEGATIVE_QUESTIONING,
+                                     Policy.A_POSTINSTRUCTIONNEGATIVE_FIRSTNAME,
+                                     Policy.A_POSTINSTRUCTIONPOSITIVE_POSITIVE_MODELING,
+                                     Policy.A_POSTINSTRUCTIONPOSITIVE_NEGATIVE_MODELING,
+                                     Policy.A_POSTINSTRUCTIONNEGATIVE_POSITIVEMODELING,
+                                     Policy.A_POSTINSTRUCTIONNEGATIVE_NEGATIVEMODELING,
+                                     Policy.A_POSITIVEMODELING_POSTINSTRUCTIONPOSITIVE,
+                                     Policy.A_NEGATIVEMODELING_POSTINSTRUCTIONNEGATIVE]:
+                        if goal_level == PolicyWrapper.SESSION_GOAL:
+                            goal_level_insert = "performance"
+                        elif goal_level == PolicyWrapper.EXERCISE_GOAL:
+                            goal_level_insert = hand_utterance + " " + shot_utterance
+                        elif goal_level == PolicyWrapper.STAT_GOAL or goal_level == PolicyWrapper.SET_GOAL:
+                            goal_level_insert = stat_utterance
+
+                        utterance = utterance + "Last time, "
+                        performance_insert = ""
+                        performance_reaction = ""
+                        if performance == PolicyWrapper.MET or performance == PolicyWrapper.STEADY:
+                            performance_insert = "stayed consistent"
+                            performance_reaction = "so well done!"
+                        elif performance == PolicyWrapper.MUCH_IMPROVED:
+                            performance_insert = "improved a lot"
+                            performance_reaction = "so well done!"
+                        elif performance == PolicyWrapper.IMPROVED or performance == PolicyWrapper.IMPROVED_SWAP:
+                            performance_insert = "improved"
+                            performance_reaction = "so well done!"
+                        elif performance == PolicyWrapper.REGRESSED or performance == PolicyWrapper.REGRESSED_SWAP:
+                            performance_insert = "got a little worse"
+                            performance_reaction = "but don't worry!"
+                        elif performance == PolicyWrapper.MUCH_REGRESSED:
+                            performance_insert = "got worse"
+                            performance_reaction = "but don't worry!"
+                        if behaviour in [Policy.A_POSTINSTRUCTIONPOSITIVE, Policy.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING,
+                                         Policy.A_POSTINSTRUCTIONPOSITIVE_FIRSTNAME,
+                                         Policy.A_POSTINSTRUCTIONPOSITIVE_POSITIVE_MODELING,
+                                         Policy.A_POSTINSTRUCTIONPOSITIVE_NEGATIVE_MODELING,
+                                         Policy.A_POSITIVEMODELING_POSTINSTRUCTIONPOSITIVE]:
+                            optional_question = ""
+                            if behaviour == Policy.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING:
+                                optional_question = "didn't it?"
+                            if performance_insert == "":
+                                utterance = "I think this is the first time we've worked on your " + goal_level_insert + " together " + optional_question + name
+                            else:
+                                utterance = utterance + " your " + goal_level_insert + " " + performance_insert + " " + optional_question + " " + name + " " + performance_reaction
+                        else:
+                            optional_question = ""
+                            if behaviour == Policy.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING:
+                                optional_question = "did you?"
+                            if performance_insert == "":
+                                utterance = "I think this is the first time we've worked on your " + goal_level_insert + " together " + optional_question + name
+                            else:
+                                utterance = utterance + " you didn't do well with your " + goal_level_insert + optional_question
+                    elif behaviour in [Policy.A_QUESTIONING, Policy.A_QUESTIONING_FIRSTNAME,
+                                       Policy.A_QUESTIONING_POSITIVEMODELING,
+                                       Policy.A_POSITIVEMODELING_QUESTIONING, Policy.A_QUESTIONING_NEGATIVEMODELING]:
+                        if goal_level == PolicyWrapper.SESSION_GOAL:
+                            goal_level_insert = "performance"
+                        elif goal_level == PolicyWrapper.EXERCISE_GOAL:
+                            goal_level_insert = hand_utterance + shot_utterance
+                        elif goal_level == PolicyWrapper.STAT_GOAL or goal_level == PolicyWrapper.SET_GOAL:
+                            goal_level_insert = stat_utterance
+                        utterance = utterance + "How did your " + goal_level_insert + " feel last time" + name + "? Touch the back of my hand if it fet good or the top of my head if you think it still needs work."
+
+                    elif behaviour in [Policy.A_PREINSTRUCTION, Policy.A_PREINSTRUCTION_QUESTIONING,
+                                       Policy.A_PREINSTRUCTION_FIRSTNAME, Policy.A_PREINSTRUCTION_POSITIVEMODELING,
+                                       Policy.A_POSITIVEMODELING_PREINSTRUCTION]:
+                        stat_advice = "get your racket up early"
+                        if stat == "impactCutAngle":
+                            stat_advice = "try to keep your racket face open"
+                        elif stat == "followThroughTime":
+                            stat_advice = "to extend that follow through towards the target"
+                        if goal_level == PolicyWrapper.SET_GOAL:
+                            if final_set:
+                                utterance = utterance + "Play a final set of 30 " + hand_utterance + " " + shot_utterance + "s please. Let's see how much your " + stat_utterance + " has improved over the session!"
+                            else:
+                                utterance = utterance + "Play another set of 30 " + hand_utterance + " " + shot_utterance + "s please. Remember, " + stat_advice
+                                if behaviour == Policy.A_PREINSTRUCTION_QUESTIONING:
+                                    utterance = utterance + ". OK?"
+                                if behaviour == Policy.A_PREINSTRUCTION_FIRSTNAME:
+                                    utterance = utterance + " " + name
+                        else:
+                            if goal_level == PolicyWrapper.SESSION_GOAL:
+                                goal_level_insert = "do a solo practice session and I'm going to coach you. We'll work on your " + hand_utterance + " " + shot_utterance
+                            elif goal_level == PolicyWrapper.EXERCISE_GOAL:
+                                goal_level_insert = "focus on your " + hand_utterance + " " + shot_utterance + ", paying specific attention to the " + stat_utterance
+                            elif goal_level == PolicyWrapper.STAT_GOAL:
+                                goal_level_insert = "get started with your " + stat_utterance
+
+                            optional_question = ""
+                            if behaviour == Policy.A_PREINSTRUCTION_QUESTIONING:
+                                optional_question = "Does that sound good?"
+
+                            utterance = utterance + "Today " + name + ", we're going to " + goal_level_insert + ". " + optional_question
+
+                    elif behaviour == Policy.A_PREINSTRUCTION_NEGATIVEMODELING:
+                        stat_advice = "let your racket preparation drop"
+                        if stat == "impactCutAngle":
+                            stat_advice = "let your racket face close"
+                        elif stat == "followThroughTime":
+                            stat_advice = "stop your follow through too short"
+                        if goal_level == PolicyWrapper.SET_GOAL:
+                            if final_set:
+                                utterance = utterance + "Play a final set of 30 " + hand_utterance + " " + shot_utterance + "s please. Let's hope your " + stat_utterance + " hasn't gotten worse over the session!"
+                            else:
+                                utterance = utterance + "Play another set of 30 " + hand_utterance + " " + shot_utterance + "s please. Remember, don't " + stat_advice
+                                if behaviour == Policy.A_PREINSTRUCTION_QUESTIONING:
+                                    utterance = utterance + ". OK?"
+                                if behaviour == Policy.A_PREINSTRUCTION_FIRSTNAME:
+                                    utterance = utterance + " " + name
+                        else:
+                            shot_advice = "letting your " + hand_utterance + " " + shot_utterance + " land too short."
+                            if shot == 5:
+                                shot_advice = "hitting you " + hand_utterance + " " + shot_utterance + " onto your opponent's volley."
+                            if goal_level == PolicyWrapper.SESSION_GOAL:
+                                goal_level_insert = "do a solo practice session and I'm going to coach you. We'll work on not " + shot_advice
+                            elif goal_level == PolicyWrapper.EXERCISE_GOAL:
+                                goal_level_insert = "focus on not " + shot_advice + ", remembering to not " + stat_advice
+                            elif goal_level == PolicyWrapper.STAT_GOAL:
+                                goal_level_insert = "play some " + shot_utterance + "'s. I need you to remember to not " + stat_advice
+
+                            utterance = utterance + "Today " + name + ", we're going to " + goal_level_insert
+
+                    elif behaviour in [Policy.A_PRAISE, Policy.A_PRAISE_FIRSTNAME, Policy.A_POSITIVEMODELING_PRAISE,
+                                       Policy.A_CONSOLE, Policy.A_CONSOLE_FIRSTNAME]:
+                        if goal_level == PolicyWrapper.SESSION_GOAL:
+                            goal_level_insert = "session"
+                        elif goal_level == PolicyWrapper.EXERCISE_GOAL:
+                            goal_level_insert = "time we worked on your " + hand_utterance + " " + shot_utterance
+                        elif goal_level == PolicyWrapper.STAT_GOAL:
+                            goal_level_insert = "time we worked on your " + stat_utterance
+                        elif goal_level == PolicyWrapper.SET_GOAL:
+                            goal_level_insert = "set"
+
+                        behaviour_insert = ""
+                        if behaviour == Policy.A_CONSOLE or behaviour == Policy.A_CONSOLE_FIRSTNAME:
+                            behaviour_insert = "Unlucky"
+                        else:
+                            behaviour_insert = "Well done"
+                        utterance = utterance + behaviour_insert + " for the last " + goal_level_insert + " " + name
+
+                    elif behaviour in [Policy.A_SCOLD, Policy.A_SCOLD_FIRSTNAME]:
+                        if goal_level == PolicyWrapper.SESSION_GOAL:
+                            goal_level_insert = "session"
+                        elif goal_level == PolicyWrapper.EXERCISE_GOAL:
+                            goal_level_insert = "time we worked on your " + hand_utterance + " " + shot_utterance
+                        elif goal_level == PolicyWrapper.STAT_GOAL:
+                            goal_level_insert = "time we worked on your " + stat_utterance
+                        elif goal_level == PolicyWrapper.SET_GOAL:
+                            goal_level_insert = "set"
+                        utterance = utterance + "That last " + goal_level_insert + " was bad " + name
+
+                else:  # phase == self.PHASE_END
+                    goal_level_insert = ""
+                    performance_insert = ""
+                    performance_reaction = ""
+                    if goal_level == PolicyWrapper.SESSION_GOAL:
+                        goal_level_insert = "performance"
+                        if behaviour == Policy.A_END:
+                            utterance = "Thank you for practicing with me today!"
+                    elif goal_level == PolicyWrapper.EXERCISE_GOAL:
+                        goal_level_insert = hand_utterance + shot_utterance
+                    elif goal_level == PolicyWrapper.STAT_GOAL or goal_level == PolicyWrapper.SET_GOAL:
+                        goal_level_insert = stat_utterance
+                    if behaviour in [Policy.A_POSTINSTRUCTIONPOSITIVE, Policy.A_POSTINSTRUCTIONNEGATIVE,
+                                     Policy.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING,
+                                     Policy.A_POSTINSTRUCTIONPOSITIVE_FIRSTNAME,
+                                     Policy.A_POSTINSTRUCTIONNEGATIVE_QUESTIONING,
+                                     Policy.A_POSTINSTRUCTIONNEGATIVE_FIRSTNAME,
+                                     Policy.A_POSTINSTRUCTIONPOSITIVE_POSITIVE_MODELING,
+                                     Policy.A_POSTINSTRUCTIONPOSITIVE_NEGATIVE_MODELING,
+                                     Policy.A_POSTINSTRUCTIONNEGATIVE_POSITIVEMODELING,
+                                     Policy.A_POSTINSTRUCTIONNEGATIVE_NEGATIVEMODELING,
+                                     Policy.A_POSITIVEMODELING_POSTINSTRUCTIONPOSITIVE,
+                                     Policy.A_NEGATIVEMODELING_POSTINSTRUCTIONNEGATIVE]:
+
+                        if performance == PolicyWrapper.MET or performance == PolicyWrapper.STEADY:
+                            performance_insert = "stayed consistent"
+                            performance_reaction = "so well done!"
+                        elif performance == PolicyWrapper.MUCH_IMPROVED:
+                            performance_insert = "improved a lot"
+                            performance_reaction = "so well done!"
+                        elif performance == PolicyWrapper.IMPROVED or performance == PolicyWrapper.IMPROVED_SWAP:
+                            performance_insert = "improved"
+                            performance_reaction = "so well done!"
+                        elif performance == PolicyWrapper.REGRESSED or performance == PolicyWrapper.REGRESSED_SWAP:
+                            performance_insert = "got a little worse"
+                            performance_reaction = "but don't worry!"
+                        elif performance == PolicyWrapper.MUCH_REGRESSED:
+                            performance_insert = "got worse"
+                            performance_reaction = "but don't worry!"
+                        if behaviour in [Policy.A_POSTINSTRUCTIONPOSITIVE, Policy.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING,
+                                         Policy.A_POSTINSTRUCTIONPOSITIVE_FIRSTNAME,
+                                         Policy.A_POSTINSTRUCTIONPOSITIVE_POSITIVE_MODELING,
+                                         Policy.A_POSTINSTRUCTIONPOSITIVE_NEGATIVE_MODELING,
+                                         Policy.A_POSITIVEMODELING_POSTINSTRUCTIONPOSITIVE]:
+                            optional_question = ""
+                            if behaviour == Policy.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING:
+                                optional_question = "didn't it?"
+                            utterance = utterance + "Your " + goal_level_insert + " " + performance_insert + "there " + optional_question + " " + name + " " + performance_reaction
+                        else:
+                            optional_question = ""
+                            if behaviour == Policy.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING:
+                                optional_question = "did you?"
+                            utterance = utterance + "You didn't manage to improve your " + goal_level_insert + " there " + optional_question
+                    elif behaviour in [Policy.A_QUESTIONING, Policy.A_QUESTIONING_FIRSTNAME,
+                                       Policy.A_QUESTIONING_POSITIVEMODELING,
+                                       Policy.A_POSITIVEMODELING_QUESTIONING, Policy.A_QUESTIONING_NEGATIVEMODELING]:
+                        utterance = utterance + "How did your " + goal_level_insert + " feel there " + name + "? Touch the back of my hand if it fet good or the top of my head if you think it still needs work."
+
+                    elif behaviour in [Policy.A_PRAISE, Policy.A_PRAISE_FIRSTNAME, Policy.A_POSITIVEMODELING_PRAISE,
+                                       Policy.A_CONSOLE, Policy.A_CONSOLE_FIRSTNAME]:
+
+                        behaviour_insert = ""
+                        if behaviour == Policy.A_CONSOLE or behaviour == Policy.A_CONSOLE_FIRSTNAME:
+                            behaviour_insert = "Unlucky"
+                        else:
+                            behaviour_insert = "Good"
+                        utterance = utterance + behaviour_insert + " " + name
+
+                    elif behaviour in [Policy.A_SCOLD, Policy.A_SCOLD_FIRSTNAME]:
+                        utterance = utterance + "That was not good " + name
+
+            # Action Goal (each shot in squash or movement in rehab)
+            else:  # goal_level == self.ACTION_GOAL:
+                if behaviour in [Policy.A_CONCURRENTINSTRUCTIONPOSITIVE,
+                                 Policy.A_CONCURRENTINSTRUCTIONPOSITIVE_QUESTIONING,
+                                 Policy.A_CONCURRENTINSTRUCTIONPOSITIVE_FIRSTNAME,
+                                 Policy.A_CONCURRENTINSTRUCTIONPOSITIVE_POSITIVEMODELING,
+                                 Policy.A_POSITIVEMODELING_CONCURRENTINSTRUCTIONPOSITIVE]:
+                    stat_insert = ""
+                    if stat == "racketPreparation":
+                        stat_insert = "Racket up"
+                    elif stat == "impactCutAngle":
+                        stat_insert = "Keep the racket face open"
+                    elif stat == "followThroughTime":
+                        stat_insert = "Extend the follow through"
+                    optional_question = ""
+                    if behaviour == Policy.A_CONCURRENTINSTRUCTIONPOSITIVE_QUESTIONING:
+                        optional_question = "OK?"
+                    utterance = utterance + stat_insert + " " + name + " " + optional_question
+
+                elif behaviour in [Policy.A_QUESTIONING, Policy.A_QUESTIONING_FIRSTNAME]:
+                    stat_insert = ""
+                    if stat == "racketPreparation":
+                        stat_insert = "Where did your racket start?"
+                    elif stat == "impactCutAngle":
+                        stat_insert = "What angle was the racket face at?"
+                    elif stat == "followThroughTime":
+                        stat_insert = "Where's the follow through going?"
+                    utterance = utterance + stat_insert + " " + name
+
+                elif behaviour in [Policy.A_HUSTLE, Policy.A_HUSTLE_FIRSTNAME, Policy.A_POSITIVEMODELING_HUSTLE]:
+                    utterance = utterance + "Keep going " + name
+
+                elif behaviour in [Policy.A_PRAISE, Policy.A_PRAISE_FIRSTNAME,
+                                   Policy.A_CONCURRENTINSTRUCTIONPOSITIVE_PRAISE,
+                                   Policy.A_POSITIVEMODELING_PRAISE]:
+                    stat_insert = ""
+                    if behaviour == Policy.A_CONCURRENTINSTRUCTIONPOSITIVE_PRAISE:
+                        if stat == "racketPreparation":
+                            stat_insert = "Racket up"
+                        elif stat == "impactCutAngle":
+                            stat_insert = "Keep the racket face open"
+                        elif stat == "followThroughTime":
+                            stat_insert = "Extend the follow through"
+                    utterance = utterance + "Good " + name + " " + stat_insert
+
+                elif behaviour in [Policy.A_CONCURRENTINSTRUCTIONNEGATIVE,
+                                   Policy.A_CONCURRENTINSTRUCTIONNEGATIVE_NEGATIVEMODELING,
+                                   Policy.A_CONCURRENTINSTRUCTIONNEGATIVE_FIRSTNAME]:
+                    stat_insert = ""
+                    if stat == "racketPreparation":
+                        stat_insert = "Don't let the racket drop"
+                    elif stat == "impactCutAngle":
+                        stat_insert = "Don't let the racket face close"
+                    elif stat == "followThroughTime":
+                        stat_insert = "Make sure the follow through doesn't stop"
+                    utterance = utterance + stat_insert + " " + name
+
+                elif behaviour in [Policy.A_CONSOLE, Policy.A_CONSOLE_FIRSTNAME, Policy.A_SCOLD,
+                                   Policy.A_SCOLD_FIRSTNAME]:
+                    behaviour_insert = ""
+                    if behaviour == Policy.A_CONSOLE or behaviour == Policy.A_CONSOLE_FIRSTNAME:
+                        behaviour_insert = "Unlucky"
+                    else:
+                        behaviour_insert = "No"
+                    utterance = utterance + behaviour_insert + " " + name
+
 
         return utterance
 
