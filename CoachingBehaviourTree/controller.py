@@ -34,7 +34,7 @@ COMPLETED_STATUS_FALSE = 0
 COMPLETED_STATUS_TRUE = 1
 
 # Initial values which will be updated when the API gets called by the guide.
-participantNo = "PS1.2"
+participantNo = "Test2"
 goal_level = -1
 name = ''
 sessions = -1
@@ -50,7 +50,7 @@ shot = 1
 hand = "BH"
 # "racketPreparation" = RACKET_PREP, "impactCutAngle" = IMPACT_CUT_ANGLE, "followThroughTime" = FOLLOW_THROUGH_TIME
 stat = "followThroughTime"
-policy = 0
+policy = -1
 completed = COMPLETED_STATUS_UNDEFINED
 shot_count = 0
 action_score = -1
@@ -360,6 +360,7 @@ def create_coaching_tree():
     gen_baseline_goal.add_child(baseline_goal_intro)
     # Share action between baseline_goal_intro_action and baseline_goal_intro.
     b.add_remapping(baseline_goal_intro_action._id, 'action', baseline_goal_intro._id, 'action')
+    b.save('set_start', True, baseline_goal_intro._id)
     # Wait for user to finish set
     baseline_goal_end_set_event = EndSetEvent(name="baseline_goal_end_set_event", blackboard=b)
     baseline_goal_end_set_until = Until(name="baseline_goal_end_set_until", child=baseline_goal_end_set_event)
@@ -591,6 +592,7 @@ def create_coaching_tree():
     gen_set_goal.add_child(set_goal_pre_instr_intro_output)
     # Share action between set_goal_pre_instr_intro_action and set_goal_pre_instr_intro_output.
     b.add_remapping(set_goal_pre_instr_intro_action._id, 'action', set_goal_pre_instr_intro_output._id, 'action')
+    b.save('set_start', True, set_goal_pre_instr_intro_output._id)
 
     # Coaching loop for set until user initiates end of set event
     set_goal_coaching_selector = Selector(name="set_goal_coaching_selector")

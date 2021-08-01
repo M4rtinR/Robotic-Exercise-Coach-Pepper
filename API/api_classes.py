@@ -18,6 +18,7 @@ default_app = firebase_admin.initialize_app(cred_obj, {
 
 app = Flask('policy_guide_api')
 api = Api(app)
+expecting_action_goal = False
 
 class TimestepCue(Resource):
     def post(self):
@@ -67,7 +68,8 @@ class TimestepCue(Resource):
                     controller.completed = controller.COMPLETED_STATUS_UNDEFINED
                     controller.goal_level = PolicyWrapper.SESSION_GOAL
                     controller.phase = PolicyWrapper.PHASE_START
-                    controller.performance = content['performance']
+                    controller.performance = None
+                    # controller.performance = content['performance']
 
                     while controller.completed == controller.COMPLETED_STATUS_UNDEFINED:
                         pass
@@ -111,18 +113,20 @@ class TimestepCue(Resource):
                     controller.completed = controller.COMPLETED_STATUS_UNDEFINED
                     controller.goal_level = PolicyWrapper.EXERCISE_GOAL
                     controller.phase = PolicyWrapper.PHASE_START
+                    controller.score = None
+                    controller.performance = None
 
                     if controller.shot == -1:
                         controller.shot = content['shotType']
                         controller.hand = content['hand']
-                    if content['initialScore'] == "null":
+                    '''if content['initialScore'] == "null":
                         controller.score = None
                     else:
                         controller.score = float(content['initialScore'])
                     if content['performance'] == "":
                         controller.performance = None
                     else:
-                        controller.performance = int(controller.performance)
+                        controller.performance = int(controller.performance)'''
 
                     while controller.completed == controller.COMPLETED_STATUS_UNDEFINED:
                         pass
@@ -165,10 +169,11 @@ class TimestepCue(Resource):
                     if controller.stat == -1:
                         controller.stat = content['stat']
                     controller.target = float(content['tgtValue'])
-                    if content['performance'] == "":
+                    '''if content['performance'] == "":
                         controller.performance = None
                     else:
-                        controller.performance = int(controller.performance)
+                        controller.performance = int(controller.performance)'''
+                    controller.performance = None
 
                     while controller.completed != controller.COMPLETED_STATUS_FALSE:
                         pass
@@ -193,9 +198,13 @@ class TimestepCue(Resource):
                     scoreString = content['score']
                     if scoreString[-1] == "%":
                         scoreString = content['score'][:-1]
+                    elif scoreString[-1] == "s":
+                        scoreString = content['score'][:-5]
                     targetString = content['tgtValue']
                     if targetString[-1] == "%":
                         targetString = content['tgtValue'][:-1]
+                    elif targetString[-1] == "s":
+                        targetString = content['tgtValue'][:-5]
                     controller.avg_score = float(scoreString)
                     controller.set_score_list.append(float(scoreString))
                     controller.target = float(targetString)
@@ -233,40 +242,50 @@ class TimestepCue(Resource):
                     return new_data, 200
 
             elif int(content['goal_level']) == PolicyWrapper.ACTION_GOAL:
-                print('action goal setting controller values')
-                controller.action_score = float(content['score'])
-                performanceValue = PolicyWrapper.MET
-                if content['performance'] == 'Very Low':
-                    performanceValue = PolicyWrapper.MUCH_REGRESSED
-                elif content['performance'] == 'Very High':
-                    performanceValue = PolicyWrapper.REGRESSED_SWAP
-                elif content['performance'] == 'Low':
-                    performanceValue = PolicyWrapper.REGRESSED
-                elif content['performance'] == 'High':
+                if expecting_action_goal:
+                    print('action goal setting controller values')
+                    controller.action_score = float(content['score'])
                     performanceValue = PolicyWrapper.MET
-                elif content['performance'] == 'Under':
-                    performanceValue = PolicyWrapper.STEADY
-                elif content['performance'] == 'Over':
-                    performanceValue = PolicyWrapper.IMPROVED
-                elif content['performance'] == 'Good!':
-                    performanceValue = PolicyWrapper.MUCH_IMPROVED
-                else:
-                    print('no performanceValue found')
-                controller.performance = performanceValue
-                controller.goal_level = PolicyWrapper.ACTION_GOAL
-                controller.shot_count += 1
+                    if content['performance'] == 'Very Low':
+                        performanceValue = PolicyWrapper.MUCH_REGRESSED
+                    elif content['performance'] == 'Very High':
+                        performanceValue = PolicyWrapper.REGRESSED_SWAP
+                    elif content['performance'] == 'Low':
+                        performanceValue = PolicyWrapper.REGRESSED
+                    elif content['performance'] == 'High':
+                        performanceValue = PolicyWrapper.MET
+                    elif content['performance'] == 'Under':
+                        performanceValue = PolicyWrapper.STEADY
+                    elif content['performance'] == 'Over':
+                        performanceValue = PolicyWrapper.IMPROVED
+                    elif content['performance'] == 'Good!':
+                        performanceValue = PolicyWrapper.MUCH_IMPROVED
+                    else:
+                        print('no performanceValue found')
+                    controller.performance = performanceValue
+                    controller.goal_level = PolicyWrapper.ACTION_GOAL
+                    controller.shot_count += 1
 
-                new_data = {
-                    'goal_level': 5,
-                    'completed': 1,
-                    'shotSet': 1
-                }
+                    new_data = {
+                        'goal_level': 5,
+                        'completed': 1,
+                        'shotSet': 1
+                    }
 
-                if controller.shot_count == 29:
-                    new_data['shotSetComplete'] = 1
-                    new_data['stat'] = controller.stat
+                    if controller.shot_count == 29:
+                        new_data['shotSetComplete'] = 1
+                        new_data['stat'] = controller.stat
+                    else:
+                        new_data['shotSetComplete'] = 0
+
                 else:
-                    new_data['shotSetComplete'] = 0
+                    print("Action goal not expected, not setting controller values.")
+                    new_data = {
+                        'goal_level': 5,
+                        'completed': 1,
+                        'shotSet': 1,
+                        'shotSetComplete': 0
+                    }
 
                 return new_data, 200
 

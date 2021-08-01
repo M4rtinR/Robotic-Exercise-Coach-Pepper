@@ -36,6 +36,7 @@ from task_behavior_engine.node import Node
 from task_behavior_engine.tree import NodeStatus
 from multiprocessing import Process, Queue, Pipe
 
+from API import api_classes
 from CoachingBehaviourTree import controller
 from CoachingBehaviourTree.action import Action
 from CoachingBehaviourTree.behaviour_library import BehaviourLibraryFunctions, squash_behaviour_library
@@ -45,7 +46,11 @@ import numpy as np
 import random
 import requests
 
-post_address = 'http://192.168.1.237:4999/output'
+# Robot through Peppernet router:
+# post_address = 'http://192.168.1.237:4999/output'
+
+# Simulation on 4G:
+post_address = 'http://192.168.43.19:4999/output'
 
 
 class GetBehaviour(Node):
@@ -183,7 +188,7 @@ class FormatAction(Node):
             state and behaviour information.
         :return: None
         """
-        print("Configuring FormatAction: " + self._name)
+        print("Configuring FormatAction: " + self._name + ". PHASE = " + str(nodedata.get_data('phase')))
         # print("FormatAction nodedata: " + str(nodedata))
         self.goal_level = nodedata.get_data('goal')          # Which level of goal we are currently in (e.g. SET_GOAL)
         self.performance = nodedata.get_data('performance', 0)  # Which level of performance the player achieved (e.g. MET)
@@ -224,11 +229,16 @@ class FormatAction(Node):
                                   Policy.A_POSITIVEMODELING_QUESTIONING, Policy.A_POSITIVEMODELING_HUSTLE,
                                   Policy.A_POSITIVEMODELING_PRAISE]:
                 demo = self.behaviour_lib.get_demo_string(self.behaviour, self.goal_level, self.shot, self.hand, self.stat)
+            question = None
+            if self.behaviour in [Policy.A_QUESTIONING, Policy.A_QUESTIONING_FIRSTNAME,
+                                  Policy.A_QUESTIONING_POSITIVEMODELING,
+                                  Policy.A_POSITIVEMODELING_QUESTIONING, Policy.A_QUESTIONING_NEGATIVEMODELING]:
+                question = "GoodBad"
             pre_msg = self.behaviour_lib.get_pre_msg(self.behaviour, self.goal_level, self.performance, self.phase, self.name, self.shot, self.hand, self.stat, controller.set_count == 5)
             if self.score is None and self.performance is None:
-                nodedata.action = Action(pre_msg, demo=demo)
+                nodedata.action = Action(pre_msg, demo=demo, question=question)
             else:
-                nodedata.action = Action(pre_msg, self.score, self.target, demo=demo)
+                nodedata.action = Action(pre_msg, self.score, self.target, demo=demo, question=question)
         else:
             print("Returning FAIL from FormatAction, behaviour = " + str(self.behaviour))
             return NodeStatus(NodeStatus.FAIL, "Behaviour == A_SILENCE")
@@ -348,6 +358,7 @@ class DisplayBehaviour(Node):
         """
         print("Configuring DisplayBehaviour: " + self._name)
         self.action = nodedata.get_data('action')
+        self.set_start = nodedata.get_data('set_start', False)
 
     def run(self, nodedata):
         """
@@ -361,15 +372,17 @@ class DisplayBehaviour(Node):
         }
         if self.action.demo is not None:
             output['demo'] = self.action.demo
+        if self.action.question is not None:
+            output['question'] = self.action.question
         r = requests.post(post_address, json=output)
+        if self.set_start:
+            api_classes.expecting_action_goal = True
         print("Returning SUCCESS from DisplayBehaviour")
         return NodeStatus(NodeStatus.SUCCESS, "Printed action message to output.")
 
     def sendBehaviour(self, child_conn):
         child_conn.send(self.action)
         child_conn.close()
-
-
 
 
 class GetStats(Node):
@@ -504,8 +517,11 @@ class CreateSubgoal(Node):
         else:
             if self.previous_goal_level == PolicyWrapper.EXERCISE_GOAL and self.stat is None:
                 nodedata.new_goal = 6
+                # api_classes.expecting_action_goal = True
             else:
                 nodedata.new_goal = self.previous_goal_level + 1
+                # if nodedata.new_goal == PolicyWrapper.ACTION_GOAL:
+                    # api_classes.expecting_action_goal = True
             logging.info("Created subgoal, new goal level = {}".format(nodedata.new_goal))
             print("Returning SUCCESS from CreateSubGoal, new goal level = " + str(nodedata.new_goal))
             return NodeStatus(NodeStatus.SUCCESS, "Created subgoal: " + str(self.previous_goal_level + 1))
@@ -561,6 +577,7 @@ class EndSubgoal(Node):
                 nodedata.phase = PolicyWrapper.PHASE_END
                 nodedata.new_goal = PolicyWrapper.STAT_GOAL
                 controller.completed = controller.COMPLETED_STATUS_TRUE
+                # api_classes.expecting_action_goal = False
             else:
                 if (self.goal_level == PolicyWrapper.SET_GOAL and controller.set_count == 6) or self.goal_level == PolicyWrapper.STAT_GOAL or self.goal_level == PolicyWrapper.EXERCISE_GOAL or self.goal_level == PolicyWrapper.SESSION_GOAL:
                     controller.goal_level -= 1
@@ -571,6 +588,8 @@ class EndSubgoal(Node):
                 controller.completed = controller.COMPLETED_STATUS_TRUE
                 if self.goal_level == PolicyWrapper.EXERCISE_GOAL:
                     controller.session_time += 1
+                # if self.goal_level == PolicyWrapper.ACTION_GOAL:
+                    # api_classes.expecting_action_goal = False
             logging.info("Ended subgoal {old_goal}. New goal level = {new_goal}.".format(old_goal=self.goal_level, new_goal=nodedata.new_goal))
             print("Returning SUCCESS from EndSubgoal, new subgoal level = " + str(nodedata.new_goal))
             return NodeStatus(NodeStatus.SUCCESS, "Completed subgoal: " + str(self.goal_level - 1))
@@ -876,6 +895,7 @@ class EndSetEvent(Node):
         #   one for waiting for user selection so that the tree doesn't grind to a halt.
         # self.shotcount += 1  # TODO Set this to 0 when set starts.
         if self.shotcount >= 30:
+            api_classes.expecting_action_goal = False
             controller.completed = controller.COMPLETED_STATUS_TRUE
             controller.set_count += 1
 
