@@ -1,3 +1,5 @@
+import logging
+
 import numpy as np
 import random
 from random import choices
@@ -261,23 +263,23 @@ class Policy:
         style = self._get_style(state)
 
         # Get random action based on self.transition_matrix probabilities.
-        print("style: " + str(style))
-        print("state: " + str(state))
-        print("self._get_action(state): " + str(self._get_action(state)))
-        print(len(self.transition_matrix[style-1]))
-        #print(len(self.transition_matrix[style - 1][self._get_action(state)]))
-        #print(len(range(68)))
-        print(self.transition_matrix[style - 1][self._get_action(state)])
+        logging.debug("style: " + str(style))
+        logging.debug("state: " + str(state))
+        logging.debug("self._get_action(state): " + str(self._get_action(state)))
+        logging.debug(len(self.transition_matrix[style-1]))
+        #logging.debug(len(self.transition_matrix[style - 1][self._get_action(state)]))
+        #logging.debug(len(range(68)))
+        logging.debug(self.transition_matrix[style - 1][self._get_action(state)])
         action = choices(range(68), self.transition_matrix[style - 1][self._get_action(state)])[0]
-        print("action: " + str(action))
+        logging.debug("action: " + str(action))
         count = 1
         while action == self.A_MANUALMANIPULATION:
             # Manual manipulation is not possible for the robot so if this is the case, get new behaviour
             if count <= 10:  # Either from original state
-                print("count <= 10")
+                logging.debug("count <= 10")
                 action = choices(range(68), self.transition_matrix[style - 1][self._get_action(state)])[0]
             else:  # or from manual manipulation if this is the only behaviour following the original state.
-                print("count > 10")
+                logging.debug("count > 10")
                 action = choices(range(68), self.transition_matrix[style - 1][action])[0]
             count += 1
 
@@ -304,10 +306,10 @@ class Policy:
         #new_style = 9
 
         # Check if action is valid in new_style
-        #print(self.transition_matrix[new_style - 1])
+        #logging.debug(self.transition_matrix[new_style - 1])
         #actionKey = next((key for key, value in self.physioActionDict.items() if value == 18), None)
-        #print(str(actionKey))
-        #print(self.transition_matrix[new_style - 1][actionKey])
+        #logging.debug(str(actionKey))
+        #logging.debug(self.transition_matrix[new_style - 1][actionKey])
         if new_style < 7 and not(43 < action < self.A_END):
             if sum(self.transition_matrix[new_style - 1][action]) > 0.0:
                 return (new_style - 1) * 45 + action if action < self.A_END else (new_style - 1) * 45 + 44
@@ -331,11 +333,11 @@ class Policy:
         :return:type int: the action corresponding to the given state.
         """
         if state > 269:
-            print('getting physio action')
+            logging.debug('getting physio action')
             return self.physioActionDict[(state - 270) % 53]
 
         else:
-            print('getting coach action')
+            logging.debug('getting coach action')
             if state in [44, 89, 134, 179, 224, 269]:
                 return self.A_END
             else:
