@@ -13218,6 +13218,8 @@ class BehaviourLibraryFunctions:
         shot_utterance = "drive"
         if shot == 5:
             shot_utterance = "lob"
+        elif shot == 0:
+            shot_utterance = "drop"
         stat_utterance = "racket preparation"
         if stat == "impactCutAngle":
             stat_utterance = "racket face angle"

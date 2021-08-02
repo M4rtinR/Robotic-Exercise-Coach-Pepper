@@ -272,12 +272,22 @@ class TimestepCue(Resource):
                         'shotSet': 1
                     }
 
-                    if controller.time_up:
-                        new_data['shotSetComplete'] = 1
-                        new_data['stat'] = controller.stat
-                        controller.time_up = False
+                    if controller.set_count != 1:
+                        if controller.shot_count == 29:
+                            new_data['shotSetComplete'] = 1
+                            new_data['stat'] = controller.stat
+                        else:
+                            new_data['shotSetComplete'] = 0
                     else:
-                        new_data['shotSetComplete'] = 0
+                        if controller.time_up:
+                            controller.time_up_shots += 1
+                            if controller.time_up_shots == 1:
+                                new_data['shotSetComplete'] = 1
+                                new_data['stat'] = controller.stat
+                            else:
+                                new_data['shotSetComplete'] = 0
+                        else:
+                            new_data['shotSetComplete'] = 0
 
                 else:
                     print("Action goal not expected, not setting controller values.")

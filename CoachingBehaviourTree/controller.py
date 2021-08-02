@@ -44,12 +44,12 @@ score = -1
 target = -1
 avg_score = -1
 performance = -1
-# 1 = DRIVE, 5 = LOB
-shot = 1
+# 1 = DRIVE, 5 = LOB, 0 = DROP
+shot = 0
 # "FH" or "BH"
 hand = "FH"
 # "racketPreparation" = RACKET_PREP, "impactCutAngle" = IMPACT_CUT_ANGLE, "followThroughTime" = FOLLOW_THROUGH_TIME
-stat = "racketPreparation"
+stat = "impactCutAngle"
 policy = -1
 completed = COMPLETED_STATUS_UNDEFINED
 shot_count = 0
@@ -64,6 +64,7 @@ set_score_list = []
 set_count = 0
 start_time = 0
 time_up = False
+time_up_shots = 0
 name = "James"
 
 def create_coaching_tree():

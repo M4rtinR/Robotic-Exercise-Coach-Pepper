@@ -374,12 +374,15 @@ class DisplayBehaviour(Node):
                 utterance = "racket preparation for your forehand drive."
                 if controller.shot == 5:
                     utterance = "racket face angle at impact on your forehand lob."
+                elif controller.shot == 0:
+                    utterance = "racket face angle at impact on your forehand drop."
                 elif controller.hand == "BH":
                     utterance = "follow through timing for your backhand drive."
                 output = {
-                    "utterance": "You now have 10 minutes to work on your " + utterance
+                    "utterance": "You now have 10 minutes to work on your " + utterance + " I'll let you know when 10 minutes has passed and we'll see if you have improved! You can start now."
                 }
 
+        api_classes.expecting_action_goal = True
         # if self.action.demo is not None:
         #     output['demo'] = self.action.demo
         r = requests.post(post_address, json=output)
@@ -899,16 +902,20 @@ class EndSetEvent(Node):
         #   one for waiting for user selection so that the tree doesn't grind to a halt.
         # self.shotcount += 1  # TODO Set this to 0 when set starts.
         if controller.set_count == 1:
-            if time() - controller.start_time >= 600:
-                controller.time_up = True
-                output = {
-                    "utterance": "Time up! That's been 10 minutes. Time to see if all that hard work has paid off!"
-                }
-                r = requests.post(post_address, json=output)
-                logging.info("Training time completed. Total shots played = " + str(self.shotcount))
-                controller.set_count += 1
-                print("Returning SUCCESS from EndSetEvent, shot count = " + str(self.shotcount))
-                return NodeStatus(NodeStatus.SUCCESS, "Shot set ended.")
+            if time() - controller.start_time >= 20:
+                if controller.time_up_shots >= 2:
+                    output = {
+                        "utterance": "Time up! That's been 10 minutes. Time to see if all that hard work has paid off!"
+                    }
+                    r = requests.post(post_address, json=output)
+                    logging.info("Training time completed. Total shots played = " + str(self.shotcount))
+                    controller.set_count += 1
+                    print("Returning SUCCESS from EndSetEvent, shot count = " + str(self.shotcount))
+                    return NodeStatus(NodeStatus.SUCCESS, "Shot set ended.")
+                if controller.time_up_shots == 0:
+                    controller.time_up = True
+                print("Returning FAIL from EndSetEvent in training set, time up shot count = " + str(controller.time_up_shots))
+                return NodeStatus(NodeStatus.FAIL, "Shot set at " + str(self.shotcount) + ". Not ended yet.")
             else:
                 print("Returning FAIL from EndSetEvent in training set, shot count = " + str(self.shotcount))
                 return NodeStatus(NodeStatus.FAIL, "Shot set at " + str(self.shotcount) + ". Not ended yet.")
