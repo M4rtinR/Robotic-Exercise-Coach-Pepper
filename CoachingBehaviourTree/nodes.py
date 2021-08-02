@@ -371,15 +371,19 @@ class DisplayBehaviour(Node):
                     "utterance": "OK, play a final set of 30 shots to see if what you've been working on has improved!"
                 }
             elif controller.set_count == 1:
-                utterance = "racket preparation for your forehand drive."
+                utterance1 = "your racket preparation for your forehand drive."
+                utterance2 = "getting your racket up early"
                 if controller.shot == 5:
-                    utterance = "racket face angle at impact on your forehand lob."
+                    utterance1 = "the angle of your racket face when you hit your forehand lob."
+                    utterance2 = "keeping your racket face open"
                 elif controller.shot == 0:
-                    utterance = "racket face angle at impact on your forehand drop."
+                    utterance1 = "the angle of your racket face when you hit your forehand drop."
+                    utterance2 = "keeping your racket face open"
                 elif controller.hand == "BH":
-                    utterance = "follow through timing for your backhand drive."
+                    utterance1 = "your follow through timing for your backhand drive."
+                    utterance2 = "your follow through"
                 output = {
-                    "utterance": "You now have 10 minutes to work on your " + utterance + " I'll let you know when 10 minutes has passed and we'll see if you have improved! You can start now."
+                    "utterance": "Based on that set of shots, I think you should work on " + utterance2 + " today. You will now have 5 minutes to try to improve " + utterance1 + " I'll let you know when 5 minutes has passed and we'll see if you have improved! You can start now."
                 }
 
         api_classes.expecting_action_goal = True
@@ -587,14 +591,17 @@ class EndSubgoal(Node):
                 nodedata.new_goal = PolicyWrapper.STAT_GOAL
                 controller.completed = controller.COMPLETED_STATUS_TRUE
             else:
-                if (self.goal_level == PolicyWrapper.SET_GOAL and controller.set_count >= 2) or self.goal_level == PolicyWrapper.STAT_GOAL or self.goal_level == PolicyWrapper.EXERCISE_GOAL or self.goal_level == PolicyWrapper.SESSION_GOAL:
+                if (self.goal_level == PolicyWrapper.SET_GOAL and controller.set_count >= 3) or self.goal_level == PolicyWrapper.STAT_GOAL or self.goal_level == PolicyWrapper.EXERCISE_GOAL or self.goal_level == PolicyWrapper.SESSION_GOAL:
                     print("Ending subgoal, new controller.goal_level = " + str(controller.goal_level - 1))
                     controller.goal_level -= 1
                     controller.phase = PolicyWrapper.PHASE_END
                 nodedata.new_goal = self.goal_level - 1
                 nodedata.phase = PolicyWrapper.PHASE_START  # All behaviours have happened so its start of new goal.
                 controller.phase = PolicyWrapper.PHASE_START
-                controller.completed = controller.COMPLETED_STATUS_TRUE
+                if self.goal_level == PolicyWrapper.STAT_GOAL:
+                    controller.completed = controller.COMPLETED_STATUS_FALSE
+                else:
+                    controller.completed = controller.COMPLETED_STATUS_TRUE
                 if self.goal_level == PolicyWrapper.EXERCISE_GOAL:
                     controller.session_time += 1
                     print("Exercise goal finished, added 1 to session_time. New time = " + str(controller.session_time))
@@ -902,10 +909,10 @@ class EndSetEvent(Node):
         #   one for waiting for user selection so that the tree doesn't grind to a halt.
         # self.shotcount += 1  # TODO Set this to 0 when set starts.
         if controller.set_count == 1:
-            if time() - controller.start_time >= 20:
+            if time() - controller.start_time >= 300:
                 if controller.time_up_shots >= 2:
                     output = {
-                        "utterance": "Time up! That's been 10 minutes. Time to see if all that hard work has paid off!"
+                        "utterance": "Time up! That's been 5 minutes. Time to see if all that hard work has paid off!"
                     }
                     r = requests.post(post_address, json=output)
                     logging.info("Training time completed. Total shots played = " + str(self.shotcount))

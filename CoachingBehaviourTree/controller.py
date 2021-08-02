@@ -34,7 +34,7 @@ COMPLETED_STATUS_FALSE = 0
 COMPLETED_STATUS_TRUE = 1
 
 # Initial values which will be updated when the API gets called by the guide.
-participantNo = "Test"
+participantNo = "PS2.1"
 goal_level = -1
 name = ''
 sessions = -1
