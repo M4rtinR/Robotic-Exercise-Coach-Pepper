@@ -13225,6 +13225,8 @@ class BehaviourLibraryFunctions:
         shot_utterance = "drive"
         if shot == 5:
             shot_utterance = "lob"
+        elif shot == 0:
+            shot_utterance = "drop"
         stat_utterance = "racket preparation"
         if stat == "impactCutAngle":
             stat_utterance = "racket face angle"
@@ -14829,6 +14831,8 @@ class BehaviourLibraryFunctions:
             if hand == "BH":
                 shotName = "backhand_drive"
             elif shot == 5:
+                shotName = "lob"
+            elif shot == 0:
                 shotName = "lob"
             demoName = shotName + posNeg
         else:
