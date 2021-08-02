@@ -27,6 +27,7 @@ class Action:
     target: float = None
     post_msg: str = None
     demo: str = None
+    question: str = None
 
     def __str__(self):
         """

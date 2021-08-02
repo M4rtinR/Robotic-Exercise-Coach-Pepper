@@ -36,6 +36,7 @@ from task_behavior_engine.node import Node
 from task_behavior_engine.tree import NodeStatus
 from multiprocessing import Process, Queue, Pipe
 
+from API import api_classes
 from CoachingBehaviourTree import controller
 from CoachingBehaviourTree.action import Action
 from CoachingBehaviourTree.behaviour_library import BehaviourLibraryFunctions, squash_behaviour_library
@@ -45,7 +46,11 @@ import numpy as np
 import random
 import requests
 
+# Robot through Peppernet router:
 post_address = 'http://192.168.1.237:4999/output'
+
+# Simulation on 4G:
+# post_address = 'http://192.168.43.19:4999/output'
 
 
 class GetBehaviour(Node):
@@ -192,7 +197,7 @@ class FormatAction(Node):
         self.target = nodedata.get_data('target')            # Numerical target score for stat (can be None)
         self.behaviour_lib = nodedata.get_data('bl')         # The behaviour library to be used in generating actions
         self.behaviour = nodedata.get_data('behaviour')      # The type of behaviour to create an action for.
-        self.name = nodedata.get_data('name')                # The name of the current user.
+        self.name = controller.name                # The name of the current user.
         self.shot = nodedata.get_data('shot')                # The shot type (can be None)
         self.hand = nodedata.get_data('hand')                # Forehand or backhand associated with shot (can be None)
         self.stat = nodedata.get_data('stat')                # The stat type (can be None)
@@ -348,6 +353,7 @@ class DisplayBehaviour(Node):
         """
         print("Configuring DisplayBehaviour: " + self._name)
         self.action = nodedata.get_data('action')
+        self.set_start = nodedata.get_data('set_start', False)
 
     def run(self, nodedata):
         """
@@ -907,6 +913,7 @@ class EndSetEvent(Node):
                 print("Returning FAIL from EndSetEvent in training set, shot count = " + str(self.shotcount))
                 return NodeStatus(NodeStatus.FAIL, "Shot set at " + str(self.shotcount) + ". Not ended yet.")
         elif self.shotcount >= 30:
+            api_classes.expecting_action_goal = False
             controller.completed = controller.COMPLETED_STATUS_TRUE
             controller.set_count += 1
 
