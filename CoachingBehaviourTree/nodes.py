@@ -47,10 +47,10 @@ import random
 import requests
 
 # Robot through Peppernet router:
-# post_address = 'http://192.168.1.237:4999/output'
+post_address = 'http://192.168.1.237:4999/output'
 
 # Simulation on 4G:
-post_address = 'http://192.168.43.19:4999/output'
+# post_address = 'http://192.168.43.19:4999/output'
 
 
 class GetBehaviour(Node):
@@ -668,11 +668,13 @@ class TimestepCue(Node):
             if controller.goal_level == 2:
                 if controller.phase == PolicyWrapper.PHASE_END:
                     if controller.completed == controller.COMPLETED_STATUS_TRUE:  # This is actually the end of a baseline goal. Might need to update this so it's not as weirdly laid out.
+                        print("Baseline goal feedback sequence")
                         nodedata.phase = PolicyWrapper.PHASE_END
                         nodedata.performance = controller.performance
                         print("Returning SUCCESS from TimestepCue shot goal (end), stats = " + str(nodedata))
                         return NodeStatus(NodeStatus.SUCCESS, "Data for shot goal obtained from guide:" + str(nodedata))
                     elif controller.completed == controller.COMPLETED_STATUS_FALSE:  # Feedback Sequence
+                        print("Shot goal feedback sequence")
                         nodedata.performance = round(mean(controller.set_performance_list))
                         nodedata.score = mean(controller.set_score_list)
                         nodedata.target = controller.target
