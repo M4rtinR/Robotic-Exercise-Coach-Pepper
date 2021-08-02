@@ -21,6 +21,7 @@ api = Api(app)
 expecting_action_goal = False
 
 class TimestepCue(Resource):
+    previous_shot_performance = None
     def post(self):
         if request.is_json:
             logging.debug("request is json")
@@ -262,9 +263,12 @@ class TimestepCue(Resource):
                         performanceValue = PolicyWrapper.MUCH_IMPROVED
                     else:
                         logging.debug('no performanceValue found')
-                    controller.performance = performanceValue
+                    if controller.performance == self.previous_shot_performance:  # We haven't received the set goal feedback so can safely update controller.performance
+                        controller.performance = performanceValue            # Not perfect because we might have the same performance for set and action.
                     controller.goal_level = PolicyWrapper.ACTION_GOAL
                     controller.shot_count += 1
+
+                    self.previous_shot_performance = performanceValue
 
                     new_data = {
                         'goal_level': 5,

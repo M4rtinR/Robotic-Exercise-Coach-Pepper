@@ -962,7 +962,7 @@ class InitialiseBlackboard(Node):
         logging.debug("Configuring InitialiseBlackboard: " + self._name)
         self.motivation = nodedata.get_data('motivation')
         self.ability = nodedata.get_data('player_ability')
-        if self.ability < 3:
+        if self.ability < 4:
             self.experience = "low"
         else:
             self.experience = "high"
