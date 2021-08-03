@@ -233,7 +233,10 @@ class FormatAction(Node):
             if self.behaviour in [Policy.A_QUESTIONING, Policy.A_QUESTIONING_FIRSTNAME,
                                   Policy.A_QUESTIONING_POSITIVEMODELING,
                                   Policy.A_POSITIVEMODELING_QUESTIONING, Policy.A_QUESTIONING_NEGATIVEMODELING]:
-                question = "GoodBad"
+                if self.goal_level == PolicyWrapper.ACTION_GOAL:
+                    question = "Concurrent"
+                else:
+                    question = "GoodBad"
             pre_msg = self.behaviour_lib.get_pre_msg(self.behaviour, self.goal_level, self.performance, self.phase, self.name, self.shot, self.hand, self.stat, controller.set_count == 5)
             if self.score is None and self.performance is None:
                 nodedata.action = Action(pre_msg, demo=demo, question=question)
@@ -658,8 +661,7 @@ class TimestepCue(Node):
                     nodedata.performance = round(mean(controller.set_performance_list))
                     nodedata.phase = PolicyWrapper.PHASE_END
                     logging.info(
-                        "Feedback for session, score = {score}, target = {target}, performance = {performance}".format(
-                            score=nodedata.score, target=nodedata.target, performance=nodedata.performance))
+                        "Feedback for session, performance = {performance}".format(performance=nodedata.performance))
                     logging.debug("Returning SUCCESS from TimestepCue session goal (end), stats = " + str(nodedata))
                     return NodeStatus(NodeStatus.SUCCESS, "Data for stat goal obtained from guide:" + str(nodedata))
                 else:

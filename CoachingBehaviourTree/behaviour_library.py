@@ -13190,9 +13190,11 @@ class BehaviourLibraryFunctions:
         # TODO: Replace with actual behaviours, not codes.
 
         if performance is None:
+            print("Setting performance to -1")
             performance = -1
 
         if phase is None:
+            print("Setting phase to -1")
             phase = -1
 
         if behaviour > 68 or behaviour < 1 or goal_level > 6 or goal_level < 0 or performance > 7 or performance < -1 or phase > 1 or phase < -1:
@@ -13217,6 +13219,7 @@ class BehaviourLibraryFunctions:
         return msg
 
     def _get_pre_utterance(self, goal_level, behaviour, user_name, phase, hand, shot, stat, performance, final_set, utterance_choice):
+        print("Performance = " + str(performance))
         utterance = ""
         name = ""
         hand_utterance = "forehand"
@@ -14310,7 +14313,7 @@ class BehaviourLibraryFunctions:
                             goal_level_insert = hand_utterance + " " + shot_utterance
                         elif goal_level == PolicyWrapper.STAT_GOAL or goal_level == PolicyWrapper.SET_GOAL:
                             goal_level_insert = stat_utterance
-                        utterance = utterance + "How do you think the previous " + goal_level_insert + " went " + name + "? Touch the back of my hand if it you think it went well or the top of my head if you think it could have been better."
+                        utterance = utterance + "How do you think the previous " + goal_level_insert + " went " + name + "? Touch the back of my hand if you think it went well or the top of my head if you think it could have been better."
 
                     elif behaviour in [Policy.A_PREINSTRUCTION, Policy.A_PREINSTRUCTION_QUESTIONING,
                                        Policy.A_PREINSTRUCTION_FIRSTNAME, Policy.A_PREINSTRUCTION_POSITIVEMODELING,
@@ -14324,7 +14327,7 @@ class BehaviourLibraryFunctions:
                             if final_set:
                                 utterance = utterance + "OK, clear your mind. Because I only want you to focus on one thing in this final set. I want you to " + stat_advice + " Play a final 30 " + hand_utterance + " " + shot_utterance + "s please. I want to see how much your " + stat_utterance + " has improved with all your hard work today!"
                             else:
-                                utterance = utterance + "OK, clear your mind. Because I only want you to focus on one thing in this final set. I want you to " + stat_advice + " Play another 30 " + hand_utterance + " " + shot_utterance + "s please."
+                                utterance = utterance + "OK, clear your mind. Because I only want you to focus on one thing in this next set. I want you to " + stat_advice + " Play another 30 " + hand_utterance + " " + shot_utterance + "s please."
                                 if behaviour == Policy.A_PREINSTRUCTION_QUESTIONING:
                                     utterance = utterance + ". OK?"
                                 if behaviour == Policy.A_PREINSTRUCTION_FIRSTNAME:

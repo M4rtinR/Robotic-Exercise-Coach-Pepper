@@ -147,9 +147,9 @@ class TimestepCue(Resource):
                 logging.debug('stat goal setting controller values')
                 if 'feedback' in content:  # End of stat
                     logging.debug('end of stat')
-                    controller.score = content['score']
+                    controller.score = float(content['score'])
                     controller.target = float(content['tgtValue'])
-                    controller.performance = content['performance']
+                    controller.performance = int(content['performance'])
                     controller.goal_level = PolicyWrapper.STAT_GOAL
                     controller.phase = PolicyWrapper.PHASE_END
                     controller.completed = controller.COMPLETED_STATUS_UNDEFINED
@@ -209,15 +209,16 @@ class TimestepCue(Resource):
                     controller.avg_score = float(scoreString)
                     controller.set_score_list.append(float(scoreString))
                     controller.target = float(targetString)
-                    controller.performance = int(content['performance'])
-                    controller.set_performance_list.append(int(content['performance']))
-                    # controller.stat = content['stat']  # Let guide decide what stat to work on based on baseline set.
-                    controller.goal_level = PolicyWrapper.SET_GOAL
-                    controller.phase = PolicyWrapper.PHASE_END
-                    controller.completed = controller.COMPLETED_STATUS_UNDEFINED
+                    if not content['performance'] == "":
+                        controller.performance = int(content['performance'])
+                        controller.set_performance_list.append(int(content['performance']))
+                        # controller.stat = content['stat']  # Let guide decide what stat to work on based on baseline set.
+                        controller.goal_level = PolicyWrapper.SET_GOAL
+                        controller.phase = PolicyWrapper.PHASE_END
+                        controller.completed = controller.COMPLETED_STATUS_UNDEFINED
 
-                    while controller.completed == controller.COMPLETED_STATUS_UNDEFINED:
-                        pass
+                        while controller.completed == controller.COMPLETED_STATUS_UNDEFINED:
+                            pass
 
                     new_data = {
                         'goal_level': 4,
@@ -226,6 +227,7 @@ class TimestepCue(Resource):
                     }
 
                     return new_data, 200
+
                 else:  # Start of set
                     controller.goal_level = PolicyWrapper.SET_GOAL
                     controller.phase = PolicyWrapper.PHASE_START
