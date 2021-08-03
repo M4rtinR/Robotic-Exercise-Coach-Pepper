@@ -54,9 +54,9 @@ set_count = 0
 
 # Initial values to be changed at the beginning of each session:
 name = "Jamie"
-participantNo = "Test3"
-ability = -1
-motivation = -1
+participantNo = "Test4"
+ability = 6
+motivation = 4
 # 1 = DRIVE, 5 = LOB, 0 = DROP
 shot = 1
 # "FH" or "BH"

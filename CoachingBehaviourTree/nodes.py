@@ -47,10 +47,10 @@ import random
 import requests
 
 # Robot through Peppernet router:
-# post_address = 'http://192.168.1.237:4999/output'
+post_address = 'http://192.168.1.237:4999/output'
 
 # Simulation on 4G:
-post_address = 'http://192.168.43.19:4999/output'
+# post_address = 'http://192.168.43.19:4999/output'
 
 
 class GetBehaviour(Node):
