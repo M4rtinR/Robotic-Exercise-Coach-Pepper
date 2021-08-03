@@ -582,9 +582,10 @@ class EndSubgoal(Node):
                 if (self.goal_level == PolicyWrapper.SET_GOAL and controller.set_count == 6) or self.goal_level == PolicyWrapper.STAT_GOAL or self.goal_level == PolicyWrapper.EXERCISE_GOAL or self.goal_level == PolicyWrapper.SESSION_GOAL:
                     controller.goal_level -= 1
                     controller.phase = PolicyWrapper.PHASE_END
+                else:
+                    controller.phase = PolicyWrapper.PHASE_START
                 nodedata.new_goal = self.goal_level - 1
                 nodedata.phase = PolicyWrapper.PHASE_START  # All behaviours have happened so its start of new goal.
-                controller.phase = PolicyWrapper.PHASE_START
                 if self.goal_level == PolicyWrapper.STAT_GOAL:
                     controller.completed = controller.COMPLETED_STATUS_FALSE
                 else:
@@ -708,7 +709,7 @@ class TimestepCue(Node):
                 if controller.phase == PolicyWrapper.PHASE_END:  # Feedback sequence
                     nodedata.performance = round(mean(controller.set_performance_list))
                     nodedata.phase = PolicyWrapper.PHASE_END
-                    nodedata.score = mean(controller.score)
+                    nodedata.score = mean(controller.set_score_list)
                     nodedata.target = controller.target
                     logging.info("Feedback for stat, score = {score}, target = {target}, performance = {performance}".format(score=nodedata.score, target=nodedata.target, performance=nodedata.performance))
                     logging.debug("Returning SUCCESS from TimestepCue stat goal, stats = " + str(nodedata))
@@ -727,7 +728,7 @@ class TimestepCue(Node):
                 if controller.phase == PolicyWrapper.PHASE_END:  # Just finished previous goal level so into feedback sequence.
                     nodedata.phase = PolicyWrapper.PHASE_END
                     nodedata.performance = controller.performance
-                    nodedata.score = controller.score
+                    nodedata.score = controller.avg_score
                     nodedata.target = controller.target
                     logging.info("Feedback for shot set, score = {score}, target = {target}, performance = {performance}".format(score=nodedata.score, target=nodedata.target, performance=nodedata.performance))
                     logging.debug("Returning SUCCESS from TimestepCue set goal feedback, stats = " + str(nodedata))

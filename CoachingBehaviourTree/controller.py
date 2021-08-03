@@ -53,10 +53,10 @@ set_score_list = []
 set_count = 0
 
 # Initial values to be changed at the beginning of each session:
-name = "Jamie"
-participantNo = "Test4"
-ability = 6
-motivation = 4
+name = "Jonathan"
+participantNo = "P1.1"
+ability = 2
+motivation = 7
 # 1 = DRIVE, 5 = LOB, 0 = DROP
 shot = 1
 # "FH" or "BH"
