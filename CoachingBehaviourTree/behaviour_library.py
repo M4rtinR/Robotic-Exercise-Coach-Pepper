@@ -14822,7 +14822,7 @@ class BehaviourLibraryFunctions:
             elif behaviour in [Policy.A_SCOLD, Policy.A_SCOLD_FIRSTNAME]:
                 utterance = utterance + "That was not good " + name"""
 
-    def get_demo_string(self, behaviour, goal_level, shot, hand, stat):
+    def get_demo_string(self, behaviour, goal_level, shot, hand, stat, leftHand):
         posNeg = "_pos"
         if behaviour in [Policy.A_NEGATIVEMODELING, Policy.A_PREINSTRUCTION_NEGATIVEMODELING,
                          Policy.A_POSTINSTRUCTIONPOSITIVE_NEGATIVE_MODELING,
@@ -14849,6 +14849,9 @@ class BehaviourLibraryFunctions:
                 statName = "follow_through"
 
             demoName = statName + posNeg
+
+        if leftHand:
+            demoName = demoName + "_left"
 
         return demoName
 

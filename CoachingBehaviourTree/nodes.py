@@ -228,7 +228,7 @@ class FormatAction(Node):
                                   Policy.A_POSITIVEMODELING_CONCURRENTINSTRUCTIONPOSITIVE,
                                   Policy.A_POSITIVEMODELING_QUESTIONING, Policy.A_POSITIVEMODELING_HUSTLE,
                                   Policy.A_POSITIVEMODELING_PRAISE]:
-                demo = self.behaviour_lib.get_demo_string(self.behaviour, self.goal_level, self.shot, self.hand, self.stat)
+                demo = self.behaviour_lib.get_demo_string(self.behaviour, self.goal_level, self.shot, self.hand, self.stat, controller.leftHand)
             question = None
             if self.behaviour in [Policy.A_QUESTIONING, Policy.A_QUESTIONING_FIRSTNAME,
                                   Policy.A_QUESTIONING_POSITIVEMODELING,
