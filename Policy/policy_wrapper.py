@@ -1,3 +1,5 @@
+import logging
+
 from Policy.policy import Policy
 
 
@@ -64,7 +66,10 @@ class PolicyWrapper:
         """
 
         # Always return pre-instruction for baseline session.
-        return 1, 1
+        if (goal_level == self.SESSION_GOAL or goal_level == self.PERSON_GOAL) and phase == self.PHASE_END:
+            return 68, 1
+        else:
+            return 1, 1
 
         '''if goal_level == self.ACTION_GOAL:
             print("Action goal")
@@ -135,10 +140,10 @@ class PolicyWrapper:
         """
         valid_list = []
 
-        print('goal_level = ' + str(goal_level))
+        logging.debug('goal_level = ' + str(goal_level))
         # Person Goal
         if goal_level == self.PERSON_GOAL:
-            print('Creating list for person goal')
+            logging.debug('Creating list for person goal')
             valid_list.extend([self.policy.A_PREINSTRUCTION, self.policy.A_PREINSTRUCTION_FIRSTNAME])
 
         # Baseline Goal

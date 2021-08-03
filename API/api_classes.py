@@ -23,9 +23,9 @@ expecting_action_goal = False
 class TimestepCue(Resource):
     def post(self):
         if request.is_json:
-            print("request is json")
+            logging.debug("request is json")
             content = request.get_json()
-            print(content)
+            logging.debug(content)
             logging.info("Received data from app: {}".format(content))
             if int(content['goal_level']) == PolicyWrapper.PERSON_GOAL:
                 logging.info("Received data from app: {}".format(content))
@@ -47,9 +47,9 @@ class TimestepCue(Resource):
                 return new_data, 200
 
             elif int(content['goal_level']) == PolicyWrapper.SESSION_GOAL:
-                print('session goal setting controller values')
+                logging.debug('session goal setting controller values')
                 if 'feedback' in content:  # End of session
-                    print('end of session')
+                    logging.debug('end of session')
                     controller.performance = content['performance']
                     controller.goal_level = PolicyWrapper.SESSION_GOAL
                     controller.phase = PolicyWrapper.PHASE_END
@@ -90,9 +90,9 @@ class TimestepCue(Resource):
                     return new_data, 200
 
             elif int(content['goal_level']) == PolicyWrapper.EXERCISE_GOAL:
-                print('shot goal setting controller values')
+                logging.debug('shot goal setting controller values')
                 if 'feedback' in content:  # End of shot
-                    print('end of shot')
+                    logging.debug('end of shot')
                     controller.score = content['score']
                     controller.target = content['tgtValue']
                     controller.performance = content['performance']
@@ -143,9 +143,9 @@ class TimestepCue(Resource):
                     return new_data, 200
 
             elif int(content['goal_level']) == PolicyWrapper.STAT_GOAL:
-                print('stat goal setting controller values')
+                logging.debug('stat goal setting controller values')
                 if 'feedback' in content:  # End of stat
-                    print('end of stat')
+                    logging.debug('end of stat')
                     controller.score = content['score']
                     controller.target = float(content['tgtValue'])
                     controller.performance = content['performance']
@@ -192,14 +192,16 @@ class TimestepCue(Resource):
                     controller.score = content['score']
                     controller.goal_level = PolicyWrapper.EXERCISE_GOAL
                 else:'''
-                print('set goal setting controller values')
+                logging.debug('set goal setting controller values')
                 if 'score' in content:  # End of set
-                    print('end of set')
+                    logging.debug('end of set')
                     scoreString = content['score']
                     if scoreString[-1] == "%":
                         scoreString = content['score'][:-1]
+                        logging.debug('Setting score to: ' + str(scoreString))
                     elif scoreString[-1] == "s":
                         scoreString = content['score'][:-5]
+                        logging.debug('Setting score to: ' + str(scoreString))
                     targetString = content['tgtValue']
                     if targetString[-1] == "%":
                         targetString = content['tgtValue'][:-1]
@@ -243,7 +245,7 @@ class TimestepCue(Resource):
 
             elif int(content['goal_level']) == PolicyWrapper.ACTION_GOAL:
                 if expecting_action_goal:
-                    print('action goal setting controller values')
+                    logging.debug('action goal setting controller values')
                     controller.action_score = float(content['score'])
                     performanceValue = PolicyWrapper.MET
                     if content['performance'] == 'Very Low':
@@ -261,7 +263,7 @@ class TimestepCue(Resource):
                     elif content['performance'] == 'Good!':
                         performanceValue = PolicyWrapper.MUCH_IMPROVED
                     else:
-                        print('no performanceValue found')
+                        logging.debug('no performanceValue found')
                     controller.performance = performanceValue
                     controller.goal_level = PolicyWrapper.ACTION_GOAL
                     controller.shot_count += 1
@@ -290,7 +292,7 @@ class TimestepCue(Resource):
                             new_data['shotSetComplete'] = 0
 
                 else:
-                    print("Action goal not expected, not setting controller values.")
+                    logging.debug("Action goal not expected, not setting controller values.")
                     new_data = {
                         'goal_level': 5,
                         'completed': 1,
@@ -316,9 +318,9 @@ class TimestepCue(Resource):
             parser.add_argument('ability', required=False)      # Player goal
 
             args = parser.parse_args()  # parse arguments to dictionary
-            print('recevied post request')
+            logging.debug('recevied post request')
             if int(args['goal_level']) == PolicyWrapper.PERSON_GOAL:
-                print('player goal setting controller values')
+                logging.debug('player goal setting controller values')
                 controller.goal_level = PolicyWrapper.PERSON_GOAL
                 controller.name = args['name']
                 controller.sessions = int(args['sessions'])
@@ -330,7 +332,7 @@ class TimestepCue(Resource):
                 return {args['goal_level']: controller.completed}, 200
 
             elif int(args['goal_level']) == PolicyWrapper.SESSION_GOAL:
-                print('session goal setting controller values')
+                logging.debug('session goal setting controller values')
                 controller.completed = controller.COMPLETED_STATUS_UNDEFINED
                 controller.goal_level = PolicyWrapper.SESSION_GOAL
                 controller.performance = int(args['performance'])
@@ -348,7 +350,7 @@ class TimestepCue(Resource):
                 return {args['goal_level']: new_data}, 200
 
             elif int(args['goal_level']) == PolicyWrapper.EXERCISE_GOAL:
-                print('shot goal setting controller values')
+                logging.debug('shot goal setting controller values')
                 controller.completed = controller.COMPLETED_STATUS_UNDEFINED
                 controller.goal_level = PolicyWrapper.EXERCISE_GOAL
                 controller.performance = int(args['performance'])

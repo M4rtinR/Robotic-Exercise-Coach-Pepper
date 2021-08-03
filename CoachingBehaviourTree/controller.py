@@ -34,23 +34,12 @@ COMPLETED_STATUS_FALSE = 0
 COMPLETED_STATUS_TRUE = 1
 
 # Initial values which will be updated when the API gets called by the guide.
-participantNo = "PS2.1"
 goal_level = -1
-name = ''
 sessions = -1
-ability = -1
-motivation = -1
 score = -1
 target = -1
 avg_score = -1
 performance = -1
-# 1 = DRIVE, 5 = LOB, 0 = DROP
-shot = 0
-# "FH" or "BH"
-hand = "FH"
-# "racketPreparation" = RACKET_PREP, "impactCutAngle" = IMPACT_CUT_ANGLE, "followThroughTime" = FOLLOW_THROUGH_TIME
-stat = "impactCutAngle"
-policy = -1
 completed = COMPLETED_STATUS_UNDEFINED
 shot_count = 0
 action_score = -1
@@ -65,7 +54,19 @@ set_count = 0
 start_time = 0
 time_up = False
 time_up_shots = 0
+
+# Initial values
 name = "James"
+participantNo = "PS2.1"
+ability = -1
+motivation = -1
+# 1 = DRIVE, 5 = LOB, 0 = DROP
+shot = 1
+# "FH" or "BH"
+hand = "BH"
+# "racketPreparation" = RACKET_PREP, "impactCutAngle" = IMPACT_CUT_ANGLE, "followThroughTime" = FOLLOW_THROUGH_TIME
+stat = "followThroughTime"
+policy = -1
 
 def create_coaching_tree():
     """
@@ -668,6 +669,7 @@ def create_coaching_tree():
     # Wait for timestep cue (i.e. set goal has been completed by guide and we are ready for feedback behaviours).
     set_goal_end = TimestepCue(name="set_goal_ended_timestep", blackboard=b)
     b.add_remapping(end_action_goal._id, 'new_goal', set_goal_end._id, 'goal')
+    b.save('phase', PolicyWrapper.PHASE_END, set_goal_end._id)
     set_goal_end_until = Until(name="set_goal_end_until", child=set_goal_end)
     gen_set_goal.add_child(set_goal_end_until)
     stat_goal_coaching.add_child(gen_set_goal)
@@ -687,6 +689,7 @@ def create_coaching_tree():
     # Wait for timestep cue (i.e. stat goal has been completed by guide and we are ready for feedback behaviours).
     stat_goal_end = TimestepCue(name="stat_goal_ended_timestep", blackboard=b)
     b.add_remapping(set_goal_feedback_end._id, 'new_goal', stat_goal_end._id, 'goal')
+    b.save('phase', PolicyWrapper.PHASE_END, set_goal_end._id)
     stat_goal_end_until = Until(name="stat_goal_end_until", child=stat_goal_end)
     gen_stat_goal.add_child(stat_goal_end_until)
     stat_goal_feedback_loop, stat_goal_feedback_behav, stat_goal_feedback_end = get_feedback_loop(name="stat_goal_feedback_loop", behav=Policy.A_PREINSTRUCTION, blackboard=b, goal_node=stat_goal, initialise_node=initialise, previous_behav_node=set_goal_feedback_behav, timestep_cue_node=stat_goal_end, person_node=player_start)
@@ -702,6 +705,7 @@ def create_coaching_tree():
     # Wait for timestep cue (i.e. shot goal has been completed by guide and we are ready for feedback behaviours).
     shot_goal_end = TimestepCue(name="shot_goal_ended_timestep", blackboard=b)
     b.add_remapping(stat_goal_feedback_end._id, 'new_goal', shot_goal_end._id, 'goal')
+    b.save('phase', PolicyWrapper.PHASE_END, shot_goal_end._id)
     shot_goal_end_until = Until(name="shot_goal_end_until", child=shot_goal_end)
     gen_shot_goal.add_child(shot_goal_end_until)
     shot_goal_feedback_loop, shot_goal_feedback_behav, shot_goal_feedback_end = get_feedback_loop(name="shot_goal_feedback_loop", behav=Policy.A_PREINSTRUCTION, blackboard=b, goal_node=shot_goal, initialise_node=initialise, previous_behav_node=stat_goal_feedback_behav, timestep_cue_node=shot_goal_end, person_node=player_start)
@@ -722,6 +726,7 @@ def create_coaching_tree():
     # Wait for timestep cue (i.e. session goal has been completed by guide and we are ready for feedback behaviours).
     session_goal_end = TimestepCue(name="session_goal_ended_timestep", blackboard=b)
     b.add_remapping(shot_goal_feedback_end._id, 'new_goal', session_goal_end._id, 'goal')
+    b.save('phase', PolicyWrapper.PHASE_END, session_goal_end._id)
     session_goal_end_until = Until(name="session_goal_end_until", child=session_goal_end)
     gen_session_goal.add_child(session_goal_end_until)
     session_goal_feedback_loop, session_goal_feedback_behav, session_goal_feedback_end = get_feedback_loop(name="session_goal_feedback_loop", behav=Policy.A_END, blackboard=b, goal_node=session_goal, initialise_node=initialise, previous_behav_node=shot_goal_feedback_behav, timestep_cue_node=session_goal_end, person_node=player_start)
@@ -735,6 +740,7 @@ def create_coaching_tree():
     # Wait for timestep cue (i.e. session (person goal) has been completed by guide and we are ready for feedback behaviours).
     person_goal_end = TimestepCue(name="person_goal_ended_timestep", blackboard=b)
     b.add_remapping(session_goal_feedback_end._id, 'new_goal', person_goal_end._id, 'goal')
+    b.save('phase', PolicyWrapper.PHASE_END, person_goal_end._id)
     person_goal_end_until = Until(name="person_goal_end_until", child=person_goal_end)
     gen_person_goal.add_child(person_goal_end_until)
     person_goal_feedback_loop, person_goal_feedback_behav, person_goal_feedback_end = get_feedback_loop(name="person_goal_feedback_loop",
@@ -777,7 +783,7 @@ def get_feedback_loop(name, behav, blackboard, goal_node, initialise_node, previ
     blackboard.add_remapping(previous_behav_node._id, 'observation', feedback_behaviour._id, 'state')
     blackboard.add_remapping(goal_node._id, 'new_goal', feedback_behaviour._id, 'goal')
     blackboard.add_remapping(timestep_cue_node._id, 'performance', feedback_behaviour._id, 'performance')
-    blackboard.add_remapping(timestep_cue_node._id, 'phase', feedback_behaviour._id, 'phase')
+    blackboard.save('phase', PolicyWrapper.PHASE_END, feedback_behaviour._id)
 
     # Check if given behaviour
     check_behav_name = name + "_check_for_" + behav.__str__()
