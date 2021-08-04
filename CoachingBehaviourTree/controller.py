@@ -56,10 +56,10 @@ time_up = False
 time_up_shots = 0
 
 # Initial values
-name = "Michael"
-participantNo = "P2.2"
-ability = 5
-motivation = 5
+name = "Alex"
+participantNo = "P6.1"
+ability = 3
+motivation = 7
 # 1 = DRIVE, 5 = LOB, 0 = DROP
 shot = 1
 # "FH" or "BH"
