@@ -35,6 +35,6 @@ class Action:
         :return:type str: the complete formatted utterance.
         """
         if self.score is not None:
-            return f'{self.pre_msg} You got an average score of {round(self.score)} and were aiming for {round(self.target)}.'
+            return f'{self.pre_msg} You got an average score of {round(self.score, 2)} and were aiming for {round(self.target, 2)}.'
         else:
             return f'{self.pre_msg}'

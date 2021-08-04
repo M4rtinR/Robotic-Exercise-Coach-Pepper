@@ -238,10 +238,12 @@ class FormatAction(Node):
                 else:
                     question = "GoodBad"
             pre_msg = self.behaviour_lib.get_pre_msg(self.behaviour, self.goal_level, self.performance, self.phase, self.name, self.shot, self.hand, self.stat, controller.set_count == 5)
-            if self.score is None and self.performance is None:
+            if (self.score is None and self.performance is None) or controller.given_score >= 2:
                 nodedata.action = Action(pre_msg, demo=demo, question=question)
             else:
                 nodedata.action = Action(pre_msg, self.score, self.target, demo=demo, question=question)
+                if self.goal_level == PolicyWrapper.EXERCISE_GOAL or self.goal_level == PolicyWrapper.SESSION_GOAL or self.goal_level == PolicyWrapper.PERSON_GOAL:
+                    controller.given_score += 1
         else:
             logging.debug("Returning FAIL from FormatAction, behaviour = " + str(self.behaviour))
             return NodeStatus(NodeStatus.FAIL, "Behaviour == A_SILENCE")
@@ -597,6 +599,9 @@ class EndSubgoal(Node):
                     controller.session_time += 1
                 # if self.goal_level == PolicyWrapper.ACTION_GOAL:
                     # api_classes.expecting_action_goal = False
+            if nodedata.new_goal == -1:
+                print("Completed")
+                time.sleep(5.0)
             logging.info("Ended subgoal {old_goal}. New goal level = {new_goal}.".format(old_goal=self.goal_level, new_goal=nodedata.new_goal))
             logging.debug("Returning SUCCESS from EndSubgoal, new subgoal level = " + str(nodedata.new_goal))
             return NodeStatus(NodeStatus.SUCCESS, "Completed subgoal: " + str(self.goal_level - 1))
