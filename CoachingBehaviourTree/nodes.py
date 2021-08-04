@@ -361,7 +361,6 @@ class DisplayBehaviour(Node):
         :return: NodeStatus.SUCCESS if action sent successfully to robot, NodeStatus.FAIL otherwise.
         """
         logging.debug(str(self.action))
-        logging.info("Displaying action ".format(self.action))
         output = {
             "utterance": str(self.action)
         }
@@ -370,6 +369,7 @@ class DisplayBehaviour(Node):
                 output = {
                     "utterance": "OK, play a final set of 30 shots to see if what you've been working on has improved!"
                 }
+                logging.info("Displaying action: OK, play a final set of 30 shots to see if what you've been working on has improved!")
             elif controller.set_count == 1:
                 utterance1 = "your racket preparation for your forehand drive."
                 utterance2 = "getting your racket up early"
@@ -385,6 +385,13 @@ class DisplayBehaviour(Node):
                 output = {
                     "utterance": "Based on that set of shots, I think you should work on " + utterance2 + " today. You will now have 5 minutes to try to improve " + utterance1 + " I'll let you know when 5 minutes has passed and we'll see if you have improved! You can start now."
                 }
+
+                logging.info(
+                    "Displaying action: Based on that set of shots, I think you should work on " + utterance2 + " today. You will now have 5 minutes to try to improve " + utterance1 + " I'll let you know when 5 minutes has passed and we'll see if you have improved! You can start now.")
+        elif controller.goal_level == 1:
+            output = {
+                "utterance": "Thank you for practicing with me today. Goodbye."
+            }
 
         api_classes.expecting_action_goal = True
         # if self.action.demo is not None:
