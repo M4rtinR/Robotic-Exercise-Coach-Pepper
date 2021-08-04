@@ -13190,11 +13190,11 @@ class BehaviourLibraryFunctions:
         # TODO: Replace with actual behaviours, not codes.
 
         if performance is None:
-            print("Setting performance to -1")
+            logging.debug("Setting performance to -1")
             performance = -1
 
         if phase is None:
-            print("Setting phase to -1")
+            logging.debug("Setting phase to -1")
             phase = -1
 
         if behaviour > 68 or behaviour < 1 or goal_level > 6 or goal_level < 0 or performance > 7 or performance < -1 or phase > 1 or phase < -1:
@@ -13219,7 +13219,7 @@ class BehaviourLibraryFunctions:
         return msg
 
     def _get_pre_utterance(self, goal_level, behaviour, user_name, phase, hand, shot, stat, performance, final_set, utterance_choice):
-        print("Performance = " + str(performance))
+        logging.debug("Performance = " + str(performance))
         utterance = ""
         name = ""
         hand_utterance = "forehand"
