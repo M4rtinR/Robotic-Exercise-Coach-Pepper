@@ -71,6 +71,7 @@ def create_coaching_tree():
     Responsible for creating the main Behaviour Tree structure.
     :return:type: Progressor: the root node of the created behaviour tree.
     """
+    # global performance
     b = Blackboard()
     root = Progressor("coaching root", blackboard=b)
 
@@ -212,7 +213,7 @@ def create_coaching_tree():
     session_goal_intro_pre_instr_sequence.add_child(session_goal_intro_pre_instr_action)
     # Share data between initialise, session_goal_start, session_goal, session_goal_intro_behav and session_goal_intro_action.
     b.add_remapping(initialise._id, 'bl', session_goal_intro_pre_instr_action._id, 'bl')
-    b.save('performance', performance, session_goal_intro_pre_instr_action._id)
+    b.add_remapping(session_goal_start._id, 'performance', session_goal_intro_pre_instr_action._id, 'performance')
     b.add_remapping(session_goal_start._id, 'phase', session_goal_intro_pre_instr_action._id, 'phase')
     b.add_remapping(session_goal_start._id, 'score', session_goal_intro_pre_instr_action._id, 'score')
     b.add_remapping(session_goal_start._id, 'target', session_goal_intro_pre_instr_action._id, 'target')
@@ -247,7 +248,7 @@ def create_coaching_tree():
 
     # Share data between initialise, session_goal_start, session_goal, session_goal_intro_behav and session_goal_intro_action.
     b.add_remapping(initialise._id, 'bl', session_goal_intro_action._id, 'bl')
-    b.save('performance', performance, session_goal_intro_action._id)
+    b.add_remapping(session_goal_start._id, 'performance', session_goal_intro_action._id, 'performance')
     b.add_remapping(session_goal_start._id, 'phase', session_goal_intro_action._id, 'phase')
     b.add_remapping(session_goal_start._id, 'score', session_goal_intro_action._id, 'score')
     b.add_remapping(session_goal_start._id, 'target', session_goal_intro_action._id, 'target')
@@ -352,7 +353,7 @@ def create_coaching_tree():
     gen_baseline_goal.add_child(baseline_goal_intro_action)
     # Share data between initialise, baseline_goal_start, baseline_goal and baseline_goal_intro_action.
     b.add_remapping(initialise._id, 'bl', baseline_goal_intro_action._id, 'bl')
-    b.save('performance', performance, baseline_goal_intro_action._id)
+    b.add_remapping(baseline_goal_start._id, 'performance', baseline_goal_intro_action._id, 'performance')
     b.add_remapping(baseline_goal_start._id, 'phase', baseline_goal_intro_action._id, 'phase')
     b.add_remapping(baseline_goal_start._id, 'score', baseline_goal_intro_action._id, 'score')
     b.add_remapping(baseline_goal_start._id, 'target', baseline_goal_intro_action._id, 'target')
@@ -403,7 +404,7 @@ def create_coaching_tree():
     shot_goal_intro_sequence.add_child(shot_goal_intro_action)
     # Share data between initialise, shot_goal_start, shot_goal, shot_goal_intro_behav and shot_goal_intro_action.
     b.add_remapping(initialise._id, 'bl', shot_goal_intro_action._id, 'bl')
-    b.save('performance', performance, shot_goal_intro_action._id)
+    b.add_remapping(shot_goal_start._id, 'performance', shot_goal_intro_action._id, 'performance')
     b.add_remapping(shot_goal_start._id, 'phase', shot_goal_intro_action._id, 'phase')
     b.add_remapping(shot_goal_start._id, 'score', shot_goal_intro_action._id, 'score')
     b.add_remapping(shot_goal_start._id, 'target', shot_goal_intro_action._id, 'target')
@@ -469,7 +470,7 @@ def create_coaching_tree():
     stat_goal_intro_sequence.add_child(stat_goal_intro_action)
     # Share data between initialise, stat_goal_start, stat_goal, stat_goal_intro_behav and stat_goal_intro_action.
     b.add_remapping(initialise._id, 'bl', stat_goal_intro_action._id, 'bl')
-    b.save('performance', performance, stat_goal_intro_action._id)
+    b.add_remapping(stat_goal_start._id, 'performance', stat_goal_intro_action._id, 'performance')
     b.add_remapping(stat_goal_start._id, 'phase', stat_goal_intro_action._id, 'phase')
     b.add_remapping(stat_goal_start._id, 'score', stat_goal_intro_action._id, 'score')
     b.add_remapping(stat_goal_start._id, 'target', stat_goal_intro_action._id, 'target')
@@ -493,7 +494,7 @@ def create_coaching_tree():
     gen_stat_goal.add_child(stat_goal_pre_instr_intro_action)
     # Share data between initialise, stat_goal_start, stat_goal, stat_goal_intro_behav and stat_goal_pre_instr_intro_action.
     b.add_remapping(initialise._id, 'bl', stat_goal_pre_instr_intro_action._id, 'bl')
-    b.save('performance', performance, stat_goal_pre_instr_intro_action._id)
+    b.add_remapping(stat_goal_start._id, 'performance', stat_goal_pre_instr_intro_action._id, 'performance')
     b.add_remapping(stat_goal_start._id, 'phase', stat_goal_pre_instr_intro_action._id, 'phase')
     b.add_remapping(stat_goal_start._id, 'score', stat_goal_pre_instr_intro_action._id, 'score')
     b.add_remapping(stat_goal_start._id, 'target', stat_goal_pre_instr_intro_action._id, 'target')
@@ -556,7 +557,7 @@ def create_coaching_tree():
     set_goal_intro_sequence.add_child(set_goal_intro_action)
     # Share data between initialise, set_goal_start, set_goal, set_goal_intro_behav and set_goal_intro_action.
     b.add_remapping(initialise._id, 'bl', set_goal_intro_action._id, 'bl')
-    b.save('performance', performance, set_goal_intro_action._id)
+    b.add_remapping(set_goal_start._id, 'performance', set_goal_intro_action._id, 'performance')
     b.add_remapping(set_goal_start._id, 'phase', set_goal_intro_action._id, 'phase')
     b.add_remapping(stat_goal_start._id, 'score', set_goal_intro_action._id, 'score')
     b.add_remapping(stat_goal_start._id, 'target', set_goal_intro_action._id, 'target')
@@ -582,7 +583,7 @@ def create_coaching_tree():
     gen_set_goal.add_child(set_goal_pre_instr_intro_action)
     # Share data between initialise, set_goal_start, set_goal, set_goal_intro_behav and set_goal_pre_instr_intro_action.
     b.add_remapping(initialise._id, 'bl', set_goal_pre_instr_intro_action._id, 'bl')
-    b.save('performance', performance, set_goal_pre_instr_intro_action._id)
+    b.add_remapping(set_goal_start._id, 'performance', set_goal_pre_instr_intro_action._id, 'performance')
     b.add_remapping(set_goal_start._id, 'phase', set_goal_pre_instr_intro_action._id, 'phase')
     b.add_remapping(set_goal_start._id, 'score', set_goal_pre_instr_intro_action._id, 'score')
     b.add_remapping(set_goal_start._id, 'target', set_goal_pre_instr_intro_action._id, 'target')
@@ -634,7 +635,7 @@ def create_coaching_tree():
     set_goal_individual_action_behav_sequence.add_child(set_goal_individual_action)
     # Share data between initialise, set_goal_individual_action_cue, action_goal, set_goal_individual_action_behav and set_goal_individual_action.
     b.add_remapping(initialise._id, 'bl', set_goal_individual_action._id, 'bl')
-    b.save('performance', performance, set_goal_individual_action._id)
+    b.add_remapping(set_goal_individual_action_cue._id, 'performance', set_goal_individual_action, 'performance')
     b.add_remapping(set_goal_individual_action_cue._id, 'phase', set_goal_individual_action._id, 'phase')
     b.add_remapping(set_goal_individual_action_cue._id, 'score', set_goal_individual_action._id, 'score')
     b.add_remapping(set_goal_individual_action_cue._id, 'target', set_goal_individual_action._id, 'target')
@@ -797,7 +798,7 @@ def get_feedback_loop(name, behav, blackboard, goal_node, initialise_node, previ
         feedback_loop_end_sequence.add_child(feedback_loop_end_action)
         # Share data between initialise_node, timestep_cue_node, goal_node, feedback_behaviour and feedback_loop_end_action.
         blackboard.add_remapping(initialise_node, 'bl', feedback_loop_end_action._id, 'bl')
-        blackboard.save('performance', performance, feedback_loop_end_action._id)
+        blackboard.add_remapping(timestep_cue_node, 'performance', feedback_loop_end_action._id, 'performance')
         blackboard.save('phase', PolicyWrapper.PHASE_END, feedback_loop_end_action._id)
         blackboard.add_remapping(timestep_cue_node, 'score', feedback_loop_end_action._id, 'score')
         blackboard.add_remapping(timestep_cue_node, 'target', feedback_loop_end_action._id, 'target')
@@ -821,7 +822,7 @@ def get_feedback_loop(name, behav, blackboard, goal_node, initialise_node, previ
     feedback_loop_sequence.add_child(feedback_loop_action)
     # Share data between initialise_node, timestep_cue_node, goal_node, feedback_behaviour and feedback_loop_end_action.
     blackboard.add_remapping(initialise_node, 'bl', feedback_loop_action._id, 'bl')
-    blackboard.save('performance', performance, feedback_loop_action._id)
+    blackboard.add_remapping(timestep_cue_node, 'performance', feedback_loop_action._id, 'performance')
     blackboard.save('phase', PolicyWrapper.PHASE_END, feedback_loop_action._id)
     blackboard.add_remapping(timestep_cue_node, 'score', feedback_loop_action._id, 'score')
     blackboard.add_remapping(timestep_cue_node, 'target', feedback_loop_action._id, 'target')
