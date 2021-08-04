@@ -57,14 +57,14 @@ given_score = 0
 name = "Michael"
 participantNo = "P2.3"
 ability = 5
-motivation = 6
+motivation = 5
 # 1 = DRIVE, 5 = LOB, 0 = DROP
 shot = 0
 # "FH" or "BH"
 hand = "FH"
 # "racketPreparation" = RACKET_PREP, "impactCutAngle" = IMPACT_CUT_ANGLE, "followThroughTime" = FOLLOW_THROUGH_TIME
 stat = "impactCutAngle"
-policy = 3
+policy = -1
 leftHand = True
 
 def create_coaching_tree():
