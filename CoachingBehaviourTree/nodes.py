@@ -918,6 +918,7 @@ class EndSetEvent(Node):
             output = {
                 "stop": str(1)
             }
+            logging.info("Stopping set: That's 30, you can stop there.")
             r = requests.post(post_address, json=output)
 
             logging.info("Shot set completed.")
