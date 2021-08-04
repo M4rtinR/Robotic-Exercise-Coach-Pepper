@@ -58,8 +58,8 @@ time_up_shots = 0
 # Initial values
 name = "Ben"
 participantNo = "P3.1"
-ability = -1
-motivation = -1
+ability = 3
+motivation = 7
 # 1 = DRIVE, 5 = LOB, 0 = DROP
 shot = 0
 # "FH" or "BH"
