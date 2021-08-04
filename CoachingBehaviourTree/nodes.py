@@ -675,6 +675,8 @@ class TimestepCue(Node):
                 if controller.phase == PolicyWrapper.PHASE_END:  # Feedback sequence
                     nodedata.performance = round(mean(controller.set_performance_list))
                     nodedata.phase = PolicyWrapper.PHASE_END
+                    logging.info(
+                        "Feedback for shot set, performance = {performance}".format(performance=nodedata.performance))
                     logging.debug("Returning SUCCESS from TimestepCue session goal (end), stats = " + str(nodedata))
                     return NodeStatus(NodeStatus.SUCCESS, "Data for stat goal obtained from guide:" + str(nodedata))
                 else:
@@ -699,6 +701,9 @@ class TimestepCue(Node):
                         nodedata.score = mean(controller.set_score_list)
                         nodedata.target = controller.target
                         nodedata.phase = PolicyWrapper.PHASE_END
+                        logging.info(
+                            "Feedback for shot set, score = {score}, target = {target}, performance = {performance}".format(
+                                score=nodedata.score, target=nodedata.target, performance=nodedata.performance))
                         logging.debug("Returning SUCCESS from TimestepCue shot goal (end), stats = " + str(nodedata))
                         return NodeStatus(NodeStatus.SUCCESS, "Data for shot goal obtained from guide:" + str(nodedata))
                     else:
@@ -721,6 +726,9 @@ class TimestepCue(Node):
                     nodedata.phase = PolicyWrapper.PHASE_END
                     nodedata.score = mean(controller.set_score_list)
                     nodedata.target = controller.target
+                    logging.info(
+                        "Feedback for shot set, score = {score}, target = {target}, performance = {performance}".format(
+                            score=nodedata.score, target=nodedata.target, performance=nodedata.performance))
                     logging.debug("Returning SUCCESS from TimestepCue stat goal, stats = " + str(nodedata))
                     return NodeStatus(NodeStatus.SUCCESS, "Data for stat goal obtained from guide:" + str(nodedata))
                 else:
@@ -739,6 +747,9 @@ class TimestepCue(Node):
                     nodedata.performance = controller.performance
                     nodedata.score = controller.avg_score
                     nodedata.target = controller.target
+                    logging.info(
+                        "Feedback for shot set, score = {score}, target = {target}, performance = {performance}".format(
+                            score=nodedata.score, target=nodedata.target, performance=nodedata.performance))
                     logging.debug("Returning SUCCESS from TimestepCue set goal feedback, stats = " + str(nodedata))
                     return NodeStatus(NodeStatus.SUCCESS, "Data for set goal obtained from guide:" + str(nodedata))
                 else:  # For set goal we don't need any information from guide up front, only for feedback.
