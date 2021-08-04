@@ -56,7 +56,7 @@ set_count = 0
 name = "Jonathan"
 participantNo = "P1.2"
 ability = 2
-motivation = 2
+motivation = 8
 # 1 = DRIVE, 5 = LOB, 0 = DROP
 shot = 1
 # "FH" or "BH"
