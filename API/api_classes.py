@@ -210,8 +210,9 @@ class TimestepCue(Resource):
                     controller.avg_score = float(scoreString)
                     controller.set_score_list.append(float(scoreString))
                     controller.target = float(targetString)
-                    controller.performance = int(content['performance'])
-                    controller.set_performance_list.append(int(content['performance']))
+                    if not content['performance'] == "":
+                        controller.performance = int(content['performance'])
+                        controller.set_performance_list.append(int(content['performance']))
                     # controller.stat = content['stat']  # Let guide decide what stat to work on based on baseline set.
                     controller.goal_level = PolicyWrapper.SET_GOAL
                     controller.phase = PolicyWrapper.PHASE_END

@@ -56,16 +56,16 @@ time_up = False
 time_up_shots = 0
 
 # Initial values
-name = "James"
-participantNo = "PS2.1"
+name = "Ben"
+participantNo = "P3.1"
 ability = -1
 motivation = -1
 # 1 = DRIVE, 5 = LOB, 0 = DROP
-shot = 1
+shot = 0
 # "FH" or "BH"
-hand = "BH"
+hand = "FH"
 # "racketPreparation" = RACKET_PREP, "impactCutAngle" = IMPACT_CUT_ANGLE, "followThroughTime" = FOLLOW_THROUGH_TIME
-stat = "followThroughTime"
+stat = "impactCutAngle"
 policy = -1
 
 def create_coaching_tree():
