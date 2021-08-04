@@ -922,6 +922,7 @@ class EndSetEvent(Node):
                     output = {
                         "utterance": "Time up! That's been 5 minutes. Time to see if all that hard work has paid off!"
                     }
+                    logging.info("Stopping set: Time up! That's been 5 minutes. Time to see if all that hard work has paid off!")
                     r = requests.post(post_address, json=output)
                     logging.info("Training time completed. Total shots played = " + str(self.shotcount))
                     controller.set_count += 1
@@ -942,6 +943,7 @@ class EndSetEvent(Node):
             output = {
                 "stop": str(1)
             }
+            logging.info("Stopping set: That's 30, you can stop there.")
             r = requests.post(post_address, json=output)
 
             logging.info("Shot set completed.")
