@@ -54,16 +54,16 @@ set_count = 0
 given_score = 0
 
 # Initial values to be changed at the beginning of each session:
-name = "Dan"
-participantNo = "P5.3"
-ability = 4
+name = "Ben"
+participantNo = "P3.2"
+ability = 3
 motivation = 5
 # 1 = DRIVE, 5 = LOB, 0 = DROP
 shot = 1
 # "FH" or "BH"
-hand = "FH"
+hand = "BH"
 # "racketPreparation" = RACKET_PREP, "impactCutAngle" = IMPACT_CUT_ANGLE, "followThroughTime" = FOLLOW_THROUGH_TIME
-stat = "racketPreparation"
+stat = "followThroughTime"
 policy = -1
 leftHand = False
 
