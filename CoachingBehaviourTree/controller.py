@@ -54,10 +54,10 @@ set_count = 0
 given_score = 0
 
 # Initial values to be changed at the beginning of each session:
-name = "Jonathan"
-participantNo = "P16.1"
-ability = 5
-motivation = 9
+name = "Jono"
+participantNo = "P15.2"
+ability = 2
+motivation = 8
 # 1 = DRIVE, 5 = LOB, 0 = DROP
 shot = 0
 # "FH" or "BH"
