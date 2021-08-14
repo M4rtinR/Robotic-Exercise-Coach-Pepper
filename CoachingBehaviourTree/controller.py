@@ -57,7 +57,7 @@ given_score = 0
 name = "Mike"
 participantNo = "P20.1"
 ability = 4
-motivation = 9
+motivation = 7
 # 1 = DRIVE, 5 = LOB, 0 = DROP
 shot = 1
 # "FH" or "BH"
