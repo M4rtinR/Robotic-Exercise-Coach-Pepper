@@ -59,7 +59,7 @@ time_up_shots = 0
 name = "Jacques"
 participantNo = "P19.3"
 ability = 4
-motivation = 7
+motivation = 8
 # 1 = DRIVE, 5 = LOB, 0 = DROP
 shot = 0
 # "FH" or "BH"
