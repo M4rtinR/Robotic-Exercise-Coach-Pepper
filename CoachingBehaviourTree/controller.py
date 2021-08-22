@@ -54,9 +54,9 @@ set_count = 0
 given_score = 0
 
 # Initial values to be changed at the beginning of each session:
-name = "Lucy"
-participantNo = "P13.2"
-ability = 4
+name = "Sorcha"
+participantNo = "P21.3"
+ability = 2
 motivation = 8
 # 1 = DRIVE, 5 = LOB, 0 = DROP
 shot = 0
@@ -64,8 +64,8 @@ shot = 0
 hand = "FH"
 # "racketPreparation" = RACKET_PREP, "impactCutAngle" = IMPACT_CUT_ANGLE, "followThroughTime" = FOLLOW_THROUGH_TIME
 stat = "impactCutAngle"
-policy = 11
-leftHand = True
+policy = 0
+leftHand = False
 
 def create_coaching_tree():
     """
