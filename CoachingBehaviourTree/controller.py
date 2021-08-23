@@ -55,7 +55,7 @@ given_score = 0
 
 # Initial values to be changed at the beginning of each session:
 name = "Sorcha"
-participantNo = "P21.3"
+participantNo = "SensorTest"
 ability = 2
 motivation = 8
 # 1 = DRIVE, 5 = LOB, 0 = DROP
