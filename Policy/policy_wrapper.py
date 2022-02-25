@@ -36,24 +36,17 @@ class PolicyWrapper:
     PERSON_GOAL = 0
     SESSION_GOAL = 1
     EXERCISE_GOAL = 2
-    STAT_GOAL = 3
-    SET_GOAL = 4
-    ACTION_GOAL = 5
-    BASELINE_GOAL = 6
+    SET_GOAL = 3
+    ACTION_GOAL = 4
 
     # Phases
     PHASE_START = 0
     PHASE_END = 1
 
     # Performance Levels
-    MET = 0             # Met the target
-    MUCH_IMPROVED = 1   # Moved a lot closer to the target
-    IMPROVED = 2        # Moved closer to the target
-    IMPROVED_SWAP = 3   # Moved closer to the target but passed it
-    STEADY = 4          # Stayed the same
-    REGRESSED = 5       # Moved further away from the target
-    REGRESSED_SWAP = 6  # Moved past the target and further from it
-    MUCH_REGRESSED = 7  # Moved a lot further away from the target
+    GOOD = 0            # Timing was within 0.5 secs either side of optimal
+    FAST = 1            # Timing was <= optimal - 0.5secs
+    SLOW = 2            # Timing was >= optimal + 0.5secs
 
     def get_behaviour(self, state, goal_level, performance, phase):
         """
