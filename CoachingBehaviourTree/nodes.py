@@ -431,7 +431,7 @@ class GetStats(Node):
         # Will be ACTIVE when waiting for data and SUCCESS when got data and added to blackboard, FAIL when connection error.
         # logging.debug("In get stats")
         nodedata.motivation = controller.motivation
-        nodedata.player_ability = controller.ability
+        nodedata.player_ability = controller.impairment
         logging.info("Stats set, motivation = {motivation}, ability = {ability}".format(motivation=nodedata.motivation, ability=nodedata.player_ability))
         #nodedata.sessions = 6
         # logging.debug("After setting stats in GetStats: " + str(nodedata))
@@ -662,7 +662,7 @@ class TimestepCue(Node):
                     return NodeStatus(NodeStatus.SUCCESS, "Data for stat goal obtained from guide:" + str(nodedata))
                 else:
                     nodedata.sessions = controller.sessions
-                    nodedata.player_ability = controller.ability
+                    nodedata.player_ability = controller.impairment
                     nodedata.name = controller.name
                     nodedata.phase = PolicyWrapper.PHASE_START
                     logging.debug("Returning SUCCESS from TimestepCue player goal, stats = " + str(nodedata))
@@ -755,7 +755,7 @@ class TimestepCue(Node):
                 else:  # For set goal we don't need any information from guide up front, only for feedback.
                     nodedata.phase = PolicyWrapper.PHASE_START
                     nodedata.performance = controller.performance
-                    controller.shot_count = 0
+                    controller.exercise_count = 0
                     # controller.completed = controller.COMPLETED_STATUS_FALSE
                     logging.debug("Returning SUCCESS from TimestepCue set goal, stats = " + str(nodedata))
                     return NodeStatus(NodeStatus.SUCCESS, "Data for set goal obtained from guide:" + str(nodedata))
@@ -779,7 +779,7 @@ class TimestepCue(Node):
         elif self.goal_level == 6:
             if controller.goal_level == 4:
                 nodedata.phase = PolicyWrapper.PHASE_START
-                controller.shot_count = 0
+                controller.exercise_count = 0
                 controller.completed = controller.COMPLETED_STATUS_FALSE
                 logging.debug("Returning SUCCESS from TimestepCue baseline goal, stats = " + str(nodedata))
                 return NodeStatus(NodeStatus.SUCCESS, "Data for baseline goal obtained from guide:" + str(nodedata))
@@ -884,11 +884,11 @@ class GetUserChoice(Node):
         # TODO Update once getting actual choice from user. Will probably need two nodes, one for requesting, one for
         #   waiting for user selection so that the tree doesn't grind to a halt.
         if self.choice_type == 0:  # controller.SHOT_CHOICE = 0
-            nodedata.shot = 1
-            controller.shot = 1
+            nodedata.exercise = 1
+            controller.exercise = 1
             nodedata.hand = 1  # Forehand
             controller.hand = 1
-            logging.debug("Returning SUCCESS from GetUserChoice, shot = " + str(nodedata.shot))
+            logging.debug("Returning SUCCESS from GetUserChoice, shot = " + str(nodedata.exercise))
         else:
             nodedata.stat = 1
             controller.stat = 1
@@ -916,8 +916,8 @@ class EndSetEvent(Node):
             *args, **kwargs)
 
     def configure(self, nodedata):
-        logging.debug("Configuring EndSetEvent: " + self._name + ", setting shotcount to " + str(controller.shot_count))
-        self.shotcount = controller.shot_count
+        logging.debug("Configuring EndSetEvent: " + self._name + ", setting shotcount to " + str(controller.exercise_count))
+        self.shotcount = controller.exercise_count
 
     def run(self, nodedata):
         """
