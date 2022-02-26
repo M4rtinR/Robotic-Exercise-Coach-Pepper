@@ -125,7 +125,7 @@ class GetBehaviour(Node):
         logging.debug('Got behaviour: ' + str(nodedata.behaviour))
 
         # If behaviour occurs twice, just skip to pre-instruction.
-        if nodedata.behaviour in controller.used_behaviours and (self.goal_level == PolicyWrapper.SESSION_GOAL or self.goal_level == PolicyWrapper.EXERCISE_GOAL or self.goal_level == PolicyWrapper.BASELINE_GOAL or self.goal_level == PolicyWrapper.SET_GOAL or self.goal_level == PolicyWrapper.STAT_GOAL):
+        if nodedata.behaviour in controller.used_behaviours and (self.goal_level == PolicyWrapper.SESSION_GOAL or self.goal_level == PolicyWrapper.EXERCISE_GOAL or self.goal_level == PolicyWrapper.SET_GOAL):
             nodedata.behaviour = Policy.A_PREINSTRUCTION
             logging.debug('Got new behaviour: 1')
             # controller.matching_behav = 0
@@ -431,8 +431,8 @@ class GetStats(Node):
         # Will be ACTIVE when waiting for data and SUCCESS when got data and added to blackboard, FAIL when connection error.
         # logging.debug("In get stats")
         nodedata.motivation = controller.motivation
-        nodedata.player_ability = controller.impairment
-        logging.info("Stats set, motivation = {motivation}, ability = {ability}".format(motivation=nodedata.motivation, ability=nodedata.player_ability))
+        nodedata.user_impairment = controller.impairment
+        logging.info("Stats set, motivation = {motivation}, impairment = {impairment}".format(motivation=nodedata.motivation, ability=nodedata.user_impairment))
         #nodedata.sessions = 6
         # logging.debug("After setting stats in GetStats: " + str(nodedata))
         logging.debug("Returning SUCCESS from GetStats, stats = " + str(nodedata))
@@ -468,7 +468,7 @@ class GetDuration(Node):
         nodedata.session_duration = 1
         logging.info("Set session duration to: {duration}".format(duration=nodedata.session_duration))
         logging.debug("Returning SUCCESS from GetDuration, session duration = " + str(nodedata.session_duration))
-        return NodeStatus(NodeStatus.SUCCESS, "Set session duration to dummy value 20.")
+        return NodeStatus(NodeStatus.SUCCESS, "Set session duration to dummy value 1.")
 
 
 class CreateSubgoal(Node):
@@ -504,8 +504,7 @@ class CreateSubgoal(Node):
         logging.debug("Configuring CreateSubgoal: " + self._name)
         logging.debug("createSubgoal nodedata = " + str(nodedata))
         self.previous_goal_level = nodedata.get_data('goal', -1)
-        self.shot = nodedata.get_data('shot')
-        self.stat = nodedata.get_data('stat')
+        self.exercise = nodedata.get_data('exercise')
 
     def run(self, nodedata):
         """
@@ -515,22 +514,11 @@ class CreateSubgoal(Node):
             or cannot connect to API.
         """
         # Will return SUCCESS once request sent to API, FAIL if called on ACTION_GOAL or connection error.
-        if self.previous_goal_level == 6:
-            nodedata.new_goal = 3
-            logging.info("Created subgoal, new goal level = {}".format(nodedata.new_goal))
-            logging.debug("Returning SUCCESS from CreateSubGoal, new goal level = " + str(nodedata.goal))
-            return NodeStatus(NodeStatus.SUCCESS, "Created subgoal: 3 from BASELINE_GOAL")
-        elif self.previous_goal_level > 6:
+        if self.previous_goal_level > PolicyWrapper.ACTION_GOAL:
             logging.debug("Returning FAIL from CreateSubGoal, previous goal level = " + str(self.previous_goal_level))
             return NodeStatus(NodeStatus.FAIL, "Cannot create subgoal of ACTION_GOAL.")
         else:
-            if self.previous_goal_level == PolicyWrapper.EXERCISE_GOAL and self.stat is None:
-                nodedata.new_goal = 6
-                # api_classes.expecting_action_goal = True
-            else:
-                nodedata.new_goal = self.previous_goal_level + 1
-                # if nodedata.new_goal == PolicyWrapper.ACTION_GOAL:
-                    # api_classes.expecting_action_goal = True
+            nodedata.new_goal = self.previous_goal_level + 1
             logging.info("Created subgoal, new goal level = {}".format(nodedata.new_goal))
             logging.debug("Returning SUCCESS from CreateSubGoal, new goal level = " + str(nodedata.new_goal))
             return NodeStatus(NodeStatus.SUCCESS, "Created subgoal: " + str(self.previous_goal_level + 1))
@@ -652,7 +640,7 @@ class TimestepCue(Node):
         """
         # Will be ACTIVE when waiting for data and SUCCESS when got data and added to blackboard, FAIL when connection error.
         if self.goal_level == -1:  # Person goal created after receiving info from guide.
-            if controller.goal_level == 0:  # For person goal should have name, ability and no. of sessions.
+            if controller.goal_level == PolicyWrapper.PERSON_GOAL:  # For person goal should have name, impairment and no. of sessions.
                 if controller.phase == PolicyWrapper.PHASE_END:  # Feedback sequence
                     nodedata.performance = round(mean(controller.set_performance_list))
                     nodedata.phase = PolicyWrapper.PHASE_END
@@ -662,7 +650,7 @@ class TimestepCue(Node):
                     return NodeStatus(NodeStatus.SUCCESS, "Data for stat goal obtained from guide:" + str(nodedata))
                 else:
                     nodedata.sessions = controller.sessions
-                    nodedata.player_ability = controller.impairment
+                    nodedata.user_impairment = controller.impairment
                     nodedata.name = controller.name
                     nodedata.phase = PolicyWrapper.PHASE_START
                     logging.debug("Returning SUCCESS from TimestepCue player goal, stats = " + str(nodedata))
@@ -671,9 +659,9 @@ class TimestepCue(Node):
                 logging.debug("Returning ACTIVE from TimestepCue player goal")
                 return NodeStatus(NodeStatus.ACTIVE, "Waiting for person goal data from guide.")
 
-        elif self.goal_level == 1:  # For session goal should have performance from previous session.
+        elif self.goal_level == PolicyWrapper.SESSION_GOAL:  # For session goal should have performance from previous session.
             logging.debug("TimestepCue, controller.goal_level = " + str(controller.goal_level))
-            if controller.goal_level == 1:
+            if controller.goal_level == PolicyWrapper.SESSION_GOAL:
                 if controller.phase == PolicyWrapper.PHASE_END:  # Feedback sequence
                     nodedata.performance = round(mean(controller.set_performance_list))
                     nodedata.phase = PolicyWrapper.PHASE_END
@@ -690,66 +678,37 @@ class TimestepCue(Node):
                 logging.debug("Returning ACTIVE from TimestepCue session goal")
                 return NodeStatus(NodeStatus.ACTIVE, "Waiting for session goal data from guide.")
 
-        elif self.goal_level == 2:  # For shot goal should have performance from last time this shot was practiced.
-            if controller.goal_level == 2:
+        elif self.goal_level == PolicyWrapper.EXERCISE_GOAL:  # For exercise goal should have performance from last time this exercise was practiced.
+            if controller.goal_level == PolicyWrapper.EXERCISE_GOAL:
                 if controller.phase == PolicyWrapper.PHASE_END:
-                    if controller.completed == controller.COMPLETED_STATUS_TRUE:  # This is actually the end of a baseline goal. Might need to update this so it's not as weirdly laid out.
-                        logging.debug("Baseline goal feedback sequence")
-                        nodedata.phase = PolicyWrapper.PHASE_END
-                        nodedata.performance = controller.performance
-                        logging.debug("Returning SUCCESS from TimestepCue shot goal (end), stats = " + str(nodedata))
-                        return NodeStatus(NodeStatus.SUCCESS, "Data for shot goal obtained from guide:" + str(nodedata))
-                    elif controller.completed == controller.COMPLETED_STATUS_FALSE:  # Feedback Sequence
-                        logging.debug("Shot goal feedback sequence")
-                        nodedata.performance = round(mean(controller.set_performance_list))
-                        nodedata.score = mean(controller.set_score_list)
-                        nodedata.target = controller.target
-                        nodedata.phase = PolicyWrapper.PHASE_END
-                        logging.info(
-                            "Feedback for shot, score = {score}, target = {target}, performance = {performance}".format(
-                                score=nodedata.score, target=nodedata.target, performance=nodedata.performance))
-                        logging.debug("Returning SUCCESS from TimestepCue shot goal (end), stats = " + str(nodedata))
-                        return NodeStatus(NodeStatus.SUCCESS, "Data for shot goal obtained from guide:" + str(nodedata))
-                    else:
-                        logging.debug("Returning ACTIVE from TimestepCue shot goal, controller.completed = COMPLETED_STATUS_UNDEFINED")
-                        return NodeStatus(NodeStatus.ACTIVE, "Waiting for shot goal data from guide.")
+                    logging.debug("Exercise goal feedback sequence")
+                    nodedata.performance = round(mean(controller.set_performance_list))
+                    nodedata.score = mean(controller.set_score_list)
+                    nodedata.target = controller.target
+                    nodedata.phase = PolicyWrapper.PHASE_END
+                    logging.info(
+                        "Feedback for exercise, score = {score}, target = {target}, performance = {performance}".format(
+                            score=nodedata.score, target=nodedata.target, performance=nodedata.performance))
+                    logging.debug("Returning SUCCESS from TimestepCue exercise goal (end), stats = " + str(nodedata))
+                    return NodeStatus(NodeStatus.SUCCESS, "Data for exercies goal obtained from guide:" + str(nodedata))
                 else:
                     nodedata.performance = controller.performance
                     nodedata.phase = PolicyWrapper.PHASE_START
                     controller.goal_level = PolicyWrapper.SET_GOAL
-                    logging.debug("Returning SUCCESS from TimestepCue shot goal, stats = " + str(nodedata))
-                    return NodeStatus(NodeStatus.SUCCESS, "Data for shot goal obtained from guide:" + str(nodedata))
+                    logging.debug("Returning SUCCESS from TimestepCue exercise goal, stats = " + str(nodedata))
+                    return NodeStatus(NodeStatus.SUCCESS, "Data for exercise goal obtained from guide:" + str(nodedata))
             else:
-                logging.debug("Returning ACTIVE from TimestepCue shot goal, controller.goal_level != 2")
-                return NodeStatus(NodeStatus.ACTIVE, "Waiting for shot goal data from guide.")
+                logging.debug("Returning ACTIVE from TimestepCue exercise goal, controller.goal_level != 2")
+                return NodeStatus(NodeStatus.ACTIVE, "Waiting for exercise goal data from guide.")
 
-        elif self.goal_level == 3:  # For stat goal should have target and performance from last time this stat was practiced.
-            if controller.goal_level == 3:
-                if controller.phase == PolicyWrapper.PHASE_END:  # Feedback sequence
-                    nodedata.performance = round(mean(controller.set_performance_list))
-                    nodedata.phase = PolicyWrapper.PHASE_END
-                    nodedata.score = mean(controller.set_score_list)
-                    nodedata.target = controller.target
-                    logging.info("Feedback for stat, score = {score}, target = {target}, performance = {performance}".format(score=nodedata.score, target=nodedata.target, performance=nodedata.performance))
-                    logging.debug("Returning SUCCESS from TimestepCue stat goal, stats = " + str(nodedata))
-                    return NodeStatus(NodeStatus.SUCCESS, "Data for stat goal obtained from guide:" + str(nodedata))
-                else:
-                    nodedata.performance = controller.performance
-                    nodedata.phase = PolicyWrapper.PHASE_START
-                    logging.debug("Returning SUCCESS from TimestepCue stat goal, stats = " + str(nodedata))
-                    return NodeStatus(NodeStatus.SUCCESS, "Data for stat goal obtained from guide:" + str(nodedata))
-            else:
-                logging.debug("Returning ACTIVE from TimestepCue stat goal")
-                return NodeStatus(NodeStatus.ACTIVE, "Waiting for stat goal data from guide.")
-
-        elif self.goal_level == 4:  # For set goal we don't need any information from guide up front, only for feedback.
-            if controller.goal_level == 4:
+        elif self.goal_level == PolicyWrapper.SET_GOAL:  # For set goal we don't need any information from guide up front, only for feedback.
+            if controller.goal_level == PolicyWrapper.SET_GOAL:
                 if controller.phase == PolicyWrapper.PHASE_END:  # Just finished previous goal level so into feedback sequence.
                     nodedata.phase = PolicyWrapper.PHASE_END
                     nodedata.performance = controller.performance
                     nodedata.score = controller.avg_score
                     nodedata.target = controller.target
-                    logging.info("Feedback for shot set, score = {score}, target = {target}, performance = {performance}".format(score=nodedata.score, target=nodedata.target, performance=nodedata.performance))
+                    logging.info("Feedback for exercise set, score = {score}, target = {target}, performance = {performance}".format(score=nodedata.score, target=nodedata.target, performance=nodedata.performance))
                     logging.debug("Returning SUCCESS from TimestepCue set goal feedback, stats = " + str(nodedata))
                     return NodeStatus(NodeStatus.SUCCESS, "Data for set goal obtained from guide:" + str(nodedata))
                 else:  # For set goal we don't need any information from guide up front, only for feedback.
@@ -763,8 +722,8 @@ class TimestepCue(Node):
                 logging.debug("Returning ACTIVE from TimestepCue set goal")
                 return NodeStatus(NodeStatus.ACTIVE, "Waiting for set goal data from guide.")
 
-        elif self.goal_level == 5:
-            if controller.goal_level == 5:
+        elif self.goal_level == PolicyWrapper.ACTION_GOAL:
+            if controller.goal_level == PolicyWrapper.ACTION_GOAL:
                 controller.goal_level = PolicyWrapper.SET_GOAL
                 nodedata.phase = PolicyWrapper.PHASE_END
                 nodedata.performance = controller.performance
@@ -776,23 +735,12 @@ class TimestepCue(Node):
                 logging.debug("Returning ACTIVE from TimestepCue action goal")
                 return NodeStatus(NodeStatus.ACTIVE, "Waiting for action goal data from guide.")
 
-        elif self.goal_level == 6:
-            if controller.goal_level == 4:
-                nodedata.phase = PolicyWrapper.PHASE_START
-                controller.exercise_count = 0
-                controller.completed = controller.COMPLETED_STATUS_FALSE
-                logging.debug("Returning SUCCESS from TimestepCue baseline goal, stats = " + str(nodedata))
-                return NodeStatus(NodeStatus.SUCCESS, "Data for baseline goal obtained from guide:" + str(nodedata))
-            else:
-                logging.debug("Returning ACTIVE from TimestepCue baseline goal")
-                return NodeStatus(NodeStatus.ACTIVE, "Waiting for baseline goal data from guide.")
-
-        nodedata.performance = PolicyWrapper.MET
+        nodedata.performance = PolicyWrapper.GOOD
         nodedata.phase = PolicyWrapper.PHASE_START
         nodedata.target = 0.80
         nodedata.score = 0.79
         logging.debug("Returning SUCCESS from TimestepCue, stats = " + str(nodedata))
-        return NodeStatus(NodeStatus.SUCCESS, "Set timestep cue values to dummy values MET, PHASE_START, 0.80, 0.79.")
+        return NodeStatus(NodeStatus.SUCCESS, "Set timestep cue values to dummy values GOOD, PHASE_START, 0.80, 0.79.")
 
 
 class DurationCheck(Node):
@@ -982,8 +930,8 @@ class InitialiseBlackboard(Node):
         """
         logging.debug("Configuring InitialiseBlackboard: " + self._name)
         self.motivation = nodedata.get_data('motivation')
-        self.ability = nodedata.get_data('player_ability')
-        if self.ability < 4:
+        self.impairment = nodedata.get_data('user_impairment')
+        if self.impairment < 4:
             self.experience = "low"
         else:
             self.experience = "high"
@@ -1021,7 +969,7 @@ class InitialiseBlackboard(Node):
         nodedata.state = self._get_start(max_style)
         nodedata.performance = -1
         nodedata.phase = PolicyWrapper.PHASE_START
-        nodedata.bl = BehaviourLibraryFunctions("SquashDict", squash_behaviour_library)
+        nodedata.bl = BehaviourLibraryFunctions("RehabDict", rehab_behaviour_library)
         nodedata.start_time = 0  # TODO: update with actual time.
         logging.info("Chosen policy = {}".format(max_style))
         logging.debug("Returning SUCCESS from InitialiseBlackboard")
