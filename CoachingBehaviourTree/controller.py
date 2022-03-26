@@ -47,14 +47,18 @@ matching_behav = 0
 phase = PolicyWrapper.PHASE_START
 session_time = 0
 used_behaviours = []
-set_performance_list = []
-set_score_list = []
+set_performance_list = []  # 1 entry for each rep performed
+set_score_list = []  # 1 entry for each rep performed
+exercise_performance_list = []  # 1 entry for each set performed of that exercise
+exercise_score_list = []  # 1 entry for each set performed of that exercise
+session_performance_list = []  # 1 entry for each exercise performed
+session_score_list = []  # 1 entry for each exercise performed
 set_count = 0
 given_score = 0
 
 # Initial values to be changed at the beginning of each session:
 name = "Martin"
-participantNo = "Testing"
+participantNo = "Testing.0"
 impairment = 0
 motivation = 8
 # 1 = DRIVE, 5 = LOB, 0 = DROP
@@ -215,8 +219,7 @@ def create_coaching_tree():
     b.add_remapping(session_goal._id, 'new_goal', session_goal_intro_pre_instr_action._id, 'goal')
     b.add_remapping(session_goal_intro_behav._id, 'behaviour', session_goal_intro_pre_instr_action._id, 'behaviour')
     b.add_remapping(user_start._id, 'name', session_goal_intro_pre_instr_action._id, 'name')
-    b.save('shot', exercise, session_goal_intro_pre_instr_action._id)
-    b.save('hand', hand, session_goal_intro_pre_instr_action._id)
+    b.save('exercise', exercise, session_goal_intro_pre_instr_action._id)
     session_goal_intro_pre_instr_output = DisplayBehaviour(name="session_goal_intro_pre_instruction_output", blackboard=b)
     session_goal_intro_pre_instr_sequence.add_child(session_goal_intro_pre_instr_output)
     # Share action between session_goal_intro_action and session_goal_intro_output.

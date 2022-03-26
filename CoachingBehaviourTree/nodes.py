@@ -39,7 +39,7 @@ from multiprocessing import Process, Queue, Pipe
 from API import api_classes
 from CoachingBehaviourTree import controller
 from CoachingBehaviourTree.action import Action
-from CoachingBehaviourTree.behaviour_library import BehaviourLibraryFunctions, squash_behaviour_library
+from CoachingBehaviourTree.behaviour_library import BehaviourLibraryFunctions, rehab_behaviour_library
 from Policy.policy import Policy
 from Policy.policy_wrapper import PolicyWrapper
 import numpy as np
@@ -197,14 +197,12 @@ class FormatAction(Node):
         self.goal_level = nodedata.get_data('goal')          # Which level of goal we are currently in (e.g. SET_GOAL)
         self.performance = nodedata.get_data('performance', 0)  # Which level of performance the player achieved (e.g. MET)
         self.phase = nodedata.get_data('phase')              # PHASE_START or PHASE_END
-        self.score = nodedata.get_data('score')              # Numerical score from sensor relating to a stat (can be None)
-        self.target = nodedata.get_data('target')            # Numerical target score for stat (can be None)
+        self.score = nodedata.get_data('score')              # Numerical score from sensor relating to the exercise (can be None)
+        self.target = nodedata.get_data('target')            # Numerical target score for the exercise (can be None)
         self.behaviour_lib = nodedata.get_data('bl')         # The behaviour library to be used in generating actions
         self.behaviour = nodedata.get_data('behaviour')      # The type of behaviour to create an action for.
-        self.name = controller.name                # The name of the current user.
-        self.shot = nodedata.get_data('shot')                # The shot type (can be None)
-        self.hand = nodedata.get_data('hand')                # Forehand or backhand associated with shot (can be None)
-        self.stat = nodedata.get_data('stat')                # The stat type (can be None)
+        self.name = controller.name                          # The name of the current user.
+        self.exercise = nodedata.get_data('exercise')        # The exercise type (can be None)
 
     def run(self, nodedata):
         """
@@ -213,7 +211,7 @@ class FormatAction(Node):
             nodes.
         :return: NodeStatus.SUCCESS when an action has been created.
         """
-        logging.info("Formatting action: behaviour = {behaviour}, goal_level = {goal_level}, performance = {performance}, name = {name}, shot = {shot}, hand = {hand}, stat = {stat}".format(behaviour=self.behaviour, goal_level=self.goal_level, performance=self.performance, name=self.name, shot=self.shot, hand=self.hand, stat=self.stat))
+        logging.info("Formatting action: behaviour = {behaviour}, goal_level = {goal_level}, performance = {performance}, name = {name}, exercise = {exercise}".format(behaviour=self.behaviour, goal_level=self.goal_level, performance=self.performance, name=self.name, exercise=self.exercise))
         if not(self.behaviour == Policy.A_SILENCE):
             demo = None
             if self.behaviour in [Policy.A_POSITIVEMODELING, Policy.A_NEGATIVEMODELING,
@@ -232,7 +230,7 @@ class FormatAction(Node):
                                   Policy.A_POSITIVEMODELING_CONCURRENTINSTRUCTIONPOSITIVE,
                                   Policy.A_POSITIVEMODELING_QUESTIONING, Policy.A_POSITIVEMODELING_HUSTLE,
                                   Policy.A_POSITIVEMODELING_PRAISE]:
-                demo = self.behaviour_lib.get_demo_string(self.behaviour, self.goal_level, self.shot, self.hand, self.stat, controller.leftHand)
+                demo = self.behaviour_lib.get_demo_string(self.behaviour, self.goal_level, self.exercise, controller.leftHand)
             question = None
             if self.behaviour in [Policy.A_QUESTIONING, Policy.A_QUESTIONING_FIRSTNAME,
                                   Policy.A_QUESTIONING_POSITIVEMODELING,
@@ -241,7 +239,7 @@ class FormatAction(Node):
                     question = "Concurrent"
                 else:
                     question = "GoodBad"
-            pre_msg = self.behaviour_lib.get_pre_msg(self.behaviour, self.goal_level, self.performance, self.phase, self.name, self.shot, self.hand, self.stat, controller.set_count == 5)
+            pre_msg = self.behaviour_lib.get_pre_msg(self.behaviour, self.goal_level, self.performance, self.phase, self.name, self.exercise, controller.set_count == 2)
             if (self.score is None and self.performance is None) or controller.given_score >= 2:
                 nodedata.action = Action(pre_msg, demo=demo, question=question)
             else:
@@ -565,32 +563,25 @@ class EndSubgoal(Node):
             or cannot connect to API.
         """
         # Will return SUCCESS once request sent to API, FAIL if called on goal > 6 or connection error.
-        if self.goal_level > 6:
+        if self.goal_level > 4:
             logging.debug("Returning FAIL from EndSubgoal, goal_level = " + str(self.goal_level))
             return NodeStatus(NodeStatus.FAIL, "Cannot create subgoal of " + str(self.goal_level))
         else:
-            if self.goal_level == PolicyWrapper.BASELINE_GOAL:
-                nodedata.stat = 1
-                nodedata.phase = PolicyWrapper.PHASE_END
-                nodedata.new_goal = PolicyWrapper.STAT_GOAL
-                controller.completed = controller.COMPLETED_STATUS_TRUE
-                # api_classes.expecting_action_goal = False
+            if (self.goal_level == PolicyWrapper.SET_GOAL and controller.set_count == 2) or self.goal_level == PolicyWrapper.EXERCISE_GOAL or self.goal_level == PolicyWrapper.SESSION_GOAL:
+                controller.goal_level -= 1
+                controller.phase = PolicyWrapper.PHASE_END
             else:
-                if (self.goal_level == PolicyWrapper.SET_GOAL and controller.set_count == 6) or self.goal_level == PolicyWrapper.STAT_GOAL or self.goal_level == PolicyWrapper.EXERCISE_GOAL or self.goal_level == PolicyWrapper.SESSION_GOAL:
-                    controller.goal_level -= 1
-                    controller.phase = PolicyWrapper.PHASE_END
-                else:
-                    controller.phase = PolicyWrapper.PHASE_START
-                nodedata.new_goal = self.goal_level - 1
-                nodedata.phase = PolicyWrapper.PHASE_START  # All behaviours have happened so its start of new goal.
-                if self.goal_level == PolicyWrapper.STAT_GOAL:
-                    controller.completed = controller.COMPLETED_STATUS_FALSE
-                else:
-                    controller.completed = controller.COMPLETED_STATUS_TRUE
-                if self.goal_level == PolicyWrapper.EXERCISE_GOAL:
-                    controller.session_time += 1
-                # if self.goal_level == PolicyWrapper.ACTION_GOAL:
-                    # api_classes.expecting_action_goal = False
+                controller.phase = PolicyWrapper.PHASE_START
+            nodedata.new_goal = self.goal_level - 1
+            nodedata.phase = PolicyWrapper.PHASE_START  # All behaviours have happened so its start of new goal.
+            if self.goal_level == PolicyWrapper.STAT_GOAL:
+                controller.completed = controller.COMPLETED_STATUS_FALSE
+            else:
+                controller.completed = controller.COMPLETED_STATUS_TRUE
+            if self.goal_level == PolicyWrapper.EXERCISE_GOAL:
+                controller.session_time += 1
+            # if self.goal_level == PolicyWrapper.ACTION_GOAL:
+                # api_classes.expecting_action_goal = False
             if nodedata.new_goal == -1:
                 print("Completed")
                 time.sleep(5.0)
@@ -612,7 +603,6 @@ class TimestepCue(Node):
         Check if the guide has requested an action be performed, and if so update the blackboard with the data about the
         current state given by the guide.
     """
-    # TODO: Dummy class which will eventually communicate with guide via API
     def __init__(self, name, *args, **kwargs):
         super(TimestepCue, self).__init__(
             name,
@@ -642,7 +632,13 @@ class TimestepCue(Node):
         if self.goal_level == -1:  # Person goal created after receiving info from guide.
             if controller.goal_level == PolicyWrapper.PERSON_GOAL:  # For person goal should have name, impairment and no. of sessions.
                 if controller.phase == PolicyWrapper.PHASE_END:  # Feedback sequence
-                    nodedata.performance = round(mean(controller.set_performance_list))
+                    nodedata.performance = round(mean(controller.session_performance_list))
+                    # TODO: write session performance to file.
+                    filename = controller.participantNo.split(".")[0]
+                    f = open("~/PycharmProjects/coachingPolicies/SessionDataFiles/" + filename, "a")
+                    session_no = controller.participantNo.split(".")[1]
+                    f.write("Session performance for session " + session_no + " = " + str(nodedata.performance) + "\\n")
+                    f.close()
                     nodedata.phase = PolicyWrapper.PHASE_END
                     logging.info(
                         "Feedback for session, performance = {performance}".format(performance=nodedata.performance))
@@ -663,13 +659,15 @@ class TimestepCue(Node):
             logging.debug("TimestepCue, controller.goal_level = " + str(controller.goal_level))
             if controller.goal_level == PolicyWrapper.SESSION_GOAL:
                 if controller.phase == PolicyWrapper.PHASE_END:  # Feedback sequence
-                    nodedata.performance = round(mean(controller.set_performance_list))
+                    nodedata.performance = round(mean(controller.session_performance_list))
+                    # TODO: write session performance to file.
                     nodedata.phase = PolicyWrapper.PHASE_END
                     logging.info(
                         "Feedback for session, performance = {performance}".format(performance=nodedata.performance))
                     logging.debug("Returning SUCCESS from TimestepCue session goal (end), stats = " + str(nodedata))
                     return NodeStatus(NodeStatus.SUCCESS, "Data for stat goal obtained from guide:" + str(nodedata))
                 else:
+                    # TODO: get performance data of previous session from file.
                     nodedata.performance = controller.performance
                     nodedata.phase = PolicyWrapper.PHASE_START
                     logging.debug("Returning SUCCESS from TimestepCue session goal, stats = " + str(nodedata))
@@ -680,10 +678,11 @@ class TimestepCue(Node):
 
         elif self.goal_level == PolicyWrapper.EXERCISE_GOAL:  # For exercise goal should have performance from last time this exercise was practiced.
             if controller.goal_level == PolicyWrapper.EXERCISE_GOAL:
-                if controller.phase == PolicyWrapper.PHASE_END:
+                if controller.phase == PolicyWrapper.PHASE_END:  # Feedback sequence
                     logging.debug("Exercise goal feedback sequence")
-                    nodedata.performance = round(mean(controller.set_performance_list))
-                    nodedata.score = mean(controller.set_score_list)
+                    nodedata.performance = round(mean(controller.exercise_performance_list))
+                    nodedata.score = mean(controller.exercise_score_list)
+                    # TODO: write data to file.
                     nodedata.target = controller.target
                     nodedata.phase = PolicyWrapper.PHASE_END
                     logging.info(
@@ -692,6 +691,7 @@ class TimestepCue(Node):
                     logging.debug("Returning SUCCESS from TimestepCue exercise goal (end), stats = " + str(nodedata))
                     return NodeStatus(NodeStatus.SUCCESS, "Data for exercies goal obtained from guide:" + str(nodedata))
                 else:
+                    # TODO: get data from file.
                     nodedata.performance = controller.performance
                     nodedata.phase = PolicyWrapper.PHASE_START
                     controller.goal_level = PolicyWrapper.SET_GOAL
@@ -705,14 +705,16 @@ class TimestepCue(Node):
             if controller.goal_level == PolicyWrapper.SET_GOAL:
                 if controller.phase == PolicyWrapper.PHASE_END:  # Just finished previous goal level so into feedback sequence.
                     nodedata.phase = PolicyWrapper.PHASE_END
-                    nodedata.performance = controller.performance
-                    nodedata.score = controller.avg_score
+                    nodedata.performance = round(mean(controller.set_performance_list))
+                    nodedata.score = mean(controller.set_score_list)
+                    # TODO: write data to file.
                     nodedata.target = controller.target
                     logging.info("Feedback for exercise set, score = {score}, target = {target}, performance = {performance}".format(score=nodedata.score, target=nodedata.target, performance=nodedata.performance))
                     logging.debug("Returning SUCCESS from TimestepCue set goal feedback, stats = " + str(nodedata))
                     return NodeStatus(NodeStatus.SUCCESS, "Data for set goal obtained from guide:" + str(nodedata))
                 else:  # For set goal we don't need any information from guide up front, only for feedback.
                     nodedata.phase = PolicyWrapper.PHASE_START
+                    # TODO: get data from file.
                     nodedata.performance = controller.performance
                     controller.exercise_count = 0
                     # controller.completed = controller.COMPLETED_STATUS_FALSE
@@ -865,7 +867,8 @@ class EndSetEvent(Node):
 
     def configure(self, nodedata):
         logging.debug("Configuring EndSetEvent: " + self._name + ", setting shotcount to " + str(controller.exercise_count))
-        self.shotcount = controller.exercise_count
+        self.exercisecount = controller.exercise_count
+        self.firstTime = controller.set_count == 0
 
     def run(self, nodedata):
         """
@@ -875,7 +878,8 @@ class EndSetEvent(Node):
         # TODO Update once getting actual choice from user. Will probably need two nodes, one for displaying button,
         #   one for waiting for user selection so that the tree doesn't grind to a halt.
         # self.shotcount += 1  # TODO Set this to 0 when set starts.
-        if self.shotcount >= 30:
+
+        if (self.firstTime is True and self.exercisecount >= 10) or (self.firstTime is False and self.exercisecount >= 5):
             api_classes.expecting_action_goal = False
             controller.completed = controller.COMPLETED_STATUS_TRUE
             controller.set_count += 1
@@ -883,15 +887,15 @@ class EndSetEvent(Node):
             output = {
                 "stop": str(1)
             }
-            logging.info("Stopping set: That's 30, you can stop there.")
+            logging.info("Stopping set: That's 10, you can stop there.")
             r = requests.post(post_address, json=output)
 
-            logging.info("Shot set completed.")
-            logging.debug("Returning SUCCESS from EndSetEvent, shot count = " + str(self.shotcount))
+            logging.info("Exercise set completed.")
+            logging.debug("Returning SUCCESS from EndSetEvent, exercise count = " + str(self.exercisecount))
             return NodeStatus(NodeStatus.SUCCESS, "Shot set ended.")
         else:
-            logging.debug("Returning FAIL from EndSetEvent, shot count = " + str(self.shotcount))
-            return NodeStatus(NodeStatus.FAIL, "Shot set at " + str(self.shotcount) + ". Not ended yet.")
+            logging.debug("Returning FAIL from EndSetEvent, exercise count = " + str(self.exercisecount))
+            return NodeStatus(NodeStatus.FAIL, "Exercise set at " + str(self.exercisecount) + ". Not ended yet.")
 
 class InitialiseBlackboard(Node):
     """
@@ -946,6 +950,7 @@ class InitialiseBlackboard(Node):
         """
 
         belief_distribution = []
+        # TODO: Set proper belief distribution based on interview data.
         if controller.policy == -1:
             belief_distribution = [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0] if self.experience == "high" else [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0]
         else:
