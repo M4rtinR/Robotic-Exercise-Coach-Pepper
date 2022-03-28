@@ -430,7 +430,7 @@ class GetStats(Node):
         # logging.debug("In get stats")
         nodedata.motivation = controller.motivation
         nodedata.user_impairment = controller.impairment
-        logging.info("Stats set, motivation = {motivation}, impairment = {impairment}".format(motivation=nodedata.motivation, ability=nodedata.user_impairment))
+        logging.info("Stats set, motivation = {motivation}, impairment = {impairment}".format(motivation=nodedata.motivation, impairment=nodedata.user_impairment))
         #nodedata.sessions = 6
         # logging.debug("After setting stats in GetStats: " + str(nodedata))
         logging.debug("Returning SUCCESS from GetStats, stats = " + str(nodedata))
@@ -574,10 +574,7 @@ class EndSubgoal(Node):
                 controller.phase = PolicyWrapper.PHASE_START
             nodedata.new_goal = self.goal_level - 1
             nodedata.phase = PolicyWrapper.PHASE_START  # All behaviours have happened so its start of new goal.
-            if self.goal_level == PolicyWrapper.STAT_GOAL:
-                controller.completed = controller.COMPLETED_STATUS_FALSE
-            else:
-                controller.completed = controller.COMPLETED_STATUS_TRUE
+            controller.completed = controller.COMPLETED_STATUS_TRUE
             if self.goal_level == PolicyWrapper.EXERCISE_GOAL:
                 controller.session_time += 1
             # if self.goal_level == PolicyWrapper.ACTION_GOAL:
