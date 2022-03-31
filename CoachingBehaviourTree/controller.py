@@ -32,6 +32,8 @@ COMPLETED_STATUS_UNDEFINED = -1
 COMPLETED_STATUS_FALSE = 0
 COMPLETED_STATUS_TRUE = 1
 
+exercise_list_master = ["Table top circles", "Towel slide", "External rotation with cane", "Shoulder openers"]
+
 # Initial values which will be updated when the API gets called by the guide.
 goal_level = 0
 sessions = -1
@@ -55,6 +57,7 @@ session_performance_list = []  # 1 entry for each exercise performed
 session_score_list = []  # 1 entry for each exercise performed
 set_count = 0
 given_score = 0
+exercise_list_session = ["Table top circles", "Towel slide", "External rotation with cane", "Shoulder openers"]  # Delete from this list once the exercise has been completed in the session.
 
 # Initial values to be changed at the beginning of each session:
 name = "Martin"
@@ -62,8 +65,7 @@ participantNo = "Testing.0"
 participant_filename = participantNo + "_history"
 impairment = 0
 motivation = 8
-# 1 = DRIVE, 5 = LOB, 0 = DROP
-exercise = 1
+exercise = -1
 policy = 2
 
 def create_coaching_tree():
@@ -651,7 +653,7 @@ def create_coaching_tree():
     b.add_remapping(action_goal._id, 'new_goal', set_goal_individual_action._id, 'goal')
     b.add_remapping(set_goal_individual_action_behav._id, 'behaviour', set_goal_individual_action._id, 'behaviour')
     b.add_remapping(user_start._id, 'name', set_goal_individual_action._id, 'name')
-    b.save('exercise', exercise, set_goal_individual_action._id)
+    b.add_remapping(exercise_goal._id, 'exercise', set_goal_individual_action._id, 'exercise')
     # Display individual action caoching behaviour
     set_goal_individual_action_output = DisplayBehaviour(name="set_goal_individual_action_output", blackboard=b)
     set_goal_individual_action_behav_sequence.add_child(set_goal_individual_action_output)
@@ -711,6 +713,7 @@ def create_coaching_tree():
     # Wait for timestep cue (i.e. shot goal has been completed by guide and we are ready for feedback behaviours).
     exercise_goal_end = TimestepCue(name="exercise_goal_ended_timestep", blackboard=b)
     b.add_remapping(set_goal_feedback_end._id, 'new_goal', exercise_goal_end._id, 'goal')
+    b.add_remapping(exercise_goal, 'exercise', exercise_goal_end._id, 'exercise')
     exercise_goal_end_until = Until(name="shot_goal_end_until", child=exercise_goal_end)
     gen_exercise_goal.add_child(exercise_goal_end_until)
     exercise_goal_feedback_loop, exercise_goal_feedback_behav, exercise_goal_feedback_end = get_feedback_loop(name="exercise_goal_feedback_loop", behav=Policy.A_PREINSTRUCTION, blackboard=b, goal_node=exercise_goal._id, initialise_node=initialise._id, previous_behav_node=set_goal_feedback_behav._id, timestep_cue_node=exercise_goal_end._id, person_node=user_start._id)
@@ -795,6 +798,7 @@ def get_intro_loop(name, blackboard, prev_goal_node, initialise_node, person_nod
     new_goal_start_until = Until(name=new_goal_start_until_name, child=new_goal_start)
     overall_intro_sequence.add_child(new_goal_start_until)
     blackboard.add_remapping(new_goal._id, 'new_goal', new_goal_start._id, 'goal')
+    blackboard.add_remapping(prev_goal_node, 'exercise', new_goal_start._id, 'exercise')
 
     #
     #
@@ -838,7 +842,7 @@ def get_intro_loop(name, blackboard, prev_goal_node, initialise_node, person_nod
     blackboard.add_remapping(new_goal._id, 'new_goal', new_goal_intro_pre_instr_action._id, 'goal')
     blackboard.add_remapping(new_goal_intro_behav._id, 'behaviour', new_goal_intro_pre_instr_action._id, 'behaviour')
     blackboard.add_remapping(person_node, 'name', new_goal_intro_pre_instr_action._id, 'name')
-    blackboard.save('exercise', exercise, new_goal_intro_pre_instr_action._id)
+    blackboard.save(prev_goal_node, 'exercise', new_goal_intro_pre_instr_action._id, 'exercise')
     new_goal_intro_pre_instr_output_name = name + "_pre_instr_output"
     new_goal_intro_pre_instr_output = DisplayBehaviour(name=new_goal_intro_pre_instr_output_name, blackboard=blackboard)
     new_goal_intro_pre_instr_sequence.add_child(new_goal_intro_pre_instr_output)
@@ -884,7 +888,7 @@ def get_intro_loop(name, blackboard, prev_goal_node, initialise_node, person_nod
     blackboard.add_remapping(new_goal._id, 'new_goal', new_goal_intro_action._id, 'goal')
     blackboard.add_remapping(new_goal_intro_behav._id, 'behaviour', new_goal_intro_action._id, 'behaviour')
     blackboard.add_remapping(person_node, 'name', new_goal_intro_action._id, 'name')
-    blackboard.save('exercise', exercise, new_goal_intro_action._id)
+    blackboard.save(prev_goal_node, 'exercise', new_goal_intro_action._id, 'exercise')
 
     # Display selected behaviour if not pre-instruction or questioning
     new_goal_intro_output_name = name + "_output"
@@ -958,7 +962,7 @@ def get_feedback_loop(name, behav, blackboard, goal_node, initialise_node, previ
         blackboard.add_remapping(goal_node, 'new_goal', feedback_loop_end_action._id, 'goal')
         blackboard.add_remapping(feedback_behaviour._id, 'behaviour', feedback_loop_end_action._id, 'behaviour')
         blackboard.add_remapping(person_node, 'name', feedback_loop_end_action._id, 'name')
-        blackboard.save('exercise', exercise, feedback_loop_end_action._id)
+        blackboard.save(goal_node, 'exercise', feedback_loop_end_action._id, 'exercise')
 
         feedback_loop_display_end_output = DisplayBehaviour(name="feedback_loop_display_end_output", blackboard=blackboard)
         feedback_loop_end_sequence.add_child(feedback_loop_display_end_output)
@@ -980,7 +984,7 @@ def get_feedback_loop(name, behav, blackboard, goal_node, initialise_node, previ
     blackboard.add_remapping(goal_node, 'new_goal', feedback_loop_action._id, 'goal')
     blackboard.add_remapping(feedback_behaviour._id, 'behaviour', feedback_loop_action._id, 'behaviour')
     blackboard.add_remapping(person_node, 'name', feedback_loop_action._id, 'name')
-    blackboard.save('exercise', exercise, feedback_loop_action._id)
+    blackboard.save(goal_node, 'exercise', feedback_loop_action._id, 'exercise')
 
     # Display behaviour if not given behaviour
     output_name = name + "_output"

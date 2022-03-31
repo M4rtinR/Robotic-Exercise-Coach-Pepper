@@ -502,7 +502,7 @@ class CreateSubgoal(Node):
         logging.debug("Configuring CreateSubgoal: " + self._name)
         logging.debug("createSubgoal nodedata = " + str(nodedata))
         self.previous_goal_level = nodedata.get_data('goal', -1)
-        self.exercise = nodedata.get_data('exercise')
+        self.exercise = nodedata.get_data('exercise', -1)
 
     def run(self, nodedata):
         """
@@ -517,6 +517,9 @@ class CreateSubgoal(Node):
             return NodeStatus(NodeStatus.FAIL, "Cannot create subgoal of ACTION_GOAL.")
         else:
             nodedata.new_goal = self.previous_goal_level + 1
+            # Select which exercise to perform.
+            if nodedata.new_goal == PolicyWrapper.EXERCISE_GOAL:
+                nodedata.exercise = controller.exercise_list_session[random.randint(0, len(controller.exercise_list_session)-1)]
             logging.info("Created subgoal, new goal level = {}".format(nodedata.new_goal))
             logging.debug("Returning SUCCESS from CreateSubGoal, new goal level = " + str(nodedata.new_goal))
             return NodeStatus(NodeStatus.SUCCESS, "Created subgoal: " + str(self.previous_goal_level + 1))
@@ -611,6 +614,7 @@ class TimestepCue(Node):
         logging.debug("Configuring TimestepCue: " + self._name)
         self.goal_level = nodedata.get_data('goal')
         self.phase = nodedata.get_data('phase')
+        self.exercise = nodedata.get_data('exercise')
         controller.completed = controller.COMPLETED_STATUS_FALSE
 
     def run(self, nodedata):
@@ -630,12 +634,12 @@ class TimestepCue(Node):
             ...
             <exercise name>
             <number of times exercise has been in a session>
-            <exercise performance for session 1>
-            <exercise performance for session 2>
+            <exercise performance for session 1>,<exercise score for session 1>
+            <exercise performance for session 2>,<exercise score for session 2>
             ...
             Current session
-            <exercise performance for 1st set>  # collated into <exercise performance for session x> at completion of
-            <exercise performance for 2nd set>  # exercise and "Current session" section removed.
+            <exercise performance for 1st set>,<exercise score for first set>  # collated into <exercise performance for session x> at completion of
+            <exercise performance for 2nd set>,<exercise score for first set>  # exercise and "Current session" section removed.
             ...
             <exercise name>
             ...
@@ -649,18 +653,28 @@ class TimestepCue(Node):
             if controller.goal_level == PolicyWrapper.PERSON_GOAL:  # For person goal should have name, impairment and no. of sessions.
                 if controller.phase == PolicyWrapper.PHASE_END:  # Feedback sequence
                     nodedata.performance = round(mean(controller.session_performance_list))
-                    # TODO: write session performance to file.
-                    filename = controller.participantNo.split(".")[0]
-                    f = open("~/PycharmProjects/coachingPolicies/SessionDataFiles/" + filename, "a")
-                    session_no = controller.participantNo.split(".")[1]
-                    f.write("Session performance for session " + session_no + " = " + str(nodedata.performance) + "\\n")
+                    # Write updated no. of sessions to file.
+                    f = open("~/PycharmProjects/coachingPolicies/SessionDataFiles/" + controller.participant_filename, "r")
+                    file_contents = f.readlines()
                     f.close()
+                    sessions = int(file_contents[1])
+                    sessions += 1
+                    file_contents[1] = sessions
+                    f = open("~/PycharmProjects/coachingPolicies/SessionDataFiles/" + controller.participant_filename, "w")
+                    f.writelines(file_contents)
+                    f.close()
+
                     nodedata.phase = PolicyWrapper.PHASE_END
                     logging.info(
                         "Feedback for session, performance = {performance}".format(performance=nodedata.performance))
                     logging.debug("Returning SUCCESS from TimestepCue person goal (end), stats = " + str(nodedata))
                     return NodeStatus(NodeStatus.SUCCESS, "Data for stat goal obtained from guide:" + str(nodedata))
                 else:
+                    # Get no. of sessions from while.
+                    f = open("~/PycharmProjects/coachingPolicies/SessionDataFiles/" + controller.participant_filename, "r")
+                    file_contents = f.readlines()
+                    f.close()
+                    controller.sessions = int(file_contents[1])
                     nodedata.sessions = controller.sessions
                     nodedata.user_impairment = controller.impairment
                     nodedata.name = controller.name
@@ -676,7 +690,7 @@ class TimestepCue(Node):
             if controller.goal_level == PolicyWrapper.SESSION_GOAL:
                 if controller.phase == PolicyWrapper.PHASE_END:  # Feedback sequence
                     nodedata.performance = round(mean(controller.session_performance_list))
-                    # TODO: write session performance to file.
+                    # Write session performance to file.
                     f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + controller.participant_filename, "r")
                     file_contents = f.readlines()
                     f.close()
@@ -697,7 +711,7 @@ class TimestepCue(Node):
                     logging.debug("Returning SUCCESS from TimestepCue session goal, stats = " + str(nodedata))
                     return NodeStatus(NodeStatus.SUCCESS, "Data for session goal obtained from guide:" + str(nodedata))
             else:
-                # TODO: get performance data of previous session from file.
+                # Get performance data of previous session from file.
                 f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + controller.participant_filename, "r")
                 file_contents = f.readlines()
                 f.close()
@@ -724,13 +738,31 @@ class TimestepCue(Node):
                     logging.debug("Returning SUCCESS from TimestepCue exercise goal (end), stats = " + str(nodedata))
                     return NodeStatus(NodeStatus.SUCCESS, "Data for exercies goal obtained from guide:" + str(nodedata))
                 else:
-                    # TODO: get data from file.
                     nodedata.performance = controller.performance
                     nodedata.phase = PolicyWrapper.PHASE_START
                     controller.goal_level = PolicyWrapper.SET_GOAL
                     logging.debug("Returning SUCCESS from TimestepCue exercise goal, stats = " + str(nodedata))
                     return NodeStatus(NodeStatus.SUCCESS, "Data for exercise goal obtained from guide:" + str(nodedata))
             else:
+                # Get performance data of previous time user did this exercise from file.
+                f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + controller.participant_filename, "r")
+                file_contents = f.readlines()
+                f.close()
+                counter = 0
+                exercise_found = False
+                for content_line in file_contents:
+                    if content_line == self.exercise:
+                        exercise_found = True
+                        break
+                    counter += 1
+
+                if exercise_found:
+                    exercise_times = int(file_contents[counter])  # The number of sessions the user has done this exercise in
+                    performance = file_contents[counter+exercise_times].split(",")
+                    controller.performance = int(performance[0])
+                    controller.score = int(performance[1])
+
+                controller.goal_level = PolicyWrapper.EXERCISE_GOAL
                 logging.debug("Returning ACTIVE from TimestepCue exercise goal, controller.goal_level != 2")
                 return NodeStatus(NodeStatus.ACTIVE, "Waiting for exercise goal data from guide.")
 
