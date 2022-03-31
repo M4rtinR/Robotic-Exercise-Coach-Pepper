@@ -33,7 +33,7 @@ COMPLETED_STATUS_FALSE = 0
 COMPLETED_STATUS_TRUE = 1
 
 # Initial values which will be updated when the API gets called by the guide.
-goal_level = -1
+goal_level = 0
 sessions = -1
 score = -1
 target = -1
@@ -59,6 +59,7 @@ given_score = 0
 # Initial values to be changed at the beginning of each session:
 name = "Martin"
 participantNo = "Testing.0"
+participant_filename = participantNo + "_history"
 impairment = 0
 motivation = 8
 # 1 = DRIVE, 5 = LOB, 0 = DROP
@@ -87,6 +88,7 @@ def create_coaching_tree():
     root.add_child(initialise)
 
     # Share data between user_stats and initialise nodes.
+    b.save('name', name, initialise._id)
     b.add_remapping(user_stats._id, 'motivation', initialise._id, 'motivation')
     b.save('user_impairment', impairment, initialise._id)
     b.add_remapping(user_start._id, 'sessions', initialise._id, 'sessions')
@@ -956,9 +958,7 @@ def get_feedback_loop(name, behav, blackboard, goal_node, initialise_node, previ
         blackboard.add_remapping(goal_node, 'new_goal', feedback_loop_end_action._id, 'goal')
         blackboard.add_remapping(feedback_behaviour._id, 'behaviour', feedback_loop_end_action._id, 'behaviour')
         blackboard.add_remapping(person_node, 'name', feedback_loop_end_action._id, 'name')
-        blackboard.save('shot', exercise, feedback_loop_end_action._id)
-        blackboard.save('hand', hand, feedback_loop_end_action._id)
-        blackboard.save('stat', stat, feedback_loop_end_action._id)
+        blackboard.save('exercise', exercise, feedback_loop_end_action._id)
 
         feedback_loop_display_end_output = DisplayBehaviour(name="feedback_loop_display_end_output", blackboard=blackboard)
         feedback_loop_end_sequence.add_child(feedback_loop_display_end_output)
@@ -980,9 +980,7 @@ def get_feedback_loop(name, behav, blackboard, goal_node, initialise_node, previ
     blackboard.add_remapping(goal_node, 'new_goal', feedback_loop_action._id, 'goal')
     blackboard.add_remapping(feedback_behaviour._id, 'behaviour', feedback_loop_action._id, 'behaviour')
     blackboard.add_remapping(person_node, 'name', feedback_loop_action._id, 'name')
-    blackboard.save('shot', exercise, feedback_loop_action._id)
-    blackboard.save('hand', hand, feedback_loop_action._id)
-    blackboard.save('stat', stat, feedback_loop_action._id)
+    blackboard.save('exercise', exercise, feedback_loop_action._id)
 
     # Display behaviour if not given behaviour
     output_name = name + "_output"

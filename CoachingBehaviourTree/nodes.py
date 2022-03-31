@@ -621,6 +621,25 @@ class TimestepCue(Node):
         All communication will be done through the API. A queue stack structure will be used to store timestepCue calls
         by the guide and the stack will be emptied each time this method is called (but only the top member acted upon).
         This will mean the robot never falls behind the interaction state (but may sometimes stay silent).
+
+        Layout of participant history files:
+            <participant number>
+            <number of sessions>
+            <performance for session 1>
+            <performance for session 2>
+            ...
+            <exercise name>
+            <number of times exercise has been in a session>
+            <exercise performance for session 1>
+            <exercise performance for session 2>
+            ...
+            Current session
+            <exercise performance for 1st set>  # collated into <exercise performance for session x> at completion of
+            <exercise performance for 2nd set>  # exercise and "Current session" section removed.
+            ...
+            <exercise name>
+            ...
+
         :param nodedata :type Blackboard: the blackboard on which we will store the data provided by the guide.
         :return: NodeStatus.ACTIVE when waiting for data from the guide, NodeStatus.SUCCESS when data has been received
             and added to the blackboard, NodeStatus.FAIL otherwise.
@@ -658,18 +677,35 @@ class TimestepCue(Node):
                 if controller.phase == PolicyWrapper.PHASE_END:  # Feedback sequence
                     nodedata.performance = round(mean(controller.session_performance_list))
                     # TODO: write session performance to file.
+                    f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + controller.participant_filename, "r")
+                    file_contents = f.readlines()
+                    f.close()
+                    sessions = int(file_contents[1])
+                    file_contents[sessions + 1] = str(nodedata.performance)
+                    f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + controller.participant_filename, "w")
+                    f.writelines(file_contents)
+                    f.close()
+
                     nodedata.phase = PolicyWrapper.PHASE_END
                     logging.info(
                         "Feedback for session, performance = {performance}".format(performance=nodedata.performance))
                     logging.debug("Returning SUCCESS from TimestepCue session goal (end), stats = " + str(nodedata))
                     return NodeStatus(NodeStatus.SUCCESS, "Data for stat goal obtained from guide:" + str(nodedata))
                 else:
-                    # TODO: get performance data of previous session from file.
                     nodedata.performance = controller.performance
                     nodedata.phase = PolicyWrapper.PHASE_START
                     logging.debug("Returning SUCCESS from TimestepCue session goal, stats = " + str(nodedata))
                     return NodeStatus(NodeStatus.SUCCESS, "Data for session goal obtained from guide:" + str(nodedata))
             else:
+                # TODO: get performance data of previous session from file.
+                f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + controller.participant_filename, "r")
+                file_contents = f.readlines()
+                f.close()
+                sessions = int(file_contents[1])
+                if sessions > 0:
+                    controller.performance = int(file_contents[sessions+1])
+
+                controller.goal_level = PolicyWrapper.SESSION_GOAL
                 logging.debug("Returning ACTIVE from TimestepCue session goal")
                 return NodeStatus(NodeStatus.ACTIVE, "Waiting for session goal data from guide.")
 
@@ -930,6 +966,7 @@ class InitialiseBlackboard(Node):
         :return: None
         """
         logging.debug("Configuring InitialiseBlackboard: " + self._name)
+        self.name = nodedata.get_data('name')
         self.motivation = nodedata.get_data('motivation')
         self.impairment = nodedata.get_data('user_impairment')
         if self.impairment < 4:
@@ -973,6 +1010,16 @@ class InitialiseBlackboard(Node):
         nodedata.phase = PolicyWrapper.PHASE_START
         nodedata.bl = BehaviourLibraryFunctions("RehabDict", rehab_behaviour_library)
         nodedata.start_time = 0  # TODO: update with actual time.
+
+        # Create file for this participant if it is their first session.
+        try:
+            f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + controller.participant_filename, "r")
+            f.close()
+        except:
+            f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + controller.participant_filename, "a")
+            f.write(controller.participantNo + "\n0")  # Write participant number and 0 sessions to the new file.
+            f.close()
+
         logging.info("Chosen policy = {}".format(max_style))
         logging.debug("Returning SUCCESS from InitialiseBlackboard")
         return NodeStatus(NodeStatus.SUCCESS, "Set belief distribution " + str(belief_distribution) + ". Start state ="
