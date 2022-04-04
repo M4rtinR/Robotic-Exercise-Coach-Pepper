@@ -29,8 +29,10 @@ EndSetEvent(Node)
     Check if the user has chosen to end the set.
 """
 import logging
+import keyboard
 from statistics import mean
 from time import time
+from datetime import datetime, timedelta
 
 from task_behavior_engine.node import Node
 from task_behavior_engine.tree import NodeStatus
@@ -517,6 +519,9 @@ class CreateSubgoal(Node):
             return NodeStatus(NodeStatus.FAIL, "Cannot create subgoal of ACTION_GOAL.")
         else:
             nodedata.new_goal = self.previous_goal_level + 1
+            if nodedata.new_goal == PolicyWrapper.ACTION_GOAL:
+                # Reset controller.start_time to monitor speed of exercise execution.
+                controller.start_time = datetime.now()
             # Select which exercise to perform.
             if nodedata.new_goal == PolicyWrapper.EXERCISE_GOAL:
                 nodedata.exercise = controller.exercise_list_session[random.randint(0, len(controller.exercise_list_session)-1)]
@@ -1124,3 +1129,60 @@ class InitialiseBlackboard(Node):
             return 482
         else:
             return 535
+
+
+class OperatorInput(Node):
+    """
+        Check if the operator has indicated that an exercise has been completed.
+
+        This will eventually be replaced with the vision system using OpenPose.
+        ...
+        Methods
+        -------
+        run()
+            Check if the operator has pressed the return key.
+        """
+
+    def __init__(self, name, *args, **kwargs):
+        super(OperatorInput, self).__init__(
+            name,
+            run_cb=self.run,
+            configure_cb=self.configure,
+            *args, **kwargs)
+
+    def configure(self, nodedata):
+        """
+        Set up the initial values needed to calculate exercise performance.
+        :param nodedata :type Blackboard: the blackboard associated with this Behaviour Tree containing all relevant
+            state information.
+        :return: None
+        """
+        logging.debug("Configuring OperatorInput: " + self._name)
+        self.target_time = nodedata.get_data('target')
+
+    def run(self, nodedata):
+        """
+        Check if the operator has pressed the return key.
+        :return: NodeStatus.SUCCESS if return key has been pressed. NodeStatus.ACTIVE otherwise.
+        """
+
+        input("Press enter to indicate completion of exercise")
+        ex_time = datetime.now()
+        # Get the time between start and key press
+        rep_time = ex_time - controller.start_time
+        rep_time_delta = rep_time.total_seconds()
+        # Compare time to target time and update performance
+        diff_from_target = self.target_time - rep_time_delta
+        performance = PolicyWrapper.GOOD
+        if 0.5 < diff_from_target:
+            performance = PolicyWrapper.SLOW
+        elif diff_from_target > -0.5:
+            performance = PolicyWrapper.FAST
+        nodedata.performance = performance
+
+        # Controller start_time will be reset when the action goal is created.
+
+        controller.goal_level = PolicyWrapper.ACTION_GOAL
+        logging.info("Rep time = ".format(rep_time))
+        logging.debug("Returning SUCCESS from OperatorInput")
+        return NodeStatus(NodeStatus.SUCCESS, "Time = " + str(rep_time))
