@@ -64,9 +64,10 @@ start_time = None
 # Initial values to be changed at the beginning of each session:
 name = "Martin"
 participantNo = "Testing.0"
-participant_filename = participantNo + "_history"
+participant_filename = participantNo + "_history.txt"
 impairment = 0
 motivation = 8
+leftHand = False
 exercise = -1
 policy = 2
 
@@ -165,7 +166,7 @@ def create_coaching_tree():
     #
     #
     #
-    gen_session_goal, session_goal, session_goal_start, session_goal_exercise_choice, session_goal_intro_behav = get_intro_loop(name="session_goal_intro_loop", blackboard=b, prev_goal_node=person_goal._id, initialise_node=initialise._id, person_node=user_start._id)
+    gen_session_goal, session_goal, session_goal_start, session_goal_exercise_choice, session_goal_intro_behav = get_intro_loop(name="session_goal_intro_loop", blackboard=b, prev_goal_node=person_goal._id, initialise_node=initialise._id, person_node=user_start._id, prev_behav_node=person_goal_intro_action._id)
 
     '''
     #
@@ -294,7 +295,7 @@ def create_coaching_tree():
     #
     gen_exercise_goal, exercise_goal, exercise_goal_start, exercise_goal_exercise_choice, exercise_goal_intro_behav = get_intro_loop(
         name="exercise_goal_intro_loop", blackboard=b, prev_goal_node=session_goal._id, initialise_node=initialise._id,
-        person_node=user_start._id)
+        person_node=user_start._id, prev_behav_node=session_goal_intro_behav._id)
 
     '''
     # Create shot goal in guide
@@ -526,7 +527,7 @@ def create_coaching_tree():
     #
     gen_set_goal, set_goal, set_goal_start, set_goal_choice, set_goal_intro_behav = get_intro_loop(
         name="set_goal_intro_loop", blackboard=b, prev_goal_node=exercise_goal._id, initialise_node=initialise._id,
-        person_node=user_start._id)
+        person_node=user_start._id, prev_behav_node=exercise_goal_intro_behav._id)
 
     '''
     # Create set goal in guide
@@ -765,7 +766,7 @@ def create_coaching_tree():
     root.add_child(gen_person_goal)
     return root
 
-def get_intro_loop(name, blackboard, prev_goal_node, initialise_node, person_node):
+def get_intro_loop(name, blackboard, prev_goal_node, initialise_node, person_node, prev_behav_node):
     """
     Creates a subtree which gives the introduction at a given goal level.
     :param name :type str: the name to be used when creating nodes of the tree.
@@ -820,7 +821,7 @@ def get_intro_loop(name, blackboard, prev_goal_node, initialise_node, person_nod
 
     # Share data between initialise, new_goal_start, and new_goal_intro_behav.
     blackboard.add_remapping(initialise_node, 'belief', new_goal_intro_behav._id, 'belief')
-    blackboard.add_remapping(initialise_node, 'state', new_goal_intro_behav._id, 'state')
+    blackboard.add_remapping(prev_behav_node, 'observation', new_goal_intro_behav._id, 'state')
     blackboard.add_remapping(new_goal_start._id, 'performance', new_goal_intro_behav._id, 'performance')
     blackboard.add_remapping(new_goal_start._id, 'phase', new_goal_intro_behav._id, 'phase')
     blackboard.add_remapping(new_goal._id, 'new_goal', new_goal_intro_behav._id, 'goal')
@@ -1017,7 +1018,7 @@ def get_feedback_loop(name, behav, blackboard, goal_node, initialise_node, previ
 
 def main():
     loggingFilename = "" + participantNo + ".log"
-    logging.basicConfig(format='%(levelname)s:%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.INFO, filename=loggingFilename)
+    logging.basicConfig(format='%(levelname)s:%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.DEBUG, filename=loggingFilename)
     logging.info("Logging started")
     coaching_tree = create_coaching_tree()
     result = NodeStatus(NodeStatus.ACTIVE)

@@ -52,8 +52,8 @@ import requests
 # post_address = 'http://192.168.1.237:4999/output'
 
 # Simulation on 4G:
-# post_address = 'http://192.168.43.19:4999/output'
-post_address = 'http://192.168.1.174:4999/output'
+post_address = 'http://192.168.43.19:4999/output'
+# post_address = 'http://192.168.1.174:4999/output'
 
 # Robot through ITT Pepper router:
 # post_address = "http://192.168.1.207:4999/output"
@@ -423,10 +423,10 @@ class GetStats(Node):
         """
         logging.debug("Running GetStats: " + self._name)
 
-        output = {
+        '''output = {
             "start": str(1)
         }
-        r = requests.post(post_address, json=output)
+        r = requests.post(post_address, json=output)'''
 
         # Will be ACTIVE when waiting for data and SUCCESS when got data and added to blackboard, FAIL when connection error.
         # logging.debug("In get stats")
@@ -675,11 +675,18 @@ class TimestepCue(Node):
                     logging.debug("Returning SUCCESS from TimestepCue person goal (end), stats = " + str(nodedata))
                     return NodeStatus(NodeStatus.SUCCESS, "Data for stat goal obtained from guide:" + str(nodedata))
                 else:
-                    # Get no. of sessions from while.
-                    f = open("~/PycharmProjects/coachingPolicies/SessionDataFiles/" + controller.participant_filename, "r")
-                    file_contents = f.readlines()
-                    f.close()
-                    controller.sessions = int(file_contents[1])
+                    # Get no. of sessions from file.
+                    try:
+                        f = open("~/PycharmProjects/coachingPolicies/SessionDataFiles/" + controller.participant_filename, "r")
+                        file_contents = f.readlines()
+                        f.close()
+                        controller.sessions = int(file_contents[1])
+                    except:
+                        f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + controller.participant_filename, "a")
+                        f.write(controller.participantNo + "\n0")  # Write participant number and 0 sessions to the new file.
+                        f.close()
+                        controller.sessions = 0
+
                     nodedata.sessions = controller.sessions
                     nodedata.user_impairment = controller.impairment
                     nodedata.name = controller.name
@@ -1053,6 +1060,8 @@ class InitialiseBlackboard(Node):
         :return: NodeStatus.SUCCESS when the belief distribution has been calculated and all values stored in the
             blackboard.
         """
+
+        logging.info("Initialising blackboard.")
 
         belief_distribution = []
         # TODO: Set proper belief distribution based on interview data.
