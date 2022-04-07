@@ -52,8 +52,8 @@ import requests
 # post_address = 'http://192.168.1.237:4999/output'
 
 # Simulation on 4G:
-post_address = 'http://192.168.43.19:4999/output'
-# post_address = 'http://192.168.1.174:4999/output'
+# post_address = 'http://192.168.43.19:4999/output'
+post_address = 'http://192.168.1.174:4999/output'
 
 # Robot through ITT Pepper router:
 # post_address = "http://192.168.1.207:4999/output"
