@@ -15717,7 +15717,8 @@ class BehaviourLibraryFunctions:
             elif behaviour in [Policy.A_SCOLD, Policy.A_SCOLD_FIRSTNAME]:
                 utterance = utterance + "That was not good " + name"""
 
-    def get_demo_string(self, behaviour, goal_level, shot, hand, stat, leftHand):
+    def get_demo_string(self, behaviour, goal_level, exercise, leftHand):
+        #TODO: update for stroke specific demos.
         posNeg = "_pos"
         if behaviour in [Policy.A_NEGATIVEMODELING, Policy.A_PREINSTRUCTION_NEGATIVEMODELING,
                          Policy.A_POSTINSTRUCTIONPOSITIVE_NEGATIVE_MODELING,
@@ -15728,20 +15729,14 @@ class BehaviourLibraryFunctions:
 
         demoName = ""
         if goal_level < 3 or goal_level == 6:
-            shotName = "forehand_drive"
-            if hand == "BH":
-                shotName = "backhand_drive"
-            elif shot == 5:
-                shotName = "lob"
-            elif shot == 0:
-                shotName = "lob"
-            demoName = shotName + posNeg
+            exName = "forehand_drive"
+            if exercise == 1:
+                exName = "lob"
+            elif exercise == 2:
+                exName = "lob"
+            demoName = exName + posNeg
         else:
             statName = "racket_up"
-            if stat == "impactCutAngle":
-                statName = "racket_face"
-            elif stat == "followThroughTime":
-                statName = "follow_through"
 
             demoName = statName + posNeg
 

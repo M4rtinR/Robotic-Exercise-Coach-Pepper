@@ -53,10 +53,10 @@ import requests
 
 # Simulation on 4G:
 # post_address = 'http://192.168.43.19:4999/output'
-post_address = 'http://192.168.1.174:4999/output'
+# post_address = 'http://192.168.1.174:4999/output'
 
 # Robot through ITT Pepper router:
-# post_address = "http://192.168.1.207:4999/output"
+post_address = "http://192.168.1.207:4999/output"
 
 
 class GetBehaviour(Node):
@@ -121,7 +121,7 @@ class GetBehaviour(Node):
             for accesses by other nodes.
         :return: NodeStatus.SUCCESS when a behaviour and observation has been obtained from the policy wrapper.
         """
-        logging.debug('GetBehaviour, self.goal_level = ' + str(self.goal_level) + ', nodedata.goal = ' + str(nodedata.goal))
+        print('GetBehaviour, self.goal_level = ' + str(self.goal_level) + ', nodedata.goal = ' + str(nodedata.goal))
         policy = PolicyWrapper(self.belief)  # TODO: generate this at start of interaction and store on blackboard.
         nodedata.behaviour, nodedata.obs_behaviour = policy.get_behaviour(self.state, self.goal_level, self.performance, self.phase)
         logging.debug('Got behaviour: ' + str(nodedata.behaviour))
@@ -138,6 +138,7 @@ class GetBehaviour(Node):
 
         nodedata.observation = policy.get_observation(self.state, nodedata.obs_behaviour)
         # logging.debug('Got observation: ' + str(nodedata.behaviour))
+        print("Returning SUCCESS from GetBehaviour, nodedata = " + str(nodedata))
         logging.debug("Returning SUCCESS from GetBehaviour, nodedata = " + str(nodedata))
         return NodeStatus(NodeStatus.SUCCESS, "Obtained behaviour " + str(nodedata.behaviour))
 
@@ -365,6 +366,7 @@ class DisplayBehaviour(Node):
             be performed.
         :return: None
         """
+        print("Configuring DisplayBehaviour: " + self._name)
         logging.debug("Configuring DisplayBehaviour: " + self._name)
         self.action = nodedata.get_data('action')
         self.set_start = nodedata.get_data('set_start', False)
@@ -374,6 +376,7 @@ class DisplayBehaviour(Node):
         Execute the specified action.
         :return: NodeStatus.SUCCESS if action sent successfully to robot, NodeStatus.FAIL otherwise.
         """
+        print(str(self.action))
         logging.debug(str(self.action))
         logging.info("Displaying action {}".format(str(self.action)))
         output = {

@@ -12,6 +12,7 @@ get_feedback_loop(name, behav)
 __main__()
     Creates the behaviour tree and ticks through it until it completes.
 """
+import os
 import threading
 import time
 import logging
@@ -166,7 +167,7 @@ def create_coaching_tree():
     #
     #
     #
-    gen_session_goal, session_goal, session_goal_start, session_goal_exercise_choice, session_goal_intro_behav = get_intro_loop(name="session_goal_intro_loop", blackboard=b, prev_goal_node=person_goal._id, initialise_node=initialise._id, person_node=user_start._id, prev_behav_node=person_goal_intro_action._id)
+    gen_session_goal, session_goal, session_goal_start, session_goal_exercise_choice, session_goal_intro_behav = get_intro_loop(name="session_goal_intro_loop", blackboard=b, prev_goal_node=person_goal._id, initialise_node=initialise._id, person_node=user_start._id, prev_behav_node=person_goal_intro_behav._id)
 
     '''
     #
@@ -1017,6 +1018,13 @@ def get_feedback_loop(name, behav, blackboard, goal_node, initialise_node, previ
 
 
 def main():
+    #TODO: for testing purposes. Delete the next if-else statement after testing.
+    filename = "/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + participant_filename
+    print(filename)
+    if os.path.exists(filename):
+        os.remove(filename)
+    else:
+        print("The file does not exist")
     loggingFilename = "" + participantNo + ".log"
     logging.basicConfig(format='%(levelname)s:%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.DEBUG, filename=loggingFilename)
     logging.info("Logging started")
