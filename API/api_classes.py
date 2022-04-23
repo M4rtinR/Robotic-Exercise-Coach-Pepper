@@ -24,6 +24,7 @@ class TimestepCue(Resource):
     previous_shot_performance = None
     def post(self):
         if request.is_json:
+            print("request is json")
             logging.debug("request is json")
             content = request.get_json()
             logging.debug(content)

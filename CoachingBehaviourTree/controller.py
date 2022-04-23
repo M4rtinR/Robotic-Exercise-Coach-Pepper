@@ -61,6 +61,7 @@ set_count = 0
 given_score = 0
 exercise_list_session = ["Table top circles", "Towel slide", "External rotation with cane", "Shoulder openers"]  # Delete from this list once the exercise has been completed in the session.
 start_time = None
+observation = -1
 
 # Initial values to be changed at the beginning of each session:
 name = "Martin"
@@ -530,6 +531,8 @@ def create_coaching_tree():
         name="set_goal_intro_loop", blackboard=b, prev_goal_node=exercise_goal._id, initialise_node=initialise._id,
         person_node=user_start._id, prev_behav_node=exercise_goal_intro_behav._id)
 
+    set_goal_until_count = UntilCount(name="set_goal_until_count", max_count=2, child=gen_set_goal)
+    gen_exercise_goal.add_child(set_goal_until_count)
     '''
     # Create set goal in guide
     set_goal = CreateSubgoal(name="create_set_goal", blackboard=b)
@@ -644,7 +647,7 @@ def create_coaching_tree():
     set_goal_individual_action_behav_sequence.add_child(set_goal_individual_action_behav)
     # Share data between initialise, set_goal_intro_behav, set_goal_individual_action_cue and set_goal_individual_action_behav.
     b.add_remapping(initialise._id, 'belief', set_goal_individual_action_behav._id, 'belief')
-    b.add_remapping(set_goal_intro_behav._id, 'observation', set_goal_individual_action_behav._id, 'state')
+    # b.save('state', observation, set_goal_individual_action_behav._id)
     b.add_remapping(action_goal._id, 'new_goal', set_goal_individual_action_behav._id, 'goal')
     b.add_remapping(set_goal_individual_action_cue._id, 'performance', set_goal_individual_action_behav._id, 'performance')
     b.add_remapping(set_goal_individual_action_cue._id, 'phase', set_goal_individual_action_behav._id, 'phase')
@@ -693,7 +696,7 @@ def create_coaching_tree():
     exercise_goal_coaching.add_child(set_goal_feedback_negate)
     # Remap the observation from the feedback loop to be the new state when an intro behaviour is given for the next set.
     b.add_remapping(set_goal_end, 'phase', set_goal_intro_behav, 'previous_phase')
-    b.add_remapping(set_goal_feedback_behav, 'observation', set_goal_intro_behav, 'feedback_state')
+    # b.save('feedback)state', observation, set_goal_intro_behav)
 
     '''
     stat_goal_coaching_until_count = UntilCount(name="stat_goal_coaching_until_count", max_count=5, child=stat_goal_coaching)
@@ -727,7 +730,7 @@ def create_coaching_tree():
     gen_exercise_goal.add_child(exercise_goal_feedback_loop)
     # Remap the observation from the feedback loop to be the new state when an intro behaviour is given for the next shot.
     b.add_remapping(exercise_goal_end, 'phase', exercise_goal_intro_behav, 'previous_phase')
-    b.add_remapping(exercise_goal_feedback_behav, 'observation', exercise_goal_intro_behav, 'feedback_state')
+    # b.save('feedback_state', observation, exercise_goal_intro_behav)
 
     exercise_goal_negate = Repeat(name="exercise_goal_negate", child=gen_exercise_goal)
     session_goal_selector.add_child(exercise_goal_negate)
@@ -822,7 +825,6 @@ def get_intro_loop(name, blackboard, prev_goal_node, initialise_node, person_nod
 
     # Share data between initialise, new_goal_start, and new_goal_intro_behav.
     blackboard.add_remapping(initialise_node, 'belief', new_goal_intro_behav._id, 'belief')
-    blackboard.add_remapping(prev_behav_node, 'observation', new_goal_intro_behav._id, 'state')
     blackboard.add_remapping(new_goal_start._id, 'performance', new_goal_intro_behav._id, 'performance')
     blackboard.add_remapping(new_goal_start._id, 'phase', new_goal_intro_behav._id, 'phase')
     blackboard.add_remapping(new_goal._id, 'new_goal', new_goal_intro_behav._id, 'goal')
@@ -938,7 +940,7 @@ def get_feedback_loop(name, behav, blackboard, goal_node, initialise_node, previ
     feedback_loop_sequence.add_child(feedback_behaviour)
     # Share data between initialise_node, intro_behav_node, timestep_cue_node and feedback_behaviour.
     blackboard.add_remapping(initialise_node, 'belief', feedback_behaviour._id, 'belief')
-    blackboard.add_remapping(previous_behav_node, 'observation', feedback_behaviour._id, 'state')
+    # blackboard.save('state', observation, feedback_behaviour._id)
     blackboard.add_remapping(goal_node, 'new_goal', feedback_behaviour._id, 'goal')
     blackboard.add_remapping(timestep_cue_node, 'performance', feedback_behaviour._id, 'performance')
     blackboard.add_remapping(timestep_cue_node, 'phase', feedback_behaviour._id, 'phase')

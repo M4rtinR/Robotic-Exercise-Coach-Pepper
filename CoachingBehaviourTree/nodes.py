@@ -102,6 +102,7 @@ class GetBehaviour(Node):
             state information.
         :return: None
         """
+        print("Configuring GetBehaviour: " + self._name)
         logging.debug("Configuring GetBehaviour: " + self._name)
         logging.debug(str(nodedata))
         self.belief = nodedata.get_data('belief')            # Belief distribution over policies.
@@ -109,10 +110,11 @@ class GetBehaviour(Node):
         self.performance = nodedata.get_data('performance')  # Which level of performance the player achieved (e.g. MET)
         self.phase = nodedata.get_data('phase')              # PHASE_START or PHASE_END
         self.previous_phase = nodedata.get_data('previous_phase', PolicyWrapper.PHASE_START)  # PHASE_START or PHASE_END
-        if self.previous_phase == PolicyWrapper.PHASE_START:
+        self.state = controller.observation # Have to set observation as global variable in controller because when we're in the while loop, the pre-behav-node will be different the first time to the subsequent times.
+        '''if self.previous_phase == PolicyWrapper.PHASE_START:
             self.state = nodedata.get_data('state')  # Previous state based on observation.
         else:
-            self.state = nodedata.get_data('feedback_state')
+            self.state = nodedata.get_data('feedback_state')'''
 
     def run(self, nodedata):
         """
@@ -123,7 +125,8 @@ class GetBehaviour(Node):
         """
         print('GetBehaviour, self.goal_level = ' + str(self.goal_level) + ', nodedata.goal = ' + str(nodedata.goal))
         policy = PolicyWrapper(self.belief)  # TODO: generate this at start of interaction and store on blackboard.
-        nodedata.behaviour, nodedata.obs_behaviour = policy.get_behaviour(self.state, self.goal_level, self.performance, self.phase)
+        #, nodedata.obs_behaviour
+        nodedata.behaviour = policy.get_behaviour(self.state, self.goal_level, self.performance, self.phase)
         logging.debug('Got behaviour: ' + str(nodedata.behaviour))
 
         # If behaviour occurs twice, just skip to pre-instruction.
@@ -136,7 +139,7 @@ class GetBehaviour(Node):
 
         controller.prev_behav = nodedata.behaviour
 
-        nodedata.observation = policy.get_observation(self.state, nodedata.obs_behaviour)
+        controller.observation = policy.get_observation(self.state, nodedata.behaviour)
         # logging.debug('Got observation: ' + str(nodedata.behaviour))
         print("Returning SUCCESS from GetBehaviour, nodedata = " + str(nodedata))
         logging.debug("Returning SUCCESS from GetBehaviour, nodedata = " + str(nodedata))
@@ -504,6 +507,8 @@ class CreateSubgoal(Node):
         :param nodedata :type Blackboard: the blackboard associated with this Behaviour Tree containing the goal level.
         :return: None
         """
+        print("Configuring CreateSubgoal: " + self._name)
+        print(("createSubgoal nodedata = " + str(nodedata)))
         logging.debug("Configuring CreateSubgoal: " + self._name)
         logging.debug("createSubgoal nodedata = " + str(nodedata))
         self.previous_goal_level = nodedata.get_data('goal', -1)
@@ -528,6 +533,7 @@ class CreateSubgoal(Node):
             # Select which exercise to perform.
             if nodedata.new_goal == PolicyWrapper.EXERCISE_GOAL:
                 nodedata.exercise = controller.exercise_list_session[random.randint(0, len(controller.exercise_list_session)-1)]
+            print("Created subgoal, new goal level = {}".format(nodedata.new_goal))
             logging.info("Created subgoal, new goal level = {}".format(nodedata.new_goal))
             logging.debug("Returning SUCCESS from CreateSubGoal, new goal level = " + str(nodedata.new_goal))
             return NodeStatus(NodeStatus.SUCCESS, "Created subgoal: " + str(self.previous_goal_level + 1))
@@ -563,6 +569,7 @@ class EndSubgoal(Node):
         :param nodedata :type Blackboard: the blackboard associated with this Behaviour Tree containing the goal level.
         :return: None
         """
+        print("Configuring EndSubgoal: " + self._name)
         logging.debug("Configuring EndSubgoal: " + self._name)
         self.goal_level = nodedata.get_data('goal', -1)
 
@@ -772,6 +779,7 @@ class TimestepCue(Node):
                     f.close()
 
                     nodedata.target = controller.target
+                    print("target = nodedata.target")
                     nodedata.phase = PolicyWrapper.PHASE_END
                     logging.info(
                         "Feedback for exercise, score = {score}, target = {target}, performance = {performance}".format(

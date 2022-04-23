@@ -63,7 +63,7 @@ class PolicyWrapper:
 
         valid_behaviours = self._get_valid_list(goal_level, performance, phase)
         behaviour = self.policy.sample_action(state)
-        obs_behaviour = behaviour
+        # obs_behaviour = behaviour
         count = 0
         if goal_level == self.ACTION_GOAL:
             logging.debug("behaviour = ", behaviour, ". valid_behaviours: ", valid_behaviours)
@@ -114,7 +114,7 @@ class PolicyWrapper:
                         count = 0
                 count += 1
 
-        return behaviour, obs_behaviour
+        return behaviour  #, obs_behaviour
 
     def _get_valid_list(self, goal_level, performance, phase):
         """

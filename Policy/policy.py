@@ -291,8 +291,8 @@ class Policy:
 
     def sample_observation(self, state, action):
         """
-        Decide whether to move style based on self.belief_distribution and selected action (if it is possible in other
-        styles).
+        Get the observation given the action. Based on belief_distribution in case we need to change style but at the
+        moment we don't.
         :param state :type int: the current state
         :param action :type int: the chosen behaviour
         :return state :type int: the new state we observe based on belief distribution
