@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 
+from Policy.policy_wrapper import PolicyWrapper
+
 
 @dataclass
 class Action:
@@ -28,6 +30,7 @@ class Action:
     post_msg: str = None
     demo: str = None
     question: str = None
+    goal: int = None
 
     def __str__(self):
         """
@@ -35,6 +38,7 @@ class Action:
         :return:type str: the complete formatted utterance.
         """
         if self.score is not None:
-            return f'{self.pre_msg} You got an average score of {round(self.score, 2)} and were aiming for {round(self.target, 2)}.'
-        else:
-            return f'{self.pre_msg}'
+            if self.goal is not PolicyWrapper.ACTION_GOAL:
+                return f'{self.pre_msg} You got an average time of {round(self.score, 2)} seconds and were aiming for {round(self.target, 2)} seconds.'
+
+        return f'{self.pre_msg}'

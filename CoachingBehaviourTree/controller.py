@@ -60,6 +60,7 @@ session_score_list = []  # 1 entry for each exercise performed
 set_count = 0
 given_score = 0
 exercise_list_session = ["Table top circles", "Towel slide", "External rotation with cane", "Shoulder openers"]  # Delete from this list once the exercise has been completed in the session.
+exercise_target_times = [2.0, 2.0, 1.0, 1.0]
 start_time = None
 observation = -1
 
@@ -531,8 +532,6 @@ def create_coaching_tree():
         name="set_goal_intro_loop", blackboard=b, prev_goal_node=exercise_goal._id, initialise_node=initialise._id,
         person_node=user_start._id, prev_behav_node=exercise_goal_intro_behav._id)
 
-    set_goal_until_count = UntilCount(name="set_goal_until_count", max_count=2, child=gen_set_goal)
-    gen_exercise_goal.add_child(set_goal_until_count)
     '''
     # Create set goal in guide
     set_goal = CreateSubgoal(name="create_set_goal", blackboard=b)
@@ -640,6 +639,7 @@ def create_coaching_tree():
     set_goal_individual_action_sequence.add_child(set_goal_individual_action_until)
     set_goal_individual_action_sequence.add_child(set_goal_individual_action_cue)
     b.add_remapping(action_goal._id, 'new_goal', set_goal_individual_action_cue._id, 'goal')
+    b.add_remapping(set_goal_individual_action_rep._id, 'performance', set_goal_individual_action_cue, 'performance')
     b.add_remapping(exercise_goal_start._id, 'target', set_goal_individual_action_rep._id, 'target')
     set_goal_individual_action_behav_sequence = Progressor(name="set_goal_individual_behav_Progressor")
     # Get coaching behaviour from policy for individual action/shot
@@ -656,7 +656,7 @@ def create_coaching_tree():
     set_goal_individual_action_behav_sequence.add_child(set_goal_individual_action)
     # Share data between initialise, set_goal_individual_action_cue, action_goal, set_goal_individual_action_behav and set_goal_individual_action.
     b.add_remapping(initialise._id, 'bl', set_goal_individual_action._id, 'bl')
-    b.add_remapping(set_goal_individual_action_cue._id, 'performance', set_goal_individual_action, 'performance')
+    b.add_remapping(set_goal_individual_action_rep._id, 'performance', set_goal_individual_action, 'performance')
     b.add_remapping(set_goal_individual_action_cue._id, 'phase', set_goal_individual_action._id, 'phase')
     b.add_remapping(set_goal_individual_action_cue._id, 'score', set_goal_individual_action._id, 'score')
     b.add_remapping(set_goal_individual_action_cue._id, 'target', set_goal_individual_action._id, 'target')
@@ -689,14 +689,18 @@ def create_coaching_tree():
     b.add_remapping(end_action_goal._id, 'new_goal', set_goal_end._id, 'goal')
     set_goal_end_until = Until(name="set_goal_end_until", child=set_goal_end)
     gen_set_goal.add_child(set_goal_end_until)
-    exercise_goal_coaching.add_child(gen_set_goal)
+    #exercise_goal_coaching.add_child(gen_set_goal)
 
     set_goal_feedback_loop, set_goal_feedback_behav, set_goal_feedback_end = get_feedback_loop(name="set_goal_feedback_loop", behav=Policy.A_PREINSTRUCTION, blackboard=b, goal_node=set_goal._id, initialise_node=initialise._id, previous_behav_node=set_goal_individual_action_behav._id, timestep_cue_node=set_goal_end._id, person_node=user_start._id)
     set_goal_feedback_negate = Negate(name="set_goal_feedback_loop_negate", child=set_goal_feedback_loop)
-    exercise_goal_coaching.add_child(set_goal_feedback_negate)
+    gen_set_goal.add_child(set_goal_feedback_negate)
     # Remap the observation from the feedback loop to be the new state when an intro behaviour is given for the next set.
-    b.add_remapping(set_goal_end, 'phase', set_goal_intro_behav, 'previous_phase')
+    b.add_remapping(set_goal_end._id, 'phase', set_goal_intro_behav._id, 'previous_phase')
     # b.save('feedback)state', observation, set_goal_intro_behav)
+    set_goal_until_count = UntilCount(name="set_goal_until_count", max_count=2, child=gen_set_goal)
+    #exercise_goal_coaching.add_child(set_goal_until_count)
+    #exercise_goal_coaching_twice = UntilCount(name="exercise_goal_coaching_twice", max_count=2, child=set_goal_until)
+    gen_exercise_goal.add_child(set_goal_until_count)
 
     '''
     stat_goal_coaching_until_count = UntilCount(name="stat_goal_coaching_until_count", max_count=5, child=stat_goal_coaching)
@@ -881,7 +885,8 @@ def get_intro_loop(name, blackboard, prev_goal_node, initialise_node, person_nod
     new_goal_intro_questioning_negate_name = name + "_questioning_sequence_negate"
     new_goal_intro_questioning_negate = Negate(name=new_goal_intro_questioning_negate_name,
                                                child=new_goal_intro_questioning_sequence)
-    new_goal_intro_sequence.add_child(new_goal_intro_questioning_negate)
+    # TODO: Add the following line back in for long-term study when the user can select the shots/exercises.
+    # new_goal_intro_sequence.add_child(new_goal_intro_questioning_negate)
 
     # Format selected behaviour if not pre-instruction or questioning (i.e. create the output action)
     new_goal_intro_action_name = name + "_action"

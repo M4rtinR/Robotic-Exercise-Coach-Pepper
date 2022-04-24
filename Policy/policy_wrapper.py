@@ -59,14 +59,15 @@ class PolicyWrapper:
         """
         if goal_level == self.ACTION_GOAL:
             logging.debug("Action goal")
-            logging.debug("performance = ", performance)
+            logging.debug("performance = %s", performance)
 
         valid_behaviours = self._get_valid_list(goal_level, performance, phase)
         behaviour = self.policy.sample_action(state)
         # obs_behaviour = behaviour
         count = 0
         if goal_level == self.ACTION_GOAL:
-            logging.debug("behaviour = ", behaviour, ". valid_behaviours: ", valid_behaviours)
+            debugString = "behaviour = ", behaviour, ". valid_behaviours: %s", valid_behaviours
+            logging.debug(debugString)
 
         while not(behaviour in valid_behaviours):
             logging.debug("Not valid behaviour")
