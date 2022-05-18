@@ -63,6 +63,7 @@ exercise_list_session = ["Table top circles", "Towel slide", "External rotation 
 exercise_target_times = [2.0, 2.0, 1.0, 1.0]
 start_time = None
 observation = -1
+has_score_been_provided = False  # True if Pepper has already said e.g. "Your average score was 3.02 and your were aiming for 2.0" and False otherwise.
 
 # Initial values to be changed at the beginning of each session:
 name = "Martin"
@@ -798,8 +799,9 @@ def get_intro_loop(name, blackboard, prev_goal_node, initialise_node, person_nod
     new_goal = CreateSubgoal(name=new_goal_name, blackboard=blackboard)
     overall_intro_sequence.add_child(new_goal)
 
-    # Share data between person_goal and session_goal.
+    # Share data between previous goal and new goal.
     blackboard.add_remapping(prev_goal_node, 'new_goal', new_goal._id, 'goal')
+    blackboard.add_remapping(prev_goal_node, 'exercise', new_goal._id, 'exercise')
 
     #
     #
@@ -982,6 +984,7 @@ def get_feedback_loop(name, behav, blackboard, goal_node, initialise_node, previ
         feedback_loop_end_sequence.add_child(feedback_loop_display_end_output)
         # Share action between feedback_loop_end_action and feedback_loop_display_end_output.
         blackboard.add_remapping(feedback_loop_end_action._id, 'action', feedback_loop_display_end_output._id, 'action')
+        blackboard.add_remapping(timestep_cue_node, 'target', feedback_loop_display_end_output._id, 'target')
 
         feedback_loop_sequence.add_child(Negate(name=negate_name, child=feedback_loop_end_sequence))
 
@@ -1006,6 +1009,7 @@ def get_feedback_loop(name, behav, blackboard, goal_node, initialise_node, previ
     feedback_loop_sequence.add_child(feedback_loop_output)
     # Share action between feedback_loop_end_action and feedback_loop_display_end_output.
     blackboard.add_remapping(feedback_loop_action._id, 'action', feedback_loop_output._id, 'action')
+    blackboard.add_remapping(timestep_cue_node, 'score', feedback_loop_output._id, 'score')
     # overall_feedback_sequence.add_child(feedback_loop_sequence)
 
     while_name = name + "_while"

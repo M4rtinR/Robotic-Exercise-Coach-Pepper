@@ -13439,7 +13439,7 @@ class BehaviourLibraryFunctions:
                             performance_insert = "were a little too quick"
                             performance_reaction = "but we can change that!"
                         elif performance == PolicyWrapper.SLOW:
-                            performance_insert = "were a little to slow"
+                            performance_insert = "were a little too slow"
                             performance_reaction = "but we can change that!"
                         elif performance == PolicyWrapper.GOOD:
                             performance_insert = "were good"
@@ -13453,7 +13453,7 @@ class BehaviourLibraryFunctions:
                             optional_question = ""
                             if behaviour == Policy.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING:
                                 optional_question = "weren't they?"
-                            utterance = utterance + "Your " + goal_level_insert + " " + performance_insert + "there " + optional_question + " " + name + " " + performance_reaction
+                            utterance = utterance + "Your " + goal_level_insert + " " + performance_insert + " there " + optional_question + " " + name + " " + performance_reaction
                         else:
                             optional_question = ""
                             if behaviour == Policy.A_POSTINSTRUCTIONNEGATIVE_QUESTIONING:
@@ -13753,7 +13753,7 @@ class BehaviourLibraryFunctions:
                             performance_insert = "were a little too quick"
                             performance_reaction = "but we can change that!"
                         elif performance == PolicyWrapper.SLOW:
-                            performance_insert = "were a little to slow"
+                            performance_insert = "were a little too slow"
                             performance_reaction = "but we can change that!"
                         elif performance == PolicyWrapper.GOOD:
                             performance_insert = "were good"
@@ -13767,7 +13767,7 @@ class BehaviourLibraryFunctions:
                             optional_question = ""
                             if behaviour == Policy.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING:
                                 optional_question = "weren't they?"
-                            utterance = utterance + "Your " + goal_level_insert + " " + performance_insert + "there " + optional_question + " " + name + " " + performance_reaction
+                            utterance = utterance + "Your " + goal_level_insert + " " + performance_insert + " there " + optional_question + " " + name + " " + performance_reaction
                         else:
                             optional_question = ""
                             if behaviour == Policy.A_POSTINSTRUCTIONNEGATIVE_QUESTIONING:
@@ -13907,7 +13907,7 @@ class BehaviourLibraryFunctions:
                             performance_insert = "were a little too quick"
                             performance_reaction = "but we can change that this time!"
                         elif performance == PolicyWrapper.SLOW:
-                            performance_insert = "were a little to slow"
+                            performance_insert = "were a little too slow"
                             performance_reaction = "but we can change that this time!"
                         elif performance == PolicyWrapper.GOOD:
                             performance_insert = "were good"
@@ -14067,7 +14067,7 @@ class BehaviourLibraryFunctions:
                             performance_insert = "were a little too quick"
                             performance_reaction = "but we can change that!"
                         elif performance == PolicyWrapper.SLOW:
-                            performance_insert = "were a little to slow"
+                            performance_insert = "were a little too slow"
                             performance_reaction = "but we can change that!"
                         elif performance == PolicyWrapper.GOOD:
                             performance_insert = "were good"
@@ -14081,7 +14081,7 @@ class BehaviourLibraryFunctions:
                             optional_question = ""
                             if behaviour == Policy.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING:
                                 optional_question = "weren't they?"
-                            utterance = utterance + "Your " + goal_level_insert + " " + performance_insert + "there " + optional_question + " " + name + " " + performance_reaction
+                            utterance = utterance + "Your " + goal_level_insert + " " + performance_insert + " there " + optional_question + " " + name + " " + performance_reaction
                         else:
                             optional_question = ""
                             if behaviour == Policy.A_POSTINSTRUCTIONNEGATIVE_QUESTIONING:
@@ -14221,7 +14221,7 @@ class BehaviourLibraryFunctions:
                             performance_insert = "were a little too quick"
                             performance_reaction = "but we can change that this time!"
                         elif performance == PolicyWrapper.SLOW:
-                            performance_insert = "were a little to slow"
+                            performance_insert = "were a little too slow"
                             performance_reaction = "but we can change that this time!"
                         elif performance == PolicyWrapper.GOOD:
                             performance_insert = "were good"
@@ -14381,7 +14381,7 @@ class BehaviourLibraryFunctions:
                             performance_insert = "were a little too quick"
                             performance_reaction = "but we can change that!"
                         elif performance == PolicyWrapper.SLOW:
-                            performance_insert = "were a little to slow"
+                            performance_insert = "were a little too slow"
                             performance_reaction = "but we can change that!"
                         elif performance == PolicyWrapper.GOOD:
                             performance_insert = "were good"
@@ -14395,7 +14395,7 @@ class BehaviourLibraryFunctions:
                             optional_question = ""
                             if behaviour == Policy.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING:
                                 optional_question = "weren't they?"
-                            utterance = utterance + "Your " + goal_level_insert + " " + performance_insert + "there " + optional_question + " " + name + " " + performance_reaction
+                            utterance = utterance + "Your " + goal_level_insert + " " + performance_insert + " there " + optional_question + " " + name + " " + performance_reaction
                         else:
                             optional_question = ""
                             if behaviour == Policy.A_POSTINSTRUCTIONNEGATIVE_QUESTIONING:
@@ -14535,7 +14535,7 @@ class BehaviourLibraryFunctions:
                             performance_insert = "were a little too quick"
                             performance_reaction = "but we can change that this time!"
                         elif performance == PolicyWrapper.SLOW:
-                            performance_insert = "were a little to slow"
+                            performance_insert = "were a little too slow"
                             performance_reaction = "but we can change that this time!"
                         elif performance == PolicyWrapper.GOOD:
                             performance_insert = "were good"
@@ -14695,7 +14695,7 @@ class BehaviourLibraryFunctions:
                             performance_insert = "were a little too quick"
                             performance_reaction = "but we can change that!"
                         elif performance == PolicyWrapper.SLOW:
-                            performance_insert = "were a little to slow"
+                            performance_insert = "were a little too slow"
                             performance_reaction = "but we can change that!"
                         elif performance == PolicyWrapper.GOOD:
                             performance_insert = "were good"
@@ -14709,7 +14709,7 @@ class BehaviourLibraryFunctions:
                             optional_question = ""
                             if behaviour == Policy.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING:
                                 optional_question = "weren't they?"
-                            utterance = utterance + "Your " + goal_level_insert + " " + performance_insert + "there " + optional_question + " " + name + " " + performance_reaction
+                            utterance = utterance + "Your " + goal_level_insert + " " + performance_insert + " there " + optional_question + " " + name + " " + performance_reaction
                         else:
                             optional_question = ""
                             if behaviour == Policy.A_POSTINSTRUCTIONNEGATIVE_QUESTIONING:
@@ -14849,7 +14849,7 @@ class BehaviourLibraryFunctions:
                             performance_insert = "were a little too quick"
                             performance_reaction = "but we can change that this time!"
                         elif performance == PolicyWrapper.SLOW:
-                            performance_insert = "were a little to slow"
+                            performance_insert = "were a little too slow"
                             performance_reaction = "but we can change that this time!"
                         elif performance == PolicyWrapper.GOOD:
                             performance_insert = "were good"
@@ -15009,7 +15009,7 @@ class BehaviourLibraryFunctions:
                             performance_insert = "were a little too quick"
                             performance_reaction = "but we can change that!"
                         elif performance == PolicyWrapper.SLOW:
-                            performance_insert = "were a little to slow"
+                            performance_insert = "were a little too slow"
                             performance_reaction = "but we can change that!"
                         elif performance == PolicyWrapper.GOOD:
                             performance_insert = "were good"
@@ -15023,7 +15023,7 @@ class BehaviourLibraryFunctions:
                             optional_question = ""
                             if behaviour == Policy.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING:
                                 optional_question = "weren't they?"
-                            utterance = utterance + "Your " + goal_level_insert + " " + performance_insert + "there " + optional_question + " " + name + " " + performance_reaction
+                            utterance = utterance + "Your " + goal_level_insert + " " + performance_insert + " there " + optional_question + " " + name + " " + performance_reaction
                         else:
                             optional_question = ""
                             if behaviour == Policy.A_POSTINSTRUCTIONNEGATIVE_QUESTIONING:
@@ -15163,7 +15163,7 @@ class BehaviourLibraryFunctions:
                             performance_insert = "were a little too quick"
                             performance_reaction = "but we can change that this time!"
                         elif performance == PolicyWrapper.SLOW:
-                            performance_insert = "were a little to slow"
+                            performance_insert = "were a little too slow"
                             performance_reaction = "but we can change that this time!"
                         elif performance == PolicyWrapper.GOOD:
                             performance_insert = "were good"
@@ -15323,7 +15323,7 @@ class BehaviourLibraryFunctions:
                             performance_insert = "were a little too quick"
                             performance_reaction = "but we can change that!"
                         elif performance == PolicyWrapper.SLOW:
-                            performance_insert = "were a little to slow"
+                            performance_insert = "were a little too slow"
                             performance_reaction = "but we can change that!"
                         elif performance == PolicyWrapper.GOOD:
                             performance_insert = "were good"
@@ -15337,7 +15337,7 @@ class BehaviourLibraryFunctions:
                             optional_question = ""
                             if behaviour == Policy.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING:
                                 optional_question = "weren't they?"
-                            utterance = utterance + "Your " + goal_level_insert + " " + performance_insert + "there " + optional_question + " " + name + " " + performance_reaction
+                            utterance = utterance + "Your " + goal_level_insert + " " + performance_insert + " there " + optional_question + " " + name + " " + performance_reaction
                         else:
                             optional_question = ""
                             if behaviour == Policy.A_POSTINSTRUCTIONNEGATIVE_QUESTIONING:

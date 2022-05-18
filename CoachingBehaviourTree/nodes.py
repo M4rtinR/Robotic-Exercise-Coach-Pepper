@@ -58,6 +58,9 @@ import requests
 # Robot through ITT Pepper router:
 post_address = "http://192.168.1.207:4999/output"
 
+# Robot through hotspot:
+# post_address = "http://192.168.43.19:4999/output"
+
 
 class GetBehaviour(Node):
     """
@@ -376,6 +379,7 @@ class DisplayBehaviour(Node):
         logging.debug("Configuring DisplayBehaviour: " + self._name)
         self.action = nodedata.get_data('action')
         self.set_start = nodedata.get_data('set_start', False)
+        self.score = nodedata.get_data('score', None)
 
     def run(self, nodedata):
         """
@@ -393,6 +397,8 @@ class DisplayBehaviour(Node):
         if self.action.question is not None:
             output['question'] = self.action.question
         r = requests.post(post_address, json=output)
+        if self.score is not None and controller.has_score_been_provided is False:
+            controller.has_score_been_provided = True
         if self.set_start:
             api_classes.expecting_action_goal = True
         logging.debug("Returning SUCCESS from DisplayBehaviour")
@@ -598,6 +604,7 @@ class EndSubgoal(Node):
             nodedata.new_goal = self.goal_level - 1
             nodedata.phase = PolicyWrapper.PHASE_START  # All behaviours have happened so its start of new goal.
             controller.completed = controller.COMPLETED_STATUS_TRUE
+            controller.has_score_been_provided = False  # At new goal level we will need to provide the average score again.
             if self.goal_level == PolicyWrapper.EXERCISE_GOAL:
                 controller.session_time += 1
             # if self.goal_level == PolicyWrapper.ACTION_GOAL:
