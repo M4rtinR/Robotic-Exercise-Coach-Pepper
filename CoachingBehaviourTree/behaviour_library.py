@@ -13180,7 +13180,7 @@ class BehaviourLibraryFunctions:
     POST_MSG: int = 0
     choice_list = [0, 1, 2, 3]
 
-    def get_pre_msg(self, behaviour, goal_level, performance, phase, name, exercise, final_set):
+    def get_pre_msg(self, behaviour, goal_level, performance, phase, name, exercise, final_set, second_set):
         """
         Accesses the behaviour library dictionary and returns a random pre utterance appropriate to the parameters.
         :param behaviour :type int: the behaviour code e.g. A_PREINSTRUCTION = 1
@@ -13215,11 +13215,11 @@ class BehaviourLibraryFunctions:
                 performance = -1
 
             msg = self.behaviours[str(goal_level) + '_' + str(behaviour) + '_' + str(performance) + '_' + str(phase) + '_0'][r]'''
-            msg = self._get_pre_utterance(goal_level, behaviour, name, phase, exercise, performance, final_set, choice)
+            msg = self._get_pre_utterance(goal_level, behaviour, name, phase, exercise, performance, final_set, second_set, choice)
 
         return msg
 
-    def _get_pre_utterance(self, goal_level, behaviour, user_name, phase, exercise, performance, final_set, utterance_choice):
+    def _get_pre_utterance(self, goal_level, behaviour, user_name, phase, exercise, performance, final_set, second_set, utterance_choice):
         logging.debug("Performance = " + str(performance))
         utterance = ""
         name = ""
@@ -13311,7 +13311,10 @@ class BehaviourLibraryFunctions:
                             goal_level_insert = "performance"
                         elif goal_level == PolicyWrapper.EXERCISE_GOAL or goal_level == PolicyWrapper.SET_GOAL:
                             goal_level_insert = exercise_utterance
-                        utterance = utterance + "How did your " + goal_level_insert + " feel last time" + name + "? Touch the back of my hand if they felt good or the top of my head if you think they still needs work."
+                        if performance_insert == "":
+                            utterance = "Am I right in thinking this is the first time we've worked on your " + goal_level_insert + " together " + name + "? Touch the back of my hand for yes or the top of my head for no."
+                        else:
+                            utterance = utterance + "How did your " + goal_level_insert + " feel last time" + name + "? Touch the back of my hand if they felt good or the top of my head if you think they still needs work."
 
                     elif behaviour in [Policy.A_PREINSTRUCTION, Policy.A_PREINSTRUCTION_QUESTIONING,
                                        Policy.A_PREINSTRUCTION_FIRSTNAME, Policy.A_PREINSTRUCTION_POSITIVEMODELING,
@@ -13329,6 +13332,8 @@ class BehaviourLibraryFunctions:
                         if goal_level == PolicyWrapper.SET_GOAL:
                             if final_set:
                                 utterance = utterance + "Do a final set of 5 " + exercise_utterance + " please " + name + ". Remember, " + exercise_advice + question
+                            elif second_set:
+                                utterance = utterance + "Do another set of 5 " + exercise_utterance + " please " + name + ". Remember, " + exercise_advice + question
                             else:
                                 utterance = utterance + "Do a set of 10 " + exercise_utterance + " please " + name + ". Remember, " + exercise_advice + question
                         else:
@@ -13367,8 +13372,10 @@ class BehaviourLibraryFunctions:
                         if goal_level == PolicyWrapper.SET_GOAL:
                             if final_set:
                                 utterance = utterance + "Do a final set of 5 " + exercise_utterance + " please " + name + ". Remember, don't " + exercise_advice
+                            elif second_set:
+                                    utterance = utterance + "Do another set of 5 " + exercise_utterance + " please " + name + ". Remember, " + exercise_advice
                             else:
-                                utterance = utterance + "Do a set of 10 " + exercise_utterance + " please " + name + ". Remember, don't " + exercise_advice
+                                    utterance = utterance + "Do a set of 10 " + exercise_utterance + " please " + name + ". Remember, don't " + exercise_advice
 
                         else:
                             exercise_description = "Lace your fingers together and wrap both hands around a water bottle. Try not to only engage one side of your body. With your fingers laced around the bottle, begin to make large circular movements. You can use your non-affected arm to guide your affected arm through this exercise."  # For exercise 0: table top circles
@@ -13467,7 +13474,7 @@ class BehaviourLibraryFunctions:
                             goal_level_insert = "exercises"
                         elif goal_level == PolicyWrapper.EXERCISE_GOAL or goal_level == PolicyWrapper.SET_GOAL:
                             goal_level_insert = exercise_utterance
-                        utterance = utterance + "How did your " + goal_level_insert + " feel there " + name + "? Touch the back of my hand if it fet good or the top of my head if you think it still needs work."
+                        utterance = utterance + "How did your " + goal_level_insert + " feel there " + name + "? Touch the back of my hand if it felt good or the top of my head if you think it still needs work."
 
                     elif behaviour in [Policy.A_PRAISE, Policy.A_PRAISE_FIRSTNAME, Policy.A_POSITIVEMODELING_PRAISE,
                                        Policy.A_CONSOLE, Policy.A_CONSOLE_FIRSTNAME]:
@@ -13625,7 +13632,10 @@ class BehaviourLibraryFunctions:
                             goal_level_insert = "exercises, in general,"
                         elif goal_level == PolicyWrapper.EXERCISE_GOAL or goal_level == PolicyWrapper.SET_GOAL:
                             goal_level_insert = exercise_utterance
-                        utterance = utterance + "Last time, how did your " + goal_level_insert + " feel " + name + "? Touch the back of my hand if they felt good or the top of my head if you think they still need work."
+                        if performance_insert == "":
+                            utterance = "Am I right in thinking this is the first time we've worked on your " + goal_level_insert + " together " + name + "? Touch the back of my hand for yes or the top of my head for no."
+                        else:
+                            utterance = utterance + "Last time, how did your " + goal_level_insert + " feel " + name + "? Touch the back of my hand if they felt good or the top of my head if you think they still need work."
 
                     elif behaviour in [Policy.A_PREINSTRUCTION, Policy.A_PREINSTRUCTION_QUESTIONING,
                                        Policy.A_PREINSTRUCTION_FIRSTNAME, Policy.A_PREINSTRUCTION_POSITIVEMODELING,
@@ -13643,6 +13653,8 @@ class BehaviourLibraryFunctions:
                         if goal_level == PolicyWrapper.SET_GOAL:
                             if final_set:
                                 utterance = utterance + "Do a final set of 5 " + exercise_utterance + " please " + name + ". Remember, " + exercise_advice + question
+                            elif second_set:
+                                utterance = utterance + "Do another set of 5 " + exercise_utterance + " please " + name + ". Remember, " + exercise_advice + question
                             else:
                                 utterance = utterance + "Do a set of 10 " + exercise_utterance + " please " + name + ". Remember, " + exercise_advice + question
                         else:
@@ -13681,6 +13693,8 @@ class BehaviourLibraryFunctions:
                         if goal_level == PolicyWrapper.SET_GOAL:
                             if final_set:
                                 utterance = utterance + "Do a final set of 5 " + exercise_utterance + " please " + name + ". Remember, don't " + exercise_advice
+                            elif second_set:
+                                utterance = utterance + "Do another set of 5 " + exercise_utterance + " please " + name + ". Remember, " + exercise_advice
                             else:
                                 utterance = utterance + "Do a set of 10 " + exercise_utterance + " please " + name + ". Remember, don't " + exercise_advice
 
@@ -13781,7 +13795,7 @@ class BehaviourLibraryFunctions:
                             goal_level_insert = "exercises"
                         elif goal_level == PolicyWrapper.EXERCISE_GOAL or goal_level == PolicyWrapper.SET_GOAL:
                             goal_level_insert = exercise_utterance
-                        utterance = utterance + "How did your " + goal_level_insert + " feel there " + name + "? Touch the back of my hand if it fet good or the top of my head if you think it still needs work."
+                        utterance = utterance + "How did your " + goal_level_insert + " feel there " + name + "? Touch the back of my hand if it felt good or the top of my head if you think it still needs work."
 
                     elif behaviour in [Policy.A_PRAISE, Policy.A_PRAISE_FIRSTNAME, Policy.A_POSITIVEMODELING_PRAISE,
                                        Policy.A_CONSOLE, Policy.A_CONSOLE_FIRSTNAME]:
@@ -13939,7 +13953,10 @@ class BehaviourLibraryFunctions:
                             goal_level_insert = "performance"
                         elif goal_level == PolicyWrapper.EXERCISE_GOAL or goal_level == PolicyWrapper.SET_GOAL:
                             goal_level_insert = exercise_utterance
-                        utterance = utterance + "How did your " + goal_level_insert + " feel last time" + name + "? Touch the back of my hand if they felt good or the top of my head if you think they still needs work."
+                        if performance_insert == "":
+                            utterance = "Am I right in thinking this is the first time we've worked on your " + goal_level_insert + " together " + name + "? Touch the back of my hand for yes or the top of my head for no."
+                        else:
+                            utterance = utterance + "How did your " + goal_level_insert + " feel last time" + name + "? Touch the back of my hand if they felt good or the top of my head if you think they still needs work."
 
                     elif behaviour in [Policy.A_PREINSTRUCTION, Policy.A_PREINSTRUCTION_QUESTIONING,
                                        Policy.A_PREINSTRUCTION_FIRSTNAME, Policy.A_PREINSTRUCTION_POSITIVEMODELING,
@@ -13957,6 +13974,8 @@ class BehaviourLibraryFunctions:
                         if goal_level == PolicyWrapper.SET_GOAL:
                             if final_set:
                                 utterance = utterance + "Do a final set of 5 " + exercise_utterance + " please " + name + ". Remember, " + exercise_advice + question
+                            elif second_set:
+                                utterance = utterance + "Do another set of 5 " + exercise_utterance + " please " + name + ". Remember, " + exercise_advice + question
                             else:
                                 utterance = utterance + "Do a set of 10 " + exercise_utterance + " please " + name + ". Remember, " + exercise_advice + question
                         else:
@@ -13995,6 +14014,8 @@ class BehaviourLibraryFunctions:
                         if goal_level == PolicyWrapper.SET_GOAL:
                             if final_set:
                                 utterance = utterance + "Do a final set of 5 " + exercise_utterance + " please " + name + ". Remember, don't " + exercise_advice
+                            elif second_set:
+                                utterance = utterance + "Do another set of 5 " + exercise_utterance + " please " + name + ". Remember, " + exercise_advice
                             else:
                                 utterance = utterance + "Do a set of 10 " + exercise_utterance + " please " + name + ". Remember, don't " + exercise_advice
 
@@ -14095,7 +14116,7 @@ class BehaviourLibraryFunctions:
                             goal_level_insert = "exercises"
                         elif goal_level == PolicyWrapper.EXERCISE_GOAL or goal_level == PolicyWrapper.SET_GOAL:
                             goal_level_insert = exercise_utterance
-                        utterance = utterance + "How did your " + goal_level_insert + " feel there " + name + "? Touch the back of my hand if it fet good or the top of my head if you think it still needs work."
+                        utterance = utterance + "How did your " + goal_level_insert + " feel there " + name + "? Touch the back of my hand if it felt good or the top of my head if you think it still needs work."
 
                     elif behaviour in [Policy.A_PRAISE, Policy.A_PRAISE_FIRSTNAME, Policy.A_POSITIVEMODELING_PRAISE,
                                        Policy.A_CONSOLE, Policy.A_CONSOLE_FIRSTNAME]:
@@ -14253,7 +14274,10 @@ class BehaviourLibraryFunctions:
                             goal_level_insert = "performance"
                         elif goal_level == PolicyWrapper.EXERCISE_GOAL or goal_level == PolicyWrapper.SET_GOAL:
                             goal_level_insert = exercise_utterance
-                        utterance = utterance + "How did your " + goal_level_insert + " feel last time" + name + "? Touch the back of my hand if they felt good or the top of my head if you think they still needs work."
+                        if performance_insert == "":
+                            utterance = "Am I right in thinking this is the first time we've worked on your " + goal_level_insert + " together " + name + "? Touch the back of my hand for yes or the top of my head for no."
+                        else:
+                            utterance = utterance + "How did your " + goal_level_insert + " feel last time" + name + "? Touch the back of my hand if they felt good or the top of my head if you think they still needs work."
 
                     elif behaviour in [Policy.A_PREINSTRUCTION, Policy.A_PREINSTRUCTION_QUESTIONING,
                                        Policy.A_PREINSTRUCTION_FIRSTNAME, Policy.A_PREINSTRUCTION_POSITIVEMODELING,
@@ -14271,6 +14295,8 @@ class BehaviourLibraryFunctions:
                         if goal_level == PolicyWrapper.SET_GOAL:
                             if final_set:
                                 utterance = utterance + "Do a final set of 5 " + exercise_utterance + " please " + name + ". Remember, " + exercise_advice + question
+                            elif second_set:
+                                utterance = utterance + "Do another set of 5 " + exercise_utterance + " please " + name + ". Remember, " + exercise_advice + question
                             else:
                                 utterance = utterance + "Do a set of 10 " + exercise_utterance + " please " + name + ". Remember, " + exercise_advice + question
                         else:
@@ -14309,6 +14335,8 @@ class BehaviourLibraryFunctions:
                         if goal_level == PolicyWrapper.SET_GOAL:
                             if final_set:
                                 utterance = utterance + "Do a final set of 5 " + exercise_utterance + " please " + name + ". Remember, don't " + exercise_advice
+                            elif second_set:
+                                utterance = utterance + "Do another set of 5 " + exercise_utterance + " please " + name + ". Remember, " + exercise_advice
                             else:
                                 utterance = utterance + "Do a set of 10 " + exercise_utterance + " please " + name + ". Remember, don't " + exercise_advice
 
@@ -14409,7 +14437,7 @@ class BehaviourLibraryFunctions:
                             goal_level_insert = "exercises"
                         elif goal_level == PolicyWrapper.EXERCISE_GOAL or goal_level == PolicyWrapper.SET_GOAL:
                             goal_level_insert = exercise_utterance
-                        utterance = utterance + "How did your " + goal_level_insert + " feel there " + name + "? Touch the back of my hand if it fet good or the top of my head if you think it still needs work."
+                        utterance = utterance + "How did your " + goal_level_insert + " feel there " + name + "? Touch the back of my hand if it felt good or the top of my head if you think it still needs work."
 
                     elif behaviour in [Policy.A_PRAISE, Policy.A_PRAISE_FIRSTNAME, Policy.A_POSITIVEMODELING_PRAISE,
                                        Policy.A_CONSOLE, Policy.A_CONSOLE_FIRSTNAME]:
@@ -14567,7 +14595,10 @@ class BehaviourLibraryFunctions:
                             goal_level_insert = "performance"
                         elif goal_level == PolicyWrapper.EXERCISE_GOAL or goal_level == PolicyWrapper.SET_GOAL:
                             goal_level_insert = exercise_utterance
-                        utterance = utterance + "How did your " + goal_level_insert + " feel last time" + name + "? Touch the back of my hand if they felt good or the top of my head if you think they still needs work."
+                        if performance_insert == "":
+                            utterance = "Am I right in thinking this is the first time we've worked on your " + goal_level_insert + " together " + name + "? Touch the back of my hand for yes or the top of my head for no."
+                        else:
+                            utterance = utterance + "How did your " + goal_level_insert + " feel last time" + name + "? Touch the back of my hand if they felt good or the top of my head if you think they still needs work."
 
                     elif behaviour in [Policy.A_PREINSTRUCTION, Policy.A_PREINSTRUCTION_QUESTIONING,
                                        Policy.A_PREINSTRUCTION_FIRSTNAME, Policy.A_PREINSTRUCTION_POSITIVEMODELING,
@@ -14585,6 +14616,8 @@ class BehaviourLibraryFunctions:
                         if goal_level == PolicyWrapper.SET_GOAL:
                             if final_set:
                                 utterance = utterance + "Do a final set of 5 " + exercise_utterance + " please " + name + ". Remember, " + exercise_advice + question
+                            elif second_set:
+                                utterance = utterance + "Do another set of 5 " + exercise_utterance + " please " + name + ". Remember, " + exercise_advice + question
                             else:
                                 utterance = utterance + "Do a set of 10 " + exercise_utterance + " please " + name + ". Remember, " + exercise_advice + question
                         else:
@@ -14623,6 +14656,8 @@ class BehaviourLibraryFunctions:
                         if goal_level == PolicyWrapper.SET_GOAL:
                             if final_set:
                                 utterance = utterance + "Do a final set of 5 " + exercise_utterance + " please " + name + ". Remember, don't " + exercise_advice
+                            elif second_set:
+                                utterance = utterance + "Do another set of 5 " + exercise_utterance + " please " + name + ". Remember, " + exercise_advice + question
                             else:
                                 utterance = utterance + "Do a set of 10 " + exercise_utterance + " please " + name + ". Remember, don't " + exercise_advice
 
@@ -14723,7 +14758,7 @@ class BehaviourLibraryFunctions:
                             goal_level_insert = "exercises"
                         elif goal_level == PolicyWrapper.EXERCISE_GOAL or goal_level == PolicyWrapper.SET_GOAL:
                             goal_level_insert = exercise_utterance
-                        utterance = utterance + "How did your " + goal_level_insert + " feel there " + name + "? Touch the back of my hand if it fet good or the top of my head if you think it still needs work."
+                        utterance = utterance + "How did your " + goal_level_insert + " feel there " + name + "? Touch the back of my hand if it felt good or the top of my head if you think it still needs work."
 
                     elif behaviour in [Policy.A_PRAISE, Policy.A_PRAISE_FIRSTNAME, Policy.A_POSITIVEMODELING_PRAISE,
                                        Policy.A_CONSOLE, Policy.A_CONSOLE_FIRSTNAME]:
@@ -14881,7 +14916,10 @@ class BehaviourLibraryFunctions:
                             goal_level_insert = "performance"
                         elif goal_level == PolicyWrapper.EXERCISE_GOAL or goal_level == PolicyWrapper.SET_GOAL:
                             goal_level_insert = exercise_utterance
-                        utterance = utterance + "How did your " + goal_level_insert + " feel last time" + name + "? Touch the back of my hand if they felt good or the top of my head if you think they still needs work."
+                        if performance_insert == "":
+                            utterance = "Am I right in thinking this is the first time we've worked on your " + goal_level_insert + " together " + name + "? Touch the back of my hand for yes or the top of my head for no."
+                        else:
+                            utterance = utterance + "How did your " + goal_level_insert + " feel last time" + name + "? Touch the back of my hand if they felt good or the top of my head if you think they still needs work."
 
                     elif behaviour in [Policy.A_PREINSTRUCTION, Policy.A_PREINSTRUCTION_QUESTIONING,
                                        Policy.A_PREINSTRUCTION_FIRSTNAME, Policy.A_PREINSTRUCTION_POSITIVEMODELING,
@@ -14899,6 +14937,8 @@ class BehaviourLibraryFunctions:
                         if goal_level == PolicyWrapper.SET_GOAL:
                             if final_set:
                                 utterance = utterance + "Do a final set of 5 " + exercise_utterance + " please " + name + ". Remember, " + exercise_advice + question
+                            elif second_set:
+                                utterance = utterance + "Do another set of 5 " + exercise_utterance + " please " + name + ". Remember, " + exercise_advice + question
                             else:
                                 utterance = utterance + "Do a set of 10 " + exercise_utterance + " please " + name + ". Remember, " + exercise_advice + question
                         else:
@@ -14937,6 +14977,8 @@ class BehaviourLibraryFunctions:
                         if goal_level == PolicyWrapper.SET_GOAL:
                             if final_set:
                                 utterance = utterance + "Do a final set of 5 " + exercise_utterance + " please " + name + ". Remember, don't " + exercise_advice
+                            elif second_set:
+                                utterance = utterance + "Do another set of 5 " + exercise_utterance + " please " + name + ". Remember, " + exercise_advice
                             else:
                                 utterance = utterance + "Do a set of 10 " + exercise_utterance + " please " + name + ". Remember, don't " + exercise_advice
 
@@ -15037,7 +15079,7 @@ class BehaviourLibraryFunctions:
                             goal_level_insert = "exercises"
                         elif goal_level == PolicyWrapper.EXERCISE_GOAL or goal_level == PolicyWrapper.SET_GOAL:
                             goal_level_insert = exercise_utterance
-                        utterance = utterance + "How did your " + goal_level_insert + " feel there " + name + "? Touch the back of my hand if it fet good or the top of my head if you think it still needs work."
+                        utterance = utterance + "How did your " + goal_level_insert + " feel there " + name + "? Touch the back of my hand if it felt good or the top of my head if you think it still needs work."
 
                     elif behaviour in [Policy.A_PRAISE, Policy.A_PRAISE_FIRSTNAME, Policy.A_POSITIVEMODELING_PRAISE,
                                        Policy.A_CONSOLE, Policy.A_CONSOLE_FIRSTNAME]:
@@ -15195,7 +15237,10 @@ class BehaviourLibraryFunctions:
                             goal_level_insert = "performance"
                         elif goal_level == PolicyWrapper.EXERCISE_GOAL or goal_level == PolicyWrapper.SET_GOAL:
                             goal_level_insert = exercise_utterance
-                        utterance = utterance + "How did your " + goal_level_insert + " feel last time" + name + "? Touch the back of my hand if they felt good or the top of my head if you think they still needs work."
+                        if performance_insert == "":
+                            utterance = "Am I right in thinking this is the first time we've worked on your " + goal_level_insert + " together " + name + "? Touch the back of my hand for yes or the top of my head for no."
+                        else:
+                            utterance = utterance + "How did your " + goal_level_insert + " feel last time" + name + "? Touch the back of my hand if they felt good or the top of my head if you think they still needs work."
 
                     elif behaviour in [Policy.A_PREINSTRUCTION, Policy.A_PREINSTRUCTION_QUESTIONING,
                                        Policy.A_PREINSTRUCTION_FIRSTNAME, Policy.A_PREINSTRUCTION_POSITIVEMODELING,
@@ -15213,6 +15258,8 @@ class BehaviourLibraryFunctions:
                         if goal_level == PolicyWrapper.SET_GOAL:
                             if final_set:
                                 utterance = utterance + "Do a final set of 5 " + exercise_utterance + " please " + name + ". Remember, " + exercise_advice + question
+                            elif second_set:
+                                utterance = utterance + "Do another set of 5 " + exercise_utterance + " please " + name + ". Remember, " + exercise_advice + question
                             else:
                                 utterance = utterance + "Do a set of 10 " + exercise_utterance + " please " + name + ". Remember, " + exercise_advice + question
                         else:
@@ -15251,6 +15298,8 @@ class BehaviourLibraryFunctions:
                         if goal_level == PolicyWrapper.SET_GOAL:
                             if final_set:
                                 utterance = utterance + "Do a final set of 5 " + exercise_utterance + " please " + name + ". Remember, don't " + exercise_advice
+                            elif second_set:
+                                utterance = utterance + "Do another set of 5 " + exercise_utterance + " please " + name + ". Remember, " + exercise_advice
                             else:
                                 utterance = utterance + "Do a set of 10 " + exercise_utterance + " please " + name + ". Remember, don't " + exercise_advice
 
@@ -15351,7 +15400,7 @@ class BehaviourLibraryFunctions:
                             goal_level_insert = "exercises"
                         elif goal_level == PolicyWrapper.EXERCISE_GOAL or goal_level == PolicyWrapper.SET_GOAL:
                             goal_level_insert = exercise_utterance
-                        utterance = utterance + "How did your " + goal_level_insert + " feel there " + name + "? Touch the back of my hand if it fet good or the top of my head if you think it still needs work."
+                        utterance = utterance + "How did your " + goal_level_insert + " feel there " + name + "? Touch the back of my hand if it felt good or the top of my head if you think it still needs work."
 
                     elif behaviour in [Policy.A_PRAISE, Policy.A_PRAISE_FIRSTNAME, Policy.A_POSITIVEMODELING_PRAISE,
                                        Policy.A_CONSOLE, Policy.A_CONSOLE_FIRSTNAME]:
@@ -15562,7 +15611,7 @@ class BehaviourLibraryFunctions:
                     goal_level_insert = hand_utterance + shot_utterance
                 elif goal_level == PolicyWrapper.STAT_GOAL or goal_level == PolicyWrapper.SET_GOAL:
                     goal_level_insert = stat_utterance
-                utterance = utterance + "How did your " + goal_level_insert + " feel last time" + name + "? Touch the back of my hand if it fet good or the top of my head if you think it still needs work."
+                utterance = utterance + "How did your " + goal_level_insert + " feel last time" + name + "? Touch the back of my hand if it felt good or the top of my head if you think it still needs work."
 
             elif behaviour in [Policy.A_PREINSTRUCTION, Policy.A_PREINSTRUCTION_QUESTIONING,
                                Policy.A_PREINSTRUCTION_FIRSTNAME, Policy.A_PREINSTRUCTION_POSITIVEMODELING,
@@ -15702,7 +15751,7 @@ class BehaviourLibraryFunctions:
             elif behaviour in [Policy.A_QUESTIONING, Policy.A_QUESTIONING_FIRSTNAME,
                                Policy.A_QUESTIONING_POSITIVEMODELING,
                                Policy.A_POSITIVEMODELING_QUESTIONING, Policy.A_QUESTIONING_NEGATIVEMODELING]:
-                utterance = utterance + "How did your " + goal_level_insert + " feel there " + name + "? Touch the back of my hand if it fet good or the top of my head if you think it still needs work."
+                utterance = utterance + "How did your " + goal_level_insert + " feel there " + name + "? Touch the back of my hand if it felt good or the top of my head if you think it still needs work."
 
             elif behaviour in [Policy.A_PRAISE, Policy.A_PRAISE_FIRSTNAME, Policy.A_POSITIVEMODELING_PRAISE,
                                Policy.A_CONSOLE, Policy.A_CONSOLE_FIRSTNAME]:

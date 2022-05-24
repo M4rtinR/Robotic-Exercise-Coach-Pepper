@@ -62,7 +62,10 @@ class PolicyWrapper:
             logging.debug("performance = %s", performance)
 
         valid_behaviours = self._get_valid_list(goal_level, performance, phase)
-        behaviour = self.policy.sample_action(state)
+        if goal_level == self.PERSON_GOAL and phase == self.PHASE_END:
+            behaviour = self.policy.A_END
+        else:
+            behaviour = self.policy.sample_action(state)
         # obs_behaviour = behaviour
         count = 0
         if goal_level == self.ACTION_GOAL:
@@ -131,7 +134,10 @@ class PolicyWrapper:
         # Person Goal
         if goal_level == self.PERSON_GOAL:
             logging.debug('Creating list for person goal')
-            valid_list.extend([self.policy.A_PREINSTRUCTION, self.policy.A_PREINSTRUCTION_FIRSTNAME])
+            if phase == self.PHASE_START:
+                valid_list.extend([self.policy.A_PREINSTRUCTION, self.policy.A_PREINSTRUCTION_FIRSTNAME])
+            else:
+                valid_list.append(self.policy.A_END)
 
         # Session, Exercise and Set Goals will all have the same action categories (different individual actions)
         elif goal_level == self.SESSION_GOAL or goal_level == self.EXERCISE_GOAL or goal_level == self.SET_GOAL:

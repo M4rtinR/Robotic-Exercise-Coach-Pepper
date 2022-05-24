@@ -40,6 +40,6 @@ class Action:
         """
         if self.score is not None and controller.has_score_been_provided is False:
             if self.goal is not PolicyWrapper.ACTION_GOAL:
-                return f'{self.pre_msg} You got an average time of {round(self.score, 2)} seconds and were aiming for {round(self.target, 2)} seconds.'
+                return f'{self.pre_msg}. You got an average time of {round(self.score, 2)} seconds and were aiming for {round(self.target, 2)} seconds.'
 
         return f'{self.pre_msg}'
