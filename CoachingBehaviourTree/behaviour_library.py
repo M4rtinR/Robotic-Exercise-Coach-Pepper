@@ -13373,7 +13373,7 @@ class BehaviourLibraryFunctions:
                             if final_set:
                                 utterance = utterance + "Do a final set of 5 " + exercise_utterance + " please " + name + ". Remember, don't " + exercise_advice
                             elif second_set:
-                                    utterance = utterance + "Do another set of 5 " + exercise_utterance + " please " + name + ". Remember, " + exercise_advice
+                                    utterance = utterance + "Do another set of 5 " + exercise_utterance + " please " + name + ". Remember, don't" + exercise_advice
                             else:
                                     utterance = utterance + "Do a set of 10 " + exercise_utterance + " please " + name + ". Remember, don't " + exercise_advice
 
@@ -13381,7 +13381,7 @@ class BehaviourLibraryFunctions:
                             exercise_description = "Lace your fingers together and wrap both hands around a water bottle. Try not to only engage one side of your body. With your fingers laced around the bottle, begin to make large circular movements. You can use your non-affected arm to guide your affected arm through this exercise."  # For exercise 0: table top circles
                             exercise_advice = "compensating for your weaker arm using other movements."
                             if exercise == 1:  # towel slides
-                                exercise_description = "don't lean forward with your body unless you feel comfortable doing so. Begin by folding or spreading the towel, and making sure it’s on the table immediately in front of you. Now, place your affected hand on the towel and put your unaffected hand directly on top of it. Apply enough pressure to keep your hands together, then use your hand to slide the towel away from you, toward the middle of the table. As your hands move forward, your shoulders will also stretch forward, with the towel reducing friction and allowing your shoulder muscles to stretch and strengthen."
+                                exercise_description = "don't lean forward with your body unless you feel comfortable doing so. Begin by folding or spreading the towel, and making sure it's on the table immediately in front of you. Now, place your affected hand on the towel and put your unaffected hand directly on top of it. Apply enough pressure to keep your hands together, then use your hand to slide the towel away from you, toward the middle of the table. As your hands move forward, your shoulders will also stretch forward, with the towel reducing friction and allowing your shoulder muscles to stretch and strengthen."
                             elif exercise == 2:  # external rotations
                                 exercise_description = "Hold the cane with both hands in front of your body with your arms bent at a 90-degree angle at your sides. Don't let your arms come away from your sides during this exercise. Next, push the cane outward to your left and right without dropping your arms, so that the 90-degree angle remains consistent. This exercise will improve your ability to perform external rotations with your shoulders, which are required for a significant number of everyday tasks."
                             elif exercise == 3:  # shoulder openers
@@ -13463,9 +13463,21 @@ class BehaviourLibraryFunctions:
                             utterance = utterance + "Your " + goal_level_insert + " " + performance_insert + " there " + optional_question + " " + name + " " + performance_reaction
                         else:
                             optional_question = ""
-                            if behaviour == Policy.A_POSTINSTRUCTIONNEGATIVE_QUESTIONING:
-                                optional_question = "did you?"
-                            utterance = utterance + "You didn't manage to improve your " + goal_level_insert + " there " + optional_question
+                            if performance == PolicyWrapper.GOOD:
+                                if behaviour == Policy.A_POSTINSTRUCTIONNEGATIVE_QUESTIONING:
+                                    optional_question = ". OK?"
+                                exercise_advice = "just engage one side of your body"
+                                if exercise == 1:  # towel slides
+                                    exercise_advice = "lean forward with you're body unless you are comfortable doing that"
+                                elif exercise == 2:  # external rotations
+                                    exercise_advice = "let your arms come away from your body during this exercise"
+                                elif exercise == 3:  # shoulder openers
+                                    exercise_advice = "let your elbows come away from your body during this exercise"
+                                utterance = utterance + "When you're doing your " + goal_level_insert + ", try not to " + exercise_advice + optional_question
+                            else:
+                                if behaviour == Policy.A_POSTINSTRUCTIONNEGATIVE_QUESTIONING:
+                                    optional_question = "did you?"
+                                utterance = utterance + "You didn't manage to improve your " + goal_level_insert + " there " + optional_question
 
                     elif behaviour in [Policy.A_QUESTIONING, Policy.A_QUESTIONING_FIRSTNAME,
                                        Policy.A_QUESTIONING_POSITIVEMODELING,
@@ -13667,7 +13679,7 @@ class BehaviourLibraryFunctions:
                             elif goal_level == PolicyWrapper.EXERCISE_GOAL:
                                 exercise_description = "Lace your fingers together and wrap both hands around a water bottle. Try to engage both sides of your body. With your fingers laced around the bottle, begin to make large circular movements. You can use your non-affected arm to guide your affected arm through this exercise."  # For exercise 0: table top circles
                                 if exercise == 1:  # towel slides
-                                    exercise_description = "Fold or spread the towel, and make sure it’s on the table immediately in front of you. Now, place your affected hand on the towel and put your unaffected hand directly on top of it. Apply enough pressure to keep your hands together, then use your hand to slide the towel away from you, toward the middle of the table. As your hands move forward, your shoulders will also stretch forward, with the towel reducing friction and allowing your shoulder muscles to stretch and strengthen."
+                                    exercise_description = "fold or spread the towel, and make sure it's on the table immediately in front of you. Now, place your affected hand on the towel and put your unaffected hand directly on top of it. Apply enough pressure to keep your hands together, them use your hand to slide the towel away from you, towards the middle of the table. As your hands move forward, your shoulders will also stretch forward, with the towel reducing friction and allowing your shoulder muscles to stretch and strengthen."
                                 elif exercise == 2:  # external rotations
                                     exercise_description = "Hold the cane with both hands in front of your body with your arms bent at a 90-degree angle at your sides. Next, push the cane outward to your left and right without dropping your arms, so that the 90-degree angle remains consistent. This exercise will improve your ability to perform external rotations with your shoulders, which are required for a significant number of everyday tasks."
                                 elif exercise == 3:  # shoulder openers
@@ -13694,7 +13706,7 @@ class BehaviourLibraryFunctions:
                             if final_set:
                                 utterance = utterance + "Do a final set of 5 " + exercise_utterance + " please " + name + ". Remember, don't " + exercise_advice
                             elif second_set:
-                                utterance = utterance + "Do another set of 5 " + exercise_utterance + " please " + name + ". Remember, " + exercise_advice
+                                utterance = utterance + "Do another set of 5 " + exercise_utterance + " please " + name + ". Remember, don't" + exercise_advice
                             else:
                                 utterance = utterance + "Do a set of 10 " + exercise_utterance + " please " + name + ". Remember, don't " + exercise_advice
 
@@ -13702,7 +13714,7 @@ class BehaviourLibraryFunctions:
                             exercise_description = "Lace your fingers together and wrap both hands around a water bottle. Try not to only engage one side of your body. With your fingers laced around the bottle, begin to make large circular movements. You can use your non-affected arm to guide your affected arm through this exercise."  # For exercise 0: table top circles
                             exercise_advice = "compensating for your weaker arm using other movements."
                             if exercise == 1:  # towel slides
-                                exercise_description = "don't lean forward with your body unless you feel comfortable doing so. Begin by folding or spreading the towel, and making sure it’s on the table immediately in front of you. Now, place your affected hand on the towel and put your unaffected hand directly on top of it. Apply enough pressure to keep your hands together, then use your hand to slide the towel away from you, toward the middle of the table. As your hands move forward, your shoulders will also stretch forward, with the towel reducing friction and allowing your shoulder muscles to stretch and strengthen."
+                                exercise_description = "don't lean forward with your body unless you feel comfortable doing so. Begin by folding or spreading the towel, and making sure it's on the table immediately in front of you. Now, place your affected hand on the towel and put your unaffected hand directly on top of it. Apply enough pressure to keep your hands together, then use your hand to slide the towel away from you, toward the middle of the table. As your hands move forward, your shoulders will also stretch forward, with the towel reducing friction and allowing your shoulder muscles to stretch and strengthen."
                             elif exercise == 2:  # external rotations
                                 exercise_description = "Hold the cane with both hands in front of your body with your arms bent at a 90-degree angle at your sides. Don't let your arms come away from your sides during this exercise. Next, push the cane outward to your left and right without dropping your arms, so that the 90-degree angle remains consistent. This exercise will improve your ability to perform external rotations with your shoulders, which are required for a significant number of everyday tasks."
                             elif exercise == 3:  # shoulder openers
@@ -13784,9 +13796,21 @@ class BehaviourLibraryFunctions:
                             utterance = utterance + "Your " + goal_level_insert + " " + performance_insert + " there " + optional_question + " " + name + " " + performance_reaction
                         else:
                             optional_question = ""
-                            if behaviour == Policy.A_POSTINSTRUCTIONNEGATIVE_QUESTIONING:
-                                optional_question = "did you?"
-                            utterance = utterance + "You didn't manage to improve your " + goal_level_insert + " there " + optional_question
+                            if performance == PolicyWrapper.GOOD:
+                                if behaviour == Policy.A_POSTINSTRUCTIONNEGATIVE_QUESTIONING:
+                                    optional_question = ". OK?"
+                                exercise_advice = "just engage one side of your body"
+                                if exercise == 1:  # towel slides
+                                    exercise_advice = "lean forward with you're body unless you are comfortable doing that"
+                                elif exercise == 2:  # external rotations
+                                    exercise_advice = "let your arms come away from your body during this exercise"
+                                elif exercise == 3:  # shoulder openers
+                                    exercise_advice = "let your elbows come away from your body during this exercise"
+                                utterance = utterance + "When you're doing your " + goal_level_insert + ", try not to " + exercise_advice + optional_question
+                            else:
+                                if behaviour == Policy.A_POSTINSTRUCTIONNEGATIVE_QUESTIONING:
+                                    optional_question = "did you?"
+                                utterance = utterance + "You didn't manage to improve your " + goal_level_insert + " there " + optional_question
 
                     elif behaviour in [Policy.A_QUESTIONING, Policy.A_QUESTIONING_FIRSTNAME,
                                        Policy.A_QUESTIONING_POSITIVEMODELING,
@@ -13988,7 +14012,7 @@ class BehaviourLibraryFunctions:
                             elif goal_level == PolicyWrapper.EXERCISE_GOAL:
                                 exercise_description = "Lace your fingers together and wrap both hands around a water bottle. Try to engage both sides of your body. With your fingers laced around the bottle, begin to make large circular movements. You can use your non-affected arm to guide your affected arm through this exercise."  # For exercise 0: table top circles
                                 if exercise == 1:  # towel slides
-                                    exercise_description = "Fold or spread the towel, and make sure it’s on the table immediately in front of you. Now, place your affected hand on the towel and put your unaffected hand directly on top of it. Apply enough pressure to keep your hands together, then use your hand to slide the towel away from you, toward the middle of the table. As your hands move forward, your shoulders will also stretch forward, with the towel reducing friction and allowing your shoulder muscles to stretch and strengthen."
+                                    exercise_description = "fold or spread the towel, and make sure it's on the table immediately in front og you. Now, place your affected hand on the towel and put your unaffected hand directly on top of it. Apply enough pressure to keep your hands together, them use your hand to slide the towel away from you, towards the middle of the table. As your hands move forward, your shoulders will also stretch forward, with the towel reducing friction and allowing your shoulder muscles to stretch and strengthen."
                                 elif exercise == 2:  # external rotations
                                     exercise_description = "Hold the cane with both hands in front of your body with your arms bent at a 90-degree angle at your sides. Next, push the cane outward to your left and right without dropping your arms, so that the 90-degree angle remains consistent. This exercise will improve your ability to perform external rotations with your shoulders, which are required for a significant number of everyday tasks."
                                 elif exercise == 3:  # shoulder openers
@@ -14015,7 +14039,7 @@ class BehaviourLibraryFunctions:
                             if final_set:
                                 utterance = utterance + "Do a final set of 5 " + exercise_utterance + " please " + name + ". Remember, don't " + exercise_advice
                             elif second_set:
-                                utterance = utterance + "Do another set of 5 " + exercise_utterance + " please " + name + ". Remember, " + exercise_advice
+                                utterance = utterance + "Do another set of 5 " + exercise_utterance + " please " + name + ". Remember, don't" + exercise_advice
                             else:
                                 utterance = utterance + "Do a set of 10 " + exercise_utterance + " please " + name + ". Remember, don't " + exercise_advice
 
@@ -14023,7 +14047,7 @@ class BehaviourLibraryFunctions:
                             exercise_description = "Lace your fingers together and wrap both hands around a water bottle. Try not to only engage one side of your body. With your fingers laced around the bottle, begin to make large circular movements. You can use your non-affected arm to guide your affected arm through this exercise."  # For exercise 0: table top circles
                             exercise_advice = "compensating for your weaker arm using other movements."
                             if exercise == 1:  # towel slides
-                                exercise_description = "don't lean forward with your body unless you feel comfortable doing so. Begin by folding or spreading the towel, and making sure it’s on the table immediately in front of you. Now, place your affected hand on the towel and put your unaffected hand directly on top of it. Apply enough pressure to keep your hands together, then use your hand to slide the towel away from you, toward the middle of the table. As your hands move forward, your shoulders will also stretch forward, with the towel reducing friction and allowing your shoulder muscles to stretch and strengthen."
+                                exercise_description = "don't lean forward with your body unless you feel comfortable doing so. Begin by folding or spreading the towel, and making sure it's on the table immediately in front of you. Now, place your affected hand on the towel and put your unaffected hand directly on top of it. Apply enough pressure to keep your hands together, then use your hand to slide the towel away from you, toward the middle of the table. As your hands move forward, your shoulders will also stretch forward, with the towel reducing friction and allowing your shoulder muscles to stretch and strengthen."
                             elif exercise == 2:  # external rotations
                                 exercise_description = "Hold the cane with both hands in front of your body with your arms bent at a 90-degree angle at your sides. Don't let your arms come away from your sides during this exercise. Next, push the cane outward to your left and right without dropping your arms, so that the 90-degree angle remains consistent. This exercise will improve your ability to perform external rotations with your shoulders, which are required for a significant number of everyday tasks."
                             elif exercise == 3:  # shoulder openers
@@ -14105,9 +14129,21 @@ class BehaviourLibraryFunctions:
                             utterance = utterance + "Your " + goal_level_insert + " " + performance_insert + " there " + optional_question + " " + name + " " + performance_reaction
                         else:
                             optional_question = ""
-                            if behaviour == Policy.A_POSTINSTRUCTIONNEGATIVE_QUESTIONING:
-                                optional_question = "did you?"
-                            utterance = utterance + "You didn't manage to improve your " + goal_level_insert + " there " + optional_question
+                            if performance == PolicyWrapper.GOOD:
+                                if behaviour == Policy.A_POSTINSTRUCTIONNEGATIVE_QUESTIONING:
+                                    optional_question = ". OK?"
+                                exercise_advice = "just engage one side of your body"
+                                if exercise == 1:  # towel slides
+                                    exercise_advice = "lean forward with you're body unless you are comfortable doing that"
+                                elif exercise == 2:  # external rotations
+                                    exercise_advice = "let your arms come away from your body during this exercise"
+                                elif exercise == 3:  # shoulder openers
+                                    exercise_advice = "let your elbows come away from your body during this exercise"
+                                utterance = utterance + "When you're doing your " + goal_level_insert + ", try not to " + exercise_advice + optional_question
+                            else:
+                                if behaviour == Policy.A_POSTINSTRUCTIONNEGATIVE_QUESTIONING:
+                                    optional_question = "did you?"
+                                utterance = utterance + "You didn't manage to improve your " + goal_level_insert + " there " + optional_question
 
                     elif behaviour in [Policy.A_QUESTIONING, Policy.A_QUESTIONING_FIRSTNAME,
                                        Policy.A_QUESTIONING_POSITIVEMODELING,
@@ -14336,7 +14372,7 @@ class BehaviourLibraryFunctions:
                             if final_set:
                                 utterance = utterance + "Do a final set of 5 " + exercise_utterance + " please " + name + ". Remember, don't " + exercise_advice
                             elif second_set:
-                                utterance = utterance + "Do another set of 5 " + exercise_utterance + " please " + name + ". Remember, " + exercise_advice
+                                utterance = utterance + "Do another set of 5 " + exercise_utterance + " please " + name + ". Remember, don't" + exercise_advice
                             else:
                                 utterance = utterance + "Do a set of 10 " + exercise_utterance + " please " + name + ". Remember, don't " + exercise_advice
 
@@ -14344,7 +14380,7 @@ class BehaviourLibraryFunctions:
                             exercise_description = "Lace your fingers together and wrap both hands around a water bottle. Try not to only engage one side of your body. With your fingers laced around the bottle, begin to make large circular movements. You can use your non-affected arm to guide your affected arm through this exercise."  # For exercise 0: table top circles
                             exercise_advice = "compensating for your weaker arm using other movements."
                             if exercise == 1:  # towel slides
-                                exercise_description = "don't lean forward with your body unless you feel comfortable doing so. Begin by folding or spreading the towel, and making sure it’s on the table immediately in front of you. Now, place your affected hand on the towel and put your unaffected hand directly on top of it. Apply enough pressure to keep your hands together, then use your hand to slide the towel away from you, toward the middle of the table. As your hands move forward, your shoulders will also stretch forward, with the towel reducing friction and allowing your shoulder muscles to stretch and strengthen."
+                                exercise_description = "don't lean forward with your body unless you feel comfortable doing so. Begin by folding or spreading the towel, and making sure it's on the table immediately in front of you. Now, place your affected hand on the towel and put your unaffected hand directly on top of it. Apply enough pressure to keep your hands together, then use your hand to slide the towel away from you, toward the middle of the table. As your hands move forward, your shoulders will also stretch forward, with the towel reducing friction and allowing your shoulder muscles to stretch and strengthen."
                             elif exercise == 2:  # external rotations
                                 exercise_description = "Hold the cane with both hands in front of your body with your arms bent at a 90-degree angle at your sides. Don't let your arms come away from your sides during this exercise. Next, push the cane outward to your left and right without dropping your arms, so that the 90-degree angle remains consistent. This exercise will improve your ability to perform external rotations with your shoulders, which are required for a significant number of everyday tasks."
                             elif exercise == 3:  # shoulder openers
@@ -14426,9 +14462,21 @@ class BehaviourLibraryFunctions:
                             utterance = utterance + "Your " + goal_level_insert + " " + performance_insert + " there " + optional_question + " " + name + " " + performance_reaction
                         else:
                             optional_question = ""
-                            if behaviour == Policy.A_POSTINSTRUCTIONNEGATIVE_QUESTIONING:
-                                optional_question = "did you?"
-                            utterance = utterance + "You didn't manage to improve your " + goal_level_insert + " there " + optional_question
+                            if performance == PolicyWrapper.GOOD:
+                                if behaviour == Policy.A_POSTINSTRUCTIONNEGATIVE_QUESTIONING:
+                                    optional_question = ". OK?"
+                                exercise_advice = "just engage one side of your body"
+                                if exercise == 1:  # towel slides
+                                    exercise_advice = "lean forward with you're body unless you are comfortable doing that"
+                                elif exercise == 2:  # external rotations
+                                    exercise_advice = "let your arms come away from your body during this exercise"
+                                elif exercise == 3:  # shoulder openers
+                                    exercise_advice = "let your elbows come away from your body during this exercise"
+                                utterance = utterance + "When you're doing your " + goal_level_insert + ", try not to " + exercise_advice + optional_question
+                            else:
+                                if behaviour == Policy.A_POSTINSTRUCTIONNEGATIVE_QUESTIONING:
+                                    optional_question = "did you?"
+                                utterance = utterance + "You didn't manage to improve your " + goal_level_insert + " there " + optional_question
 
                     elif behaviour in [Policy.A_QUESTIONING, Policy.A_QUESTIONING_FIRSTNAME,
                                        Policy.A_QUESTIONING_POSITIVEMODELING,
@@ -14657,7 +14705,7 @@ class BehaviourLibraryFunctions:
                             if final_set:
                                 utterance = utterance + "Do a final set of 5 " + exercise_utterance + " please " + name + ". Remember, don't " + exercise_advice
                             elif second_set:
-                                utterance = utterance + "Do another set of 5 " + exercise_utterance + " please " + name + ". Remember, " + exercise_advice + question
+                                utterance = utterance + "Do another set of 5 " + exercise_utterance + " please " + name + ". Remember, don't" + exercise_advice
                             else:
                                 utterance = utterance + "Do a set of 10 " + exercise_utterance + " please " + name + ". Remember, don't " + exercise_advice
 
@@ -14665,7 +14713,7 @@ class BehaviourLibraryFunctions:
                             exercise_description = "Lace your fingers together and wrap both hands around a water bottle. Try not to only engage one side of your body. With your fingers laced around the bottle, begin to make large circular movements. You can use your non-affected arm to guide your affected arm through this exercise."  # For exercise 0: table top circles
                             exercise_advice = "compensating for your weaker arm using other movements."
                             if exercise == 1:  # towel slides
-                                exercise_description = "don't lean forward with your body unless you feel comfortable doing so. Begin by folding or spreading the towel, and making sure it’s on the table immediately in front of you. Now, place your affected hand on the towel and put your unaffected hand directly on top of it. Apply enough pressure to keep your hands together, then use your hand to slide the towel away from you, toward the middle of the table. As your hands move forward, your shoulders will also stretch forward, with the towel reducing friction and allowing your shoulder muscles to stretch and strengthen."
+                                exercise_description = "don't lean forward with your body unless you feel comfortable doing so. Begin by folding or spreading the towel, and making sure it's on the table immediately in front of you. Now, place your affected hand on the towel and put your unaffected hand directly on top of it. Apply enough pressure to keep your hands together, then use your hand to slide the towel away from you, toward the middle of the table. As your hands move forward, your shoulders will also stretch forward, with the towel reducing friction and allowing your shoulder muscles to stretch and strengthen."
                             elif exercise == 2:  # external rotations
                                 exercise_description = "Hold the cane with both hands in front of your body with your arms bent at a 90-degree angle at your sides. Don't let your arms come away from your sides during this exercise. Next, push the cane outward to your left and right without dropping your arms, so that the 90-degree angle remains consistent. This exercise will improve your ability to perform external rotations with your shoulders, which are required for a significant number of everyday tasks."
                             elif exercise == 3:  # shoulder openers
@@ -14747,9 +14795,21 @@ class BehaviourLibraryFunctions:
                             utterance = utterance + "Your " + goal_level_insert + " " + performance_insert + " there " + optional_question + " " + name + " " + performance_reaction
                         else:
                             optional_question = ""
-                            if behaviour == Policy.A_POSTINSTRUCTIONNEGATIVE_QUESTIONING:
-                                optional_question = "did you?"
-                            utterance = utterance + "You didn't manage to improve your " + goal_level_insert + " there " + optional_question
+                            if performance == PolicyWrapper.GOOD:
+                                if behaviour == Policy.A_POSTINSTRUCTIONNEGATIVE_QUESTIONING:
+                                    optional_question = ". OK?"
+                                exercise_advice = "just engage one side of your body"
+                                if exercise == 1:  # towel slides
+                                    exercise_advice = "lean forward with you're body unless you are comfortable doing that"
+                                elif exercise == 2:  # external rotations
+                                    exercise_advice = "let your arms come away from your body during this exercise"
+                                elif exercise == 3:  # shoulder openers
+                                    exercise_advice = "let your elbows come away from your body during this exercise"
+                                utterance = utterance + "When you're doing your " + goal_level_insert + ", try not to " + exercise_advice + optional_question
+                            else:
+                                if behaviour == Policy.A_POSTINSTRUCTIONNEGATIVE_QUESTIONING:
+                                    optional_question = "did you?"
+                                utterance = utterance + "You didn't manage to improve your " + goal_level_insert + " there " + optional_question
 
                     elif behaviour in [Policy.A_QUESTIONING, Policy.A_QUESTIONING_FIRSTNAME,
                                        Policy.A_QUESTIONING_POSITIVEMODELING,
@@ -14978,7 +15038,7 @@ class BehaviourLibraryFunctions:
                             if final_set:
                                 utterance = utterance + "Do a final set of 5 " + exercise_utterance + " please " + name + ". Remember, don't " + exercise_advice
                             elif second_set:
-                                utterance = utterance + "Do another set of 5 " + exercise_utterance + " please " + name + ". Remember, " + exercise_advice
+                                utterance = utterance + "Do another set of 5 " + exercise_utterance + " please " + name + ". Remember, don't" + exercise_advice
                             else:
                                 utterance = utterance + "Do a set of 10 " + exercise_utterance + " please " + name + ". Remember, don't " + exercise_advice
 
@@ -14986,7 +15046,7 @@ class BehaviourLibraryFunctions:
                             exercise_description = "Lace your fingers together and wrap both hands around a water bottle. Try not to only engage one side of your body. With your fingers laced around the bottle, begin to make large circular movements. You can use your non-affected arm to guide your affected arm through this exercise."  # For exercise 0: table top circles
                             exercise_advice = "compensating for your weaker arm using other movements."
                             if exercise == 1:  # towel slides
-                                exercise_description = "don't lean forward with your body unless you feel comfortable doing so. Begin by folding or spreading the towel, and making sure it’s on the table immediately in front of you. Now, place your affected hand on the towel and put your unaffected hand directly on top of it. Apply enough pressure to keep your hands together, then use your hand to slide the towel away from you, toward the middle of the table. As your hands move forward, your shoulders will also stretch forward, with the towel reducing friction and allowing your shoulder muscles to stretch and strengthen."
+                                exercise_description = "don't lean forward with your body unless you feel comfortable doing so. Begin by folding or spreading the towel, and making sure it's on the table immediately in front of you. Now, place your affected hand on the towel and put your unaffected hand directly on top of it. Apply enough pressure to keep your hands together, then use your hand to slide the towel away from you, toward the middle of the table. As your hands move forward, your shoulders will also stretch forward, with the towel reducing friction and allowing your shoulder muscles to stretch and strengthen."
                             elif exercise == 2:  # external rotations
                                 exercise_description = "Hold the cane with both hands in front of your body with your arms bent at a 90-degree angle at your sides. Don't let your arms come away from your sides during this exercise. Next, push the cane outward to your left and right without dropping your arms, so that the 90-degree angle remains consistent. This exercise will improve your ability to perform external rotations with your shoulders, which are required for a significant number of everyday tasks."
                             elif exercise == 3:  # shoulder openers
@@ -15068,9 +15128,21 @@ class BehaviourLibraryFunctions:
                             utterance = utterance + "Your " + goal_level_insert + " " + performance_insert + " there " + optional_question + " " + name + " " + performance_reaction
                         else:
                             optional_question = ""
-                            if behaviour == Policy.A_POSTINSTRUCTIONNEGATIVE_QUESTIONING:
-                                optional_question = "did you?"
-                            utterance = utterance + "You didn't manage to improve your " + goal_level_insert + " there " + optional_question
+                            if performance == PolicyWrapper.GOOD:
+                                if behaviour == Policy.A_POSTINSTRUCTIONNEGATIVE_QUESTIONING:
+                                    optional_question = ". OK?"
+                                exercise_advice = "just engage one side of your body"
+                                if exercise == 1:  # towel slides
+                                    exercise_advice = "lean forward with you're body unless you are comfortable doing that"
+                                elif exercise == 2:  # external rotations
+                                    exercise_advice = "let your arms come away from your body during this exercise"
+                                elif exercise == 3:  # shoulder openers
+                                    exercise_advice = "let your elbows come away from your body during this exercise"
+                                utterance = utterance + "When you're doing your " + goal_level_insert + ", try not to " + exercise_advice + optional_question
+                            else:
+                                if behaviour == Policy.A_POSTINSTRUCTIONNEGATIVE_QUESTIONING:
+                                    optional_question = "did you?"
+                                utterance = utterance + "You didn't manage to improve your " + goal_level_insert + " there " + optional_question
 
                     elif behaviour in [Policy.A_QUESTIONING, Policy.A_QUESTIONING_FIRSTNAME,
                                        Policy.A_QUESTIONING_POSITIVEMODELING,
@@ -15299,7 +15371,7 @@ class BehaviourLibraryFunctions:
                             if final_set:
                                 utterance = utterance + "Do a final set of 5 " + exercise_utterance + " please " + name + ". Remember, don't " + exercise_advice
                             elif second_set:
-                                utterance = utterance + "Do another set of 5 " + exercise_utterance + " please " + name + ". Remember, " + exercise_advice
+                                utterance = utterance + "Do another set of 5 " + exercise_utterance + " please " + name + ". Remember, don't" + exercise_advice
                             else:
                                 utterance = utterance + "Do a set of 10 " + exercise_utterance + " please " + name + ". Remember, don't " + exercise_advice
 
@@ -15307,7 +15379,7 @@ class BehaviourLibraryFunctions:
                             exercise_description = "Lace your fingers together and wrap both hands around a water bottle. Try not to only engage one side of your body. With your fingers laced around the bottle, begin to make large circular movements. You can use your non-affected arm to guide your affected arm through this exercise."  # For exercise 0: table top circles
                             exercise_advice = "compensating for your weaker arm using other movements."
                             if exercise == 1:  # towel slides
-                                exercise_description = "don't lean forward with your body unless you feel comfortable doing so. Begin by folding or spreading the towel, and making sure it’s on the table immediately in front of you. Now, place your affected hand on the towel and put your unaffected hand directly on top of it. Apply enough pressure to keep your hands together, then use your hand to slide the towel away from you, toward the middle of the table. As your hands move forward, your shoulders will also stretch forward, with the towel reducing friction and allowing your shoulder muscles to stretch and strengthen."
+                                exercise_description = "don't lean forward with your body unless you feel comfortable doing so. Begin by folding or spreading the towel, and making sure it's on the table immediately in front of you. Now, place your affected hand on the towel and put your unaffected hand directly on top of it. Apply enough pressure to keep your hands together, then use your hand to slide the towel away from you, toward the middle of the table. As your hands move forward, your shoulders will also stretch forward, with the towel reducing friction and allowing your shoulder muscles to stretch and strengthen."
                             elif exercise == 2:  # external rotations
                                 exercise_description = "Hold the cane with both hands in front of your body with your arms bent at a 90-degree angle at your sides. Don't let your arms come away from your sides during this exercise. Next, push the cane outward to your left and right without dropping your arms, so that the 90-degree angle remains consistent. This exercise will improve your ability to perform external rotations with your shoulders, which are required for a significant number of everyday tasks."
                             elif exercise == 3:  # shoulder openers
@@ -15389,9 +15461,21 @@ class BehaviourLibraryFunctions:
                             utterance = utterance + "Your " + goal_level_insert + " " + performance_insert + " there " + optional_question + " " + name + " " + performance_reaction
                         else:
                             optional_question = ""
-                            if behaviour == Policy.A_POSTINSTRUCTIONNEGATIVE_QUESTIONING:
-                                optional_question = "did you?"
-                            utterance = utterance + "You didn't manage to improve your " + goal_level_insert + " there " + optional_question
+                            if performance == PolicyWrapper.GOOD:
+                                if behaviour == Policy.A_POSTINSTRUCTIONNEGATIVE_QUESTIONING:
+                                    optional_question = ". OK?"
+                                exercise_advice = "just engage one side of your body"
+                                if exercise == 1:  # towel slides
+                                    exercise_advice = "lean forward with you're body unless you are comfortable doing that"
+                                elif exercise == 2:  # external rotations
+                                    exercise_advice = "let your arms come away from your body during this exercise"
+                                elif exercise == 3:  # shoulder openers
+                                    exercise_advice = "let your elbows come away from your body during this exercise"
+                                utterance = utterance + "When you're doing your " + goal_level_insert + ", try not to " + exercise_advice + optional_question
+                            else:
+                                if behaviour == Policy.A_POSTINSTRUCTIONNEGATIVE_QUESTIONING:
+                                    optional_question = "did you?"
+                                utterance = utterance + "You didn't manage to improve your " + goal_level_insert + " there " + optional_question
 
                     elif behaviour in [Policy.A_QUESTIONING, Policy.A_QUESTIONING_FIRSTNAME,
                                        Policy.A_QUESTIONING_POSITIVEMODELING,

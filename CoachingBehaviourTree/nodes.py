@@ -144,8 +144,10 @@ class GetBehaviour(Node):
         controller.prev_behav = nodedata.behaviour
 
         controller.observation = policy.get_observation(self.state, nodedata.behaviour)
+        print("self.need_score = " + str(self.need_score) + ", controller.scores_provided = " + str(controller.scores_provided) + ", controller.has_score_been_provided = " + str(controller.has_score_been_provided))
         if self.need_score and controller.scores_provided < 1:
             controller.has_score_been_provided = False
+            print("set has_score_been_provided to False")
         # logging.debug('Got observation: ' + str(nodedata.behaviour))
         print("Returning SUCCESS from GetBehaviour, nodedata = " + str(nodedata))
         logging.debug("Returning SUCCESS from GetBehaviour, nodedata = " + str(nodedata))
@@ -256,12 +258,12 @@ class FormatAction(Node):
                     else:
                         question = "GoodBad"
             pre_msg = self.behaviour_lib.get_pre_msg(self.behaviour, self.goal_level, self.performance, self.phase, self.name, self.exercise, controller.exercise_count == 3 and controller.set_count == 1, controller.set_count == 1)
-            if (self.score is None and self.performance is None) or controller.given_score >= 2:
+            if (self.score is None and self.performance is None):  # or controller.given_score >= 2:
                 nodedata.action = Action(pre_msg, demo=demo, question=question)
             else:
                 nodedata.action = Action(pre_msg, self.score, self.target, demo=demo, question=question, goal=self.goal_level)
-                if self.goal_level == PolicyWrapper.EXERCISE_GOAL or self.goal_level == PolicyWrapper.SESSION_GOAL or self.goal_level == PolicyWrapper.PERSON_GOAL:
-                    controller.given_score += 1
+                #if self.goal_level == PolicyWrapper.EXERCISE_GOAL or self.goal_level == PolicyWrapper.SESSION_GOAL or self.goal_level == PolicyWrapper.PERSON_GOAL:
+                #    controller.given_score += 1
         else:
             print("Returning FAIL from FormatAction, behaviour = " + str(self.behaviour))
             logging.debug("Returning FAIL from FormatAction, behaviour = " + str(self.behaviour))
@@ -406,6 +408,7 @@ class DisplayBehaviour(Node):
         if self.score is not None and controller.has_score_been_provided is False:
             controller.has_score_been_provided = True
             controller.scores_provided += 1
+            print("Setting has_score_been_provided to True")
         if self.set_start:
             api_classes.expecting_action_goal = True
         logging.debug("Returning SUCCESS from DisplayBehaviour")
@@ -709,6 +712,7 @@ class TimestepCue(Node):
         if self.goal_level == -1:  # Person goal created after receiving info from guide.
             if controller.goal_level == PolicyWrapper.PERSON_GOAL:  # For person goal should have name, impairment and no. of sessions.
                 if controller.phase == PolicyWrapper.PHASE_END:  # Feedback sequence
+                    nodedata.phase = PolicyWrapper.PHASE_END
                     nodedata.performance = mode(controller.session_performance_list)
                     # Write updated no. of sessions to file.
                     f = open("~/PycharmProjects/coachingPolicies/SessionDataFiles/" + controller.participant_filename, "r")
@@ -753,13 +757,14 @@ class TimestepCue(Node):
             logging.debug("TimestepCue, controller.goal_level = " + str(controller.goal_level))
             if controller.goal_level == PolicyWrapper.SESSION_GOAL:
                 if controller.phase == PolicyWrapper.PHASE_END:  # Feedback sequence
+                    nodedata.phase = PolicyWrapper.PHASE_END
                     nodedata.performance = mode(controller.session_performance_list)
                     # Write session performance to file.
                     f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + controller.participant_filename, "r")
                     file_contents = f.readlines()
                     f.close()
                     sessions = int(file_contents[1])
-                    file_contents.insert(sessions + 1, "\n" + str(nodedata.performance))
+                    file_contents.insert(sessions + 1, file_contents[sessions+1] + "\n" + str(nodedata.performance))
                     f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + controller.participant_filename, "w")
                     f.writelines(file_contents)
                     f.close()
@@ -791,6 +796,7 @@ class TimestepCue(Node):
             if controller.goal_level == PolicyWrapper.EXERCISE_GOAL:
                 if controller.phase == PolicyWrapper.PHASE_END:  # Feedback sequence
                     logging.debug("Exercise goal feedback sequence")
+                    nodedata.phase = PolicyWrapper.PHASE_END
                     nodedata.performance = mode(controller.exercise_performance_list)
                     controller.session_performance_list.append(nodedata.performance)
                     nodedata.score = mean(controller.exercise_score_list)
@@ -807,7 +813,7 @@ class TimestepCue(Node):
                     counter = 0
                     exercise_found = False
                     for content_line in file_contents:
-                        if content_line == self.exercise:
+                        if content_line == controller.exercise_list_session[self.exercise]:
                             exercise_found = True
                             break
                         counter += 1
@@ -821,7 +827,9 @@ class TimestepCue(Node):
                     else:
                         print("Exercise not found")
                         sessions = int(file_contents[1])
-                        file_contents.insert(sessions + 2, "\n" + str(self.exercise))
+                        if len(file_contents) < 3:  # if no exercises performed yet, add another \n to get layout right
+                            file_contents[1] = str(sessions) + "\n"
+                        file_contents.insert(sessions + 2, "\n" + controller.exercise_list_session[self.exercise])
                         file_contents.insert(sessions + 3, "\n1")
                         file_contents.insert(sessions + 4, "\n" + str(nodedata.performance) + "," + str(nodedata.score))
 
@@ -853,7 +861,7 @@ class TimestepCue(Node):
                 counter = 0
                 exercise_found = False
                 for content_line in file_contents:
-                    if content_line == self.exercise:
+                    if content_line == controller.exercise_list_session[self.exercise]:
                         exercise_found = True
                         break
                     counter += 1
@@ -1178,7 +1186,7 @@ class InitialiseBlackboard(Node):
             f.close()
         except:
             f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + controller.participant_filename, "a")
-            f.write(controller.participantNo + "\n0")  # Write participant number and 0 sessions to the new file.
+            f.write(controller.participantNo + "\n0\n")  # Write participant number and 0 sessions to the new file.
             f.close()
 
         logging.info("Chosen policy = {}".format(max_style))
@@ -1273,7 +1281,9 @@ class OperatorInput(Node):
         elif diff_from_target < -0.5:
             performance = PolicyWrapper.SLOW
         controller.performance = float(performance)
+        nodedata.performance = float(performance)
         controller.score = rep_time_delta
+        nodedata.score = rep_time_delta
         controller.exercise_count += 1
 
         # Controller start_time will be reset when the action goal is created.

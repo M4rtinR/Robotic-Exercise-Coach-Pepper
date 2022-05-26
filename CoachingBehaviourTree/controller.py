@@ -643,6 +643,7 @@ def create_coaching_tree():
     set_goal_individual_action_sequence.add_child(set_goal_individual_action_cue)
     b.add_remapping(action_goal._id, 'new_goal', set_goal_individual_action_cue._id, 'goal')
     b.add_remapping(set_goal_individual_action_rep._id, 'performance', set_goal_individual_action_cue._id, 'performance')
+    b.add_remapping(set_goal_individual_action_rep._id, 'score', set_goal_individual_action_cue._id, 'score')
     b.add_remapping(exercise_goal._id, 'new_exercise', set_goal_individual_action_cue._id, 'exercise')
     b.add_remapping(exercise_goal_start._id, 'target', set_goal_individual_action_rep._id, 'target')
     set_goal_individual_action_behav_sequence = Progressor(name="set_goal_individual_behav_Progressor")
@@ -660,7 +661,7 @@ def create_coaching_tree():
     set_goal_individual_action_behav_sequence.add_child(set_goal_individual_action)
     # Share data between initialise, set_goal_individual_action_cue, action_goal, set_goal_individual_action_behav and set_goal_individual_action.
     b.add_remapping(initialise._id, 'bl', set_goal_individual_action._id, 'bl')
-    b.add_remapping(set_goal_individual_action_rep._id, 'performance', set_goal_individual_action, 'performance')
+    b.add_remapping(set_goal_individual_action_cue._id, 'performance', set_goal_individual_action._id, 'performance')
     b.add_remapping(set_goal_individual_action_cue._id, 'phase', set_goal_individual_action._id, 'phase')
     b.add_remapping(set_goal_individual_action_cue._id, 'score', set_goal_individual_action._id, 'score')
     b.add_remapping(set_goal_individual_action_cue._id, 'target', set_goal_individual_action._id, 'target')
