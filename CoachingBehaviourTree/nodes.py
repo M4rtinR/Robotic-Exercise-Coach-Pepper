@@ -56,10 +56,10 @@ import requests
 # post_address = 'http://192.168.1.174:4999/output'
 
 # Robot through ITT Pepper router:
-post_address = "http://192.168.1.207:4999/output"
+# post_address = "http://192.168.1.207:4999/output"
 
 # Robot through hotspot:
-# post_address = "http://192.168.43.19:4999/output"
+post_address = "http://192.168.43.19:4999/output"
 
 
 class GetBehaviour(Node):
@@ -245,7 +245,7 @@ class FormatAction(Node):
                                   Policy.A_POSITIVEMODELING_CONCURRENTINSTRUCTIONPOSITIVE,
                                   Policy.A_POSITIVEMODELING_QUESTIONING, Policy.A_POSITIVEMODELING_HUSTLE,
                                   Policy.A_POSITIVEMODELING_PRAISE]:
-                demo = self.behaviour_lib.get_demo_string(self.behaviour, self.goal_level, self.exercise, controller.leftHand)
+                demo = self.behaviour_lib.get_demo_string(self.behaviour, self.exercise, self.goal_level)
             question = None
             if self.behaviour in [Policy.A_QUESTIONING, Policy.A_QUESTIONING_FIRSTNAME,
                                   Policy.A_QUESTIONING_POSITIVEMODELING,
@@ -257,6 +257,17 @@ class FormatAction(Node):
                         question = "FirstTime"
                     else:
                         question = "GoodBad"
+
+            # If this is the start of a new exercise set, we need to reset the counter on Pepper's screen.
+            if self.behaviour in [Policy.A_PREINSTRUCTION_POSITIVEMODELING, Policy.A_PREINSTRUCTION,
+                                  Policy.A_POSITIVEMODELING_PREINSTRUCTION, Policy.A_PREINSTRUCTION_PRAISE,
+                                  Policy.A_PREINSTRUCTION_NEGATIVEMODELING,
+                                  Policy.A_PREINSTRUCTION_QUESTIONING,
+                                  Policy.A_PREINSTRUCTION_MANUALMANIPULATION,
+                                  Policy.A_PREINSTRUCTION_FIRSTNAME,
+                                  Policy.A_MANUALMANIPULATION_PREINSTRUCTION]:
+                r = requests.post("http://192.168.43.19:8000/0/newRep")
+
             pre_msg = self.behaviour_lib.get_pre_msg(self.behaviour, self.goal_level, self.performance, self.phase, self.name, self.exercise, controller.exercise_count == 3 and controller.set_count == 1, controller.set_count == 1)
             if (self.score is None and self.performance is None):  # or controller.given_score >= 2:
                 nodedata.action = Action(pre_msg, demo=demo, question=question)
@@ -265,6 +276,13 @@ class FormatAction(Node):
                 #if self.goal_level == PolicyWrapper.EXERCISE_GOAL or self.goal_level == PolicyWrapper.SESSION_GOAL or self.goal_level == PolicyWrapper.PERSON_GOAL:
                 #    controller.given_score += 1
         else:
+            # If silence, we still need to update the screen display on Pepper because a rep may have been done.
+            output = {
+                "silence": "True"
+            }
+            # Send post request to Pepper
+            r = requests.post(post_address, json=output)
+
             print("Returning FAIL from FormatAction, behaviour = " + str(self.behaviour))
             logging.debug("Returning FAIL from FormatAction, behaviour = " + str(self.behaviour))
             return NodeStatus(NodeStatus.FAIL, "Behaviour == A_SILENCE")
@@ -404,6 +422,15 @@ class DisplayBehaviour(Node):
             output['demo'] = self.action.demo
         if self.action.question is not None:
             output['question'] = self.action.question
+        # Send post request to tablet output API
+        if controller.goal_level > 1:
+            phase = "exercise"
+        else:
+            phase = "non-exercise"
+        #utteranceURL = "http://192.168.43.19:8000/Test Utterance/non-exercise/newUtterance".replace(' ', '%20')
+        utteranceURL = "http://192.168.43.19:8000/" + str(self.action).replace(' ', '%20') + "/" + phase + "/newUtterance"
+        r = requests.post(utteranceURL)
+        # Send post request to Pepper
         r = requests.post(post_address, json=output)
         if self.score is not None and controller.has_score_been_provided is False:
             controller.has_score_been_provided = True
@@ -573,6 +600,19 @@ class CreateSubgoal(Node):
                 controller.set_count = 0  # Reset the set count for this session to 0.
                 controller.performance = None
                 controller.score = -1
+
+                # Update exercise picture on Pepper's tablet screen and reset the counter
+                if nodedata.get_data("new_exercise") == 0:
+                    exerciseString = "TabletopCircles"
+                elif nodedata.get_data("new_exercise") == 1:
+                    exerciseString = "TowelSlides"
+                elif nodedata.get_data("new_exercise") == 2:
+                    exerciseString = "CaneRotations"
+                else:
+                    exerciseString = "ShoulderOpeners"
+                utteranceURL = "http://192.168.43.19:8000/" + exerciseString + "/newPicture"
+                r = requests.post(utteranceURL)
+                r = requests.post("http://192.168.43.19:8000/0/newRep")
             controller.phase = PolicyWrapper.PHASE_START  # Start of goal will always be before something happens.
             print("Created subgoal, new goal level = {}".format(nodedata.new_goal))
             logging.info("Created subgoal, new goal level = {}".format(nodedata.new_goal))
@@ -1285,6 +1325,8 @@ class OperatorInput(Node):
         controller.score = rep_time_delta
         nodedata.score = rep_time_delta
         controller.exercise_count += 1
+        # Send exercise count to Pepper's tablet screen
+        r = requests.post("http://192.168.43.19:8000/" + str(controller.exercise_count) + "/newRep")
 
         # Controller start_time will be reset when the action goal is created.
 

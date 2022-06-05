@@ -1,10 +1,12 @@
 import logging
+from datetime import time
+
 import gym
 from gym import spaces
 import numpy as np
 from typing import Optional
 # from gym.utils.renderer import Renderer
-
+from CoachingBehaviourTree import controller
 from Policy.policy import Policy
 
 
@@ -61,4 +63,14 @@ class PolicyWrapper(gym.Env):
     def step(self, action):
         # This will trigger FormatAction etc until observation has been given (DisplayBehaviour I think), then will
         # decide on reward based on the observation.
+
+        controller.step = True
+
+        while controller.observation == None:
+            time.sleep(0.1)
+
+        observation = controller.observation
+        controller.step = False
+        reward = _calculate_reward(action, observation)
+
         return None, None, None, None
