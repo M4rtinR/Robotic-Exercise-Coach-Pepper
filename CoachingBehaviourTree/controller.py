@@ -16,6 +16,8 @@ import os
 import threading
 import time
 import logging
+import numpy as np
+import gym
 
 from task_behavior_engine.branch import Sequencer, Selector, Progressor, Runner
 from task_behavior_engine.decorator import Until, While, Negate, Repeat, UntilCount, Succeed
@@ -25,6 +27,7 @@ from API import api_classes
 from CoachingBehaviourTree.nodes import FormatAction, DisplayBehaviour, CheckForBehaviour, GetBehaviour, GetStats, \
     GetDuration, CreateSubgoal, TimestepCue, DurationCheck, GetUserChoice, EndSetEvent, InitialiseBlackboard, \
     EndSubgoal, OperatorInput
+from Policy import coaching_env
 from Policy.policy import Policy
 from Policy.policy_wrapper import PolicyWrapper
 
@@ -66,6 +69,8 @@ start_time = None
 observation = -1
 has_score_been_provided = True  # True if Pepper has already said e.g. "Your average score was 3.02 and your were aiming for 2.0" and False otherwise.
 scores_provided = 0  # Add 1 each time a score is given in feedback. Reset to 0 at the completion of each goal.
+behaviour_displayed = False  # Set to true in DisplayBehaviour node to indicate to the environment that a new action is needed from the policy.
+behaviour = -1
 
 # Initial values to be changed at the beginning of each session:
 name = "Martin"
@@ -76,6 +81,11 @@ motivation = 8
 leftHand = False
 exercise = -1
 policy = 2
+
+# Values for RL
+alpha = 0.65
+gamma = 0.85
+policy_matrix = None
 
 def create_coaching_tree():
     """
@@ -1049,8 +1059,26 @@ def get_feedback_loop(name, behav, blackboard, goal_node, initialise_node, previ
     # return Negate(name=negate_name, child=feedback_loop_while), feedback_behaviour, end_goal
     return overall_feedback_sequence, feedback_behaviour, end_goal
 
+def update(state, state2, reward, action, action2):
+    global policy_matrix
+    global gamma
+    global alpha
+    print("state: " + str(state))
+    print("action: " + str(action))
+    predict = policy_matrix.get_matrix()[state][action]
+    target = reward + gamma * policy_matrix.get_matrix()[state2][action2]
+    policy_matrix.update_matrix(state, action, policy_matrix.get_matrix()[state][action] + alpha * (target - predict))
+    return policy
 
 def main():
+    global policy_matrix
+    global behaviour
+    global prev_behav
+    global used_behaviours
+    global goal_level
+    global performance
+    global phase
+    globalsList = globals()
     #TODO: for testing purposes. Delete the next if-else statement after testing.
     filename = "/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + participant_filename
     print(filename)
@@ -1061,13 +1089,49 @@ def main():
     loggingFilename = "" + participantNo + ".log"
     logging.basicConfig(format='%(levelname)s:%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.DEBUG, filename=loggingFilename)
     logging.info("Logging started")
-    coaching_tree = create_coaching_tree()
-    result = NodeStatus(NodeStatus.ACTIVE)
 
-    while result == NodeStatus.ACTIVE:
-        result = coaching_tree.tick()
+    # Create the environment
+    env = coaching_env.CoachingEnvironment()
+    state1, policy_matrix = env.reset()
+    done = False
+
+    result = NodeStatus(NodeStatus.ACTIVE)
+    action1 = policy_matrix.get_behaviour(state1, PolicyWrapper.PERSON_GOAL, None, PolicyWrapper.PHASE_START)
+    globalsList['behaviour'] = action1
+    print('Got behaviour: ' + str(behaviour))
+
+    while not done:
+        state2, reward, done, result = env.step(action1, state1)
+
+        print('Behaviour + ' + behaviour)
+
+        action2 = policy_matrix.get_behaviour(state2, goal_level, performance, phase)
+        behaviour = action2
+
+        # If behaviour occurs twice, just skip to pre-instruction.
+        if action2 in used_behaviours and (
+                goal_level == PolicyWrapper.SESSION_GOAL or goal_level == PolicyWrapper.EXERCISE_GOAL or goal_level == PolicyWrapper.SET_GOAL):
+            action2 = Policy.A_PREINSTRUCTION
+            logging.debug('Got new behaviour: 1')
+            # controller.matching_behav = 0
+        else:
+            used_behaviours.append(action2)
+
+        prev_behav = action2
+
+        # Learning the Q-value
+        update(state1, state2, reward, action1, action2)
+
+        state1 = state2
+        action1 = action2
+
         logging.debug(result)
         time.sleep(1)
+
+    # Write final policy to file
+    f = open(filename, "w")
+    f.writelines(policy_matrix.get_matrix)
+    f.close()
 
 def api_start():
     api_classes.app.run(host='0.0.0.0', port=5000)

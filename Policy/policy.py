@@ -4,6 +4,8 @@ import numpy as np
 import random
 from random import choices
 
+from CoachingBehaviourTree import controller
+
 
 class Policy:
     """
@@ -42,11 +44,14 @@ class Policy:
         Helper function for generating transition matrix which generates the matrix for a single given style.
     """
     # TODO: Change from using IRL rewards to just clustered policies.
-    def __init__(self, belief):
-        self.belief_distribution = belief
-        self.transition_matrix = self._get_transition_matrix()
+    def __init__(self, belief=None, policy=None):
+        if belief is not None:
+            self.belief_distribution = belief
+            self.transition_matrix = self._get_transition_matrix()
+        elif policy is not None:
+            self.transition_matrix = policy
 
-    # ACTIONS
+            # ACTIONS
     A_START = 0
     A_PREINSTRUCTION = 1
     A_CONCURRENTINSTRUCTIONPOSITIVE = 2
@@ -259,7 +264,10 @@ class Policy:
         :param state :type int: the state last observed by the policy.
         :return:type int: a random action from the given state based on transition matrix probabilities.
         """
-        # Find which style state belongs to.
+
+        # We don't need to look up style all the time now because style doesn't change. We now only have the transition
+        # matrix of the current policy.
+        """# Find which style state belongs to.
         style = self._get_style(state)
 
         # Get random action based on self.transition_matrix probabilities.
@@ -269,23 +277,25 @@ class Policy:
         logging.debug(len(self.transition_matrix[style-1]))
         #logging.debug(len(self.transition_matrix[style - 1][self._get_action(state)]))
         #logging.debug(len(range(68)))
-        logging.debug(self.transition_matrix[style - 1][self._get_action(state)])
-        action = choices(range(68), self.transition_matrix[style - 1][self._get_action(state)])[0]
+        logging.debug(self.transition_matrix[style - 1][self._get_action(state)])"""
+
+        # TODO: make it an epsilon-greedy policy.
+        action = choices(range(68), self.transition_matrix[state])[0]
         logging.debug("action: " + str(action))
         count = 1
         while action == self.A_MANUALMANIPULATION:
             # Manual manipulation is not possible for the robot so if this is the case, get new behaviour
             if count <= 10:  # Either from original state
                 logging.debug("count <= 10")
-                action = choices(range(68), self.transition_matrix[style - 1][self._get_action(state)])[0]
+                action = choices(range(68), self.transition_matrix[state])[0]
             else:  # or from manual manipulation if this is the only behaviour following the original state.
                 logging.debug("count > 10")
-                action = choices(range(68), self.transition_matrix[style - 1][action])[0]
+                action = choices(range(68), self.transition_matrix[state])[0]
             count += 1
 
         # Special case when action == 44 (A_END) for coach styles.
-        if style < 7 and action == 44:
-            action = self.A_END
+        """if style < 7 and action == 44:
+            action = self.A_END"""
 
         return action  # choices(range(68), self.transition_matrix[style - 1][self._get_action(state)])[0]
 
@@ -301,8 +311,12 @@ class Policy:
         # If action == silence, nothing changes
         if action == self.A_SILENCE:
             return state
+        else:
+            return action
 
-        new_style = choices(range(1, 13), self.belief_distribution)[0]
+        # We don't need the code for possibly changing our "style" based on belief distribution, because we decided to
+        # only choose a single style and stick with that throughout the whole session.
+        """new_style = choices(range(1, 13), self.belief_distribution)[0]
         #new_style = 9
 
         # Check if action is valid in new_style
@@ -316,15 +330,15 @@ class Policy:
         elif new_style >= 7 and action in self.physioActionDict.values():
             physio_action = next((key for key, value in self.physioActionDict.items() if value == action), None)
             if sum(self.transition_matrix[new_style - 1][physio_action]) > 0.0:
-                return 270 + ((new_style - 7) * 53) + physio_action
+                return 270 + ((new_style - 7) * 53) + physio_action"""
 
         # If invalid action we don't change style, so return new action in original style.
-        current_style = self._get_style(state)
+        """current_style = self._get_style(state)
         if current_style < 7:
             return (current_style - 1) * 45 + action if action < self.A_END else (current_style - 1) * 45 + 44
         else:
             physio_action = next((key for key, value in self.physioActionDict.items() if value == action), None)
-            return 270 + ((current_style - 7) * 53) + physio_action
+            return 270 + ((current_style - 7) * 53) + physio_action"""
 
     def _get_action(self, state):
         """
@@ -2417,7 +2431,14 @@ class Policy:
                     if row < 45:
                         for col in range(68):
                             if col < 45:
-                                tm[count][row][col] = switcher[count][row][col]
+                                if row == 44 and not(col == 44):  # A_END cases
+                                    tm[count][67][col] = switcher[count][row][col]
+                                elif not(row == 44) and col == 44:
+                                    tm[count][row][67] = switcher[count][row][col]
+                                elif row == 44 and col == 44:
+                                    tm[count][67][67] = switcher[count][row][col]
+                                else:  # Normal case
+                                    tm[count][row][col] = switcher[count][row][col]
             else:
                 for row in range(68):
                     if row < 53:
@@ -2426,7 +2447,22 @@ class Policy:
                                 tm[count][self.physioActionDict[row]][self.physioActionDict[col]] = switcher[count][row][col]
             count += 1
 
-        return tm
+        # Return only the matrix associated with the chosen policy according to our belief distribution.
+        return tm[choices(range(1, 13), self.belief_distribution)[0]]
+
+    def get_matrix(self):
+        return self.transition_matrix
+
+    def update(self, state, action, updatedValue):
+        filename = "/home/martin/PycharmProjects/coachingPolicies/AdaptedPolicies/" + controller.participant_filename
+        f = open(filename, "w")
+        f.write(self.transition_matrix[state][action])
+        self.transition_matrix[state][action] = updatedValue
+        f.write(self.transition_matrix[state][action])
+        f.write(state)
+        f.write(action)
+        f.write(self.transition_matrix)
+        f.close()
 
     physioActionDict = {0: A_START,
                         1: A_PREINSTRUCTION,
