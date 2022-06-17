@@ -97,8 +97,9 @@ class CoachingEnvironment(gym.Env, ABC):
         done = False
 
         controller.behaviour_displayed = False
+        # controller.behaviour = 1
 
-        print("controller.behaviuor = " + str(controller.behaviour))
+        print("controller.behaviour = " + str(nodes.behaviour))
         while not controller.behaviour_displayed:  # Keep ticking the tree until a behaviour is given by the robot. This is the point the controller can select a new action and learn.
             result = self.coaching_tree.tick()
             logging.debug(result)

@@ -62,6 +62,8 @@ screen_post_address = "http://192.168.1.207:8000/"
 # Robot through hotspot:
 # post_address = "http://192.168.43.19:4999/output"
 
+behaviour = -1
+
 
 class GetBehaviour(Node):
     """
@@ -128,12 +130,13 @@ class GetBehaviour(Node):
             for accesses by other nodes.
         :return: NodeStatus.SUCCESS when a behaviour and observation has been obtained from the policy wrapper.
         """
+        global behaviour
         # print('GetBehaviour, self.goal_level = ' + str(self.goal_level) + ', nodedata.goal = ' + str(nodedata.goal))
         # policy = PolicyWrapper(self.belief)  # TODO: generate this at start of interaction and store on blackboard.
         #, nodedata.obs_behaviour
         # nodedata.behaviour = policy.get_behaviour(self.state, self.goal_level, self.performance, self.phase)
-        nodedata.behaviour = controller.behaviour
-        print('GetBehaviour Got behaviour: ' + str(controller.behaviour))
+        nodedata.behaviour = behaviour
+        print('GetBehaviour Got behaviour: ' + str(behaviour))
 
         # If behaviour occurs twice, just skip to pre-instruction.
         """if nodedata.behaviour in controller.used_behaviours and (self.goal_level == PolicyWrapper.SESSION_GOAL or self.goal_level == PolicyWrapper.EXERCISE_GOAL or self.goal_level == PolicyWrapper.SET_GOAL):

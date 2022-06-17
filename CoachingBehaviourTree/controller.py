@@ -24,10 +24,11 @@ from task_behavior_engine.decorator import Until, While, Negate, Repeat, UntilCo
 from task_behavior_engine.tree import NodeStatus, Blackboard
 
 from API import api_classes
+from CoachingBehaviourTree import nodes
 from CoachingBehaviourTree.nodes import FormatAction, DisplayBehaviour, CheckForBehaviour, GetBehaviour, GetStats, \
     GetDuration, CreateSubgoal, TimestepCue, DurationCheck, GetUserChoice, EndSetEvent, InitialiseBlackboard, \
     EndSubgoal, OperatorInput
-from Policy import coaching_env
+from Policy.coaching_env import CoachingEnvironment
 from Policy.policy import Policy
 from Policy.policy_wrapper import PolicyWrapper
 
@@ -1091,22 +1092,21 @@ def main():
     logging.info("Logging started")
 
     # Create the environment
-    env = coaching_env.CoachingEnvironment()
+    env = CoachingEnvironment()
     state1, policy_matrix = env.reset()
     done = False
 
     result = NodeStatus(NodeStatus.ACTIVE)
     action1 = policy_matrix.get_behaviour(state1, PolicyWrapper.PERSON_GOAL, None, PolicyWrapper.PHASE_START)
-    globalsList['behaviour'] = action1
-    print('Got behaviour: ' + str(behaviour))
+    nodes.behaviour = action1
+    print('Got behaviour: ' + str(nodes.behaviour))
 
     while not done:
         state2, reward, done, result = env.step(action1, state1)
 
-        print('Behaviour + ' + behaviour)
+        print('Behaviour + ' + nodes.behaviour)
 
         action2 = policy_matrix.get_behaviour(state2, goal_level, performance, phase)
-        behaviour = action2
 
         # If behaviour occurs twice, just skip to pre-instruction.
         if action2 in used_behaviours and (
@@ -1117,6 +1117,7 @@ def main():
         else:
             used_behaviours.append(action2)
 
+        nodes.behaviour = action2
         prev_behav = action2
 
         # Learning the Q-value
