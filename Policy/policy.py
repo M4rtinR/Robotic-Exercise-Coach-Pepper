@@ -280,7 +280,11 @@ class Policy:
         logging.debug(self.transition_matrix[style - 1][self._get_action(state)])"""
 
         # TODO: make it an epsilon-greedy policy.
-        action = choices(range(68), self.transition_matrix[state])[0]
+        print("transition matrix = " + str(self.transition_matrix))
+        print("state = " + str(state) + ", matrix = " + str(self.transition_matrix[state]))
+        choicess = choices(range(68), self.transition_matrix[state])
+        print("choices = " + str(choicess))
+        action = choicess[0]
         logging.debug("action: " + str(action))
         count = 1
         while action == self.A_MANUALMANIPULATION:
@@ -2456,12 +2460,12 @@ class Policy:
     def update(self, state, action, updatedValue):
         filename = "/home/martin/PycharmProjects/coachingPolicies/AdaptedPolicies/" + controller.participant_filename
         f = open(filename, "w")
-        f.write(self.transition_matrix[state][action])
+        f.write(str(self.transition_matrix[state][action]) + "\n")
         self.transition_matrix[state][action] = updatedValue
-        f.write(self.transition_matrix[state][action])
-        f.write(state)
-        f.write(action)
-        f.write(self.transition_matrix)
+        f.write(str(self.transition_matrix[state][action]) + "\n")
+        f.write(str(state) + "\n")
+        f.write(str(action) + "\n")
+        f.write(str(self.transition_matrix) + "\n")
         f.close()
 
     physioActionDict = {0: A_START,

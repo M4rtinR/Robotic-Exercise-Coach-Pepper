@@ -84,8 +84,8 @@ exercise = -1
 policy = 2
 
 # Values for RL
-alpha = 0.65
-gamma = 0.85
+alpha = 0.85
+gamma = 0.95
 policy_matrix = None
 
 def create_coaching_tree():
@@ -1068,12 +1068,11 @@ def update(state, state2, reward, action, action2):
     print("action: " + str(action))
     predict = policy_matrix.get_matrix()[state][action]
     target = reward + gamma * policy_matrix.get_matrix()[state2][action2]
-    policy_matrix.update_matrix(state, action, policy_matrix.get_matrix()[state][action] + alpha * (target - predict))
+    policy_matrix.update_matrix(state, action, 0.0 if policy_matrix.get_matrix()[state][action] + alpha * (target - predict) < 0.0 else policy_matrix.get_matrix()[state][action] + alpha * (target - predict))
     return policy
 
 def main():
     global policy_matrix
-    global behaviour
     global prev_behav
     global used_behaviours
     global goal_level
@@ -1104,7 +1103,7 @@ def main():
     while not done:
         state2, reward, done, result = env.step(action1, state1)
 
-        print('Behaviour + ' + nodes.behaviour)
+        print('Behaviour = ' + str(nodes.behaviour))
 
         action2 = policy_matrix.get_behaviour(state2, goal_level, performance, phase)
 

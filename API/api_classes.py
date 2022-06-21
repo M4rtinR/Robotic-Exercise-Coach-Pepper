@@ -34,7 +34,7 @@ class TimestepCue(Resource):
                 controller.goal_level = PolicyWrapper.PERSON_GOAL
                 # controller.name = content['name']  # Name was not working so removed here and will set it at the start of each session.
                 controller.sessions = int(content['sessions'])
-                controller.impairment = int(content['ability'])
+                controller.ability = int(content['ability'])
                 controller.completed = controller.COMPLETED_STATUS_UNDEFINED
 
                 while controller.completed == controller.COMPLETED_STATUS_UNDEFINED:
@@ -82,8 +82,8 @@ class TimestepCue(Resource):
                         'shotSet': 0
                     }
 
-                    if not (controller.exercise == -1):
-                        new_data['shotType'] = controller.exercise
+                    if not (controller.shot == -1):
+                        new_data['shotType'] = controller.shot
                         new_data['hand'] = controller.hand
 
                     if not (controller.stat == ""):
@@ -118,8 +118,8 @@ class TimestepCue(Resource):
                     controller.score = None
                     controller.performance = None
 
-                    if controller.exercise == -1:
-                        controller.exercise = content['shotType']
+                    if controller.shot == -1:
+                        controller.shot = content['shotType']
                         controller.hand = content['hand']
                     '''if content['initialScore'] == "null":
                         controller.score = None
@@ -269,7 +269,7 @@ class TimestepCue(Resource):
                     if controller.performance == self.previous_shot_performance:  # We haven't received the set goal feedback so can safely update controller.performance
                         controller.performance = performanceValue            # Not perfect because we might have the same performance for set and action.
                     controller.goal_level = PolicyWrapper.ACTION_GOAL
-                    controller.exercise_count += 1
+                    controller.shot_count += 1
 
                     self.previous_shot_performance = performanceValue
 
@@ -279,7 +279,7 @@ class TimestepCue(Resource):
                         'shotSet': 1
                     }
 
-                    if controller.exercise_count == 29:
+                    if controller.shot_count == 29:
                         new_data['shotSetComplete'] = 1
                         new_data['stat'] = controller.stat
                     else:
@@ -319,7 +319,7 @@ class TimestepCue(Resource):
                 controller.goal_level = PolicyWrapper.PERSON_GOAL
                 controller.name = args['name']
                 controller.sessions = int(args['sessions'])
-                controller.impairment = int(args['ability'])
+                controller.ability = int(args['ability'])
 
                 while controller.completed == controller.COMPLETED_STATUS_UNDEFINED:
                     pass
@@ -339,8 +339,8 @@ class TimestepCue(Resource):
                     'completed': controller.completed
                 }
 
-                if not(controller.exercise == -1):
-                    new_data['shot'] = controller.exercise
+                if not(controller.shot == -1):
+                    new_data['shot'] = controller.shot
 
                 return {args['goal_level']: new_data}, 200
 
