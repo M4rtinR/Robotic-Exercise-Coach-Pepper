@@ -38,17 +38,17 @@ COMPLETED_STATUS_UNDEFINED = -1
 COMPLETED_STATUS_FALSE = 0
 COMPLETED_STATUS_TRUE = 1
 
-exercise_list_master = ["Table top circles", "Towel slide", "External rotation with cane", "Shoulder openers"]
+shot_list_master = ["Forehand Drive", "Backhand Drive", "Forehand Drop"]
 
 # Initial values which will be updated when the API gets called by the guide.
-goal_level = 0
+goal_level = -1
 sessions = -1
 score = -1
 target = -1
 avg_score = -1
 performance = None
 completed = COMPLETED_STATUS_UNDEFINED
-exercise_count = 0
+shot_count = 0
 action_score = -1
 prev_behav = -1
 matching_behav = 0
@@ -57,15 +57,16 @@ session_time = 0
 used_behaviours = []
 set_performance_list = []  # 1 entry for each rep performed
 set_score_list = []  # 1 entry for each rep performed
-exercise_performance_list = []  # 1 entry for each set performed of that exercise
-exercise_score_list = []  # 1 entry for each set performed of that exercise
-session_performance_list = []  # 1 entry for each exercise performed
-session_score_list = []  # 1 entry for each exercise performed
+stat_performance_list = []  # 1 entry for each set performed for that stat
+stat_score_list = []  # 1 entry for each set performed for that stat
+shot_performance_list = []  # 1 entry for each stat worked on
+shot_score_list = []  # 1 entry for each stat worked on
+session_performance_list = []  # 1 entry for each shot performed
+session_score_list = []  # 1 entry for each shot performed
 set_count = 0
 given_score = 0
-exercise_list_session = ["Table top circles", "Towel slide", "External rotation with cane", "Shoulder openers"]  # Delete from this list once the exercise has been completed in the session.
-exercise_target_times = [2.0, 2.0, 1.0, 1.0]
-used_exercises = []
+shot_list_session = ["Forehand Drive", "Backhand Drive", "Forehand Drop"]  # Delete from this list once the exercise has been completed in the session.
+used_shots = []
 start_time = None
 observation = -1
 has_score_been_provided = True  # True if Pepper has already said e.g. "Your average score was 3.02 and your were aiming for 2.0" and False otherwise.
@@ -77,11 +78,16 @@ behaviour = -1
 name = "Martin"
 participantNo = "Testing.0"
 participant_filename = participantNo + "_history.txt"
-impairment = 0
+ability = 4
 motivation = 8
-leftHand = False
-exercise = -1
-policy = 2
+# 1 = DRIVE, 5 = LOB, 0 = DROP
+shot = 0
+# "FH" or "BH"
+hand = "FH"
+# "racketPreparation" = RACKET_PREP, "impactCutAngle" = IMPACT_CUT_ANGLE, "followThroughTime" = FOLLOW_THROUGH_TIME
+stat = "impactCutAngle"
+policy = 11
+leftHand = True
 
 # Values for RL
 alpha = 0.85
@@ -98,32 +104,32 @@ def create_coaching_tree():
     root = Progressor("coaching root", blackboard=b)
 
     # Player stats
-    user_stats = GetStats(name="user_stats", blackboard=b)
-    player_stats_until = Until(name="player_stats_until", child=user_stats)
+    player_stats = GetStats(name="player_stats", blackboard=b)
+    player_stats_until = Until(name="player_stats_until", child=player_stats)
     root.add_child(player_stats_until)
 
-    user_start = TimestepCue(name="user_start", blackboard=b)
-    root.add_child(user_start)
-    b.save('goal', -1, user_start._id)
+    player_start = TimestepCue(name="player_start", blackboard=b)
+    root.add_child(player_start)
+    b.save('goal', -1, player_start._id)
 
     initialise = InitialiseBlackboard(name="initialise_blackboard", blackboard=b)
     root.add_child(initialise)
 
-    # Share data between user_stats and initialise nodes.
+    # Share data between player_stats and initialise nodes.
     b.save('name', name, initialise._id)
-    b.add_remapping(user_stats._id, 'motivation', initialise._id, 'motivation')
-    b.save('user_impairment', impairment, initialise._id)
-    b.add_remapping(user_start._id, 'sessions', initialise._id, 'sessions')
+    b.add_remapping(player_stats._id, 'motivation', initialise._id, 'motivation')
+    b.save('player_ability', ability, initialise._id)
+    b.add_remapping(player_start._id, 'sessions', initialise._id, 'sessions')
 
     # Session duration
     #TODO: needs updated when the user will choose actual time rather than just once through the exercises for the purposes of study 1.
     duration = GetDuration(name="duration", blackboard=b)
     root.add_child(duration)
-    b.save('session_duration', 4, duration._id)  # Set session duration to 4 so that 4 exercises happen.
+    b.save('session_duration', 1, duration._id)
     b.save('start_time', 0, duration._id)
 
     # Add an intro and feedback loop for player goal.
-    gen_person_goal = Progressor(name="gen_person_goal")
+    gen_person_goal = Progressor(name="gen_player_goal")
     #
     #
     # Create session goal in guide
@@ -147,7 +153,7 @@ def create_coaching_tree():
     b.add_remapping(initialise._id, 'belief', person_goal_intro_behav._id, 'belief')
     b.add_remapping(initialise._id, 'state', person_goal_intro_behav._id, 'state')
     b.save('performance', performance, person_goal_intro_behav._id)
-    b.add_remapping(user_start._id, 'phase', person_goal_intro_behav._id, 'phase')
+    b.add_remapping(player_start._id, 'phase', person_goal_intro_behav._id, 'phase')
     b.add_remapping(person_goal._id, 'new_goal', person_goal_intro_behav._id, 'goal')
 
     person_goal_intro_check_for_pre = CheckForBehaviour(name="person_goal_intro_check_for_pre", blackboard=b)
@@ -163,10 +169,10 @@ def create_coaching_tree():
     # Share data between initialise, person_goal_start, person_goal, person_goal_intro_behav and person_goal_intro_action.
     b.add_remapping(initialise._id, 'bl', person_goal_intro_action._id, 'bl')
     b.save('performance', performance, person_goal_intro_action._id)
-    b.add_remapping(user_start._id, 'phase', person_goal_intro_action._id, 'phase')
+    b.add_remapping(player_start._id, 'phase', person_goal_intro_action._id, 'phase')
     b.add_remapping(person_goal._id, 'new_goal', person_goal_intro_action._id, 'goal')
     b.add_remapping(person_goal_intro_behav._id, 'behaviour', person_goal_intro_action._id, 'behaviour')
-    b.add_remapping(user_start._id, 'name', person_goal_intro_action._id, 'name')
+    b.add_remapping(player_start._id, 'name', person_goal_intro_action._id, 'name')
 
     # Display pre-instruction behaviour
     person_goal_intro_output = DisplayBehaviour(name="person_goal_intro_output", blackboard=b)
@@ -183,7 +189,7 @@ def create_coaching_tree():
     #
     #
     #
-    gen_session_goal, session_goal, session_goal_start, session_goal_exercise_choice, session_goal_intro_behav = get_intro_loop(name="session_goal_intro_loop", blackboard=b, prev_goal_node=person_goal._id, initialise_node=initialise._id, person_node=user_start._id, prev_behav_node=person_goal_intro_behav._id)
+    gen_session_goal, session_goal, session_goal_start, session_goal_exercise_choice, session_goal_intro_behav = get_intro_loop(name="session_goal_intro_loop", blackboard=b, prev_goal_node=person_goal._id, initialise_node=initialise._id, person_node=player_start._id, prev_behav_node=person_goal_intro_behav._id)
 
     '''
     #
@@ -294,7 +300,7 @@ def create_coaching_tree():
 
     #
     #
-    # Session loop until chosen session duration is reached (i.e. in this case 4 exercises completed)
+    # Session loop until chosen session duration is reached
     #
     #
     session_goal_selector = Selector(name="session_goal_selector")
@@ -310,10 +316,11 @@ def create_coaching_tree():
     #
     # Conduct coaching for a shot
     #
-    gen_exercise_goal, exercise_goal, exercise_goal_start, exercise_goal_exercise_choice, exercise_goal_intro_behav = get_intro_loop(
-        name="exercise_goal_intro_loop", blackboard=b, prev_goal_node=session_goal._id, initialise_node=initialise._id,
-        person_node=user_start._id, prev_behav_node=session_goal_intro_behav._id)
+    gen_shot_goal, shot_goal, shot_goal_start, shot_goal_shot_choice, shot_goal_intro_behav = get_intro_loop(
+        name="shot_goal_intro_loop", blackboard=b, prev_goal_node=session_goal._id, initialise_node=initialise._id,
+        person_node=player_start._id, prev_behav_node=session_goal_intro_behav._id)
 
+    # TODO: need to restructure the behaviour tree here. Potentially selector with new node "check if performed shot before" on one branch and baseline goal on the other branch.
     '''
     # Create shot goal in guide
     shot_goal = CreateSubgoal(name="create_shot_goal", blackboard=b)

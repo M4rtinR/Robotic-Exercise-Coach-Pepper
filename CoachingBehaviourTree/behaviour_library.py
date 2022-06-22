@@ -13489,7 +13489,7 @@ class BehaviourLibraryFunctions:
                                     stat_advice = "let your racket face close"
                                 elif stat == "followThroughTime":
                                     stat_advice = "stop your follow through too short"
-                                utterance = utterance + "When you're doing your " + hand_utternace + " " + shot_utternace + ", try not to " + stat_advice + optional_question
+                                utterance = utterance + "When you're doing your " + hand_utterance + " " + shot_utterance + ", try not to " + stat_advice + optional_question
                             else:
                                 if behaviour == Policy.A_POSTINSTRUCTIONNEGATIVE_QUESTIONING:
                                     optional_question = "did you?"
@@ -14413,7 +14413,7 @@ class BehaviourLibraryFunctions:
                         if goal_level == PolicyWrapper.SET_GOAL:
                             if final_set:
                                 utterance = utterance + "The only thing I want you to focus on in this final set is to " + stat_advice + " Play a final 30 " + hand_utterance + " " + shot_utterance + "s please. Your " + stat_utterance + " should not have gotten worse with all the work you have put in today! Start when you're ready."
-                             elif second_set:
+                            elif second_set:
                                 utterance = utterance + "The only thing I want you to focus on in this next set is to " + stat_advice + " Play another 30 " + hand_utterance + " " + shot_utterance + "s please. Start when you're ready."
                             else:
                                 utterance = utterance + "The only thing I want you to focus on in this next set is to " + stat_advice + " Play a set of 30 " + hand_utterance + " " + shot_utterance + "s please. Start when you're ready."
