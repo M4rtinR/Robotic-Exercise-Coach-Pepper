@@ -31,6 +31,7 @@ EndSetEvent(Node)
 import logging
 from statistics import mean, mode
 from time import time
+from datetime import datetime, timedelta
 
 from task_behavior_engine.node import Node
 from task_behavior_engine.tree import NodeStatus
@@ -39,7 +40,7 @@ from multiprocessing import Process, Queue, Pipe
 from API import api_classes
 from CoachingBehaviourTree import controller
 from CoachingBehaviourTree.action import Action
-from CoachingBehaviourTree.behaviour_library import BehaviourLibraryFunctions, squash_behaviour_library
+from CoachingBehaviourTree.behaviour_library import BehaviourLibraryFunctions, rehab_behaviour_library
 from Policy.policy import Policy
 from Policy.policy_wrapper import PolicyWrapper
 import numpy as np
@@ -214,14 +215,12 @@ class FormatAction(Node):
         self.goal_level = nodedata.get_data('goal')          # Which level of goal we are currently in (e.g. SET_GOAL)
         self.performance = nodedata.get_data('performance', 0)  # Which level of performance the player achieved (e.g. MET)
         self.phase = nodedata.get_data('phase')              # PHASE_START or PHASE_END
-        self.score = nodedata.get_data('score')              # Numerical score from sensor relating to a stat (can be None)
-        self.target = nodedata.get_data('target')            # Numerical target score for stat (can be None)
+        self.score = nodedata.get_data('score')              # Numerical score from sensor relating to the exercise (can be None)
+        self.target = nodedata.get_data('target')            # Numerical target score for the exercise (can be None)
         self.behaviour_lib = nodedata.get_data('bl')         # The behaviour library to be used in generating actions
         self.behaviour = nodedata.get_data('behaviour')      # The type of behaviour to create an action for.
         self.name = controller.name                          # The name of the current user.
-        self.shot = nodedata.get_data('shot')                # The shot type (can be None)
-        self.hand = nodedata.get_data('hand')                # Forehand or backhand associated with shot (can be None)
-        self.stat = nodedata.get_data('stat')                # The stat type (can be None)
+        self.exercise = nodedata.get_data('exercise')        # The exercise type (can be None)
 
     def run(self, nodedata):
         """
@@ -250,7 +249,7 @@ class FormatAction(Node):
                                   Policy.A_POSITIVEMODELING_CONCURRENTINSTRUCTIONPOSITIVE,
                                   Policy.A_POSITIVEMODELING_QUESTIONING, Policy.A_POSITIVEMODELING_HUSTLE,
                                   Policy.A_POSITIVEMODELING_PRAISE]:
-                demo = self.behaviour_lib.get_demo_string(self.behaviour, self.goal_level, self.shot, self.hand, self.stat, controller.leftHand)
+                demo = self.behaviour_lib.get_demo_string(self.behaviour, self.exercise, self.goal_level)
             question = None
             if self.behaviour in [Policy.A_QUESTIONING, Policy.A_QUESTIONING_FIRSTNAME,
                                   Policy.A_QUESTIONING_POSITIVEMODELING,
@@ -263,7 +262,7 @@ class FormatAction(Node):
                     else:
                         question = "GoodBad"
 
-            # If this is the start of a new shot set, we need to reset the counter on Pepper's screen.
+            # If this is the start of a new exercise set, we need to reset the counter on Pepper's screen.
             if self.behaviour in [Policy.A_PREINSTRUCTION_POSITIVEMODELING, Policy.A_PREINSTRUCTION,
                                   Policy.A_POSITIVEMODELING_PREINSTRUCTION, Policy.A_PREINSTRUCTION_PRAISE,
                                   Policy.A_PREINSTRUCTION_NEGATIVEMODELING,
@@ -336,6 +335,7 @@ class CheckForBehaviour(Node):
         logging.debug("Configuring CheckForBehaviour: " + self._name)
         self.behaviour = nodedata.get_data('behaviour')              # The behaviour selected from the policy
         self.check_behaviour = nodedata.get_data('check_behaviour')  # The behaviour to check against
+        self.goal_level = controller.goal_level
 
     def run(self, nodedata):
         """
@@ -350,6 +350,8 @@ class CheckForBehaviour(Node):
         # SUCCESS if next behaviour is given behaviour, else FAIL
         if self._is_example_of_behaviour(self.behaviour, self.check_behaviour):
             controller.used_behaviours = []
+            if self.check_behaviour == Policy.A_PREINSTRUCTION and self.goal_level == PolicyWrapper.SET_GOAL:
+                controller.repetitions = 30
             logging.debug("Returning SUCCESS from CheckForBehaviour, behaviour found = " + str(self.behaviour))
             # controller.completed = controller.COMPLETED_STATUS_FALSE
             return NodeStatus(NodeStatus.SUCCESS, "Behaviour " + str(self.check_behaviour) + " found in the form " + str(self.behaviour))
@@ -490,8 +492,8 @@ class GetStats(Node):
         # Will be ACTIVE when waiting for data and SUCCESS when got data and added to blackboard, FAIL when connection error.
         # logging.debug("In get stats")
         nodedata.motivation = controller.motivation
-        nodedata.player_ability = controller.ability
-        logging.info("Stats set, motivation = {motivation}, ability = {ability}".format(motivation=nodedata.motivation, ability=nodedata.player_ability))
+        nodedata.user_impairment = controller.impairment
+        logging.info("Stats set, motivation = {motivation}, impairment = {impairment}".format(motivation=nodedata.motivation, impairment=nodedata.user_impairment))
         #nodedata.sessions = 6
         # logging.debug("After setting stats in GetStats: " + str(nodedata))
         logging.debug("Returning SUCCESS from GetStats, stats = " + str(nodedata))
@@ -535,7 +537,6 @@ class GetDuration(Node):
         """
         logging.debug("Running GetDuration: " + self._name)
         # Will be ACTIVE when waiting for data and SUCCESS when got data and added to blackboard, FAIL when connection error.
-        nodedata.session_duration = 1
         logging.info("Set session duration to: {duration}".format(duration=nodedata.session_duration))
         logging.debug("Returning SUCCESS from GetDuration, session duration = " + str(nodedata.session_duration))
         return NodeStatus(NodeStatus.SUCCESS, "Set session duration to dummy value 1.")
@@ -576,8 +577,7 @@ class CreateSubgoal(Node):
         logging.debug("Configuring CreateSubgoal: " + self._name)
         logging.debug("createSubgoal nodedata = " + str(nodedata))
         self.previous_goal_level = nodedata.get_data('goal', -1)
-        self.shot = nodedata.get_data('shot')
-        self.stat = nodedata.get_data('stat')
+        self.exercise = nodedata.get_data('exercise', -1)
 
     def run(self, nodedata):
         """
@@ -587,47 +587,41 @@ class CreateSubgoal(Node):
             or cannot connect to API.
         """
         # Will return SUCCESS once request sent to API, FAIL if called on ACTION_GOAL or connection error.
-        if self.previous_goal_level == PolicyWrapper.BASELINE_GOAL:
-            nodedata.new_goal = PolicyWrapper.STAT_GOAL
-            logging.info("Created subgoal, new goal level = {}".format(nodedata.new_goal))
-            logging.debug("Returning SUCCESS from CreateSubGoal, new goal level = " + str(nodedata.goal))
-            return NodeStatus(NodeStatus.SUCCESS, "Created subgoal: 3 from BASELINE_GOAL")
-        elif self.previous_goal_level > 6:
+        if self.previous_goal_level > PolicyWrapper.ACTION_GOAL:
             logging.debug("Returning FAIL from CreateSubGoal, previous goal level = " + str(self.previous_goal_level))
             return NodeStatus(NodeStatus.FAIL, "Cannot create subgoal of ACTION_GOAL.")
         else:
-            if self.previous_goal_level == PolicyWrapper.EXERCISE_GOAL and self.exercise_data is False:
-                nodedata.new_goal = 6
-            else:
-                nodedata.new_goal = self.previous_goal_level + 1
-                # Select which exercise to perform.
-                if nodedata.new_goal == PolicyWrapper.EXERCISE_GOAL:
-                    # TODO: this will be done by the app so will need to be updated.
-                    # When we create an exercise goal, pick a new exercise and reset all the stats from the previous exercise.
-                    # This assumes that this is our first session doing this exercise. If not, previous data will be obtained
-                    # from file in TimestepCue.
-                    nodedata.new_exercise = random.randint(0, len(controller.exercise_list_session)-1)
-                    while controller.exercise_list_session[nodedata.get_data("new_exercise")] in controller.used_exercises:
-                        nodedata.new_exercise = random.randint(0, len(controller.exercise_list_session) - 1)
-                    print("In CreateSubgoal, setting exercise. Exercise = " + str(nodedata.get_data("new_exercise")))
-                    controller.target = controller.exercise_target_times[nodedata.get_data("new_exercise")]
-                    controller.used_exercises.append(controller.exercise_list_session[nodedata.get_data("new_exercise")])
-                    controller.set_count = 0  # Reset the set count for this session to 0.
-                    controller.performance = None
-                    controller.score = -1
+            nodedata.new_goal = self.previous_goal_level + 1
+            if nodedata.new_goal == PolicyWrapper.ACTION_GOAL:
+                # Reset controller.start_time to monitor speed of exercise execution.
+                controller.start_time = datetime.now()
+            # Select which exercise to perform.
+            if nodedata.new_goal == PolicyWrapper.EXERCISE_GOAL:
+                # When we create an exercise goal, pick a new exercise and reset all the stats from the previous exercise.
+                # This assumes that this is our first session doing this exercise. If not, previous data will be obtained
+                # from file in TimestepCue.
+                nodedata.new_exercise = random.randint(0, len(controller.exercise_list_session)-1)
+                while controller.exercise_list_session[nodedata.get_data("new_exercise")] in controller.used_exercises:
+                    nodedata.new_exercise = random.randint(0, len(controller.exercise_list_session) - 1)
+                print("In CreateSubgoal, setting exercise. Exercise = " + str(nodedata.get_data("new_exercise")))
+                controller.target = controller.exercise_target_times[nodedata.get_data("new_exercise")]
+                controller.used_exercises.append(controller.exercise_list_session[nodedata.get_data("new_exercise")])
+                controller.set_count = 0  # Reset the set count for this session to 0.
+                controller.performance = None
+                controller.score = -1
 
-                    # Update exercise picture on Pepper's tablet screen and reset the counter
-                    if nodedata.get_data("new_exercise") == 0:
-                        exerciseString = "TabletopCircles"
-                    elif nodedata.get_data("new_exercise") == 1:
-                        exerciseString = "TowelSlides"
-                    elif nodedata.get_data("new_exercise") == 2:
-                        exerciseString = "CaneRotations"
-                    else:
-                        exerciseString = "ShoulderOpeners"
-                    utteranceURL = screen_post_address + exerciseString + "/newPicture"
-                    r = requests.post(utteranceURL)
-                    r = requests.post(screen_post_address + "0/newRep")
+                # Update exercise picture on Pepper's tablet screen and reset the counter
+                if nodedata.get_data("new_exercise") == 0:
+                    exerciseString = "TabletopCircles"
+                elif nodedata.get_data("new_exercise") == 1:
+                    exerciseString = "TowelSlides"
+                elif nodedata.get_data("new_exercise") == 2:
+                    exerciseString = "CaneRotations"
+                else:
+                    exerciseString = "ShoulderOpeners"
+                utteranceURL = screen_post_address + exerciseString + "/newPicture"
+                r = requests.post(utteranceURL)
+                r = requests.post(screen_post_address + "0/newRep")
             controller.phase = PolicyWrapper.PHASE_START  # Start of goal will always be before something happens.
             print("Created subgoal, new goal level = {}".format(nodedata.new_goal))
             logging.info("Created subgoal, new goal level = {}".format(nodedata.new_goal))
@@ -677,29 +671,22 @@ class EndSubgoal(Node):
             or cannot connect to API.
         """
         # Will return SUCCESS once request sent to API, FAIL if called on goal > 6 or connection error.
-        if self.goal_level > 6 or self.goal_level < 0:
+        if self.goal_level > 4 or self.goal_level < 0:
             print("Returning FAIL from EndSubgoal, goal_level = " + str(self.goal_level))
             logging.debug("Returning FAIL from EndSubgoal, goal_level = " + str(self.goal_level))
             return NodeStatus(NodeStatus.FAIL, "Cannot create subgoal of " + str(self.goal_level))
         else:
-            if self.goal_level == PolicyWrapper.BASELINE_GOAL:
-                nodedata.stat = 1
-                nodedata.phase = PolicyWrapper.PHASE_END
-                nodedata.new_goal = PolicyWrapper.STAT_GOAL
-                controller.completed = controller.COMPLETED_STATUS_TRUE
+            controller.goal_level -= 1
+            if (self.goal_level == PolicyWrapper.SET_GOAL and controller.set_count == 2) or self.goal_level == PolicyWrapper.EXERCISE_GOAL or self.goal_level == PolicyWrapper.SESSION_GOAL:
+                controller.phase = PolicyWrapper.PHASE_END
             else:
-                controller.goal_level -= 1
-                # TODO: I've set max set_count to 4 but there may be some freedom there depending on user performance.
-                if (self.goal_level == PolicyWrapper.SET_GOAL and controller.set_count == 4) or self.goal_level == PolicyWrapper.STAT_GOAL or self.goal_level == PolicyWrapper.EXERCISE_GOAL or self.goal_level == PolicyWrapper.SESSION_GOAL:
-                    controller.phase = PolicyWrapper.PHASE_END
-                else:
-                    controller.phase = PolicyWrapper.PHASE_START
-                nodedata.new_goal = self.goal_level - 1
-                nodedata.phase = PolicyWrapper.PHASE_START  # All behaviours have happened so its start of new goal.
-                controller.completed = controller.COMPLETED_STATUS_TRUE
-                controller.scores_provided = 0  # At new goal level we will need to provide the average score again.
-                if self.goal_level == PolicyWrapper.EXERCISE_GOAL:
-                    controller.session_time += 1
+                controller.phase = PolicyWrapper.PHASE_START
+            nodedata.new_goal = self.goal_level - 1
+            nodedata.phase = PolicyWrapper.PHASE_START  # All behaviours have happened so its start of new goal.
+            controller.completed = controller.COMPLETED_STATUS_TRUE
+            controller.scores_provided = 0  # At new goal level we will need to provide the average score again.
+            if self.goal_level == PolicyWrapper.EXERCISE_GOAL:
+                controller.session_time += 1
 
             print("Ended subgoal {old_goal}. New goal level = {new_goal}.".format(old_goal=self.goal_level, new_goal=nodedata.new_goal))
             logging.info("Ended subgoal {old_goal}. New goal level = {new_goal}.".format(old_goal=self.goal_level, new_goal=nodedata.new_goal))
@@ -732,7 +719,7 @@ class TimestepCue(Node):
         logging.debug("Configuring TimestepCue: " + self._name)
         self.goal_level = nodedata.get_data('goal')
         self.phase = nodedata.get_data('phase')
-        self.shot = nodedata.get_data('shot')
+        self.exercise = nodedata.get_data('exercise')
         controller.completed = controller.COMPLETED_STATUS_FALSE
 
     def run(self, nodedata):
@@ -768,7 +755,7 @@ class TimestepCue(Node):
         """
         # Will be ACTIVE when waiting for data and SUCCESS when got data and added to blackboard, FAIL when connection error.
         if self.goal_level == -1:  # Person goal created after receiving info from guide.
-            if controller.goal_level == PolicyWrapper.PERSON_GOAL:  # For person goal should have name, ability and no. of sessions.
+            if controller.goal_level == PolicyWrapper.PERSON_GOAL:  # For person goal should have name, impairment and no. of sessions.
                 if controller.phase == PolicyWrapper.PHASE_END:  # Feedback sequence
                     nodedata.phase = PolicyWrapper.PHASE_END
                     nodedata.performance = mode(controller.session_performance_list)
@@ -802,7 +789,7 @@ class TimestepCue(Node):
                         controller.sessions = 0
 
                     nodedata.sessions = controller.sessions
-                    nodedata.player_ability = controller.ability
+                    nodedata.user_impairment = controller.impairment
                     nodedata.name = controller.name
                     nodedata.phase = PolicyWrapper.PHASE_START
                     logging.debug("Returning SUCCESS from TimestepCue player goal, stats = " + str(nodedata))
@@ -850,95 +837,59 @@ class TimestepCue(Node):
                 logging.debug("Returning ACTIVE from TimestepCue session goal")
                 return NodeStatus(NodeStatus.ACTIVE, "Waiting for session goal data from guide.")
 
-        elif self.goal_level == PolicyWrapper.EXERCISE_GOAL:  # For shot goal should have performance from last time this shot was practiced.
+        elif self.goal_level == PolicyWrapper.EXERCISE_GOAL:  # For exercise goal should have performance from last time this exercise was practiced.
             if controller.goal_level == PolicyWrapper.EXERCISE_GOAL:
                 if controller.phase == PolicyWrapper.PHASE_END:  # Feedback sequence
-                    if controller.completed == controller.COMPLETED_STATUS_TRUE:  # This is actually the end of a baseline goal. Might need to update this so it's not as weirdly laid out.
-                        logging.debug("Baseline goal feedback sequence")
-                        nodedata.phase = PolicyWrapper.PHASE_END
-                        nodedata.performance = controller.performance
-                        logging.debug("Returning SUCCESS from TimestepCue shot goal (end), stats = " + str(nodedata))
-                        return NodeStatus(NodeStatus.SUCCESS, "Data for shot goal obtained from guide:" + str(nodedata))
-                    elif controller.completed == controller.COMPLETED_STATUS_FALSE:  # Feedback Sequence
-                        if nodedata.got_exercise_performance:
-                            logging.debug("Exercise goal feedback sequence")
-                            nodedata.phase = PolicyWrapper.PHASE_END
-                            nodedata.performance = mode(controller.shot_performance_list)
-                            controller.session_performance_list.append(nodedata.performance)
-                            nodedata.score = mean(controller.shot_score_list)
-                            controller.session_score_list.append(nodedata.score)
-                            # Clear the controller's lists for the exercise that has just happened.
-                            controller.shot_performance_list = []
-                            controller.shot_score_list = []
-                            nodedata.target = controller.target
-                            # Write performance data about the exercise just completed to file.
-                            f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + controller.participant_filename, "r")
-                            file_contents = f.readlines()
-                            f.close()
-                            print("File contents = " + str(file_contents))
-                            counter = 0
-                            shot_found = False
-                            for content_line in file_contents:
-                                if content_line == controller.shot_list_session[self.shot]:
-                                    shot_found = True
-                                    break
-                                counter += 1
+                    logging.debug("Exercise goal feedback sequence")
+                    nodedata.phase = PolicyWrapper.PHASE_END
+                    nodedata.performance = mode(controller.exercise_performance_list)
+                    controller.session_performance_list.append(nodedata.performance)
+                    nodedata.score = mean(controller.exercise_score_list)
+                    controller.session_score_list.append(nodedata.score)
+                    # Clear the controller's lists for the exercise that has just happened.
+                    controller.exercise_performance_list = []
+                    controller.exercise_score_list = []
+                    nodedata.target = controller.target
+                    # Write performance data about the exercise just completed to file.
+                    f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + controller.participant_filename, "r")
+                    file_contents = f.readlines()
+                    f.close()
+                    print("File contents = " + str(file_contents))
+                    counter = 0
+                    exercise_found = False
+                    for content_line in file_contents:
+                        if content_line == controller.exercise_list_session[self.exercise]:
+                            exercise_found = True
+                            break
+                        counter += 1
 
-                            if shot_found:
-                                print("Shot found")
-                                shot_times = int(
-                                    file_contents[counter]) + 1  # The number of sessions the user has done this shot in
-                                file_contents[counter] = str(shot_times)
-                                file_contents.insert(counter+shot_times-1, "\n" + str(nodedata.performance) + "," + str(nodedata.score))
-                            else:
-                                print("Shot not found")
-                                sessions = int(file_contents[1])
-                                if len(file_contents) < 3:  # if no shots performed yet, add another \n to get layout right
-                                    file_contents[1] = str(sessions) + "\n"
-                                file_contents.insert(sessions + 2, "\n" + controller.shot_list_session[self.shot])
-                                file_contents.insert(sessions + 3, "\n1")
-                                file_contents.insert(sessions + 4, "\n" + str(nodedata.performance) + "," + str(nodedata.score))
-
-                            print("File contents = " + str(file_contents))
-
-                            f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + controller.participant_filename, "w")
-                            f.writelines(file_contents)
-                            f.close()
-
-                            nodedata.phase = PolicyWrapper.PHASE_END
-                            logging.info(
-                                "Feedback for shot, score = {score}, target = {target}, performance = {performance}".format(
-                                    score=nodedata.score, target=nodedata.target, performance=nodedata.performance))
-                            logging.debug("Returning SUCCESS from TimestepCue shot goal (end), stats = " + str(nodedata))
-                            return NodeStatus(NodeStatus.SUCCESS, "Data for shot goal obtained from guide:" + str(nodedata))
-                        else:
-                            # TODO: Add another if/else with "got exercise data from file". Do this for all goal levels.
-                            # TODO: This should probably be done in the intro sequence.
-                            # Get performance data of previous time user did this exercise from file.
-                            f = open(
-                                "/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + controller.participant_filename,
-                                "r")
-                            file_contents = f.readlines()
-                            f.close()
-                            counter = 0
-                            exercise_found = False
-                            for content_line in file_contents:
-                                if content_line == controller.exercise_list_session[self.exercise]:
-                                    exercise_found = True
-                                    break
-                                counter += 1
-
-                            if exercise_found:
-                                exercise_times = int(
-                                    file_contents[counter])  # The number of sessions the user has done this exercise in
-                                performance = file_contents[counter + exercise_times].split(",")
-                                controller.performance = int(performance[0])
-                                controller.score = int(performance[1])
-
-                            print("got data from file.")
+                    if exercise_found:
+                        print("Exercise found")
+                        exercise_times = int(
+                            file_contents[counter]) + 1  # The number of sessions the user has done this exercise in
+                        file_contents[counter] = str(exercise_times)
+                        file_contents.insert(counter+exercise_times-1, "\n" + str(nodedata.performance) + "," + str(nodedata.score))
                     else:
-                        logging.debug("Returning ACTIVE from TimestepCue shot goal, controller.completed = COMPLETED_STATUS_UNDEFINED")
-                        return NodeStatus(NodeStatus.ACTIVE, "Waiting for shot goal data from guide.")
+                        print("Exercise not found")
+                        sessions = int(file_contents[1])
+                        if len(file_contents) < 3:  # if no exercises performed yet, add another \n to get layout right
+                            file_contents[1] = str(sessions) + "\n"
+                        file_contents.insert(sessions + 2, "\n" + controller.exercise_list_session[self.exercise])
+                        file_contents.insert(sessions + 3, "\n1")
+                        file_contents.insert(sessions + 4, "\n" + str(nodedata.performance) + "," + str(nodedata.score))
+
+                    print("File contents = " + str(file_contents))
+
+                    f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + controller.participant_filename, "w")
+                    f.writelines(file_contents)
+                    f.close()
+
+                    nodedata.phase = PolicyWrapper.PHASE_END
+                    logging.info(
+                        "Feedback for exercise, score = {score}, target = {aim}, performance = {performance}".format(
+                            score=nodedata.score, aim=controller.target, performance=nodedata.performance))
+                    logging.debug("Returning SUCCESS from TimestepCue exercise goal (end), stats = " + str(nodedata))
+                    return NodeStatus(NodeStatus.SUCCESS, "Data for exercies goal obtained from guide:" + str(nodedata))
                 else:
                     nodedata.performance = controller.performance
                     nodedata.target = controller.target
@@ -948,28 +899,29 @@ class TimestepCue(Node):
                     logging.debug("Returning SUCCESS from TimestepCue exercise goal, stats = " + str(nodedata))
                     return NodeStatus(NodeStatus.SUCCESS, "Data for exercise goal obtained from guide:" + str(nodedata))
             else:
+                # Get performance data of previous time user did this exercise from file.
+                f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + controller.participant_filename, "r")
+                file_contents = f.readlines()
+                f.close()
+                counter = 0
+                exercise_found = False
+                for content_line in file_contents:
+                    if content_line == controller.exercise_list_session[self.exercise]:
+                        exercise_found = True
+                        break
+                    counter += 1
+
+                if exercise_found:
+                    exercise_times = int(file_contents[counter])  # The number of sessions the user has done this exercise in
+                    performance = file_contents[counter+exercise_times].split(",")
+                    controller.performance = int(performance[0])
+                    controller.score = int(performance[1])
+
+                print("got data from file.")
+
+                controller.goal_level = PolicyWrapper.EXERCISE_GOAL
                 logging.debug("Returning ACTIVE from TimestepCue exercise goal, controller.goal_level != 2")
                 return NodeStatus(NodeStatus.ACTIVE, "Waiting for exercise goal data from guide.")
-
-        elif self.goal_level == PolicyWrapper.STAT_GOAL:  # For stat goal should have target and performance from last time this stat was practiced.
-            if controller.goal_level == PolicyWrapper.STAT_GOAL:
-                # TODO: need to add file I/O. Ideally, incorporate each stat for different shots but might be overcomplicated.
-                if controller.phase == PolicyWrapper.PHASE_END:  # Feedback sequence
-                    nodedata.performance = round(mean(controller.set_performance_list))
-                    nodedata.phase = PolicyWrapper.PHASE_END
-                    nodedata.score = mean(controller.set_score_list)
-                    nodedata.target = controller.target
-                    logging.info("Feedback for stat, score = {score}, target = {target}, performance = {performance}".format(score=nodedata.score, target=nodedata.target, performance=nodedata.performance))
-                    logging.debug("Returning SUCCESS from TimestepCue stat goal, stats = " + str(nodedata))
-                    return NodeStatus(NodeStatus.SUCCESS, "Data for stat goal obtained from guide:" + str(nodedata))
-                else:
-                    nodedata.performance = controller.performance
-                    nodedata.phase = PolicyWrapper.PHASE_START
-                    logging.debug("Returning SUCCESS from TimestepCue stat goal, stats = " + str(nodedata))
-                    return NodeStatus(NodeStatus.SUCCESS, "Data for stat goal obtained from guide:" + str(nodedata))
-            else:
-                logging.debug("Returning ACTIVE from TimestepCue stat goal")
-                return NodeStatus(NodeStatus.ACTIVE, "Waiting for stat goal data from guide.")
 
         elif self.goal_level == PolicyWrapper.SET_GOAL:
             if controller.goal_level == PolicyWrapper.SET_GOAL:
@@ -1020,27 +972,16 @@ class TimestepCue(Node):
                 logging.debug("Returning SUCCESS from TimestepCue action goal, stats = " + str(nodedata))
                 return NodeStatus(NodeStatus.SUCCESS, "Data for action goal obtained from guide:" + str(nodedata))
             else:
-                controller.goal_level = PolicyWrapper.ACTION_GOAL
+                # controller.goal_level = PolicyWrapper.ACTION_GOAL
                 logging.debug("Returning ACTIVE from TimestepCue action goal")
                 return NodeStatus(NodeStatus.ACTIVE, "Waiting for action goal input from operator.")
 
-        elif self.goal_level == 6:
-            if controller.goal_level == 4:
-                nodedata.phase = PolicyWrapper.PHASE_START
-                controller.shot_count = 0
-                controller.completed = controller.COMPLETED_STATUS_FALSE
-                logging.debug("Returning SUCCESS from TimestepCue baseline goal, stats = " + str(nodedata))
-                return NodeStatus(NodeStatus.SUCCESS, "Data for baseline goal obtained from guide:" + str(nodedata))
-            else:
-                logging.debug("Returning ACTIVE from TimestepCue baseline goal")
-                return NodeStatus(NodeStatus.ACTIVE, "Waiting for baseline goal data from guide.")
-
-        nodedata.performance = PolicyWrapper.MET
+        nodedata.performance = PolicyWrapper.GOOD
         nodedata.phase = PolicyWrapper.PHASE_START
         nodedata.target = 0.80
         nodedata.score = 0.79
         logging.debug("Returning SUCCESS from TimestepCue, stats = " + str(nodedata))
-        return NodeStatus(NodeStatus.SUCCESS, "Set timestep cue values to dummy values MET, PHASE_START, 0.80, 0.79.")
+        return NodeStatus(NodeStatus.SUCCESS, "Set timestep cue values to dummy values GOOD, PHASE_START, 0.80, 0.79.")
 
 
 class DurationCheck(Node):
@@ -1137,11 +1078,11 @@ class GetUserChoice(Node):
         # TODO Update once getting actual choice from user. Will probably need two nodes, one for requesting, one for
         #   waiting for user selection so that the tree doesn't grind to a halt.
         if self.choice_type == 0:  # controller.SHOT_CHOICE = 0
-            nodedata.shot = 1
-            controller.shot = 1
+            nodedata.exercise = 1
+            controller.exercise = 1
             nodedata.hand = 1  # Forehand
             controller.hand = 1
-            logging.debug("Returning SUCCESS from GetUserChoice, shot = " + str(nodedata.shot))
+            logging.debug("Returning SUCCESS from GetUserChoice, shot = " + str(nodedata.exercise))
         else:
             nodedata.stat = 1
             controller.stat = 1
@@ -1151,14 +1092,13 @@ class GetUserChoice(Node):
 
 class EndSetEvent(Node):
     """
-        Check if the user has chosen to end the set.
-
-        This option only becomes available after 30 actions in the set have been detected by the sensor.
+        Check if the user has chosen to end the set or if there have been more than 10 (or 5 for set 2) exercises
+        performed.
         ...
         Methods
         -------
         run()
-            Check if at least 30 shots have been played and if so, check if the user has pressed the button.
+            Check if at least 10 shots have been played and if so, check if the user has pressed the button.
         """
 
     def __init__(self, name, *args, **kwargs):
@@ -1169,8 +1109,9 @@ class EndSetEvent(Node):
             *args, **kwargs)
 
     def configure(self, nodedata):
-        logging.debug("Configuring EndSetEvent: " + self._name + ", setting shotcount to " + str(controller.shot_count))
-        self.shotcount = controller.shot_count
+        print("Configuring EndSetEvent: " + self._name + ", setting exercisecount to " + str(controller.exercise_count))
+        logging.debug("Configuring EndSetEvent: " + self._name + ", setting exercisecount to " + str(controller.exercise_count))
+        self.exercisecount = controller.exercise_count
         self.firstTime = controller.set_count == 0
 
     def run(self, nodedata):
@@ -1182,7 +1123,7 @@ class EndSetEvent(Node):
         #   one for waiting for user selection so that the tree doesn't grind to a halt.
         # self.shotcount += 1  # TODO Set this to 0 when set starts.
 
-        if self.shotcount >= 30:
+        if (self.firstTime and self.exercisecount >= 10) or (self.firstTime is False and self.exercisecount >= 5):
             api_classes.expecting_action_goal = False
             controller.completed = controller.COMPLETED_STATUS_TRUE
             controller.set_count += 1
@@ -1191,15 +1132,15 @@ class EndSetEvent(Node):
             output = {
                 "stop": str(1)
             }
-            logging.info("Stopping set: That's 30, you can stop there.")
+            logging.info("Stopping set: That's 10, you can stop there.")
             r = requests.post(post_address, json=output)
 
-            logging.info("Shot set completed.")
-            logging.debug("Returning SUCCESS from EndSetEvent, shot count = " + str(self.shotcount))
+            logging.info("Exercise set completed.")
+            logging.debug("Returning SUCCESS from EndSetEvent, exercise count = " + str(self.exercisecount))
             return NodeStatus(NodeStatus.SUCCESS, "Shot set ended.")
         else:
-            logging.debug("Returning FAIL from EndSetEvent, shot count = " + str(self.shotcount))
-            return NodeStatus(NodeStatus.FAIL, "Shot set at " + str(self.shotcount) + ". Not ended yet.")
+            logging.debug("Returning FAIL from EndSetEvent, exercise count = " + str(self.exercisecount))
+            return NodeStatus(NodeStatus.FAIL, "Exercise set at " + str(self.exercisecount) + ". Not ended yet.")
 
 class InitialiseBlackboard(Node):
     """
@@ -1239,8 +1180,8 @@ class InitialiseBlackboard(Node):
         logging.debug("Configuring InitialiseBlackboard: " + self._name)
         self.name = nodedata.get_data('name')
         self.motivation = nodedata.get_data('motivation')
-        self.ability = nodedata.get_data('player_ability')
-        if self.ability < 4:
+        self.impairment = nodedata.get_data('user_impairment')
+        if self.impairment < 4:
             self.experience = "low"
         else:
             self.experience = "high"
@@ -1257,7 +1198,7 @@ class InitialiseBlackboard(Node):
         logging.info("Initialising blackboard.")
 
         belief_distribution = []
-        # TODO: Not sure I need this anymore because the environment will deal with the policy selection.
+        # TODO: Set proper belief distribution based on interview data.
         if controller.policy == -1:
             belief_distribution = [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0] if self.experience == "high" else [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0]
         else:
@@ -1281,7 +1222,7 @@ class InitialiseBlackboard(Node):
         nodedata.state = self._get_start(max_style)
         nodedata.performance = -1
         nodedata.phase = PolicyWrapper.PHASE_START
-        nodedata.bl = BehaviourLibraryFunctions("SquashDict", squash_behaviour_library)
+        nodedata.bl = BehaviourLibraryFunctions("RehabDict", rehab_behaviour_library)
         nodedata.start_time = 0  # TODO: update with actual time.
 
         # Create file for this participant if it is their first session.
@@ -1332,7 +1273,7 @@ class InitialiseBlackboard(Node):
         else:
             return 535
 
-'''
+
 class OperatorInput(Node):
     """
         Check if the operator has indicated that an exercise has been completed.
@@ -1399,4 +1340,3 @@ class OperatorInput(Node):
         logging.info("Rep time = " + str(rep_time))
         logging.debug("Returning SUCCESS from OperatorInput")
         return NodeStatus(NodeStatus.SUCCESS, "Time = " + str(rep_time))
-'''
