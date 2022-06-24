@@ -1,21 +1,13 @@
+import time
+
 import requests
 from flask import Flask, request
 from flask_restful import Resource, Api, reqparse
-import pandas as pd
-import ast
-import firebase_admin
-from firebase_admin import db
 import json
 import logging
 
-from CoachingBehaviourTree import controller, nodes
+from CoachingBehaviourTree import controller, nodes, config
 from Policy.policy_wrapper import PolicyWrapper
-
-'''cred_obj = firebase_admin.credentials.Certificate(
-    'racketware-policy-api-firebase-adminsdk-sych1-ac7425f5e6.json')
-default_app = firebase_admin.initialize_app(cred_obj, {
-    'databaseURL': 'https://racketware-policy-api-default-rtdb.firebaseio.com/'
-})'''
 
 app = Flask('policy_guide_api')
 api = Api(app)
@@ -28,206 +20,215 @@ class TimestepCue(Resource):
             print("request is json")
             logging.debug("request is json")
             content = request.get_json()
-            logging.debug(content)
+            print(content)
             logging.info("Received data from app: {}".format(content))
-            if content.contains('start'):  # Called when the operator is ready to indicate a new rep. Send response when we've told the user to do an exercise.
-                while controller.repetitions == -1:
-                    pass
+            if 'start' in content:  # Called when the operator is ready to indicate a new rep. Send response when we've told the user to do an exercise.
+                print("API in start")
+                while config.repetitions == -1:
+                    time.sleep(0.2)
 
                 new_data = {
-                    'reps': controller.repetitions
+                    'reps': config.repetitions
                 }
-
+                print("API returning")
                 return new_data, 200
-            elif content.contains('rep'):  # Called when a new rep is indicated by the operator.
-                controller.score = float(content['score'])
+            elif 'rep' in content:  # Called when a new rep is indicated by the operator.
+                print('got rep')
+                data_score = float(content['score'])
+                config.score = data_score
+                print('set score, config.target = ' + str(config.target))
 
-                diff_from_target = self.target_time - float(content['score'])
-                performance = PolicyWrapper.GOOD
+                diff_from_target = config.target - data_score
+                performance = config.GOOD
                 if 0.5 < diff_from_target:
-                    performance = PolicyWrapper.FAST
+                    performance = config.FAST
                 elif diff_from_target < -0.5:
-                    performance = PolicyWrapper.SLOW
-                controller.performance = float(performance)
+                    performance = config.SLOW
+                config.performance = float(performance)
                 new_data = {
                     'performance': performance
                 }
+                print('calculated performance = ' + str(performance))
 
-                controller.exercise_count = int(content['rep'])
+                config.exercise_count = int(content['rep'])
+                print('set exercise count')
 
-                controller.completed = controller.COMPLETED_STATUS_UNDEFINED
-                controller.repetitions = -1  # Reset repetitions to -1 so that we delay the next input after this set is finished.
-                controller.goal_level = PolicyWrapper.ACTION_GOAL
+                config.completed = config.COMPLETED_STATUS_UNDEFINED
+                config.repetitions = -1  # Reset repetitions to -1 so that we delay the next input after this set is finished.
+                config.goal_level = config.ACTION_GOAL
+                print('set goal_level = ACTION GOAL')
 
                 # Send data to the Pepper's screen for update.
-                r = requests.post(nodes.screen_post_address + content['rep'] + "/newRep")
+                requestURL = config.screen_post_address + "/" + str(content['rep']) + "/newRep"
+                print('sending request, url = ' + requestURL)
+                r = requests.post(requestURL)
 
                 return new_data, 200
             else:
-                if int(content['goal_level']) == PolicyWrapper.PERSON_GOAL:
+                if int(content['goal_level']) == config.PERSON_GOAL:
                     # logging.info("Received data from app: {}".format(content))
-                    controller.goal_level = PolicyWrapper.PERSON_GOAL
-                    # controller.name = content['name']  # Name was not working so removed here and will set it at the start of each session.
-                    controller.sessions = int(content['sessions'])
-                    controller.impairment = int(content['ability'])
-                    controller.completed = controller.COMPLETED_STATUS_UNDEFINED
+                    config.goal_level = config.PERSON_GOAL
+                    # config.name = content['name']  # Name was not working so removed here and will set it at the start of each session.
+                    config.sessions = int(content['sessions'])
+                    config.impairment = int(content['ability'])
+                    config.completed = config.COMPLETED_STATUS_UNDEFINED
 
-                    while controller.completed == controller.COMPLETED_STATUS_UNDEFINED:
+                    while config.completed == config.COMPLETED_STATUS_UNDEFINED:
                         pass
 
                     new_data = {
                         'goal_level': 0,
-                        'completed': controller.completed,
+                        'completed': config.completed,
                         'shotSet': 0
                     }
 
                     return new_data, 200
 
-                elif int(content['goal_level']) == PolicyWrapper.SESSION_GOAL:
+                elif int(content['goal_level']) == config.SESSION_GOAL:
                     logging.debug('session goal setting controller values')
                     if 'feedback' in content:  # End of session
                         logging.debug('end of session')
-                        controller.performance = content['performance']
-                        controller.goal_level = PolicyWrapper.SESSION_GOAL
-                        controller.phase = PolicyWrapper.PHASE_END
-                        controller.completed = controller.COMPLETED_STATUS_UNDEFINED
+                        config.performance = content['performance']
+                        config.goal_level = config.SESSION_GOAL
+                        config.phase = config.PHASE_END
+                        config.completed = config.COMPLETED_STATUS_UNDEFINED
 
-                        while controller.completed == controller.COMPLETED_STATUS_UNDEFINED:
+                        while config.completed == config.COMPLETED_STATUS_UNDEFINED:
                             pass
 
                         new_data = {
                             'goal_level': 1,
-                            'completed': controller.completed
+                            'completed': config.completed
                         }
 
                         return new_data, 200
                     else:
-                        controller.completed = controller.COMPLETED_STATUS_UNDEFINED
-                        controller.goal_level = PolicyWrapper.SESSION_GOAL
-                        controller.phase = PolicyWrapper.PHASE_START
-                        controller.performance = None
-                        # controller.performance = content['performance']
+                        config.completed = config.COMPLETED_STATUS_UNDEFINED
+                        config.goal_level = config.SESSION_GOAL
+                        config.phase = config.PHASE_START
+                        config.performance = None
+                        # config.performance = content['performance']
 
-                        while controller.completed == controller.COMPLETED_STATUS_UNDEFINED:
+                        while config.completed == config.COMPLETED_STATUS_UNDEFINED:
                             pass
 
                         new_data = {
                             'goal_level': 1,
-                            'completed': controller.completed,
+                            'completed': config.completed,
                             'shotSet': 0
                         }
 
-                        if not (controller.exercise == -1):
-                            new_data['shotType'] = controller.exercise
-                            new_data['hand'] = controller.hand
+                        if not (config.exercise == -1):
+                            new_data['shotType'] = config.exercise
+                            new_data['hand'] = config.hand
 
-                        if not (controller.stat == ""):
-                            new_data['stat'] = controller.stat
+                        if not (config.stat == ""):
+                            new_data['stat'] = config.stat
 
                         return new_data, 200
 
-                elif int(content['goal_level']) == PolicyWrapper.EXERCISE_GOAL:
+                elif int(content['goal_level']) == config.EXERCISE_GOAL:
                     logging.debug('shot goal setting controller values')
                     if 'feedback' in content:  # End of shot
                         logging.debug('end of shot')
-                        controller.score = content['score']
-                        controller.target = content['tgtValue']
-                        controller.performance = content['performance']
-                        controller.goal_level = PolicyWrapper.EXERCISE_GOAL
-                        controller.phase = PolicyWrapper.PHASE_END
-                        controller.completed = controller.COMPLETED_STATUS_FALSE
+                        config.score = content['score']
+                        config.target = content['tgtValue']
+                        config.performance = content['performance']
+                        config.goal_level = config.EXERCISE_GOAL
+                        config.phase = config.PHASE_END
+                        config.completed = config.COMPLETED_STATUS_FALSE
 
-                        while controller.completed == controller.COMPLETED_STATUS_FALSE:
+                        while config.completed == config.COMPLETED_STATUS_FALSE:
                             pass
 
                         new_data = {
                             'goal_level': 2,
-                            'completed': controller.completed
+                            'completed': config.completed
                         }
 
                         return new_data, 200
                     else:
-                        controller.completed = controller.COMPLETED_STATUS_UNDEFINED
-                        controller.goal_level = PolicyWrapper.EXERCISE_GOAL
-                        controller.phase = PolicyWrapper.PHASE_START
-                        controller.score = None
-                        controller.performance = None
+                        config.completed = config.COMPLETED_STATUS_UNDEFINED
+                        config.goal_level = config.EXERCISE_GOAL
+                        config.phase = config.PHASE_START
+                        config.score = None
+                        config.performance = None
 
-                        if controller.exercise == -1:
-                            controller.exercise = content['shotType']
-                            controller.hand = content['hand']
+                        if config.exercise == -1:
+                            config.exercise = content['shotType']
+                            config.hand = content['hand']
                         '''if content['initialScore'] == "null":
-                            controller.score = None
+                            config.score = None
                         else:
-                            controller.score = float(content['initialScore'])
+                            config.score = float(content['initialScore'])
                         if content['performance'] == "":
-                            controller.performance = None
+                            config.performance = None
                         else:
-                            controller.performance = int(controller.performance)'''
+                            config.performance = int(config.performance)'''
 
-                        while controller.completed == controller.COMPLETED_STATUS_UNDEFINED:
+                        while config.completed == config.COMPLETED_STATUS_UNDEFINED:
                             pass
 
                         new_data = {
                             'goal_level': 2,
-                            'completed': controller.completed,
+                            'completed': config.completed,
                             'shotSet': 1
                         }
 
-                        if not (controller.stat == -1):
-                            new_data['stat'] = controller.stat
+                        if not (config.stat == -1):
+                            new_data['stat'] = config.stat
 
                         return new_data, 200
 
-                elif int(content['goal_level']) == PolicyWrapper.STAT_GOAL:
+                elif int(content['goal_level']) == config.STAT_GOAL:
                     logging.debug('stat goal setting controller values')
                     if 'feedback' in content:  # End of stat
                         logging.debug('end of stat')
-                        controller.score = float(content['score'])
-                        controller.target = float(content['tgtValue'])
-                        controller.performance = int(content['performance'])
-                        controller.goal_level = PolicyWrapper.STAT_GOAL
-                        controller.phase = PolicyWrapper.PHASE_END
-                        controller.completed = controller.COMPLETED_STATUS_UNDEFINED
+                        config.score = float(content['score'])
+                        config.target = float(content['tgtValue'])
+                        config.performance = int(content['performance'])
+                        config.goal_level = config.STAT_GOAL
+                        config.phase = config.PHASE_END
+                        config.completed = config.COMPLETED_STATUS_UNDEFINED
 
-                        while controller.completed == controller.COMPLETED_STATUS_UNDEFINED:
+                        while config.completed == config.COMPLETED_STATUS_UNDEFINED:
                             pass
 
                         new_data = {
                             'goal_level': 3,
-                            'completed': controller.completed
+                            'completed': config.completed
                         }
 
                         return new_data, 200
                     else:
-                        controller.completed = controller.COMPLETED_STATUS_UNDEFINED
-                        controller.goal_level = PolicyWrapper.STAT_GOAL
-                        controller.phase = PolicyWrapper.PHASE_START
-                        if controller.stat == -1:
-                            controller.stat = content['stat']
-                        controller.target = float(content['tgtValue'])
+                        config.completed = config.COMPLETED_STATUS_UNDEFINED
+                        config.goal_level = config.STAT_GOAL
+                        config.phase = config.PHASE_START
+                        if config.stat == -1:
+                            config.stat = content['stat']
+                        config.target = float(content['tgtValue'])
                         '''if content['performance'] == "":
-                            controller.performance = None
+                            config.performance = None
                         else:
-                            controller.performance = int(controller.performance)'''
-                        controller.performance = None
+                            config.performance = int(config.performance)'''
+                        config.performance = None
 
-                        while controller.completed != controller.COMPLETED_STATUS_FALSE:
+                        while config.completed != config.COMPLETED_STATUS_FALSE:
                             pass
 
                         new_data = {
                             'goal_level': 3,
-                            'completed': controller.completed,
+                            'completed': config.completed,
                             'shotSet': 0
                         }
 
                         return new_data, 200
 
-                elif int(content['goal_level']) == PolicyWrapper.SET_GOAL:  # Also represents baseline goal
-                    '''if controller.goal_level == PolicyWrapper.BASELINE_GOAL:  # baseline goal feedback
-                        controller.performance = content['performance']
-                        controller.score = content['score']
-                        controller.goal_level = PolicyWrapper.EXERCISE_GOAL
+                elif int(content['goal_level']) == config.SET_GOAL:  # Also represents baseline goal
+                    '''if config.goal_level == config.BASELINE_GOAL:  # baseline goal feedback
+                        config.performance = content['performance']
+                        config.score = content['score']
+                        config.goal_level = config.EXERCISE_GOAL
                     else:'''
                     logging.debug('set goal setting controller values')
                     if 'score' in content:  # End of set
@@ -242,69 +243,69 @@ class TimestepCue(Resource):
                             targetString = content['tgtValue'][:-1]
                         elif targetString[-1] == "s":
                             targetString = content['tgtValue'][:-5]
-                        controller.avg_score = float(scoreString)
-                        controller.set_score_list.append(float(scoreString))
-                        controller.target = float(targetString)
+                        config.avg_score = float(scoreString)
+                        config.set_score_list.append(float(scoreString))
+                        config.target = float(targetString)
                         if not content['performance'] == "":
-                            controller.performance = int(content['performance'])
-                            controller.set_performance_list.append(int(content['performance']))
-                            # controller.stat = content['stat']  # Let guide decide what stat to work on based on baseline set.
-                            controller.goal_level = PolicyWrapper.SET_GOAL
-                            controller.phase = PolicyWrapper.PHASE_END
-                            controller.completed = controller.COMPLETED_STATUS_UNDEFINED
+                            config.performance = int(content['performance'])
+                            config.set_performance_list.append(int(content['performance']))
+                            # config.stat = content['stat']  # Let guide decide what stat to work on based on baseline set.
+                            config.goal_level = config.SET_GOAL
+                            config.phase = config.PHASE_END
+                            config.completed = config.COMPLETED_STATUS_UNDEFINED
 
-                            while controller.completed == controller.COMPLETED_STATUS_UNDEFINED:
+                            while config.completed == config.COMPLETED_STATUS_UNDEFINED:
                                 pass
 
                         new_data = {
                             'goal_level': 4,
-                            'completed': controller.completed,
+                            'completed': config.completed,
                             'shotSet': 1
                         }
 
                         return new_data, 200
 
                     else:  # Start of set
-                        controller.goal_level = PolicyWrapper.SET_GOAL
-                        controller.phase = PolicyWrapper.PHASE_START
-                        controller.completed = controller.COMPLETED_STATUS_UNDEFINED
+                        config.goal_level = config.SET_GOAL
+                        config.phase = config.PHASE_START
+                        config.completed = config.COMPLETED_STATUS_UNDEFINED
 
-                        while controller.completed != controller.COMPLETED_STATUS_FALSE:
+                        while config.completed != config.COMPLETED_STATUS_FALSE:
                             pass
 
                         new_data = {
                             'goal_level': 4,
-                            'completed': controller.completed,
+                            'completed': config.completed,
                             'shotSet': 1
                         }
 
                         return new_data, 200
 
-                elif int(content['goal_level']) == PolicyWrapper.ACTION_GOAL:
+                elif int(content['goal_level']) == config.ACTION_GOAL:
                     if expecting_action_goal:
                         logging.debug('action goal setting controller values')
-                        controller.action_score = float(content['score'])
-                        performanceValue = PolicyWrapper.MET
+                        config.action_score = float(content['score'])
+                        performanceValue = config.MET
                         if content['performance'] == 'Very Low':
-                            performanceValue = PolicyWrapper.MUCH_REGRESSED
+                            performanceValue = config.MUCH_REGRESSED
                         elif content['performance'] == 'Very High':
-                            performanceValue = PolicyWrapper.REGRESSED_SWAP
+                            performanceValue = config.REGRESSED_SWAP
                         elif content['performance'] == 'Low':
-                            performanceValue = PolicyWrapper.REGRESSED
+                            performanceValue = config.REGRESSED
                         elif content['performance'] == 'High':
-                            performanceValue = PolicyWrapper.MET
+                            performanceValue = config.MET
                         elif content['performance'] == 'Under':
-                            performanceValue = PolicyWrapper.STEADY
+                            performanceValue = config.STEADY
                         elif content['performance'] == 'Over':
-                            performanceValue = PolicyWrapper.IMPROVED
+                            performanceValue = config.IMPROVED
                         elif content['performance'] == 'Good!':
-                            performanceValue = PolicyWrapper.MUCH_IMPROVED
+                            performanceValue = config.MUCH_IMPROVED
                         else:
                             logging.debug('no performanceValue found')
-                        if controller.performance == self.previous_shot_performance:  # We haven't received the set goal feedback so can safely update controller.performance
-                            controller.performance = performanceValue            # Not perfect because we might have the same performance for set and action.
-                        controller.goal_level = PolicyWrapper.ACTION_GOAL
-                        controller.exercise_count += 1
+                        if config.performance == self.previous_shot_performance:  # We haven't received the set goal feedback so can safely update config.performance
+                            config.performance = performanceValue            # Not perfect because we might have the same performance for set and action.
+                        config.goal_level = config.ACTION_GOAL
+                        config.exercise_count += 1
 
                         self.previous_shot_performance = performanceValue
 
@@ -314,9 +315,9 @@ class TimestepCue(Resource):
                             'shotSet': 1
                         }
 
-                        if controller.exercise_count == 29:
+                        if config.exercise_count == 29:
                             new_data['shotSetComplete'] = 1
-                            new_data['stat'] = controller.stat
+                            new_data['stat'] = config.stat
                         else:
                             new_data['shotSetComplete'] = 0
 
@@ -349,51 +350,51 @@ class TimestepCue(Resource):
 
             args = parser.parse_args()  # parse arguments to dictionary
             logging.debug('recevied post request')
-            if int(args['goal_level']) == PolicyWrapper.PERSON_GOAL:
+            if int(args['goal_level']) == config.PERSON_GOAL:
                 logging.debug('player goal setting controller values')
-                controller.goal_level = PolicyWrapper.PERSON_GOAL
-                controller.name = args['name']
-                controller.sessions = int(args['sessions'])
-                controller.impairment = int(args['ability'])
+                config.goal_level = config.PERSON_GOAL
+                config.name = args['name']
+                config.sessions = int(args['sessions'])
+                config.impairment = int(args['ability'])
 
-                while controller.completed == controller.COMPLETED_STATUS_UNDEFINED:
+                while config.completed == config.COMPLETED_STATUS_UNDEFINED:
                     pass
 
-                return {args['goal_level']: controller.completed}, 200
+                return {args['goal_level']: config.completed}, 200
 
-            elif int(args['goal_level']) == PolicyWrapper.SESSION_GOAL:
+            elif int(args['goal_level']) == config.SESSION_GOAL:
                 logging.debug('session goal setting controller values')
-                controller.completed = controller.COMPLETED_STATUS_UNDEFINED
-                controller.goal_level = PolicyWrapper.SESSION_GOAL
-                controller.performance = int(args['performance'])
+                config.completed = config.COMPLETED_STATUS_UNDEFINED
+                config.goal_level = config.SESSION_GOAL
+                config.performance = int(args['performance'])
 
-                while controller.completed == controller.COMPLETED_STATUS_UNDEFINED:
+                while config.completed == config.COMPLETED_STATUS_UNDEFINED:
                     pass
 
                 new_data = {
-                    'completed': controller.completed
+                    'completed': config.completed
                 }
 
-                if not(controller.exercise == -1):
-                    new_data['shot'] = controller.exercise
+                if not(config.exercise == -1):
+                    new_data['shot'] = config.exercise
 
                 return {args['goal_level']: new_data}, 200
 
-            elif int(args['goal_level']) == PolicyWrapper.EXERCISE_GOAL:
+            elif int(args['goal_level']) == config.EXERCISE_GOAL:
                 logging.debug('shot goal setting controller values')
-                controller.completed = controller.COMPLETED_STATUS_UNDEFINED
-                controller.goal_level = PolicyWrapper.EXERCISE_GOAL
-                controller.performance = int(args['performance'])
+                config.completed = config.COMPLETED_STATUS_UNDEFINED
+                config.goal_level = config.EXERCISE_GOAL
+                config.performance = int(args['performance'])
 
-                while controller.completed == controller.COMPLETED_STATUS_UNDEFINED:
+                while config.completed == config.COMPLETED_STATUS_UNDEFINED:
                     pass
 
                 new_data = {
-                    'completed': controller.completed
+                    'completed': config.completed
                 }
 
-                if not (controller.stat == -1):
-                    new_data['stat'] = controller.stat
+                if not (config.stat == -1):
+                    new_data['stat'] = config.stat
 
                 return {args['goal_level']: new_data}, 200
 

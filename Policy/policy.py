@@ -4,7 +4,7 @@ import numpy as np
 import random
 from random import choices
 
-from CoachingBehaviourTree import controller
+from CoachingBehaviourTree import controller, config
 
 
 class Policy:
@@ -51,7 +51,7 @@ class Policy:
         elif policy is not None:
             self.transition_matrix = policy
 
-            # ACTIONS
+    '''        # ACTIONS
     A_START = 0
     A_PREINSTRUCTION = 1
     A_CONCURRENTINSTRUCTIONPOSITIVE = 2
@@ -120,7 +120,7 @@ class Policy:
     A_POSITIVEMODELING_HUSTLE = 65
     A_POSITIVEMODELING_PRAISE = 66
     A_END = 67
-    A_SILENCE = 68
+    A_SILENCE = 68'''
 
     # Rewards for all different styles based on Max-Ent IRL.
     '''rewardsDict = {1: [-1.75616380e-01, 2.97698764e+00, 3.80941213e+00, 1.26260231e+00,
@@ -287,7 +287,7 @@ class Policy:
         action = choicess[0]
         logging.debug("action: " + str(action))
         count = 1
-        while action == self.A_MANUALMANIPULATION:
+        while action == config.A_MANUALMANIPULATION:
             # Manual manipulation is not possible for the robot so if this is the case, get new behaviour
             if count <= 10:  # Either from original state
                 logging.debug("count <= 10")
@@ -299,7 +299,7 @@ class Policy:
 
         # Special case when action == 44 (A_END) for coach styles.
         """if style < 7 and action == 44:
-            action = self.A_END"""
+            action = config.A_END"""
 
         return action  # choices(range(68), self.transition_matrix[style - 1][self._get_action(state)])[0]
 
@@ -313,7 +313,7 @@ class Policy:
         """
 
         # If action == silence, nothing changes
-        if action == self.A_SILENCE:
+        if action == config.A_SILENCE:
             return state
         else:
             return action
@@ -357,7 +357,7 @@ class Policy:
         else:
             logging.debug('getting coach action')
             if state in [44, 89, 134, 179, 224, 269]:
-                return self.A_END
+                return config.A_END
             else:
                 return state % 45
 
@@ -2468,60 +2468,60 @@ class Policy:
         f.write(str(self.transition_matrix) + "\n")
         f.close()
 
-    physioActionDict = {0: A_START,
-                        1: A_PREINSTRUCTION,
-                        2: A_CONCURRENTINSTRUCTIONPOSITIVE,
-                        3: A_CONCURRENTINSTRUCTIONNEGATIVE,
-                        4: A_POSTINSTRUCTIONPOSITIVE,
-                        5: A_POSTINSTRUCTIONNEGATIVE,
-                        6: A_MANUALMANIPULATION,
-                        7: A_QUESTIONING,
-                        8: A_POSITIVEMODELING,
-                        9: A_NEGATIVEMODELING,
-                        10: A_FIRSTNAME,
-                        11: A_HUSTLE,
-                        12: A_PRAISE,
-                        13: A_SCOLD,
-                        14: A_CONSOLE,
-                        15: A_PREINSTRUCTION_MANUALMANIPULATION,
-                        16: A_PREINSTRUCTION_POSITIVEMODELING,
-                        17: A_PREINSTRUCTION_NEGATIVEMODELING,
-                        18: A_PREINSTRUCTION_FIRSTNAME,
-                        19: A_CONCURRENTINSTRUCTIONPOSITIVE_CONCURRENTINSTRUCTIONPOSITIVE,
-                        20: A_CONCURRENTINSTRUCTIONPOSITIVE_MANUALMANIPULATION,
-                        21: A_CONCURRENTINSTRUCTIONPOSITIVE_POSITIVEMODELING,
-                        22: A_CONCURRENTINSTRUCTIONPOSITIVE_FIRSTNAME,
-                        23: A_CONCURRENTINSTRUCTIONPOSITIVE_PRAISE,
-                        24: A_CONCURRENTINSTRUCTIONNEGATIVE_MANUALMANIPULATION,
-                        25: A_CONCURRENTINSTRUCTIONNEGATIVE_NEGATIVEMODELING,
-                        26: A_CONCURRENTINSTRUCTIONNEGATIVE_FIRSTNAME,
-                        27: A_POSTINSTRUCTIONPOSITIVE_MANUALMANIPULATION,
-                        28: A_POSTINSTRUCTIONPOSITIVE_POSITIVE_MODELING,
-                        29: A_POSTINSTRUCTIONPOSITIVE_NEGATIVE_MODELING,
-                        30: A_POSTINSTRUCTIONPOSITIVE_FIRSTNAME,
-                        31: A_POSTINSTRUCTIONNEGATIVE_NEGATIVEMODELING,
-                        32: A_POSTINSTRUCTIONNEGATIVE_FIRSTNAME,
-                        33: A_MANUALMANIPULATION_PREINSTRUCTION,
-                        34: A_MANUALMANIPULATION_CONCURRENTINSTRUCTIONPOSITIVE,
-                        35: A_MANUALMANIPULATION_CONCURRENTINSTRUCTIONNEGATIVE,
-                        36: A_MANUALMANIPULATION_POSTINSTRUCTIONPOSITIVE,
-                        37: A_MANUALMANIPULATION_POSTINSTRUCTIONNEGATIVE,
-                        38: A_MANUALMANIPULATION_QUESTIONING,
-                        39: A_MANUALMANIPULATION_POSITIVEMODELING,
-                        40: A_MANUALMANIPULATION_FIRSTNAME,
-                        41: A_MANUALMANIPULATION_HUSTLE,
-                        42: A_MANUALMANIPULATION_PRAISE,
-                        43: A_MANUALMANIPULATION_CONSOLE,
-                        44: A_QUESTIONING_POSITIVEMODELING,
-                        45: A_QUESTIONING_NEGATIVEMODELING,
-                        46: A_QUESTIONING_FIRSTNAME,
-                        47: A_POSITIVEMODELING_CONCURRENTINSTRUCTIONPOSITIVE,
-                        48: A_POSITIVEMODELING_QUESTIONING,
-                        49: A_POSITIVEMODELING_HUSTLE,
-                        50: A_POSITIVEMODELING_PRAISE,
-                        51: A_HUSTLE_FIRSTNAME,
-                        52: A_PRAISE_FIRSTNAME,
-                        53: A_END}
+    physioActionDict = {0: config.A_START,
+                        1: config.A_PREINSTRUCTION,
+                        2: config.A_CONCURRENTINSTRUCTIONPOSITIVE,
+                        3: config.A_CONCURRENTINSTRUCTIONNEGATIVE,
+                        4: config.A_POSTINSTRUCTIONPOSITIVE,
+                        5: config.A_POSTINSTRUCTIONNEGATIVE,
+                        6: config.A_MANUALMANIPULATION,
+                        7: config.A_QUESTIONING,
+                        8: config.A_POSITIVEMODELING,
+                        9: config.A_NEGATIVEMODELING,
+                        10: config.A_FIRSTNAME,
+                        11: config.A_HUSTLE,
+                        12: config.A_PRAISE,
+                        13: config.A_SCOLD,
+                        14: config.A_CONSOLE,
+                        15: config.A_PREINSTRUCTION_MANUALMANIPULATION,
+                        16: config.A_PREINSTRUCTION_POSITIVEMODELING,
+                        17: config.A_PREINSTRUCTION_NEGATIVEMODELING,
+                        18: config.A_PREINSTRUCTION_FIRSTNAME,
+                        19: config.A_CONCURRENTINSTRUCTIONPOSITIVE_CONCURRENTINSTRUCTIONPOSITIVE,
+                        20: config.A_CONCURRENTINSTRUCTIONPOSITIVE_MANUALMANIPULATION,
+                        21: config.A_CONCURRENTINSTRUCTIONPOSITIVE_POSITIVEMODELING,
+                        22: config.A_CONCURRENTINSTRUCTIONPOSITIVE_FIRSTNAME,
+                        23: config.A_CONCURRENTINSTRUCTIONPOSITIVE_PRAISE,
+                        24: config.A_CONCURRENTINSTRUCTIONNEGATIVE_MANUALMANIPULATION,
+                        25: config.A_CONCURRENTINSTRUCTIONNEGATIVE_NEGATIVEMODELING,
+                        26: config.A_CONCURRENTINSTRUCTIONNEGATIVE_FIRSTNAME,
+                        27: config.A_POSTINSTRUCTIONPOSITIVE_MANUALMANIPULATION,
+                        28: config.A_POSTINSTRUCTIONPOSITIVE_POSITIVE_MODELING,
+                        29: config.A_POSTINSTRUCTIONPOSITIVE_NEGATIVE_MODELING,
+                        30: config.A_POSTINSTRUCTIONPOSITIVE_FIRSTNAME,
+                        31: config.A_POSTINSTRUCTIONNEGATIVE_NEGATIVEMODELING,
+                        32: config.A_POSTINSTRUCTIONNEGATIVE_FIRSTNAME,
+                        33: config.A_MANUALMANIPULATION_PREINSTRUCTION,
+                        34: config.A_MANUALMANIPULATION_CONCURRENTINSTRUCTIONPOSITIVE,
+                        35: config.A_MANUALMANIPULATION_CONCURRENTINSTRUCTIONNEGATIVE,
+                        36: config.A_MANUALMANIPULATION_POSTINSTRUCTIONPOSITIVE,
+                        37: config.A_MANUALMANIPULATION_POSTINSTRUCTIONNEGATIVE,
+                        38: config.A_MANUALMANIPULATION_QUESTIONING,
+                        39: config.A_MANUALMANIPULATION_POSITIVEMODELING,
+                        40: config.A_MANUALMANIPULATION_FIRSTNAME,
+                        41: config.A_MANUALMANIPULATION_HUSTLE,
+                        42: config.A_MANUALMANIPULATION_PRAISE,
+                        43: config.A_MANUALMANIPULATION_CONSOLE,
+                        44: config.A_QUESTIONING_POSITIVEMODELING,
+                        45: config.A_QUESTIONING_NEGATIVEMODELING,
+                        46: config.A_QUESTIONING_FIRSTNAME,
+                        47: config.A_POSITIVEMODELING_CONCURRENTINSTRUCTIONPOSITIVE,
+                        48: config.A_POSITIVEMODELING_QUESTIONING,
+                        49: config.A_POSITIVEMODELING_HUSTLE,
+                        50: config.A_POSITIVEMODELING_PRAISE,
+                        51: config.A_HUSTLE_FIRSTNAME,
+                        52: config.A_PRAISE_FIRSTNAME,
+                        53: config.A_END}
 
     '''def _get_prob_matrix_from_reward(self, style):
         """

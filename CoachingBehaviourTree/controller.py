@@ -24,7 +24,7 @@ from task_behavior_engine.decorator import Until, While, Negate, Repeat, UntilCo
 from task_behavior_engine.tree import NodeStatus, Blackboard
 
 from API import api_classes
-from CoachingBehaviourTree import nodes
+from CoachingBehaviourTree import nodes, config
 from CoachingBehaviourTree.nodes import FormatAction, DisplayBehaviour, CheckForBehaviour, GetBehaviour, GetStats, \
     GetDuration, CreateSubgoal, TimestepCue, DurationCheck, GetUserChoice, EndSetEvent, InitialiseBlackboard, \
     EndSubgoal, OperatorInput
@@ -32,7 +32,7 @@ from Policy.coaching_env import CoachingEnvironment
 from Policy.policy import Policy
 from Policy.policy_wrapper import PolicyWrapper
 
-SHOT_CHOICE = 0
+'''SHOT_CHOICE = 0
 
 COMPLETED_STATUS_UNDEFINED = -1
 COMPLETED_STATUS_FALSE = 0
@@ -86,7 +86,7 @@ policy = 2
 # Values for RL
 alpha = 0.85
 gamma = 0.95
-policy_matrix = None
+policy_matrix = None'''
 
 def create_coaching_tree():
     """
@@ -110,9 +110,9 @@ def create_coaching_tree():
     root.add_child(initialise)
 
     # Share data between user_stats and initialise nodes.
-    b.save('name', name, initialise._id)
+    b.save('name', config.name, initialise._id)
     b.add_remapping(user_stats._id, 'motivation', initialise._id, 'motivation')
-    b.save('user_impairment', impairment, initialise._id)
+    b.save('user_impairment', config.impairment, initialise._id)
     b.add_remapping(user_start._id, 'sessions', initialise._id, 'sessions')
 
     # Session duration
@@ -146,12 +146,12 @@ def create_coaching_tree():
     # Share data between initialise, session_goal_start, and session_goal_intro_behav.
     b.add_remapping(initialise._id, 'belief', person_goal_intro_behav._id, 'belief')
     b.add_remapping(initialise._id, 'state', person_goal_intro_behav._id, 'state')
-    b.save('performance', performance, person_goal_intro_behav._id)
+    b.save('performance', config.performance, person_goal_intro_behav._id)
     b.add_remapping(user_start._id, 'phase', person_goal_intro_behav._id, 'phase')
     b.add_remapping(person_goal._id, 'new_goal', person_goal_intro_behav._id, 'goal')
 
     person_goal_intro_check_for_pre = CheckForBehaviour(name="person_goal_intro_check_for_pre", blackboard=b)
-    b.save('check_behaviour', Policy.A_PREINSTRUCTION, person_goal_intro_check_for_pre._id)
+    b.save('check_behaviour', config.A_PREINSTRUCTION, person_goal_intro_check_for_pre._id)
     # Share behaviour between session_goal_intro_behav and session_goal_intro_check_for_pre.
     b.add_remapping(person_goal_intro_behav._id, 'behaviour', person_goal_intro_check_for_pre._id, 'behaviour')
     person_goal_intro_sequence.add_child(person_goal_intro_check_for_pre)
@@ -162,7 +162,7 @@ def create_coaching_tree():
 
     # Share data between initialise, person_goal_start, person_goal, person_goal_intro_behav and person_goal_intro_action.
     b.add_remapping(initialise._id, 'bl', person_goal_intro_action._id, 'bl')
-    b.save('performance', performance, person_goal_intro_action._id)
+    b.save('performance', config.performance, person_goal_intro_action._id)
     b.add_remapping(user_start._id, 'phase', person_goal_intro_action._id, 'phase')
     b.add_remapping(person_goal._id, 'new_goal', person_goal_intro_action._id, 'goal')
     b.add_remapping(person_goal_intro_behav._id, 'behaviour', person_goal_intro_action._id, 'behaviour')
@@ -228,7 +228,7 @@ def create_coaching_tree():
     # Check if pre-instruction
     session_goal_intro_pre_instr_sequence = Progressor(name="session_goal_intro_pre_instruction_sequence")
     session_goal_intro_check_for_pre = CheckForBehaviour(name="session_goal_intro_check_for_pre", blackboard=b)
-    b.save('check_behaviour', Policy.A_PREINSTRUCTION, session_goal_intro_check_for_pre._id)
+    b.save('check_behaviour', config.A_PREINSTRUCTION, session_goal_intro_check_for_pre._id)
     # Share behaviour between session_goal_intro_behav and session_goal_intro_check_for_pre.
     b.add_remapping(session_goal_intro_behav._id, 'behaviour', session_goal_intro_check_for_pre._id, 'behaviour')
     session_goal_intro_pre_instr_sequence.add_child(session_goal_intro_check_for_pre)
@@ -255,7 +255,7 @@ def create_coaching_tree():
     # Check if questioning
     session_goal_intro_questioning_sequence = Progressor(name="session_goal_intro_questioning_sequence")
     session_goal_intro_check_for_questioning = CheckForBehaviour(name="session_goal_intro_check_for_questioning", blackboard=b)
-    b.save('check_behaviour', Policy.A_QUESTIONING, session_goal_intro_check_for_questioning._id)
+    b.save('check_behaviour', config.A_QUESTIONING, session_goal_intro_check_for_questioning._id)
     # Share behaviour between session_goal_intro_behav and session_goal_intro_check_for_questioning.
     b.add_remapping(session_goal_intro_behav._id, 'behaviour', session_goal_intro_check_for_questioning._id, 'behaviour')
     session_goal_intro_questioning_sequence.add_child(session_goal_intro_check_for_questioning)
@@ -349,7 +349,7 @@ def create_coaching_tree():
     # Check if pre-instruction
     shot_goal_intro_pre_instr_sequence = Progressor(name="shot_goal_intro_pre_instr_sequence")
     shot_goal_intro_check_for_pre = CheckForBehaviour(name="shot_goal_intro_check_for_pre", blackboard=b)
-    b.save('check_behaviour', Policy.A_PREINSTRUCTION, shot_goal_intro_check_for_pre._id)
+    b.save('check_behaviour', config.A_PREINSTRUCTION, shot_goal_intro_check_for_pre._id)
     shot_goal_intro_pre_instr_sequence.add_child(shot_goal_intro_check_for_pre)
     # Share behaviour between shot_goal_intro_behav and shot_goal_intro_check_for_pre.
     b.add_remapping(shot_goal_intro_behav._id, 'behaviour', shot_goal_intro_check_for_pre._id, 'behaviour')
@@ -415,7 +415,7 @@ def create_coaching_tree():
     # Check if questioning
     shot_goal_intro_questioning_sequence = Progressor(name="shot_goal_intro_questioning_sequence")
     shot_goal_intro_check_for_questioning = CheckForBehaviour(name="shot_goal_intro_check_for_questioning", blackboard=b)
-    b.save('check_behaviour', Policy.A_QUESTIONING, shot_goal_intro_check_for_questioning._id)
+    b.save('check_behaviour', config.A_QUESTIONING, shot_goal_intro_check_for_questioning._id)
     shot_goal_intro_questioning_sequence.add_child(shot_goal_intro_check_for_questioning)
     # Share behaviour between shot_goal_intro_behav and shot_goal_intro_check_for_questioning.
     b.add_remapping(shot_goal_intro_behav._id, 'behaviour', shot_goal_intro_check_for_questioning._id, 'behaviour')
@@ -485,7 +485,7 @@ def create_coaching_tree():
 
     # Check if pre-instruction
     stat_goal_intro_check_for_pre_instr = CheckForBehaviour(name="stat_goal_intro_check_for_pre_instr", blackboard=b)
-    b.save('check_behaviour', Policy.A_PREINSTRUCTION, stat_goal_intro_check_for_pre_instr._id)
+    b.save('check_behaviour', config.A_PREINSTRUCTION, stat_goal_intro_check_for_pre_instr._id)
     stat_goal_intro_pre_instr_negate = Negate(name="stat_goal_intro_pre_instr_negate", child=stat_goal_intro_check_for_pre_instr)
     stat_goal_intro_sequence.add_child(stat_goal_intro_pre_instr_negate)
     # Share behaviour between stat_goal_intro_behav and stat_goal_intro_check_for_pre_instr.
@@ -576,7 +576,7 @@ def create_coaching_tree():
 
     # Check if pre-instruction
     set_goal_intro_check_for_pre_instr = CheckForBehaviour(name="set_goal_intro_check_for_pre_instr", blackboard=b)
-    b.save('check_behaviour', Policy.A_PREINSTRUCTION, set_goal_intro_check_for_pre_instr._id)
+    b.save('check_behaviour', config.A_PREINSTRUCTION, set_goal_intro_check_for_pre_instr._id)
     set_goal_intro_pre_instr_negate = Negate(name="set_goal_intro_pre_instr_negate", child=set_goal_intro_check_for_pre_instr)
     set_goal_intro_sequence.add_child(set_goal_intro_pre_instr_negate)
     # Share behaviour between set_goal_intro_behav and set_goal_intro_check_for_pre_instr.
@@ -707,7 +707,7 @@ def create_coaching_tree():
     gen_set_goal.add_child(set_goal_end_until)
     #exercise_goal_coaching.add_child(gen_set_goal)
 
-    set_goal_feedback_loop, set_goal_feedback_behav, set_goal_feedback_end = get_feedback_loop(name="set_goal_feedback_loop", behav=Policy.A_PREINSTRUCTION, blackboard=b, goal_node=set_goal._id, initialise_node=initialise._id, previous_behav_node=set_goal_individual_action_behav._id, timestep_cue_node=set_goal_end._id, person_node=user_start._id, prev_goal_node=exercise_goal._id)
+    set_goal_feedback_loop, set_goal_feedback_behav, set_goal_feedback_end = get_feedback_loop(name="set_goal_feedback_loop", behav=config.A_PREINSTRUCTION, blackboard=b, goal_node=set_goal._id, initialise_node=initialise._id, previous_behav_node=set_goal_individual_action_behav._id, timestep_cue_node=set_goal_end._id, person_node=user_start._id, prev_goal_node=exercise_goal._id)
     set_goal_feedback_negate = Negate(name="set_goal_feedback_loop_negate", child=set_goal_feedback_loop)
     gen_set_goal.add_child(set_goal_feedback_negate)
 
@@ -731,7 +731,7 @@ def create_coaching_tree():
     b.add_remapping(set_goal_feedback_end._id, 'new_goal', stat_goal_end._id, 'goal')
     stat_goal_end_until = Until(name="stat_goal_end_until", child=stat_goal_end)
     gen_stat_goal.add_child(stat_goal_end_until)
-    stat_goal_feedback_loop, stat_goal_feedback_behav, stat_goal_feedback_end = get_feedback_loop(name="stat_goal_feedback_loop", behav=Policy.A_PREINSTRUCTION, blackboard=b, goal_node=stat_goal._id, initialise_node=initialise._id, previous_behav_node=set_goal_feedback_behav._id, timestep_cue_node=stat_goal_end._id, person_node=user_start._id)
+    stat_goal_feedback_loop, stat_goal_feedback_behav, stat_goal_feedback_end = get_feedback_loop(name="stat_goal_feedback_loop", behav=config.A_PREINSTRUCTION, blackboard=b, goal_node=stat_goal._id, initialise_node=initialise._id, previous_behav_node=set_goal_feedback_behav._id, timestep_cue_node=stat_goal_end._id, person_node=user_start._id)
     gen_stat_goal.add_child(stat_goal_feedback_loop)
     # Remap the observation from the feedback loop to be the new state when an intro behaviour is given for the next stat.
     b.add_remapping(stat_goal_end, 'phase', stat_goal_intro_behav, 'previous_phase')
@@ -747,7 +747,7 @@ def create_coaching_tree():
     b.add_remapping(exercise_goal._id, 'new_exercise', exercise_goal_end._id, 'exercise')
     exercise_goal_end_until = Until(name="shot_goal_end_until", child=exercise_goal_end)
     gen_exercise_goal.add_child(exercise_goal_end_until)
-    exercise_goal_feedback_loop, exercise_goal_feedback_behav, exercise_goal_feedback_end = get_feedback_loop(name="exercise_goal_feedback_loop", behav=Policy.A_PREINSTRUCTION, blackboard=b, goal_node=exercise_goal._id, initialise_node=initialise._id, previous_behav_node=set_goal_feedback_behav._id, timestep_cue_node=exercise_goal_end._id, person_node=user_start._id, prev_goal_node=session_goal._id)
+    exercise_goal_feedback_loop, exercise_goal_feedback_behav, exercise_goal_feedback_end = get_feedback_loop(name="exercise_goal_feedback_loop", behav=config.A_PREINSTRUCTION, blackboard=b, goal_node=exercise_goal._id, initialise_node=initialise._id, previous_behav_node=set_goal_feedback_behav._id, timestep_cue_node=exercise_goal_end._id, person_node=user_start._id, prev_goal_node=session_goal._id)
     gen_exercise_goal.add_child(exercise_goal_feedback_loop)
     # Remap the observation from the feedback loop to be the new state when an intro behaviour is given for the next shot.
     b.add_remapping(exercise_goal_end, 'phase', exercise_goal_intro_behav, 'previous_phase')
@@ -767,7 +767,7 @@ def create_coaching_tree():
     b.add_remapping(exercise_goal_feedback_end._id, 'new_goal', session_goal_end._id, 'goal')
     session_goal_end_until = Until(name="session_goal_end_until", child=session_goal_end)
     gen_session_goal.add_child(session_goal_end_until)
-    session_goal_feedback_loop, session_goal_feedback_behav, session_goal_feedback_end = get_feedback_loop(name="session_goal_feedback_loop", behav=Policy.A_END, blackboard=b, goal_node=session_goal._id, initialise_node=initialise._id, previous_behav_node=exercise_goal_feedback_behav._id, timestep_cue_node=session_goal_end._id, person_node=user_start._id, prev_goal_node=person_goal._id)
+    session_goal_feedback_loop, session_goal_feedback_behav, session_goal_feedback_end = get_feedback_loop(name="session_goal_feedback_loop", behav=config.A_END, blackboard=b, goal_node=session_goal._id, initialise_node=initialise._id, previous_behav_node=exercise_goal_feedback_behav._id, timestep_cue_node=session_goal_end._id, person_node=user_start._id, prev_goal_node=person_goal._id)
     gen_session_goal.add_child(session_goal_feedback_loop)
 
     gen_person_goal.add_child(gen_session_goal)
@@ -781,7 +781,7 @@ def create_coaching_tree():
     person_goal_end_until = Until(name="person_goal_end_until", child=person_goal_end)
     gen_person_goal.add_child(person_goal_end_until)
     person_goal_feedback_loop, person_goal_feedback_behav, person_goal_feedback_end = get_feedback_loop(name="person_goal_feedback_loop",
-                                                                                behav=Policy.A_END, blackboard=b,
+                                                                                behav=config.A_END, blackboard=b,
                                                                                 goal_node=person_goal._id,
                                                                                 initialise_node=initialise._id,
                                                                                 previous_behav_node=session_goal_feedback_behav._id,
@@ -860,9 +860,10 @@ def get_intro_loop(name, blackboard, prev_goal_node, initialise_node, person_nod
     new_goal_intro_pre_instr_sequence = Progressor(name=new_goal_intro_pre_instr_sequence_name)
     new_goal_intro_check_for_pre_name = name + "_chec_for_pre"
     new_goal_intro_check_for_pre = CheckForBehaviour(name=new_goal_intro_check_for_pre_name, blackboard=blackboard)
-    blackboard.save('check_behaviour', Policy.A_PREINSTRUCTION, new_goal_intro_check_for_pre._id)
+    blackboard.save('check_behaviour', config.A_PREINSTRUCTION, new_goal_intro_check_for_pre._id)
     # Share behaviour between new_goal_intro_behav and new_goal_intro_check_for_pre.
     blackboard.add_remapping(new_goal_intro_behav._id, 'behaviour', new_goal_intro_check_for_pre._id, 'behaviour')
+    blackboard.add_remapping(new_goal._id, 'new_goal', new_goal_intro_check_for_pre._id, 'goal')
     new_goal_intro_pre_instr_sequence.add_child(new_goal_intro_check_for_pre)
     # Format and display pre-instruction action.
     new_goal_intro_pre_instr_action_name = name + "_pre_instr_action"
@@ -898,14 +899,15 @@ def get_intro_loop(name, blackboard, prev_goal_node, initialise_node, person_nod
     new_goal_intro_check_for_questioning_name = name + "_check_for_questioning"
     new_goal_intro_check_for_questioning = CheckForBehaviour(name=new_goal_intro_check_for_questioning_name,
                                                              blackboard=blackboard)
-    blackboard.save('check_behaviour', Policy.A_QUESTIONING, new_goal_intro_check_for_questioning._id)
+    blackboard.save('check_behaviour', config.A_QUESTIONING, new_goal_intro_check_for_questioning._id)
     # Share behaviour between new_goal_intro_behav and new_goal_intro_check_for_questioning.
     blackboard.add_remapping(new_goal_intro_behav._id, 'behaviour', new_goal_intro_check_for_questioning._id,
                     'behaviour')
+    blackboard.add_remapping(new_goal._id, 'new_goal', new_goal_intro_check_for_questioning._id, 'goal')
     new_goal_intro_questioning_sequence.add_child(new_goal_intro_check_for_questioning)
     new_goal_user_choice_name = name + "_user_choice"
     new_goal_user_choice = GetUserChoice(name=new_goal_user_choice_name, blackboard=blackboard)
-    blackboard.save('choice_type', SHOT_CHOICE, new_goal_user_choice._id)  # TODO: Doesn't matter at the moment because we make all the choices but will need to be updated for long term study.
+    blackboard.save('choice_type', config.SHOT_CHOICE, new_goal_user_choice._id)  # TODO: Doesn't matter at the moment because we make all the choices but will need to be updated for long term study.
     new_goal_intro_questioning_sequence.add_child(new_goal_user_choice)
     new_goal_intro_questioning_negate_name = name + "_questioning_sequence_negate"
     new_goal_intro_questioning_negate = Negate(name=new_goal_intro_questioning_negate_name,
@@ -985,10 +987,11 @@ def get_feedback_loop(name, behav, blackboard, goal_node, initialise_node, previ
     blackboard.save('check_behaviour', behav, feedback_loop_check_for_behav._id)
     # Share behaviour between feedback_behaviour and feedback_loop_check_for_behav.
     blackboard.add_remapping(feedback_behaviour._id, 'behaviour', feedback_loop_check_for_behav._id, 'behaviour')
+    blackboard.add_remapping(goal_node, 'new_goal', feedback_loop_check_for_behav._id, 'goal')
     negate_name = name + "_" + behav.__str__() + "_check_negate"
 
     # If pre-instruction, just negate behaviour check
-    if behav == Policy.A_PREINSTRUCTION:
+    if behav == config.A_PREINSTRUCTION:
         feedback_loop_sequence.add_child(Negate(name=negate_name, child=feedback_loop_check_for_behav))
     else:  # If end, do the check and then display the behaviour
         feedback_loop_end_sequence = Progressor(name="feedback_loop_end_sequence")
@@ -999,7 +1002,7 @@ def get_feedback_loop(name, behav, blackboard, goal_node, initialise_node, previ
         # Share data between initialise_node, timestep_cue_node, goal_node, feedback_behaviour and feedback_loop_end_action.
         blackboard.add_remapping(initialise_node, 'bl', feedback_loop_end_action._id, 'bl')
         blackboard.add_remapping(timestep_cue_node, 'performance', feedback_loop_end_action._id, 'performance')
-        blackboard.save('phase', PolicyWrapper.PHASE_END, feedback_loop_end_action._id)
+        blackboard.save('phase', config.PHASE_END, feedback_loop_end_action._id)
         blackboard.add_remapping(timestep_cue_node, 'score', feedback_loop_end_action._id, 'score')
         blackboard.add_remapping(timestep_cue_node, 'target', feedback_loop_end_action._id, 'target')
         blackboard.add_remapping(goal_node, 'new_goal', feedback_loop_end_action._id, 'goal')
@@ -1025,7 +1028,7 @@ def get_feedback_loop(name, behav, blackboard, goal_node, initialise_node, previ
     # Share data between initialise_node, timestep_cue_node, goal_node, feedback_behaviour and feedback_loop_end_action.
     blackboard.add_remapping(initialise_node, 'bl', feedback_loop_action._id, 'bl')
     blackboard.add_remapping(timestep_cue_node, 'performance', feedback_loop_action._id, 'performance')
-    blackboard.save('phase', PolicyWrapper.PHASE_END, feedback_loop_action._id)
+    blackboard.save('phase', config.PHASE_END, feedback_loop_action._id)
     blackboard.add_remapping(timestep_cue_node, 'score', feedback_loop_action._id, 'score')
     blackboard.add_remapping(timestep_cue_node, 'target', feedback_loop_action._id, 'target')
     blackboard.add_remapping(goal_node, 'new_goal', feedback_loop_action._id, 'goal')
@@ -1061,62 +1064,54 @@ def get_feedback_loop(name, behav, blackboard, goal_node, initialise_node, previ
     return overall_feedback_sequence, feedback_behaviour, end_goal
 
 def update(state, state2, reward, action, action2):
-    global policy_matrix
-    global gamma
-    global alpha
-    print("state: " + str(state))
-    print("action: " + str(action))
-    predict = policy_matrix.get_matrix()[state][action]
-    target = reward + gamma * policy_matrix.get_matrix()[state2][action2]
-    policy_matrix.update_matrix(state, action, 0.0 if policy_matrix.get_matrix()[state][action] + alpha * (target - predict) < 0.0 else policy_matrix.get_matrix()[state][action] + alpha * (target - predict))
-    return policy
+    print("Updating policy, state: " + str(state) + ", action: " + str(action))
+    predict = config.policy_matrix.get_matrix()[state][action]
+    target = reward + config.gamma * config.policy_matrix.get_matrix()[state2][action2]
+    config.policy_matrix.update_matrix(state, action, 0.0 if config.policy_matrix.get_matrix()[state][action] + config.alpha * (target - predict) < 0.0 else config.policy_matrix.get_matrix()[state][action] + config.alpha * (target - predict))
+    return config.policy
+
 
 def main():
-    global policy_matrix
-    global prev_behav
-    global used_behaviours
-    global goal_level
-    global performance
-    global phase
-    globalsList = globals()
     #TODO: for testing purposes. Delete the next if-else statement after testing.
-    filename = "/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + participant_filename
+    filename = "/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participant_filename
     print(filename)
     if os.path.exists(filename):
         os.remove(filename)
     else:
         print("The file does not exist")
-    loggingFilename = "" + participantNo + ".log"
+    loggingFilename = "" + config.participantNo + ".log"
     logging.basicConfig(format='%(levelname)s:%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.DEBUG, filename=loggingFilename)
     logging.info("Logging started")
 
     # Create the environment
     env = CoachingEnvironment()
-    state1, policy_matrix = env.reset()
+    state1, config.policy_matrix = env.reset()
     done = False
 
     result = NodeStatus(NodeStatus.ACTIVE)
-    action1 = policy_matrix.get_behaviour(state1, PolicyWrapper.PERSON_GOAL, None, PolicyWrapper.PHASE_START)
-    nodes.behaviour = action1
-    print('Got behaviour: ' + str(nodes.behaviour))
+    action1 = config.policy_matrix.get_behaviour(state1, config.PERSON_GOAL, None, config.PHASE_START)
+    config.behaviour = action1
+    config.need_new_behaviour = False
+    # print('Got behaviour: ' + str(config.behaviour))
 
     while not done:
         state2, reward, done, result = env.step(action1, state1)
 
-        print('Behaviour = ' + str(nodes.behaviour))
+        # print('Behaviour = ' + str(config.behaviour))
 
-        action2 = policy_matrix.get_behaviour(state2, goal_level, performance, phase)
+        action2 = config.policy_matrix.get_behaviour(state2, config.goal_level, config.performance, config.phase)
 
         # If behaviour occurs twice, just skip to pre-instruction.
-        if action2 in used_behaviours and (
-                goal_level == PolicyWrapper.SESSION_GOAL or goal_level == PolicyWrapper.EXERCISE_GOAL or goal_level == PolicyWrapper.SET_GOAL):
-            action2 = Policy.A_PREINSTRUCTION
+        if action2 in config.used_behaviours and (
+                config.goal_level == config.SESSION_GOAL or config.goal_level == config.EXERCISE_GOAL or config.goal_level == config.SET_GOAL):
+            action2 = config.A_PREINSTRUCTION
             logging.debug('Got new behaviour: 1')
-            # controller.matching_behav = 0
+            # config.matching_behav = 0
         else:
-            used_behaviours.append(action2)
+            config.used_behaviours.append(action2)
 
-        nodes.behaviour = action2
+        config.behaviour = action2
+        config.need_new_behaviour = False
         prev_behav = action2
 
         # Learning the Q-value
@@ -1130,7 +1125,7 @@ def main():
 
     # Write final policy to file
     f = open(filename, "w")
-    f.writelines(policy_matrix.get_matrix)
+    f.writelines(config.policy_matrix.get_matrix)
     f.close()
 
 def api_start():
