@@ -651,7 +651,7 @@ def create_coaching_tree():
     set_goal_individual_action_cue = TimestepCue(name="set_goal_individual_action_cue", blackboard=b)
     set_goal_individual_action_until = Until(name="set_goal_individual_action_until", child=set_goal_individual_action_cue)
     set_goal_individual_action_sequence.add_child(set_goal_individual_action_until)
-    set_goal_individual_action_sequence.add_child(set_goal_individual_action_cue)
+    # set_goal_individual_action_sequence.add_child(set_goal_individual_action_cue)
     b.add_remapping(action_goal._id, 'new_goal', set_goal_individual_action_cue._id, 'goal')
     # b.add_remapping(set_goal_individual_action_rep._id, 'performance', set_goal_individual_action_cue._id, 'performance')
     # b.add_remapping(set_goal_individual_action_rep._id, 'score', set_goal_individual_action_cue._id, 'score')
@@ -1095,10 +1095,11 @@ def main():
     # print('Got behaviour: ' + str(config.behaviour))
 
     while not done:
+        print("controller stepping")
         state2, reward, done, result = env.step(action1, state1)
 
         # print('Behaviour = ' + str(config.behaviour))
-
+        print("controller getting new behaviour")
         action2 = config.policy_matrix.get_behaviour(state2, config.goal_level, config.performance, config.phase)
 
         # If behaviour occurs twice, just skip to pre-instruction.
@@ -1110,15 +1111,17 @@ def main():
         else:
             config.used_behaviours.append(action2)
 
-        config.behaviour = action2
-        config.need_new_behaviour = False
-        prev_behav = action2
-
         # Learning the Q-value
-        update(state1, state2, reward, action1, action2)
+        if reward is not None:
+            update(state1, state2, reward, action1, action2)
 
-        state1 = state2
-        action1 = action2
+        if config.behaviour_displayed:  # If the behaviour hasn't been displayed, we might still have a new reward but we don't need to update any of the other variables.
+            config.behaviour = action2
+            config.need_new_behaviour = False
+            config.behaviour_displayed = False
+            config.prev_behav = action2
+            state1 = state2
+            action1 = action2
 
         logging.debug(result)
         time.sleep(1)

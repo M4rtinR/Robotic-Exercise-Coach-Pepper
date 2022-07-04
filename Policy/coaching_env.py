@@ -102,6 +102,10 @@ class CoachingEnvironment(gym.Env, ABC):
         # print("config.behaviour = " + str(config.behaviour))
         while not config.behaviour_displayed:  # Keep ticking the tree until a behaviour is given by the robot. This is the point the controller can select a new action and learn.
             result = self.coaching_tree.tick()
+            if config.behaviour_displayed:
+                print("Tree ticked, not returning: " + str(result))
+            else:
+                print("Tree ticked, returning: " + str(result))
             logging.debug(result)
 
         observation = self.policy.get_observation(state, action)

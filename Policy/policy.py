@@ -2458,7 +2458,7 @@ class Policy:
         return self.transition_matrix
 
     def update(self, state, action, updatedValue):
-        filename = "/home/martin/PycharmProjects/coachingPolicies/AdaptedPolicies/" + controller.participant_filename
+        filename = "/home/martin/PycharmProjects/coachingPolicies/AdaptedPolicies/" + config.participant_filename
         f = open(filename, "w")
         f.write(str(self.transition_matrix[state][action]) + "\n")
         self.transition_matrix[state][action] = updatedValue

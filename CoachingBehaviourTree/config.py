@@ -4,73 +4,6 @@ COMPLETED_STATUS_UNDEFINED = -1
 COMPLETED_STATUS_FALSE = 0
 COMPLETED_STATUS_TRUE = 1
 
-exercise_list_master = ["Table top circles", "Towel slide", "External rotation with cane", "Shoulder openers"]
-
-# Initial values which will be updated when the API gets called by the guide.
-goal_level = 0
-sessions = -1
-score = -1
-target = -1
-avg_score = -1
-performance = None
-completed = COMPLETED_STATUS_UNDEFINED
-exercise_count = 0
-action_score = -1
-prev_behav = -1
-matching_behav = 0
-phase = PolicyWrapper.PHASE_START
-session_time = 0
-used_behaviours = []
-set_performance_list = []  # 1 entry for each rep performed
-set_score_list = []  # 1 entry for each rep performed
-exercise_performance_list = []  # 1 entry for each set performed of that exercise
-exercise_score_list = []  # 1 entry for each set performed of that exercise
-session_performance_list = []  # 1 entry for each exercise performed
-session_score_list = []  # 1 entry for each exercise performed
-set_count = 0
-given_score = 0
-exercise_list_session = ["Table top circles", "Towel slide", "External rotation with cane", "Shoulder openers"]  # Delete from this list once the exercise has been completed in the session.
-exercise_target_times = [2.0, 2.0, 1.0, 1.0]
-used_exercises = []
-start_time = None
-observation = -1
-has_score_been_provided = True  # True if Pepper has already said e.g. "Your average score was 3.02 and your were aiming for 2.0" and False otherwise.
-scores_provided = 0  # Add 1 each time a score is given in feedback. Reset to 0 at the completion of each goal.
-behaviour_displayed = False  # Set to true in DisplayBehaviour node to indicate to the environment that a new action is needed from the policy.
-repetitions = -1
-
-# Initial values to be changed at the beginning of each session:
-name = "Martin"
-participantNo = "Testing.0"
-participant_filename = participantNo + "_history.txt"
-impairment = 0
-motivation = 8
-leftHand = False
-exercise = -1
-policy = 2
-
-# Values for RL
-alpha = 0.85
-gamma = 0.95
-policy_matrix = None
-
-# Robot through Peppernet router:
-# post_address = 'http://192.168.1.237:4999/output'
-
-# Simulation on 4G:
-# post_address = 'http://192.168.43.19:4999/output'
-# post_address = 'http://192.168.1.174:4999/output'
-
-# Robot through ITT Pepper router:
-post_address = "http://192.168.1.207:4999/output"
-screen_post_address = "http://192.168.1.207:8000/"
-
-# Robot through hotspot:
-# post_address = "http://192.168.43.19:4999/output"
-
-behaviour = -1
-need_new_behaviour = False
-
 # Goal Levels
 PERSON_GOAL = 0
 SESSION_GOAL = 1
@@ -157,3 +90,72 @@ A_POSITIVEMODELING_HUSTLE = 65
 A_POSITIVEMODELING_PRAISE = 66
 A_END = 67
 A_SILENCE = 68
+
+exercise_list_master = ["Table top circles", "Towel slide", "External rotation with cane", "Shoulder openers"]
+
+# Initial values which will be updated when the API gets called by the guide.
+goal_level = 0
+sessions = -1
+score = -1
+target = -1
+avg_score = -1
+performance = None
+completed = COMPLETED_STATUS_UNDEFINED
+exercise_count = 0
+action_score = -1
+prev_behav = -1
+matching_behav = 0
+phase = PHASE_START
+session_time = 0
+used_behaviours = []
+set_performance_list = []  # 1 entry for each rep performed
+set_score_list = []  # 1 entry for each rep performed
+exercise_performance_list = []  # 1 entry for each set performed of that exercise
+exercise_score_list = []  # 1 entry for each set performed of that exercise
+session_performance_list = []  # 1 entry for each exercise performed
+session_score_list = []  # 1 entry for each exercise performed
+set_count = 0
+given_score = 0
+exercise_list_session = ["Table top circles", "Towel slide", "External rotation with cane", "Shoulder openers"]  # Delete from this list once the exercise has been completed in the session.
+exercise_target_times = [2.0, 2.0, 1.0, 1.0]
+used_exercises = []
+start_time = None
+observation = -1
+has_score_been_provided = True  # True if Pepper has already said e.g. "Your average score was 3.02 and your were aiming for 2.0" and False otherwise.
+scores_provided = 0  # Add 1 each time a score is given in feedback. Reset to 0 at the completion of each goal.
+behaviour_displayed = False  # Set to true in DisplayBehaviour node to indicate to the environment that a new action is needed from the policy.
+repetitions = -1
+stop_session = False
+stop_set = False
+
+# Initial values to be changed at the beginning of each session:
+name = "Martin"
+participantNo = "Testing.0"
+participant_filename = participantNo + "_history.txt"
+impairment = 0
+motivation = 8
+leftHand = False
+exercise = -1
+policy = 2
+
+# Values for RL
+alpha = 0.85
+gamma = 0.95
+policy_matrix = None
+
+# Robot through Peppernet router:
+# post_address = 'http://192.168.1.237:4999/output'
+
+# Simulation on 4G:
+# post_address = 'http://192.168.43.19:4999/output'
+# post_address = 'http://192.168.1.174:4999/output'
+
+# Robot through ITT Pepper router:
+post_address = "http://192.168.1.207:4999/output"
+screen_post_address = "http://192.168.1.207:8000/"
+
+# Robot through hotspot:
+# post_address = "http://192.168.43.19:4999/output"
+
+behaviour = -1
+need_new_behaviour = False

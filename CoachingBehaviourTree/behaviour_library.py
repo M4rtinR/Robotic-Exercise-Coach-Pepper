@@ -14841,11 +14841,11 @@ class BehaviourLibraryFunctions:
                          config.A_CONCURRENTINSTRUCTIONNEGATIVE_NEGATIVEMODELING]:
             posNeg = "_neg"
 
-        vid = ""
+        '''vid = ""
         if goal != config.ACTION_GOAL:
             r = random.randint(0, 1)
             if r == 1:
-                vid = "_vid"
+                vid = "_vid"'''
         demoName = ""
         exName = "table_top_circles"
         if exercise == 1:
@@ -14854,7 +14854,7 @@ class BehaviourLibraryFunctions:
             exName = "external_rotation_with_cane"
         elif exercise == 3:
             exName = "shoulder_openers"
-        demoName = exName + posNeg + vid
+        demoName = exName + posNeg
 
         return demoName
 

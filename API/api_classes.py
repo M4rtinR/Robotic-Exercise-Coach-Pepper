@@ -24,6 +24,7 @@ class TimestepCue(Resource):
             logging.info("Received data from app: {}".format(content))
             if 'start' in content:  # Called when the operator is ready to indicate a new rep. Send response when we've told the user to do an exercise.
                 print("API in start")
+                print("config.repetitions = " + str(config.repetitions))
                 while config.repetitions == -1:
                     time.sleep(0.2)
 
@@ -59,7 +60,7 @@ class TimestepCue(Resource):
                 print('set goal_level = ACTION GOAL')
 
                 # Send data to the Pepper's screen for update.
-                requestURL = config.screen_post_address + "/" + str(content['rep']) + "/newRep"
+                requestURL = config.screen_post_address + str(content['rep']) + "/newRep"
                 print('sending request, url = ' + requestURL)
                 r = requests.post(requestURL)
 
@@ -103,27 +104,16 @@ class TimestepCue(Resource):
 
                         return new_data, 200
                     else:
-                        config.completed = config.COMPLETED_STATUS_UNDEFINED
+                        config.stop_session = True  # High level global variable which will be checked at each node until session goal feedback is reached.
                         config.goal_level = config.SESSION_GOAL
-                        config.phase = config.PHASE_START
-                        config.performance = None
-                        # config.performance = content['performance']
-
-                        while config.completed == config.COMPLETED_STATUS_UNDEFINED:
-                            pass
+                        config.phase = config.PHASE_END
+                        config.set_count += 1
+                        config.completed = config.COMPLETED_STATUS_TRUE
 
                         new_data = {
                             'goal_level': 1,
                             'completed': config.completed,
-                            'shotSet': 0
                         }
-
-                        if not (config.exercise == -1):
-                            new_data['shotType'] = config.exercise
-                            new_data['hand'] = config.hand
-
-                        if not (config.stat == ""):
-                            new_data['stat'] = config.stat
 
                         return new_data, 200
 
@@ -148,35 +138,12 @@ class TimestepCue(Resource):
 
                         return new_data, 200
                     else:
-                        config.completed = config.COMPLETED_STATUS_UNDEFINED
-                        config.goal_level = config.EXERCISE_GOAL
-                        config.phase = config.PHASE_START
-                        config.score = None
-                        config.performance = None
-
-                        if config.exercise == -1:
-                            config.exercise = content['shotType']
-                            config.hand = content['hand']
-                        '''if content['initialScore'] == "null":
-                            config.score = None
-                        else:
-                            config.score = float(content['initialScore'])
-                        if content['performance'] == "":
-                            config.performance = None
-                        else:
-                            config.performance = int(config.performance)'''
-
-                        while config.completed == config.COMPLETED_STATUS_UNDEFINED:
-                            pass
+                        config.stop_set = True  # High level global variable which will be checked at each node until set goal feedback loop is reached.
 
                         new_data = {
                             'goal_level': 2,
                             'completed': config.completed,
-                            'shotSet': 1
                         }
-
-                        if not (config.stat == -1):
-                            new_data['stat'] = config.stat
 
                         return new_data, 200
 
