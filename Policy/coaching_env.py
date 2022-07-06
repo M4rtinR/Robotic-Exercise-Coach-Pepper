@@ -60,7 +60,7 @@ class CoachingEnvironment(gym.Env, ABC):
             self.policy = PolicyWrapper(policy=matrix)
         else:
             # TODO: check this is the correct measure for choosing the initial policy.
-            belief_distribution = [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0] if controller.impairment < 4 else [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0]
+            belief_distribution = [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0] if controller.ability < 4 else [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0]
             observation = 0
             self.policy = PolicyWrapper(belief=belief_distribution)
 
@@ -112,7 +112,7 @@ class CoachingEnvironment(gym.Env, ABC):
 
         return observation, reward, done, result
 
-    def _calculate_reward(self, action, observation, score, target):
+    def _calculate_reward(self, action, observation, score, target, performance):
         if score is None:
             return 0
         else:
@@ -125,3 +125,95 @@ class CoachingEnvironment(gym.Env, ABC):
                 return 0.5
             else:
                 return -0.5
+
+        # Option 1
+        '''
+        if score is None:
+            if action == PolicyWrapper.A_QUESTIONING and controller.question_type = controller.FEEDBACK_QUESTION:
+                if controller.question_feedback = 1:
+                    return 0.2
+                else:
+                    return -0.2
+            elif action == PolicyWrapper.A_QUESTIONING or action == PolicyWrapper.A_PRE-INSTRUCTION:
+                if controller.decision_overriden:
+                    return -1  # If policy's decision to select shots for user or have user select shots, is overriden, receive a large negative reward.
+            else:
+                return None  # No actions from user so reward is None and policy does not change.
+        else:
+            if score == target:
+                return 1
+            # Each shot and stat has a different target score so reward will have to be calculated individually.
+            # This is just an example for racket face angle.
+            else:
+                if stat == "impactCutAngle":
+                    difference = abs(target - score)
+                    # For every degree away from target, reward decreases by 0.1 down to a maximum of -1.
+                    reward = 1 - (difference * 0.1)
+                    return -1 if reward < -1 else reward
+                elif stat == "followThroughTime":
+                    etc
+        '''
+
+        # Option 2
+        '''
+        if score is None:
+            if action == PolicyWrapper.A_QUESTIONING and controller.question_type = controller.FEEDBACK_QUESTION:
+                if controller.question_feedback = 1:
+                    return 0.2
+                else:
+                    return -0.2
+            elif action == PolicyWrapper.A_QUESTIONING or action == PolicyWrapper.A_PRE-INSTRUCTION:
+                if controller.decision_overriden:
+                    return -1  # If policy's decision to select shots for user or have user select shots, is overriden, receive a large negative reward.
+            else:
+                return None  # No actions from user so reward is None and policy does not change.
+        else:
+            # Reward becomes the absolute value of score as a percentage of target. More generalisable and consistent across stats.
+            decimal = score/target
+            if decimal > 1:
+                decimal = 1 - (decimal - 1)  # Deal with case where the score is higher than the target.
+            if decimal < 0:
+                reward = -1  # If score is more than double the target, reward will be -1.
+            else:
+                reward = -1 + (decimal*2)  # return a reward between -1 and 1.
+            return reward
+        '''
+
+        # Option 3
+        '''
+        if score is None:
+            if action == PolicyWrapper.A_QUESTIONING and controller.question_type = controller.FEEDBACK_QUESTION:
+                if controller.question_feedback = 1:
+                    return 0.2
+                else:
+                    return -0.2
+            elif action == PolicyWrapper.A_QUESTIONING or action == PolicyWrapper.A_PRE-INSTRUCTION:
+                if controller.decision_overriden:
+                    return -1  # If policy's decision to select shots for user or have user select shots, is overriden, receive a large negative reward.
+            else:
+                return None  # No actions from user so reward is None and policy does not change.
+        else:
+            # Reward is based on improvement since last time or since baseline set if this is the first time.
+            if performance == PolicyWrapper.MET:
+                reward = 1
+            elif performance == PolicyWrapper.MUCH_IMPROVED:
+                reward = 0.6
+            elif performance == PolicyWrapper.IMPROVED or performance == PolicyWrapper.IMPROVED_SWAP:
+                reward = 0.3
+            elif performance == PolicyWrapper.STEADY:
+                reward = 0
+            elif performance == PolicyWrapper.REGRESSED or performance == PolicyWrapper.REGRESSED_SWAP:
+                reward = -0.3
+            elif performance == PolicyWrapper.MUCH_REGRESSED:
+                reward = -0.6
+                
+            # Levels of performance:
+            MET = 0             # Met the target
+            MUCH_IMPROVED = 1   # Moved a lot closer to the target
+            IMPROVED = 2        # Moved closer to the target
+            IMPROVED_SWAP = 3   # Moved closer to the target but passed it
+            STEADY = 4          # Stayed the same
+            REGRESSED = 5       # Moved further away from the target
+            REGRESSED_SWAP = 6  # Moved past the target and further from it
+            MUCH_REGRESSED = 7  # Moved a lot further away from the target
+        '''

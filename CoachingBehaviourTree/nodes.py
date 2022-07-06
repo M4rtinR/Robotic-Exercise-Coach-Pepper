@@ -230,8 +230,8 @@ class FormatAction(Node):
             nodes.
         :return: NodeStatus.SUCCESS when an action has been created.
         """
-        print("Formatting action: behaviour = {behaviour}, goal_level = {goal_level}, performance = {performance}, name = {name}, exercise = {exercise}".format(behaviour=self.behaviour, goal_level=self.goal_level, performance=self.performance, name=self.name, exercise=self.exercise))
-        logging.info("Formatting action: behaviour = {behaviour}, goal_level = {goal_level}, performance = {performance}, name = {name}, exercise = {exercise}".format(behaviour=self.behaviour, goal_level=self.goal_level, performance=self.performance, name=self.name, exercise=self.exercise))
+        print("Formatting action: behaviour = {behaviour}, goal_level = {goal_level}, performance = {performance}, name = {name}, exercise = {exercise}".format(behaviour=self.behaviour, goal_level=self.goal_level, performance=self.performance, name=self.name, exercise=self.shot))
+        logging.info("Formatting action: behaviour = {behaviour}, goal_level = {goal_level}, performance = {performance}, name = {name}, exercise = {exercise}".format(behaviour=self.behaviour, goal_level=self.goal_level, performance=self.performance, name=self.name, exercise=self.shot))
         if not(self.behaviour == Policy.A_SILENCE):
             demo = None
             if self.behaviour in [Policy.A_POSITIVEMODELING, Policy.A_NEGATIVEMODELING,
@@ -273,7 +273,7 @@ class FormatAction(Node):
                                   Policy.A_MANUALMANIPULATION_PREINSTRUCTION]:
                 r = requests.post(screen_post_address + "0/newRep")
 
-            pre_msg = self.behaviour_lib.get_pre_msg(self.behaviour, self.goal_level, self.performance, self.phase, self.name, self.exercise, controller.exercise_count == 3 and controller.set_count == 1, controller.set_count == 1)
+            pre_msg = self.behaviour_lib.get_pre_msg(self.behaviour, self.goal_level, self.performance, self.phase, self.name, self.shot, self.hand, self.stat, controller.shot_count == 3 and controller.set_count == 1, controller.set_count == 1)
             if (self.score is None and self.performance is None):  # or controller.given_score >= 2:
                 nodedata.action = Action(pre_msg, demo=demo, question=question)
             else:
