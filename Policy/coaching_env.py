@@ -117,6 +117,7 @@ class CoachingEnvironment(gym.Env, ABC):
         return observation, reward, done, result
 
     def _calculate_reward(self, action, observation, score, target):
+        # Dummy reward
         if score is None:
             return 0
         else:
@@ -129,3 +130,17 @@ class CoachingEnvironment(gym.Env, ABC):
                 return 0.5
             else:
                 return -0.5
+
+        # Option 1
+        '''
+        if score is None:
+            if action == config.A_QUESTIONING etc:
+                if response == 1:
+                    reward = 1
+                else:
+                    reward = -1
+            elif config.dcecision_overriden:
+                reward = -10
+        else:
+            reward = 1
+        '''

@@ -29,7 +29,8 @@ class TimestepCue(Resource):
                     time.sleep(0.2)
 
                 new_data = {
-                    'reps': config.repetitions
+                    'reps': config.repetitions,
+                    'set': config.set_count
                 }
                 print("API returning")
                 return new_data, 200
@@ -47,7 +48,8 @@ class TimestepCue(Resource):
                     performance = config.SLOW
                 config.performance = float(performance)
                 new_data = {
-                    'performance': performance
+                    'performance': performance,
+                    'set': config.set_count
                 }
                 print('calculated performance = ' + str(performance))
 
@@ -82,7 +84,6 @@ class TimestepCue(Resource):
                         'completed': config.completed,
                         'shotSet': 0
                     }
-
                     return new_data, 200
 
                 elif int(content['goal_level']) == config.SESSION_GOAL:
@@ -104,6 +105,7 @@ class TimestepCue(Resource):
 
                         return new_data, 200
                     else:
+                        print("stop session")
                         config.stop_session = True  # High level global variable which will be checked at each node until session goal feedback is reached.
                         config.goal_level = config.SESSION_GOAL
                         config.phase = config.PHASE_END

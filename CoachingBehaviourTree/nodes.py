@@ -129,16 +129,11 @@ class GetBehaviour(Node):
             for accesses by other nodes.
         :return: NodeStatus.SUCCESS when a behaviour and observation has been obtained from the policy wrapper.
         """
-        if not config.stop_set:
+        if not config.stop_set and not config.stop_session:
             # print('GetBehaviour, self.goal_level = ' + str(self.goal_level) + ', nodedata.goal = ' + str(nodedata.goal))
             # policy = PolicyWrapper(self.belief)  # TODO: generate this at start of interaction and store on blackboard.
             #, nodedata.obs_behaviour
             # nodedata.behaviour = policy.get_behaviour(self.state, self.goal_level, self.performance, self.phase)
-            if config.stop_session:
-                if config.goal_level == config.SESSION_GOAL and config.phase == config.PHASE_END:
-                    config.stop_session = False  # This is the first node we will enter in the feedback loop for session goal, so reset this variable so we can complete the rest of the session.
-                else:
-                    return NodeStatus(NodeStatus.SUCCESS, "Stop session get behaviour")
             if config.behaviour_displayed:  # If we need a new behaviour, return active so that control as passed back to controller to generate new behaviour from policy.
                 config.need_new_behaviour = True
                 logging.debug("Returning ACTIVE from GetBehaviour, nodedata = " + str(nodedata))
@@ -668,6 +663,8 @@ class CreateSubgoal(Node):
                 logging.debug("Returning SUCCESS from CreateSubGoal, new goal level = " + str(nodedata.new_goal))
                 return NodeStatus(NodeStatus.SUCCESS, "Created subgoal: " + str(self.previous_goal_level + 1))
         else:
+            if config.stop_session:
+                nodedata.skipped_create = True
             return NodeStatus(NodeStatus.SUCCESS, "Stop set/session create subgoal")
 
 
@@ -704,6 +701,7 @@ class EndSubgoal(Node):
         print("Configuring EndSubgoal: " + self._name)
         logging.debug("Configuring EndSubgoal: " + self._name)
         self.goal_level = nodedata.get_data('goal', -1)
+        self.skipped_create = nodedata.get_data('skipped_create', False)
 
     def run(self, nodedata):
         """
@@ -712,7 +710,7 @@ class EndSubgoal(Node):
         :return: NodeStatus.SUCCESS when request is sent to API, NodeStatus.FAIL if current goal level is ACTION_GOAL
             or cannot connect to API.
         """
-        if not config.stop_set and not config.stop_session:
+        if not config.stop_set or self.skipped_create:
             # Will return SUCCESS once request sent to API, FAIL if called on goal > 6 or connection error.
             if self.goal_level > 4 or self.goal_level < 0:
                 print("Returning FAIL from EndSubgoal, goal_level = " + str(self.goal_level))
@@ -720,7 +718,7 @@ class EndSubgoal(Node):
                 return NodeStatus(NodeStatus.FAIL, "Cannot create subgoal of " + str(self.goal_level))
             else:
                 config.goal_level -= 1
-                if (self.goal_level == config.SET_GOAL and config.set_count == 2) or self.goal_level == config.EXERCISE_GOAL or self.goal_level == config.SESSION_GOAL:
+                if ((self.goal_level == config.SET_GOAL and config.set_count == 2) or self.goal_level == config.EXERCISE_GOAL or self.goal_level == config.SESSION_GOAL) and not config.stop_session:
                     config.phase = config.PHASE_END
                 else:
                     config.phase = config.PHASE_START
@@ -736,6 +734,9 @@ class EndSubgoal(Node):
                 logging.debug("Returning SUCCESS from EndSubgoal, new subgoal level = " + str(nodedata.new_goal))
                 return NodeStatus(NodeStatus.SUCCESS, "Completed subgoal: " + str(self.goal_level - 1))
         else:
+            if self.skipped_create:
+                # Set end of session time.
+                config.session_time = config.MAX_SESSION_TIME
             return NodeStatus(NodeStatus.SUCCESS, "Stop set/session endsubgoal")
 
 
@@ -798,9 +799,10 @@ class TimestepCue(Node):
         :return: NodeStatus.ACTIVE when waiting for data from the guide, NodeStatus.SUCCESS when data has been received
             and added to the blackboard, NodeStatus.FAIL otherwise.
         """
-        if not config.stop_set and not config.stop_session:
+        if not config.stop_set and (not config.stop_session and config.phase == config.PHASE_START):  # If the session is stopped, we still need to go into timestep cue to write the appropriate data up to now to the file.
             # Will be ACTIVE when waiting for data and SUCCESS when got data and added to blackboard, FAIL when connection error.
             if self.goal_level == -1:  # Person goal created after receiving info from guide.
+                print("Timestep Cue, self.goal_level = " + str(self.goal_level))
                 if config.goal_level == config.PERSON_GOAL:  # For person goal should have name, impairment and no. of sessions.
                     if config.phase == config.PHASE_END:  # Feedback sequence
                         nodedata.phase = config.PHASE_END
@@ -849,18 +851,22 @@ class TimestepCue(Node):
                 if config.goal_level == config.SESSION_GOAL:
                     if config.phase == config.PHASE_END:  # Feedback sequence
                         nodedata.phase = config.PHASE_END
-                        nodedata.performance = mode(config.session_performance_list)
-                        # Write session performance to file.
-                        f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participant_filename, "r")
-                        file_contents = f.readlines()
-                        f.close()
-                        sessions = int(file_contents[1])
-                        file_contents.insert(sessions + 1, file_contents[sessions+1] + "\n" + str(nodedata.performance))
-                        f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participant_filename, "w")
-                        f.writelines(file_contents)
-                        f.close()
+                        if not (len(config.session_performance_list) == 0):
+                            nodedata.performance = mode(config.session_performance_list)
+                            # Write session performance to file.
+                            f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participant_filename, "r")
+                            file_contents = f.readlines()
+                            f.close()
+                            sessions = int(file_contents[1])
+                            file_contents.insert(sessions + 1, file_contents[sessions+1] + "\n" + str(nodedata.performance))
+                            f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participant_filename, "w")
+                            f.writelines(file_contents)
+                            f.close()
 
                         nodedata.phase = config.PHASE_END
+
+                        config.stop_session = False  # Resume the final behaviours of the session.
+
                         logging.info(
                             "Feedback for session, performance = {performance}".format(performance=nodedata.performance))
                         logging.debug("Returning SUCCESS from TimestepCue session goal (end), stats = " + str(nodedata))
@@ -888,47 +894,50 @@ class TimestepCue(Node):
                     if config.phase == config.PHASE_END:  # Feedback sequence
                         logging.debug("Exercise goal feedback sequence")
                         nodedata.phase = config.PHASE_END
-                        nodedata.performance = mode(config.exercise_performance_list)
-                        config.session_performance_list.append(nodedata.performance)
-                        nodedata.score = mean(config.exercise_score_list)
-                        config.session_score_list.append(nodedata.score)
+                        if not (len(config.exercise_performance_list) == 0):
+                            nodedata.performance = mode(config.exercise_performance_list)
+                            config.session_performance_list.append(nodedata.performance)
+                            nodedata.score = mean(config.exercise_score_list)
+                            config.session_score_list.append(nodedata.score)
+
+                            # Write performance data about the exercise just completed to file.
+                            f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participant_filename, "r")
+                            file_contents = f.readlines()
+                            f.close()
+                            print("File contents = " + str(file_contents))
+                            counter = 0
+                            exercise_found = False
+                            for content_line in file_contents:
+                                if content_line == config.exercise_list_session[self.exercise]:
+                                    exercise_found = True
+                                    break
+                                counter += 1
+
+                            if exercise_found:
+                                print("Exercise found")
+                                exercise_times = int(
+                                    file_contents[counter]) + 1  # The number of sessions the user has done this exercise in
+                                file_contents[counter] = str(exercise_times)
+                                file_contents.insert(counter+exercise_times-1, "\n" + str(nodedata.performance) + "," + str(nodedata.score))
+                            else:
+                                print("Exercise not found")
+                                sessions = int(file_contents[1])
+                                if len(file_contents) < 3:  # if no exercises performed yet, add another \n to get layout right
+                                    file_contents[1] = str(sessions) + "\n"
+                                file_contents.insert(sessions + 2, "\n" + config.exercise_list_session[self.exercise])
+                                file_contents.insert(sessions + 3, "\n1")
+                                file_contents.insert(sessions + 4, "\n" + str(nodedata.performance) + "," + str(nodedata.score))
+
+                            print("File contents = " + str(file_contents))
+
+                            f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participant_filename, "w")
+                            f.writelines(file_contents)
+                            f.close()
+
                         # Clear the controller's lists for the exercise that has just happened.
                         config.exercise_performance_list = []
                         config.exercise_score_list = []
                         nodedata.target = config.target
-                        # Write performance data about the exercise just completed to file.
-                        f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participant_filename, "r")
-                        file_contents = f.readlines()
-                        f.close()
-                        print("File contents = " + str(file_contents))
-                        counter = 0
-                        exercise_found = False
-                        for content_line in file_contents:
-                            if content_line == config.exercise_list_session[self.exercise]:
-                                exercise_found = True
-                                break
-                            counter += 1
-
-                        if exercise_found:
-                            print("Exercise found")
-                            exercise_times = int(
-                                file_contents[counter]) + 1  # The number of sessions the user has done this exercise in
-                            file_contents[counter] = str(exercise_times)
-                            file_contents.insert(counter+exercise_times-1, "\n" + str(nodedata.performance) + "," + str(nodedata.score))
-                        else:
-                            print("Exercise not found")
-                            sessions = int(file_contents[1])
-                            if len(file_contents) < 3:  # if no exercises performed yet, add another \n to get layout right
-                                file_contents[1] = str(sessions) + "\n"
-                            file_contents.insert(sessions + 2, "\n" + config.exercise_list_session[self.exercise])
-                            file_contents.insert(sessions + 3, "\n1")
-                            file_contents.insert(sessions + 4, "\n" + str(nodedata.performance) + "," + str(nodedata.score))
-
-                        print("File contents = " + str(file_contents))
-
-                        f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participant_filename, "w")
-                        f.writelines(file_contents)
-                        f.close()
 
                         nodedata.phase = config.PHASE_END
                         logging.info(
@@ -970,17 +979,19 @@ class TimestepCue(Node):
                     return NodeStatus(NodeStatus.ACTIVE, "Waiting for exercise goal data from guide.")
 
             elif self.goal_level == config.SET_GOAL:
+
                 if config.goal_level == config.SET_GOAL:
                     print("config.goal_level == config.SET_GOAL")
                     if config.phase == config.PHASE_END:  # Just finished previous goal level so into feedback sequence.
                         nodedata.phase = config.PHASE_END
-                        print("performance list = " + str(config.set_performance_list) + ", mode = " + str(mode(config.set_performance_list)))
-                        nodedata.performance = mode(config.set_performance_list)
-                        print("Average performance = " + str(nodedata.performance))
-                        nodedata.score = mean(config.set_score_list)
-                        # Update score in controller
-                        config.exercise_performance_list.append(nodedata.performance)
-                        config.exercise_score_list.append(nodedata.score)
+                        if not (len(config.set_performance_list) == 0):
+                            print("performance list = " + str(config.set_performance_list) + ", mode = " + str(mode(config.set_performance_list)))
+                            nodedata.performance = mode(config.set_performance_list)
+                            print("Average performance = " + str(nodedata.performance))
+                            nodedata.score = mean(config.set_score_list)
+                            # Update score in controller
+                            config.exercise_performance_list.append(nodedata.performance)
+                            config.exercise_score_list.append(nodedata.score)
                         # Clear the controller's lists for the set that has just happened.
                         config.set_performance_list = []
                         config.set_score_list = []
@@ -1006,7 +1017,7 @@ class TimestepCue(Node):
                     logging.debug("Returning ACTIVE from TimestepCue set goal")
                     return NodeStatus(NodeStatus.ACTIVE, "Waiting for set goal data from guide.")
 
-            elif self.goal_level == config.ACTION_GOAL:
+            elif self.goal_level == config.ACTION_GOAL and not config.stop_session:
                 print("Timestep cue action goal")
                 if config.goal_level == config.ACTION_GOAL:
                     config.goal_level = config.SET_GOAL
@@ -1032,7 +1043,7 @@ class TimestepCue(Node):
             logging.debug("Returning SUCCESS from TimestepCue, stats = " + str(nodedata))
             return NodeStatus(NodeStatus.SUCCESS, "Set timestep cue values to dummy values GOOD, PHASE_START, 0.80, 0.79.")
         else:
-            return NodeStatus(NodeStatus.SUCCESS, "Stop set/session timestep cue")
+            return NodeStatus(NodeStatus.SUCCESS, "Stop set timestep cue")
 
 
 class DurationCheck(Node):
@@ -1176,33 +1187,30 @@ class EndSetEvent(Node):
         Check if at least 30 shots have been played and if so, check if the user has pressed the button.
         :return: NodeStatus.SUCCESS once the end set button has been pressed by the user, NodeStatus.FAIL otherwise.
         """
-        if not config.stop_session:
-            # TODO Update once getting actual choice from user. Will probably need two nodes, one for displaying button,
-            #   one for waiting for user selection so that the tree doesn't grind to a halt.
-            # self.shotcount += 1  # TODO Set this to 0 when set starts.
+        # TODO Update once getting actual choice from user. Will probably need two nodes, one for displaying button,
+        #   one for waiting for user selection so that the tree doesn't grind to a halt.
+        # self.shotcount += 1  # TODO Set this to 0 when set starts.
 
-            if (self.firstTime and self.exercisecount >= 10) or (self.firstTime is False and self.exercisecount >= 5) or config.stop_set:
-                api_classes.expecting_action_goal = False
-                config.completed = config.COMPLETED_STATUS_TRUE
-                config.set_count += 1
-                config.phase = config.PHASE_END  # When a set is completed, feedback should be given, so phase becomes end.
-                # config.repetitions = -1
-                config.stop_set = False  # Ending set so reset this variable so the session can continue.
+        if (self.firstTime and self.exercisecount >= 10) or (self.firstTime is False and self.exercisecount >= 5) or config.stop_set or config.stop_session:
+            api_classes.expecting_action_goal = False
+            config.completed = config.COMPLETED_STATUS_TRUE
+            config.set_count += 1
+            config.phase = config.PHASE_END  # When a set is completed, feedback should be given, so phase becomes end.
+            # config.repetitions = -1
+            config.stop_set = False  # Ending set so reset this variable so the session can continue.
 
-                output = {
-                    "stop": str(1)
-                }
-                logging.info("Stopping set: That's 10, you can stop there.")
-                r = requests.post(config.post_address, json=output)
+            output = {
+                "stop": str(1)
+            }
+            logging.info("Stopping set: That's 10, you can stop there.")
+            r = requests.post(config.post_address, json=output)
 
-                print("Exercise set completed.")
-                logging.debug("Returning SUCCESS from EndSetEvent, exercise count = " + str(self.exercisecount))
-                return NodeStatus(NodeStatus.SUCCESS, "Shot set ended.")
-            else:
-                logging.debug("Returning FAIL from EndSetEvent, exercise count = " + str(self.exercisecount))
-                return NodeStatus(NodeStatus.FAIL, "Exercise set at " + str(self.exercisecount) + ". Not ended yet.")
+            print("Exercise set completed.")
+            logging.debug("Returning SUCCESS from EndSetEvent, exercise count = " + str(self.exercisecount))
+            return NodeStatus(NodeStatus.SUCCESS, "Shot set ended.")
         else:
-            return NodeStatus(NodeStatus.SUCCESS, "Stop session, end set event")
+            logging.debug("Returning FAIL from EndSetEvent, exercise count = " + str(self.exercisecount))
+            return NodeStatus(NodeStatus.FAIL, "Exercise set at " + str(self.exercisecount) + ". Not ended yet.")#
 
 class InitialiseBlackboard(Node):
     """

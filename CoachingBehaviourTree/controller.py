@@ -119,7 +119,7 @@ def create_coaching_tree():
     #TODO: needs updated when the user will choose actual time rather than just once through the exercises for the purposes of study 1.
     duration = GetDuration(name="duration", blackboard=b)
     root.add_child(duration)
-    b.save('session_duration', 4, duration._id)  # Set session duration to 4 so that 4 exercises happen.
+    b.save('session_duration', config.MAX_SESSION_TIME, duration._id)  # Set session duration to 4 so that 4 exercises happen.
     b.save('start_time', 0, duration._id)
 
     # Add an intro and feedback loop for player goal.
@@ -1058,6 +1058,7 @@ def get_feedback_loop(name, behav, blackboard, goal_node, initialise_node, previ
     # overall_feedback_sequence.add_child(end_goal)
     # Share goal between goal and end_goal
     blackboard.add_remapping(goal_node, 'new_goal', end_goal._id, 'goal')
+    blackboard.add_remapping(goal_node, 'skipped_create', end_goal._id, 'skipped_create')
     overall_feedback_sequence.add_child(end_goal)
     # negate_name = while_name + "_negate"
     # return Negate(name=negate_name, child=feedback_loop_while), feedback_behaviour, end_goal
