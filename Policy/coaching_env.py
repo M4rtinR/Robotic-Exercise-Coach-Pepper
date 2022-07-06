@@ -134,13 +134,41 @@ class CoachingEnvironment(gym.Env, ABC):
         # Option 1
         '''
         if score is None:
-            if action == config.A_QUESTIONING etc:
-                if response == 1:
-                    reward = 1
+            if action == PolicyWrapper.A_QUESTIONING and controller.question_type = controller.FEEDBACK_QUESTION:
+                if controller.question_feedback = 1:
+                    return 0.2
                 else:
-                    reward = -1
-            elif config.dcecision_overriden:
-                reward = -10
+                    return -0.2
+            elif action == PolicyWrapper.A_QUESTIONING or action == PolicyWrapper.A_PRE-INSTRUCTION:
+                if controller.decision_overriden:
+                    return -1  # If policy's decision to select shots for user or have user select shots, is overriden, receive a large negative reward.
+            else:
+                return None  # No actions from user so reward is None and policy does not change.
         else:
-            reward = 1
+            # Receive a positive reward for completing each rep, and a large positive reward for completing a set.
+            if config.rep_count < config.max_reps:
+                return 0.2
+            else:
+                return 1
+        '''
+
+        # Option 2
+        '''
+        if score is None:
+            if action == PolicyWrapper.A_QUESTIONING and controller.question_type = controller.FEEDBACK_QUESTION:
+                if controller.question_feedback = 1:
+                    return 0.2
+                else:
+                    return -0.2
+            elif action == PolicyWrapper.A_QUESTIONING or action == PolicyWrapper.A_PRE-INSTRUCTION:
+                if controller.decision_overriden:
+                    return -1  # If policy's decision to select shots for user or have user select shots, is overriden, receive a large negative reward.
+            else:
+                return None  # No actions from user so reward is None and policy does not change.
+        else:
+            # Reward based on improvement since last time. If more reps are done than last time, receive a reward.
+            if config.rep_count < config.max_reps and config.rep_count > config.previous_best:
+                return 0.5
+            elif config.rep_count == config.max_reps:
+                return 1  # Large reward for completing set.
         '''
