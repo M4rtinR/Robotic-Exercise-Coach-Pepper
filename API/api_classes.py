@@ -1,20 +1,13 @@
+import time
+
+import requests
 from flask import Flask, request
 from flask_restful import Resource, Api, reqparse
-import pandas as pd
-import ast
-import firebase_admin
-from firebase_admin import db
 import json
 import logging
 
-from CoachingBehaviourTree import controller
+from CoachingBehaviourTree import controller, nodes, config
 from Policy.policy_wrapper import PolicyWrapper
-
-'''cred_obj = firebase_admin.credentials.Certificate(
-    'racketware-policy-api-firebase-adminsdk-sych1-ac7425f5e6.json')
-default_app = firebase_admin.initialize_app(cred_obj, {
-    'databaseURL': 'https://racketware-policy-api-default-rtdb.firebaseio.com/'
-})'''
 
 app = Flask('policy_guide_api')
 api = Api(app)
@@ -66,6 +59,20 @@ class TimestepCue(Resource):
                     }
 
                     return new_data, 200
+                elif 'stop' in content:
+                    print("stop session")
+                    config.stop_session = True  # High level global variable which will be checked at each node until session goal feedback is reached.
+                    config.goal_level = config.SESSION_GOAL
+                    config.phase = config.PHASE_END
+                    config.set_count += 1
+                    config.completed = config.COMPLETED_STATUS_TRUE
+
+                    new_data = {
+                        'goal_level': 1,
+                        'completed': config.completed,
+                    }
+
+                    return new_data, 200
                 else:
                     controller.completed = controller.COMPLETED_STATUS_UNDEFINED
                     controller.goal_level = PolicyWrapper.SESSION_GOAL
@@ -108,6 +115,15 @@ class TimestepCue(Resource):
                     new_data = {
                         'goal_level': 2,
                         'completed': controller.completed
+                    }
+
+                    return new_data, 200
+                elif 'stop' in content:
+                    config.stop_set = True  # High level global variable which will be checked at each node until set goal feedback loop is reached.
+
+                    new_data = {
+                        'goal_level': 2,
+                        'completed': config.completed,
                     }
 
                     return new_data, 200

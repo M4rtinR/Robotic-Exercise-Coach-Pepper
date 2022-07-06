@@ -32,67 +32,6 @@ from Policy.coaching_env import CoachingEnvironment
 from Policy.policy import Policy
 from Policy.policy_wrapper import PolicyWrapper
 
-SHOT_CHOICE = 0
-
-COMPLETED_STATUS_UNDEFINED = -1
-COMPLETED_STATUS_FALSE = 0
-COMPLETED_STATUS_TRUE = 1
-
-shot_list_master = ["Forehand Drive", "Backhand Drive", "Forehand Drop"]
-
-# Initial values which will be updated when the API gets called by the guide.
-goal_level = -1
-sessions = -1
-score = -1
-target = -1
-avg_score = -1
-performance = None
-completed = COMPLETED_STATUS_UNDEFINED
-shot_count = 0
-action_score = -1
-prev_behav = -1
-matching_behav = 0
-phase = PolicyWrapper.PHASE_START
-session_time = 0
-used_behaviours = []
-set_performance_list = []  # 1 entry for each rep performed
-set_score_list = []  # 1 entry for each rep performed
-stat_performance_list = []  # 1 entry for each set performed for that stat
-stat_score_list = []  # 1 entry for each set performed for that stat
-shot_performance_list = []  # 1 entry for each stat worked on
-shot_score_list = []  # 1 entry for each stat worked on
-session_performance_list = []  # 1 entry for each shot performed
-session_score_list = []  # 1 entry for each shot performed
-set_count = 0
-given_score = 0
-shot_list_session = ["Forehand Drive", "Backhand Drive", "Forehand Drop"]  # Delete from this list once the exercise has been completed in the session.
-used_shots = []
-start_time = None
-observation = -1
-has_score_been_provided = True  # True if Pepper has already said e.g. "Your average score was 3.02 and your were aiming for 2.0" and False otherwise.
-scores_provided = 0  # Add 1 each time a score is given in feedback. Reset to 0 at the completion of each goal.
-behaviour_displayed = False  # Set to true in DisplayBehaviour node to indicate to the environment that a new action is needed from the policy.
-behaviour = -1
-
-# Initial values to be changed at the beginning of each session:
-name = "Martin"
-participantNo = "Testing.0"
-participant_filename = participantNo + "_history.txt"
-ability = 4
-motivation = 8
-# 1 = DRIVE, 5 = LOB, 0 = DROP
-shot = 0
-# "FH" or "BH"
-hand = "FH"
-# "racketPreparation" = RACKET_PREP, "impactCutAngle" = IMPACT_CUT_ANGLE, "followThroughTime" = FOLLOW_THROUGH_TIME
-stat = "impactCutAngle"
-policy = 11
-leftHand = True
-
-# Values for RL
-alpha = 0.85
-gamma = 0.95
-policy_matrix = None
 
 def create_coaching_tree():
     """

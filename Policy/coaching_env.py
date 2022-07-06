@@ -8,7 +8,7 @@ from gym import spaces
 import numpy as np
 from typing import Optional
 # from gym.utils.renderer import Renderer
-from CoachingBehaviourTree import controller, nodes
+from CoachingBehaviourTree import controller, nodes, config
 from Policy.policy import Policy
 from task_behavior_engine.tree import NodeStatus
 
@@ -51,7 +51,7 @@ class CoachingEnvironment(gym.Env, ABC):
         # Will be called at the start of a new session, so load the policy from file, or choose policy if first session.
         super().reset(seed=seed)
 
-        filename = "/home/martin/PycharmProjects/coachingPolicies/AdaptedPolicies/" + controller.participant_filename
+        filename = "/home/martin/PycharmProjects/coachingPolicies/AdaptedPolicies/" + config.participant_filename
         if os.path.exists(filename):
             f = open(filename, "r")
             matrix = f.readlines()
@@ -60,7 +60,7 @@ class CoachingEnvironment(gym.Env, ABC):
             self.policy = PolicyWrapper(policy=matrix)
         else:
             # TODO: check this is the correct measure for choosing the initial policy.
-            belief_distribution = [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0] if controller.ability < 4 else [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0]
+            belief_distribution = [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0] if config.ability < 4 else [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0]
             observation = 0
             self.policy = PolicyWrapper(belief=belief_distribution)
 
@@ -96,18 +96,22 @@ class CoachingEnvironment(gym.Env, ABC):
 
         done = False
 
-        controller.behaviour_displayed = False
-        # controller.behaviour = 1
+        config.behaviour_displayed = False
+        # config.behaviour = 1
 
-        print("controller.behaviour = " + str(nodes.behaviour))
-        while not controller.behaviour_displayed:  # Keep ticking the tree until a behaviour is given by the robot. This is the point the controller can select a new action and learn.
+        print("config.behaviour = " + str(config.behaviour))
+        while not config.behaviour_displayed:  # Keep ticking the tree until a behaviour is given by the robot. This is the point the controller can select a new action and learn.
             result = self.coaching_tree.tick()
+            if config.behaviour_displayed:
+                print("Tree ticked, not returning: " + str(result))
+            else:
+                print("Tree ticked, returning: " + str(result))
             logging.debug(result)
 
         observation = self.policy.get_observation(state, action)
-        reward = self._calculate_reward(action, observation, controller.score, controller.target)
+        reward = self._calculate_reward(action, observation, config.score, config.target)
 
-        if action == Policy.A_END and controller.goal_level == PolicyWrapper.PERSON_GOAL:
+        if action == config.A_END and config.goal_level == config.PERSON_GOAL:
             done = True
 
         return observation, reward, done, result
