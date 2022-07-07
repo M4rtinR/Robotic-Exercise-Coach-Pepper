@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from CoachingBehaviourTree import controller
+from CoachingBehaviourTree import controller, config
 from Policy.policy_wrapper import PolicyWrapper
 
 
@@ -38,8 +38,8 @@ class Action:
         Format the output of the data stored in this instance of Action.
         :return:type str: the complete formatted utterance.
         """
-        if self.score is not None and controller.has_score_been_provided is False:
-            if self.goal is not PolicyWrapper.ACTION_GOAL:
+        if self.score is not None and config.has_score_been_provided is False:
+            if self.goal is not config.ACTION_GOAL:
                 # TODO: add score-specific utterance (e.g. seconds, degrees) to explain the score better to the user.
                 return f'{self.pre_msg}. You got an average score of {round(self.score, 2)} and were aiming for {round(self.target, 2)} seconds.'
 

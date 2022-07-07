@@ -133,13 +133,13 @@ class CoachingEnvironment(gym.Env, ABC):
         # Option 1
         '''
         if score is None:
-            if action == PolicyWrapper.A_QUESTIONING and controller.question_type = controller.FEEDBACK_QUESTION:
-                if controller.question_feedback = 1:
+            if action == config.A_QUESTIONING and config.question_type = config.FEEDBACK_QUESTION:
+                if config.question_feedback = 1:
                     return 0.2
                 else:
                     return -0.2
-            elif action == PolicyWrapper.A_QUESTIONING or action == PolicyWrapper.A_PRE-INSTRUCTION:
-                if controller.decision_overriden:
+            elif action == config.A_QUESTIONING or action == config.A_PRE-INSTRUCTION:
+                if config.decision_overriden:
                     return -1  # If policy's decision to select shots for user or have user select shots, is overriden, receive a large negative reward.
             else:
                 return None  # No actions from user so reward is None and policy does not change.
@@ -161,13 +161,13 @@ class CoachingEnvironment(gym.Env, ABC):
         # Option 2
         '''
         if score is None:
-            if action == PolicyWrapper.A_QUESTIONING and controller.question_type = controller.FEEDBACK_QUESTION:
-                if controller.question_feedback = 1:
+            if action == config.A_QUESTIONING and config.question_type = config.FEEDBACK_QUESTION:
+                if config.question_feedback = 1:
                     return 0.2
                 else:
                     return -0.2
-            elif action == PolicyWrapper.A_QUESTIONING or action == PolicyWrapper.A_PRE-INSTRUCTION:
-                if controller.decision_overriden:
+            elif action == config.A_QUESTIONING or action == config.A_PRE-INSTRUCTION:
+                if config.decision_overriden:
                     return -1  # If policy's decision to select shots for user or have user select shots, is overriden, receive a large negative reward.
             else:
                 return None  # No actions from user so reward is None and policy does not change.
@@ -186,29 +186,29 @@ class CoachingEnvironment(gym.Env, ABC):
         # Option 3
         '''
         if score is None:
-            if action == PolicyWrapper.A_QUESTIONING and controller.question_type = controller.FEEDBACK_QUESTION:
-                if controller.question_feedback = 1:
+            if action == config.A_QUESTIONING and config.question_type = config.FEEDBACK_QUESTION:
+                if config.question_feedback = 1:
                     return 0.2
                 else:
                     return -0.2
-            elif action == PolicyWrapper.A_QUESTIONING or action == PolicyWrapper.A_PRE-INSTRUCTION:
-                if controller.decision_overriden:
+            elif action == config.A_QUESTIONING or action == config.A_PRE-INSTRUCTION:
+                if config.decision_overriden:
                     return -1  # If policy's decision to select shots for user or have user select shots, is overriden, receive a large negative reward.
             else:
                 return None  # No actions from user so reward is None and policy does not change.
         else:
             # Reward is based on improvement since last time or since baseline set if this is the first time.
-            if performance == PolicyWrapper.MET:
+            if performance == config.MET:
                 reward = 1
-            elif performance == PolicyWrapper.MUCH_IMPROVED:
+            elif performance == config.MUCH_IMPROVED:
                 reward = 0.6
-            elif performance == PolicyWrapper.IMPROVED or performance == PolicyWrapper.IMPROVED_SWAP:
+            elif performance == config.IMPROVED or performance == config.IMPROVED_SWAP:
                 reward = 0.3
-            elif performance == PolicyWrapper.STEADY:
+            elif performance == config.STEADY:
                 reward = 0
-            elif performance == PolicyWrapper.REGRESSED or performance == PolicyWrapper.REGRESSED_SWAP:
+            elif performance == config.REGRESSED or performance == config.REGRESSED_SWAP:
                 reward = -0.3
-            elif performance == PolicyWrapper.MUCH_REGRESSED:
+            elif performance == config.MUCH_REGRESSED:
                 reward = -0.6
                 
             # Levels of performance:

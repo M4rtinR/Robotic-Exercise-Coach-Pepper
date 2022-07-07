@@ -128,87 +128,87 @@ class PolicyWrapper:
                 valid_list.append(config.A_END)
 
         # Baseline Goal
-        elif goal_level == self.BASELINE_GOAL:
-            if phase == self.PHASE_START:
-                valid_list.extend([self.policy.A_PREINSTRUCTION, self.policy.A_PREINSTRUCTION_QUESTIONING,
-                                   self.policy.A_PREINSTRUCTION_FIRSTNAME,
-                                   self.policy.A_PREINSTRUCTION_POSITIVEMODELING,
-                                   self.policy.A_POSITIVEMODELING_PREINSTRUCTION])
+        elif goal_level == config.BASELINE_GOAL:
+            if phase == config.PHASE_START:
+                valid_list.extend([config.A_PREINSTRUCTION, config.A_PREINSTRUCTION_QUESTIONING,
+                                   config.A_PREINSTRUCTION_FIRSTNAME,
+                                   config.A_PREINSTRUCTION_POSITIVEMODELING,
+                                   config.A_POSITIVEMODELING_PREINSTRUCTION])
             else:
-                valid_list.append(self.policy.A_PRAISE)
+                valid_list.append(config.A_PRAISE)
 
         # Session, Exercise and Set Goals will all have the same action categories (different individual actions)
-        elif goal_level == self.SESSION_GOAL or goal_level == self.EXERCISE_GOAL or goal_level == self.SET_GOAL:
-            valid_list.extend([self.policy.A_POSTINSTRUCTIONPOSITIVE, self.policy.A_POSTINSTRUCTIONNEGATIVE,
-                               self.policy.A_QUESTIONING, self.policy.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING,
-                               self.policy.A_POSTINSTRUCTIONPOSITIVE_FIRSTNAME,
-                               self.policy.A_POSTINSTRUCTIONNEGATIVE_QUESTIONING, self.policy.A_QUESTIONING_FIRSTNAME,
-                               self.policy.A_POSTINSTRUCTIONNEGATIVE_FIRSTNAME,
-                               self.policy.A_QUESTIONING_POSITIVEMODELING, self.policy.A_POSITIVEMODELING_QUESTIONING,
-                               self.policy.A_POSTINSTRUCTIONPOSITIVE_POSITIVE_MODELING,
-                               self.policy.A_POSTINSTRUCTIONPOSITIVE_NEGATIVE_MODELING,
-                               self.policy.A_POSTINSTRUCTIONNEGATIVE_POSITIVEMODELING,
-                               self.policy.A_POSTINSTRUCTIONNEGATIVE_NEGATIVEMODELING,
-                               self.policy.A_QUESTIONING_NEGATIVEMODELING,
-                               self.policy.A_POSITIVEMODELING_POSTINSTRUCTIONPOSITIVE,
-                               self.policy.A_NEGATIVEMODELING_POSTINSTRUCTIONNEGATIVE])
-            if phase == self.PHASE_START:
-                valid_list.extend([self.policy.A_PREINSTRUCTION, self.policy.A_PREINSTRUCTION_QUESTIONING,
-                                   self.policy.A_PREINSTRUCTION_FIRSTNAME,
-                                   self.policy.A_PREINSTRUCTION_POSITIVEMODELING,
-                                   self.policy.A_PREINSTRUCTION_NEGATIVEMODELING,
-                                   self.policy.A_POSITIVEMODELING_PREINSTRUCTION])
-                if performance == self.MET:
-                    valid_list.extend([self.policy.A_PRAISE, self.policy.A_PRAISE_FIRSTNAME,
-                                       self.policy.A_POSITIVEMODELING_PRAISE])
-                elif performance == self.MUCH_IMPROVED:
-                    valid_list.extend([self.policy.A_PRAISE, self.policy.A_PRAISE_FIRSTNAME,
-                                       self.policy.A_POSITIVEMODELING_PRAISE])
-                elif performance == self.IMPROVED:
-                    valid_list.extend([self.policy.A_PRAISE, self.policy.A_PRAISE_FIRSTNAME,
-                                       self.policy.A_POSITIVEMODELING_PRAISE])
-                elif performance == self.IMPROVED_SWAP:
-                    valid_list.extend([self.policy.A_PRAISE, self.policy.A_PRAISE_FIRSTNAME,
-                                       self.policy.A_POSITIVEMODELING_PRAISE])
-                elif performance == self.STEADY:
-                    valid_list.extend([self.policy.A_PRAISE, self.policy.A_PRAISE_FIRSTNAME,
-                                       self.policy.A_POSITIVEMODELING_PRAISE])
-                elif performance == self.REGRESSED:
-                    valid_list.extend([self.policy.A_SCOLD, self.policy.A_CONSOLE, self.policy.A_SCOLD_FIRSTNAME,
-                                       self.policy.A_CONSOLE_FIRSTNAME])
-                elif performance == self.REGRESSED_SWAP:
-                    valid_list.extend([self.policy.A_SCOLD, self.policy.A_CONSOLE, self.policy.A_SCOLD_FIRSTNAME,
-                                       self.policy.A_CONSOLE_FIRSTNAME])
-                elif performance == self.MUCH_REGRESSED:  # performance == self.MUCH_REGRESSED
-                    valid_list.extend([self.policy.A_SCOLD, self.policy.A_CONSOLE, self.policy.A_SCOLD_FIRSTNAME,
-                                       self.policy.A_CONSOLE_FIRSTNAME])
-            else:  # phase == self.PHASE_END
-                if goal_level == self.SESSION_GOAL:
-                    valid_list.append(self.policy.A_END)
-                if performance == self.MET:
-                    valid_list.extend([self.policy.A_PRAISE, self.policy.A_PRAISE_FIRSTNAME,
-                                       self.policy.A_POSITIVEMODELING_PRAISE])
-                elif performance == self.MUCH_IMPROVED:
-                    valid_list.extend([self.policy.A_PRAISE, self.policy.A_PRAISE_FIRSTNAME,
-                                       self.policy.A_POSITIVEMODELING_PRAISE])
-                elif performance == self.IMPROVED:
-                    valid_list.extend([self.policy.A_PRAISE, self.policy.A_PRAISE_FIRSTNAME,
-                                       self.policy.A_POSITIVEMODELING_PRAISE])
-                elif performance == self.IMPROVED_SWAP:
-                    valid_list.extend([self.policy.A_PRAISE, self.policy.A_PRAISE_FIRSTNAME,
-                                       self.policy.A_POSITIVEMODELING_PRAISE])
-                elif performance == self.STEADY:
-                    valid_list.extend([self.policy.A_PRAISE, self.policy.A_PRAISE_FIRSTNAME,
-                                       self.policy.A_POSITIVEMODELING_PRAISE])
-                elif performance == self.REGRESSED:
-                    valid_list.extend([self.policy.A_SCOLD, self.policy.A_CONSOLE, self.policy.A_SCOLD_FIRSTNAME,
-                                       self.policy.A_CONSOLE_FIRSTNAME])
-                elif performance == self.REGRESSED_SWAP:
-                    valid_list.extend([self.policy.A_SCOLD, self.policy.A_CONSOLE, self.policy.A_SCOLD_FIRSTNAME,
-                                       self.policy.A_CONSOLE_FIRSTNAME])
-                elif performance == self.MUCH_REGRESSED:  # performance == self.MUCH_REGRESSED
-                    valid_list.extend([self.policy.A_SCOLD, self.policy.A_CONSOLE, self.policy.A_SCOLD_FIRSTNAME,
-                                       self.policy.A_CONSOLE_FIRSTNAME])
+        elif goal_level == config.SESSION_GOAL or goal_level == config.EXERCISE_GOAL or goal_level == config.SET_GOAL:
+            valid_list.extend([config.A_POSTINSTRUCTIONPOSITIVE, config.A_POSTINSTRUCTIONNEGATIVE,
+                               config.A_QUESTIONING, config.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING,
+                               config.A_POSTINSTRUCTIONPOSITIVE_FIRSTNAME,
+                               config.A_POSTINSTRUCTIONNEGATIVE_QUESTIONING, config.A_QUESTIONING_FIRSTNAME,
+                               config.A_POSTINSTRUCTIONNEGATIVE_FIRSTNAME,
+                               config.A_QUESTIONING_POSITIVEMODELING, config.A_POSITIVEMODELING_QUESTIONING,
+                               config.A_POSTINSTRUCTIONPOSITIVE_POSITIVE_MODELING,
+                               config.A_POSTINSTRUCTIONPOSITIVE_NEGATIVE_MODELING,
+                               config.A_POSTINSTRUCTIONNEGATIVE_POSITIVEMODELING,
+                               config.A_POSTINSTRUCTIONNEGATIVE_NEGATIVEMODELING,
+                               config.A_QUESTIONING_NEGATIVEMODELING,
+                               config.A_POSITIVEMODELING_POSTINSTRUCTIONPOSITIVE,
+                               config.A_NEGATIVEMODELING_POSTINSTRUCTIONNEGATIVE])
+            if phase == config.PHASE_START:
+                valid_list.extend([config.A_PREINSTRUCTION, config.A_PREINSTRUCTION_QUESTIONING,
+                                   config.A_PREINSTRUCTION_FIRSTNAME,
+                                   config.A_PREINSTRUCTION_POSITIVEMODELING,
+                                   config.A_PREINSTRUCTION_NEGATIVEMODELING,
+                                   config.A_POSITIVEMODELING_PREINSTRUCTION])
+                if performance == config.MET:
+                    valid_list.extend([config.A_PRAISE, config.A_PRAISE_FIRSTNAME,
+                                       config.A_POSITIVEMODELING_PRAISE])
+                elif performance == config.MUCH_IMPROVED:
+                    valid_list.extend([config.A_PRAISE, config.A_PRAISE_FIRSTNAME,
+                                       config.A_POSITIVEMODELING_PRAISE])
+                elif performance == config.IMPROVED:
+                    valid_list.extend([config.A_PRAISE, config.A_PRAISE_FIRSTNAME,
+                                       config.A_POSITIVEMODELING_PRAISE])
+                elif performance == config.IMPROVED_SWAP:
+                    valid_list.extend([config.A_PRAISE, config.A_PRAISE_FIRSTNAME,
+                                       config.A_POSITIVEMODELING_PRAISE])
+                elif performance == config.STEADY:
+                    valid_list.extend([config.A_PRAISE, config.A_PRAISE_FIRSTNAME,
+                                       config.A_POSITIVEMODELING_PRAISE])
+                elif performance == config.REGRESSED:
+                    valid_list.extend([config.A_SCOLD, config.A_CONSOLE, config.A_SCOLD_FIRSTNAME,
+                                       config.A_CONSOLE_FIRSTNAME])
+                elif performance == config.REGRESSED_SWAP:
+                    valid_list.extend([config.A_SCOLD, config.A_CONSOLE, config.A_SCOLD_FIRSTNAME,
+                                       config.A_CONSOLE_FIRSTNAME])
+                elif performance == config.MUCH_REGRESSED:  # performance == config.MUCH_REGRESSED
+                    valid_list.extend([config.A_SCOLD, config.A_CONSOLE, config.A_SCOLD_FIRSTNAME,
+                                       config.A_CONSOLE_FIRSTNAME])
+            else:  # phase == config.PHASE_END
+                if goal_level == config.SESSION_GOAL:
+                    valid_list.append(config.A_END)
+                if performance == config.MET:
+                    valid_list.extend([config.A_PRAISE, config.A_PRAISE_FIRSTNAME,
+                                       config.A_POSITIVEMODELING_PRAISE])
+                elif performance == config.MUCH_IMPROVED:
+                    valid_list.extend([config.A_PRAISE, config.A_PRAISE_FIRSTNAME,
+                                       config.A_POSITIVEMODELING_PRAISE])
+                elif performance == config.IMPROVED:
+                    valid_list.extend([config.A_PRAISE, config.A_PRAISE_FIRSTNAME,
+                                       config.A_POSITIVEMODELING_PRAISE])
+                elif performance == config.IMPROVED_SWAP:
+                    valid_list.extend([config.A_PRAISE, config.A_PRAISE_FIRSTNAME,
+                                       config.A_POSITIVEMODELING_PRAISE])
+                elif performance == config.STEADY:
+                    valid_list.extend([config.A_PRAISE, config.A_PRAISE_FIRSTNAME,
+                                       config.A_POSITIVEMODELING_PRAISE])
+                elif performance == config.REGRESSED:
+                    valid_list.extend([config.A_SCOLD, config.A_CONSOLE, config.A_SCOLD_FIRSTNAME,
+                                       config.A_CONSOLE_FIRSTNAME])
+                elif performance == config.REGRESSED_SWAP:
+                    valid_list.extend([config.A_SCOLD, config.A_CONSOLE, config.A_SCOLD_FIRSTNAME,
+                                       config.A_CONSOLE_FIRSTNAME])
+                elif performance == config.MUCH_REGRESSED:  # performance == config.MUCH_REGRESSED
+                    valid_list.extend([config.A_SCOLD, config.A_CONSOLE, config.A_SCOLD_FIRSTNAME,
+                                       config.A_CONSOLE_FIRSTNAME])
 
         # Action Goal (each shot in squash or repetition of exercise in rehab)
         else:  # goal_level == config.ACTION_GOAL:
@@ -221,47 +221,47 @@ class PolicyWrapper:
                                config.A_POSITIVEMODELING_HUSTLE,
                                config.A_POSITIVEMODELING_CONCURRENTINSTRUCTIONPOSITIVE])
             # No phases in action goals, just a behaviour after each shot.
-            if performance == self.MET:
-                valid_list.extend([self.policy.A_PRAISE, self.policy.A_PRAISE_FIRSTNAME,
-                                   self.policy.A_CONCURRENTINSTRUCTIONPOSITIVE_PRAISE,
-                                   self.policy.A_POSITIVEMODELING_PRAISE])
-            elif performance == self.MUCH_IMPROVED:
-                valid_list.extend([self.policy.A_PRAISE, self.policy.A_PRAISE_FIRSTNAME,
-                                   self.policy.A_CONCURRENTINSTRUCTIONPOSITIVE_PRAISE,
-                                   self.policy.A_POSITIVEMODELING_PRAISE])
-            elif performance == self.IMPROVED:
-                valid_list.extend([self.policy.A_PRAISE, self.policy.A_PRAISE_FIRSTNAME,
-                                   self.policy.A_CONCURRENTINSTRUCTIONPOSITIVE_PRAISE,
-                                   self.policy.A_POSITIVEMODELING_PRAISE])
-            elif performance == self.IMPROVED_SWAP:
-                valid_list.extend([self.policy.A_PRAISE, self.policy.A_PRAISE_FIRSTNAME,
-                                   self.policy.A_CONCURRENTINSTRUCTIONPOSITIVE_PRAISE,
-                                   self.policy.A_POSITIVEMODELING_PRAISE])
-            elif performance == self.STEADY:
-                valid_list.extend([self.policy.A_PRAISE, self.policy.A_PRAISE_FIRSTNAME,
-                                   self.policy.A_CONCURRENTINSTRUCTIONPOSITIVE_PRAISE,
-                                   self.policy.A_POSITIVEMODELING_PRAISE])
-            elif performance == self.REGRESSED:
-                valid_list.extend([self.policy.A_CONCURRENTINSTRUCTIONNEGATIVE, self.policy.A_NEGATIVEMODELING,
-                                   self.policy.A_SCOLD, self.policy.A_CONSOLE,
-                                   self.policy.A_QUESTIONING_NEGATIVEMODELING, self.policy.A_SCOLD_POSITIVEMODELING,
-                                   self.policy.A_SCOLD_FIRSTNAME, self.policy.A_CONSOLE_FIRSTNAME,
-                                   self.policy.A_CONCURRENTINSTRUCTIONNEGATIVE_NEGATIVEMODELING,
-                                   self.policy.A_CONCURRENTINSTRUCTIONNEGATIVE_FIRSTNAME,])
-            elif performance == self.REGRESSED_SWAP:
-                valid_list.extend([self.policy.A_CONCURRENTINSTRUCTIONNEGATIVE, self.policy.A_NEGATIVEMODELING,
-                                   self.policy.A_SCOLD, self.policy.A_CONSOLE,
-                                   self.policy.A_QUESTIONING_NEGATIVEMODELING, self.policy.A_SCOLD_POSITIVEMODELING,
-                                   self.policy.A_SCOLD_FIRSTNAME, self.policy.A_CONSOLE_FIRSTNAME,
-                                   self.policy.A_CONCURRENTINSTRUCTIONNEGATIVE_NEGATIVEMODELING,
-                                   self.policy.A_CONCURRENTINSTRUCTIONNEGATIVE_FIRSTNAME])
-            elif performance == self.MUCH_REGRESSED:  # performance == self.MUCH_REGRESSED
-                valid_list.extend([self.policy.A_CONCURRENTINSTRUCTIONNEGATIVE, self.policy.A_NEGATIVEMODELING,
-                                   self.policy.A_SCOLD, self.policy.A_CONSOLE,
-                                   self.policy.A_QUESTIONING_NEGATIVEMODELING, self.policy.A_SCOLD_POSITIVEMODELING,
-                                   self.policy.A_SCOLD_FIRSTNAME, self.policy.A_CONSOLE_FIRSTNAME,
-                                   self.policy.A_CONCURRENTINSTRUCTIONNEGATIVE_NEGATIVEMODELING,
-                                   self.policy.A_CONCURRENTINSTRUCTIONNEGATIVE_FIRSTNAME])
+            if performance == config.MET:
+                valid_list.extend([config.A_PRAISE, config.A_PRAISE_FIRSTNAME,
+                                   config.A_CONCURRENTINSTRUCTIONPOSITIVE_PRAISE,
+                                   config.A_POSITIVEMODELING_PRAISE])
+            elif performance == config.MUCH_IMPROVED:
+                valid_list.extend([config.A_PRAISE, config.A_PRAISE_FIRSTNAME,
+                                   config.A_CONCURRENTINSTRUCTIONPOSITIVE_PRAISE,
+                                   config.A_POSITIVEMODELING_PRAISE])
+            elif performance == config.IMPROVED:
+                valid_list.extend([config.A_PRAISE, config.A_PRAISE_FIRSTNAME,
+                                   config.A_CONCURRENTINSTRUCTIONPOSITIVE_PRAISE,
+                                   config.A_POSITIVEMODELING_PRAISE])
+            elif performance == config.IMPROVED_SWAP:
+                valid_list.extend([config.A_PRAISE, config.A_PRAISE_FIRSTNAME,
+                                   config.A_CONCURRENTINSTRUCTIONPOSITIVE_PRAISE,
+                                   config.A_POSITIVEMODELING_PRAISE])
+            elif performance == config.STEADY:
+                valid_list.extend([config.A_PRAISE, config.A_PRAISE_FIRSTNAME,
+                                   config.A_CONCURRENTINSTRUCTIONPOSITIVE_PRAISE,
+                                   config.A_POSITIVEMODELING_PRAISE])
+            elif performance == config.REGRESSED:
+                valid_list.extend([config.A_CONCURRENTINSTRUCTIONNEGATIVE, config.A_NEGATIVEMODELING,
+                                   config.A_SCOLD, config.A_CONSOLE,
+                                   config.A_QUESTIONING_NEGATIVEMODELING, config.A_SCOLD_POSITIVEMODELING,
+                                   config.A_SCOLD_FIRSTNAME, config.A_CONSOLE_FIRSTNAME,
+                                   config.A_CONCURRENTINSTRUCTIONNEGATIVE_NEGATIVEMODELING,
+                                   config.A_CONCURRENTINSTRUCTIONNEGATIVE_FIRSTNAME,])
+            elif performance == config.REGRESSED_SWAP:
+                valid_list.extend([config.A_CONCURRENTINSTRUCTIONNEGATIVE, config.A_NEGATIVEMODELING,
+                                   config.A_SCOLD, config.A_CONSOLE,
+                                   config.A_QUESTIONING_NEGATIVEMODELING, config.A_SCOLD_POSITIVEMODELING,
+                                   config.A_SCOLD_FIRSTNAME, config.A_CONSOLE_FIRSTNAME,
+                                   config.A_CONCURRENTINSTRUCTIONNEGATIVE_NEGATIVEMODELING,
+                                   config.A_CONCURRENTINSTRUCTIONNEGATIVE_FIRSTNAME])
+            elif performance == config.MUCH_REGRESSED:  # performance == config.MUCH_REGRESSED
+                valid_list.extend([config.A_CONCURRENTINSTRUCTIONNEGATIVE, config.A_NEGATIVEMODELING,
+                                   config.A_SCOLD, config.A_CONSOLE,
+                                   config.A_QUESTIONING_NEGATIVEMODELING, config.A_SCOLD_POSITIVEMODELING,
+                                   config.A_SCOLD_FIRSTNAME, config.A_CONSOLE_FIRSTNAME,
+                                   config.A_CONCURRENTINSTRUCTIONNEGATIVE_NEGATIVEMODELING,
+                                   config.A_CONCURRENTINSTRUCTIONNEGATIVE_FIRSTNAME])
 
         return valid_list
 
