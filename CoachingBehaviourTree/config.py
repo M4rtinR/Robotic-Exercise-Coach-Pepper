@@ -136,6 +136,8 @@ behaviour_displayed = False  # Set to true in DisplayBehaviour node to indicate 
 repetitions = -1
 stop_session = False
 stop_set = False
+metric_score_list = []  # The scores for each of the 6 stats we are measuring in the baseline set.
+metric_performance_list = []  # The performances of the 6 stats we are measuring in the baseline set.
 
 # Initial values to be changed at the beginning of each session:
 name = "Martin"

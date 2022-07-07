@@ -796,6 +796,11 @@ class TimestepCue(Node):
                         <performance for 2nd session>
                         ...
                 Directory: <exercise name>
+                    File: Baseline.txt (updated at end of baseline goal)
+                        Contents:
+                            <stat name>
+                            <stat score>, <stat performance>
+                            ...
                     File: Aggregator.txt (aggregated at end of exercise)
                         Contents:
                             <previous score>
@@ -810,15 +815,26 @@ class TimestepCue(Node):
                             <score> (aggregated at end of exercise)
                             <performance>
                             <stat name>
-                            <stat score>, <stat performance> (aggregated at end of stat)
+                            <stat score>, <stat performance>
+                            <no. of sets>
+                            <stat score 1st set>, <stat performance 1st set>
+                            <stat score 2nd set>, <stat performance 2nd set>
+                            ...
                             <stat name>
                             <stat score>, <stat performance>
+                            <no. of sets>
+                            <stat score 1st set>, <stat performance 1st set>
+                            <stat score 2nd set>, <stat performance 2nd set>
                             ...
                     ...
                     File: <current session no.>.txt
                         Contents: (updated as session progresses)
                             <stat name>
-                            <stat score>, <stat performance>
+                            <stat score>, <stat performance>  (Aggregated at end of stat)
+                            <no. of sets>
+                            <stat score 1st set>, <stat performance 1st set>
+                            <stat score 2nd set>, <stat performance 2nd set>
+                            ...
                             <stat name>
                             <no. of sets>
                             <stat score 1st set>, <stat performance 1st set>
@@ -944,17 +960,33 @@ class TimestepCue(Node):
             elif self.goal_level == config.EXERCISE_GOAL:  # For shot goal should have performance from last time this shot was practiced.
                 if config.goal_level == config.EXERCISE_GOAL:
                     if config.phase == config.PHASE_END:  # Feedback sequence
-                        if controller.completed == controller.COMPLETED_STATUS_TRUE:  # This is actually the end of a baseline goal. Might need to update this so it's not as weirdly laid out.
+                        if config.completed == config.COMPLETED_STATUS_TRUE:  # This is actually the end of a baseline goal. Might need to update this so it's not as weirdly laid out.
                             logging.debug("Baseline goal feedback sequence")
-                            nodedata.phase = PolicyWrapper.PHASE_END
-                            nodedata.performance = config.performance
+                            # Will get list of scores.
+                            nodedata.phase = config.PHASE_END
+                            nodedata.score = config.metric_score_list
+                            nodedata.performance = config.metric_performance_list
+
+                            f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + self.shot + "/Baseline.txt", "r")
+                            file_contents = f.readlines()
+                            f.close()
+
+                            index = 1
+                            for score, performance in nodedata.score, nodedata.performance:
+                                file_contents[index] = str(score) + ", " + str(performance) + ", \n"
+                                index += 2
+
+                            f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + self.shot + "/Baseline.txt", "w")
+                            f.writelines(file_contents)
+                            f.close()
+
                             logging.debug("Returning SUCCESS from TimestepCue shot goal (end), stats = " + str(nodedata))
                             return NodeStatus(NodeStatus.SUCCESS, "Data for shot goal obtained from guide:" + str(nodedata))
                         elif config.completed == config.COMPLETED_STATUS_FALSE:  # Feedback Sequence
                             logging.debug("Exercise goal feedback sequence")
                             nodedata.phase = config.PHASE_END
                             if not (len(config.shot_performance_list) == 0):
-                                nodedata.performance = mode(config.shot_performance_list)
+                                nodedata.performance = config.performance
                                 config.session_performance_list.append(nodedata.performance)
                                 nodedata.score = config.score
                                 config.session_score_list.append(nodedata.score)
@@ -967,6 +999,10 @@ class TimestepCue(Node):
 
                                 f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + self.shot + "/" + config.sessions + ".txt", "r")
                                 this_session_contents = f.readlines()
+                                f.close()
+
+                                f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + self.shot + "/Baseline.txt", "r")
+                                baseline_contents = f.readlines()
                                 f.close()
 
                                 this_session_contents.insert(0, nodedata.score + "\n")
@@ -985,6 +1021,11 @@ class TimestepCue(Node):
                                     else:
                                         index = aggregator_contents.index(stat)
                                         aggregator_contents[index+1] = this_session_contents[this_session_line_no] + "\n"
+
+                                    # Update baseline file
+                                    index = baseline_contents.index(stat)
+                                    baseline_contents[index + 1] = this_session_contents[this_session_line_no] + "\n"
+
                                     this_session_line_no += 1
 
                                 print("File contents = " + str(aggregator_contents))
@@ -995,6 +1036,10 @@ class TimestepCue(Node):
 
                                 f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + self.shot + "/" + config.sessions + ".txt", "w")
                                 f.writelines(this_session_contents)
+                                f.close()
+
+                                f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + self.shot + "/Baseline.txt", "w")
+                                f.writelines(baseline_contents)
                                 f.close()
 
                             # Clear the controller's lists for the exercise that has just happened.
@@ -1029,10 +1074,11 @@ class TimestepCue(Node):
                             config.score = None
 
                         print("got data from file.")
-                        nodedata.performance = controller.performance
-                        nodedata.target = controller.target
+                        nodedata.performance = config.performance
+                        nodedata.score = config.score
+                        nodedata.target = config.target
 
-                        nodedata.phase = PolicyWrapper.PHASE_START
+                        nodedata.phase = config.PHASE_START
                         # controller.goal_level = PolicyWrapper.SET_GOAL
                         logging.debug("Returning SUCCESS from TimestepCue exercise goal, stats = " + str(nodedata))
                         return NodeStatus(NodeStatus.SUCCESS, "Data for exercise goal obtained from guide:" + str(nodedata))
@@ -1045,9 +1091,9 @@ class TimestepCue(Node):
                     if config.phase == config.PHASE_END:  # Feedback sequence
                         # Aggregate performance data about this stat and write it to file.
                         if not (len(config.stat_performance_list) == 0):
-                            nodedata.performance = mode(config.stat_performance_list)
+                            nodedata.performance = config.performance
                             nodedata.phase = config.PHASE_END
-                            nodedata.score = mean(config.stat_score_list)
+                            nodedata.score = config.score
                             nodedata.target = config.target
 
                             f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + self.shot + "/" + config.sessions + ".txt", "r")
@@ -1056,10 +1102,14 @@ class TimestepCue(Node):
 
                             stat_name = str(self.stat) + "\n"
                             index = file_contents.index(stat_name)
-                            file_contents[index+1] = nodedata.score + ", " + nodedata.performance + ", \n"
-                            line_no = index + 2
-                            while len(file_contents) > line_no:
-                                file_contents.pop(line_no)  # Remove the rest of the sets from the list.
+                            file_contents.insert(index+1, nodedata.score + ", " + nodedata.performance + ", \n")
+
+                            f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + self.shot + "/" + config.sessions + ".txt", "w")
+                            f.writelines(file_contents)
+                            f.close()
+
+                            config.shot_performance_list.append(nodedata.performance)
+                            config.shot_score_list.sppend(nodedata.score)
 
                             # Clear the controller's lists for the stat that has just happened.
                             config.stat_performance_list = []
@@ -1107,72 +1157,121 @@ class TimestepCue(Node):
                     logging.debug("Returning ACTIVE from TimestepCue stat goal")
                     return NodeStatus(NodeStatus.ACTIVE, "Waiting for stat goal data from guide.")
 
-            elif self.goal_level == PolicyWrapper.SET_GOAL:
-                if controller.goal_level == PolicyWrapper.SET_GOAL:
+            elif self.goal_level == config.SET_GOAL:
+                if config.goal_level == config.SET_GOAL:
                     print("Controller.goal_level == PolicyWrapper.SET_GOAL")
-                    if controller.phase == PolicyWrapper.PHASE_END:  # Just finished previous goal level so into feedback sequence.
-                        nodedata.phase = PolicyWrapper.PHASE_END
-                        print("performance list = " + str(controller.set_performance_list) + ", mode = " + str(mode(controller.set_performance_list)))
-                        nodedata.performance = mode(controller.set_performance_list)
-                        print("Average performance = " + str(nodedata.performance))
-                        nodedata.score = mean(controller.set_score_list)
-                        # Update score in controller
-                        controller.exercise_performance_list.append(nodedata.performance)
-                        controller.exercise_score_list.append(nodedata.score)
+                    if config.phase == config.PHASE_END:  # Just finished previous goal level so into feedback sequence.
+                        nodedata.phase = config.PHASE_END
+                        if not (len(config.stat_performance_list) == 0):
+                            # print("performance list = " + str(controller.set_performance_list) + ", mode = " + str(mode(controller.set_performance_list)))
+                            nodedata.performance = config.performance
+                            # print("Average performance = " + str(nodedata.performance))
+                            nodedata.score = config.avg_score
+                            # Update score in controller
+                            config.stat_performance_list.append(nodedata.performance)
+                            config.stat_score_list.append(nodedata.score)
+
+                            # Write to file
+                            f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + self.shot + "/" + config.sessions + ".txt", "r")
+                            file_contents = f.readlines()
+                            f.close()
+
+                            file_contents.append(str(nodedata.score) + ", " + str(nodedata.performance) + ", \n")
+                            f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + self.shot + "/" + config.sessions + ".txt", "w")
+                            f.writelines(file_contents)
+                            f.close()
+
                         # Clear the controller's lists for the set that has just happened.
                         controller.set_performance_list = []
                         controller.set_score_list = []
-                        nodedata.target = controller.target
+                        nodedata.target = config.target
                         logging.info("Feedback for exercise set, score = {score}, target = {target}, performance = {performance}".format(score=nodedata.score, target=nodedata.target, performance=nodedata.performance))
                         logging.debug("Returning SUCCESS from TimestepCue set goal feedback, stats = " + str(nodedata))
                         return NodeStatus(NodeStatus.SUCCESS, "Data for set goal obtained from guide:" + str(nodedata))
                     else:  # For set goal we need information about the previous set if this is not the first set of this exercise.
-                        nodedata.phase = PolicyWrapper.PHASE_START
-                        if len(controller.exercise_performance_list) > 0:
-                            nodedata.performance = controller.exercise_performance_list[len(controller.exercise_performance_list) - 1]
+                        nodedata.phase = config.PHASE_START
+
+                        f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + self.shot + "/" + config.sessions + ".txt", "r")
+                        file_contents = f.readlines()
+                        f.close()
+                        stat_name = str(self.stat) + "\n"
+
+                        if len(config.stat_performance_list) > 0:
+                            nodedata.performance = config.stat_performance_list[len(config.set_performance_list) - 1]  # Get last entry of stat performance list.
+                            nodedata.score = config.stat_score_list[len(config.stat_score_list) - 1]
+
+                            index = file_contents.index(stat_name)
+                            file_contents.insert(index+1, config.set_count)
+                            f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + self.shot + "/" + config.sessions + ".txt", "w")
+                            f.writelines(file_contents)
+                            f.close()
                         else:
                             nodedata.performance = None
-                        controller.exercise_count = 0
+                            nodedata.score = None
+
+                            file_contents.append(config.set_count)
+                            f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + self.shot + "/" + config.sessions + ".txt", "w")
+                            f.writelines(file_contents)
+                            f.close()
+
+                        config.shot_count = 0
                         # controller.completed = controller.COMPLETED_STATUS_FALSE
                         logging.debug("Returning SUCCESS from TimestepCue set goal, stats = " + str(nodedata))
                         return NodeStatus(NodeStatus.SUCCESS, "Data for set goal obtained from guide:" + str(nodedata))
                 else:
-                    # Don't need to get performance data of set from file because it will be stored in the controller.
-                    controller.goal_level = PolicyWrapper.SET_GOAL
+                    # controller.goal_level = PolicyWrapper.SET_GOAL
                     # controller.phase = PolicyWrapper.PHASE_END
                     print("Returning ACTIVE from TimestepCue set goal")
                     logging.debug("Returning ACTIVE from TimestepCue set goal")
                     return NodeStatus(NodeStatus.ACTIVE, "Waiting for set goal data from guide.")
 
-            elif self.goal_level == PolicyWrapper.ACTION_GOAL:
-                if controller.goal_level == PolicyWrapper.ACTION_GOAL:
-                    controller.goal_level = PolicyWrapper.SET_GOAL
-                    nodedata.phase = PolicyWrapper.PHASE_END
-                    nodedata.performance = controller.performance
-                    controller.set_performance_list.append(nodedata.performance)
-                    nodedata.score = controller.score
-                    controller.set_score_list.append(nodedata.score)
-                    nodedata.target = controller.target
+            elif self.goal_level == config.ACTION_GOAL:
+                if config.goal_level == config.ACTION_GOAL:
+                    config.goal_level = config.SET_GOAL
+                    nodedata.phase = config.PHASE_END
+                    nodedata.performance = config.performance
+                    config.set_performance_list.append(nodedata.performance)
+                    nodedata.score = config.score
+                    config.set_score_list.append(nodedata.score)
+                    nodedata.target = config.target
+
                     logging.debug("Returning SUCCESS from TimestepCue action goal, stats = " + str(nodedata))
                     return NodeStatus(NodeStatus.SUCCESS, "Data for action goal obtained from guide:" + str(nodedata))
                 else:
-                    controller.goal_level = PolicyWrapper.ACTION_GOAL
+                    # controller.goal_level = PolicyWrapper.ACTION_GOAL
                     logging.debug("Returning ACTIVE from TimestepCue action goal")
                     return NodeStatus(NodeStatus.ACTIVE, "Waiting for action goal input from operator.")
 
-            elif self.goal_level == 6:
-                if controller.goal_level == 4:
-                    nodedata.phase = PolicyWrapper.PHASE_START
-                    controller.shot_count = 0
-                    controller.completed = controller.COMPLETED_STATUS_FALSE
+            elif self.goal_level == config.BASELINE_GOAL:
+                if config.goal_level == 4:  # Baseline goal intro sequence
+                    nodedata.phase = config.PHASE_START
+                    config.shot_count = 0
+                    config.completed = config.COMPLETED_STATUS_FALSE
+
+                    # Create file for baseline goal.
+                    f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + self.shot + "/Baseline.txt", "a")
+                    file_contents = ["racketPreparation\n",
+                                     "0\n",
+                                     "downSwingSpeed\n",
+                                     "0\n",
+                                     "impactCutAngle\n",
+                                     "0\n",
+                                     "impactSpeed\n",
+                                     "0\n",
+                                     "followThroughSwing\n",
+                                     "0\n",
+                                     "followThroughTime\n",
+                                     "0\n"]
+                    f.writelines(file_contents)
+                    f.close()
                     logging.debug("Returning SUCCESS from TimestepCue baseline goal, stats = " + str(nodedata))
                     return NodeStatus(NodeStatus.SUCCESS, "Data for baseline goal obtained from guide:" + str(nodedata))
                 else:
                     logging.debug("Returning ACTIVE from TimestepCue baseline goal")
                     return NodeStatus(NodeStatus.ACTIVE, "Waiting for baseline goal data from guide.")
 
-            nodedata.performance = PolicyWrapper.MET
-            nodedata.phase = PolicyWrapper.PHASE_START
+            nodedata.performance = config.MET
+            nodedata.phase = config.PHASE_START
             nodedata.target = 0.80
             nodedata.score = 0.79
             logging.debug("Returning SUCCESS from TimestepCue, stats = " + str(nodedata))
