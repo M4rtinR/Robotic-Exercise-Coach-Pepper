@@ -1,4 +1,9 @@
 SHOT_CHOICE = 0
+STAT_CHOICE = 1
+
+CHOICE_BY_PERSON = 0
+CHOICE_BY_SYSTEM = 1
+
 MAX_SESSION_TIME = 4
 
 COMPLETED_STATUS_UNDEFINED = -1
@@ -128,6 +133,7 @@ set_count = 0
 given_score = 0
 shot_list_session = ["Forehand Drive", "Backhand Drive", "Forehand Drop"]  # Delete from this list once the exercise has been completed in the session.
 used_shots = []
+used_stats = []
 start_time = None
 observation = -1
 has_score_been_provided = True  # True if Pepper has already said e.g. "Your average score was 3.02 and your were aiming for 2.0" and False otherwise.
@@ -138,6 +144,8 @@ stop_session = False
 stop_set = False
 metric_score_list = []  # The scores for each of the 6 stats we are measuring in the baseline set.
 metric_performance_list = []  # The performances of the 6 stats we are measuring in the baseline set.
+override = None  # Will be True if user decides to override the policy's decision to choose/question about shot/stat options. False if they decide not to.
+overriden = False  # Indicates whether an override has already occured at this goal level (no point asking if the user wants to override again).
 
 # Initial values to be changed at the beginning of each session:
 name = "Martin"

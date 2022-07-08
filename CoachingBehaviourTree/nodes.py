@@ -617,6 +617,7 @@ class CreateSubgoal(Node):
             or cannot connect to API.
         """
         if not config.stop_set and not config.stop_session:
+            config.overriden = False
             # Will return SUCCESS once request sent to API, FAIL if called on ACTION_GOAL or connection error.
             if self.previous_goal_level == config.BASELINE_GOAL:
                 nodedata.new_goal = config.STAT_GOAL
@@ -725,8 +726,8 @@ class EndSubgoal(Node):
                     config.completed = config.COMPLETED_STATUS_TRUE
                 else:
                     config.goal_level -= 1
-                    # TODO: I've set max set_count to 4 but there may be some freedom there depending on user performance.
-                    if ((self.goal_level == config.SET_GOAL and config.set_count == 4) or self.goal_level == config.STAT_GOAL or self.goal_level == config.EXERCISE_GOAL or self.goal_level == config.SESSION_GOAL) and not config.stop_session:
+                    # TODO: I've set max set_count to 3 but there may be some freedom there depending on user performance.
+                    if ((self.goal_level == config.SET_GOAL and config.set_count == 3) or self.goal_level == config.STAT_GOAL or self.goal_level == config.EXERCISE_GOAL or self.goal_level == config.SESSION_GOAL) and not config.stop_session:
                         config.phase = config.PHASE_END
                     else:
                         config.phase = config.PHASE_START
@@ -736,6 +737,10 @@ class EndSubgoal(Node):
                     config.scores_provided = 0  # At new goal level we will need to provide the average score again.
                     if self.goal_level == config.EXERCISE_GOAL:
                         config.session_time += 1
+                        config.shot = None
+                    if self.goal_level == config.STAT_GOAL:
+                        config.stat = None
+                        config.used_stats = []
 
                 print("Ended subgoal {old_goal}. New goal level = {new_goal}.".format(old_goal=self.goal_level, new_goal=nodedata.new_goal))
                 logging.info("Ended subgoal {old_goal}. New goal level = {new_goal}.".format(old_goal=self.goal_level, new_goal=nodedata.new_goal))
@@ -1342,30 +1347,37 @@ class DurationCheck(Node):
             return NodeStatus(NodeStatus.FAIL, "Stop set/session duration check")
 
 
-class GetUserChoice(Node):
+class GetChoice(Node):
     """
-    Ask for a choice from the user as to their preference on shot or stat to work on.
+    Ask for a choice from the user as to their preference on shot or stat to work on, or decide which shot/stat to work
+    on.
     ...
     Attributes
     ----------
     choice_type :type int
         Whether we are asking the user to choose a shot or a stat (SHOT_CHOICE or STAT_CHOICE).
+    whos_choice :type int
+        Whether we are deciding what shot/stat to choose or are getting the user's choice.
     Methods
     -------
     run()
-        Ask the user which shot/stat they would like to work on (display options on screen of Pepper).
+        Ask the user which shot/stat they would like to work on (display options on screen of Pepper), or choose
+        ourselves.
     """
 
     def __init__(self, name, *args, **kwargs):
-        super(GetUserChoice, self).__init__(
+        super(GetChoice, self).__init__(
             name,
             run_cb=self.run,
             configure_cb=self.configure,
             *args, **kwargs)
 
     def configure(self, nodedata):
-        logging.debug("Configuring GetUserChoice: " + self._name)
+        logging.debug("Configuring GetChoice: " + self._name)
         self.choice_type = nodedata.get_data('choice_type')
+        self.whos_choice = nodedata.get_data('whos_choice')
+        self.sorted_shot_list = nodedata.get_data('shot_list')
+        self.sorted_stat_list = nodedata.get_data('stat_list')
 
     def run(self, nodedata):
         """
@@ -1373,19 +1385,69 @@ class GetUserChoice(Node):
         :return: NodeStatus.SUCCESS once options have been displayed to user.
         """
         if not config.stop_set and not config.stop_session:
-            # TODO Update once getting actual choice from user. Will probably need two nodes, one for requesting, one for
-            #   waiting for user selection so that the tree doesn't grind to a halt.
-            if self.choice_type == 0:  # config.SHOT_CHOICE = 0
-                nodedata.shot = 1
-                config.shot = 1
-                nodedata.hand = 1  # Forehand
-                config.hand = 1
-                logging.debug("Returning SUCCESS from GetUserChoice, shot = " + str(nodedata.shot))
-            else:
-                nodedata.stat = 1
-                config.stat = 1
-                logging.debug("Returning SUCCESS from GetUserChoice, stat = " + str(nodedata.stat))
-            return NodeStatus(NodeStatus.SUCCESS, "Set shot/stat to 1.")
+            if self.whos_choice == config.CHOICE_BY_SYSTEM:
+                if self.choice_type == config.SHOT_CHOICE:
+                    s = 0
+                    shot = self.sorted_shot_list[s]
+                    while shot in config.used_shots:
+                        s += 1
+                        shot = self.sorted_shot_list[s]
+
+                    config.used_shots.append(shot)
+                    config.performance = None
+                    config.score = -1
+
+                    '''# Update exercise picture on Pepper's tablet screen and reset the counter
+                    if nodedata.get_data("new_exercise") == 0:
+                        exerciseString = "TabletopCircles"
+                    elif nodedata.get_data("new_exercise") == 1:
+                        exerciseString = "TowelSlides"
+                    elif nodedata.get_data("new_exercise") == 2:
+                        exerciseString = "CaneRotations"
+                    else:
+                        exerciseString = "ShoulderOpeners"
+                    utteranceURL = config.screen_post_address + exerciseString + "/newPicture"
+                    r = requests.post(utteranceURL)
+                    r = requests.post(config.screen_post_address + "0/newRep")'''
+                    nodedata.shot = shot.split(" ")[0]
+                    nodedata.hand = shot.split(" ")[1]
+
+                    config.shot = nodedata.shot
+                    config.hand = nodedata.hand
+                    logging.debug("Returning SUCCESS from GetUserChoice, shot = " + str(nodedata.hand) + " " + str(nodedata.shot))
+                    return NodeStatus(NodeStatus.SUCCESS,"Returning SUCCESS from GetUserChoice, shot = " + str(nodedata.hand) + " " + str(nodedata.shot))
+                else:  # STAT_CHOICE
+                    s = 0
+                    stat = self.sorted_stat_list[s]
+                    while stat in config.used_stats:
+                        s += 1
+                        stat = self.sorted_stat_list[s]
+
+                    config.used_stats.append(stat)
+                    config.performance = None
+                    config.score = -1
+
+                    nodedata.stat = stat
+                    config.stat = stat
+                    config.set_count = 0  # Reset the set count for this session to 0.
+                    logging.debug("Returning SUCCESS from GetUserChoice, stat = " + str(nodedata.stat))
+                    return NodeStatus(NodeStatus.SUCCESS,"Returning SUCCESS from GetUserChoice, stat = " + str(nodedata.stat))
+            else:  # CHOICE_BY_PERSON
+                if self.choice_type == config.SHOT_CHOICE:
+                    if config.shot is None:
+                        return NodeStatus(NodeStatus.ACTIVE, "Waiting on user's shot choice")
+
+                    nodedata.shot = config.shot
+                    nodedata.hand = config.hand
+                    logging.debug("Returning SUCCESS from GetUserChoice, shot = " + str(nodedata.hand) + " " + str(nodedata.shot))
+                    return NodeStatus(NodeStatus.SUCCESS, "Returning SUCCESS from GetUserChoice, shot = " + str(nodedata.hand) + " " + str(nodedata.shot))
+                else:  # STAT_CHOICE
+                    if config.stat is None:
+                        return NodeStatus(NodeStatus.ACTIVE, "Waiting on user's stat choice")
+
+                    nodedata.stat = config.stat
+                    logging.debug("Returning SUCCESS from GetUserChoice, stat = " + str(nodedata.stat))
+                    return NodeStatus(NodeStatus.SUCCESS, "Returning SUCCESS from GetUserChoice, stat = " + str(nodedata.stat))
         else:
             return NodeStatus(NodeStatus.SUCCESS, "Stop set/session get user choice")
 
@@ -1574,6 +1636,64 @@ class InitialiseBlackboard(Node):
             return 482
         else:
             return 535
+
+
+class OverrideOption(Node):
+    """
+        Check if the operator has indicated that an exercise has been completed.
+
+        This will eventually be replaced with the vision system using OpenPose.
+        ...
+        Methods
+        -------
+        run()
+            Check if the operator has pressed the return key.
+        """
+
+    def __init__(self, name, *args, **kwargs):
+        super(OverrideOption, self).__init__(
+            name,
+            run_cb=self.run,
+            configure_cb=self.configure,
+            *args, **kwargs)
+
+    def configure(self, nodedata):
+        """
+        Set up the initial values needed to calculate exercise performance.
+        :param nodedata :type Blackboard: the blackboard associated with this Behaviour Tree containing all relevant
+            state information.
+        :return: None
+        """
+        logging.debug("Configuring OverrideOption " + self._name)
+        self.original_behaviour = nodedata.get_data("original_behaviour")
+
+    def run(self, nodedata):
+        """
+        Check if user has selected to override the policy's choice to select/question for shot/stat option.
+        :return: NodeStatus.SUCCESS if user has overriden. NodeStatus.FAIL if user has not overriden.
+         NodeStatus.ACTIVE if still waiting for choice.
+        """
+
+        if not config.stop_set and not config.stop_session or config.overriden:
+            if config.override is None:
+                return NodeStatus(NodeStatus.ACTIVE, "Waiting for user to decide whether to override.")
+            else:
+                if config.override:
+                    config.overriden = True
+                    if self.original_behaviour == config.A_PREINSTRUCTION:
+                        config.behaviour = config.A_QUESTIONING
+                    else:
+                        config.behaviour = config.A_PREINSTRUCTION
+
+                    config.override = None
+                    return NodeStatus(NodeStatus.SUCCESS, "User decided to override")
+                else:
+                    config.override = None
+                    return NodeStatus(NodeStatus.FAIL, "User decided not to override")
+        else:
+            config.override = None
+            return NodeStatus(NodeStatus.FAIL, "Stop set/session override option")
+
 
 '''
 class OperatorInput(Node):

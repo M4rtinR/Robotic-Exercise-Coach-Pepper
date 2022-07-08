@@ -139,7 +139,7 @@ class CoachingEnvironment(gym.Env, ABC):
                 else:
                     return -0.2
             elif action == config.A_QUESTIONING or action == config.A_PRE-INSTRUCTION:
-                if config.decision_overriden:
+                if config.overriden:
                     return -1  # If policy's decision to select shots for user or have user select shots, is overriden, receive a large negative reward.
             else:
                 return None  # No actions from user so reward is None and policy does not change.
@@ -167,7 +167,7 @@ class CoachingEnvironment(gym.Env, ABC):
                 else:
                     return -0.2
             elif action == config.A_QUESTIONING or action == config.A_PRE-INSTRUCTION:
-                if config.decision_overriden:
+                if config.overriden:
                     return -1  # If policy's decision to select shots for user or have user select shots, is overriden, receive a large negative reward.
             else:
                 return None  # No actions from user so reward is None and policy does not change.
@@ -192,7 +192,7 @@ class CoachingEnvironment(gym.Env, ABC):
                 else:
                     return -0.2
             elif action == config.A_QUESTIONING or action == config.A_PRE-INSTRUCTION:
-                if config.decision_overriden:
+                if config.overriden:
                     return -1  # If policy's decision to select shots for user or have user select shots, is overriden, receive a large negative reward.
             else:
                 return None  # No actions from user so reward is None and policy does not change.
