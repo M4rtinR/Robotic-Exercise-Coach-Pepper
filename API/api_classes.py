@@ -22,299 +22,313 @@ class TimestepCue(Resource):
             content = request.get_json()
             logging.debug(content)
             logging.info("Received data from app: {}".format(content))
-            if int(content['goal_level']) == config.PERSON_GOAL:
-                # logging.info("Received data from app: {}".format(content))
-                config.goal_level = config.PERSON_GOAL
-                # config.name = content['name']  # Name was not working so removed here and will set it at the start of each session.
-                config.sessions = int(content['sessions'])
-                config.ability = int(content['ability'])
-                config.completed = config.COMPLETED_STATUS_UNDEFINED
-
-                while config.completed == config.COMPLETED_STATUS_UNDEFINED:
-                    pass
-
-                new_data = {
-                    'goal_level': 0,
-                    'completed': config.completed,
-                    'shotSet': 0
-                }
-
-                return new_data, 200
-
-            elif int(content['goal_level']) == config.SESSION_GOAL:
-                logging.debug('session goal setting controller values')
-                if 'feedback' in content:  # End of session
-                    logging.debug('end of session')
-                    config.performance = content['performance']
-                    config.goal_level = config.SESSION_GOAL
-                    config.phase = config.PHASE_END
+            if 'goal_level' in content:
+                if int(content['goal_level']) == config.PERSON_GOAL:
+                    # logging.info("Received data from app: {}".format(content))
+                    config.goal_level = config.PERSON_GOAL
+                    # config.name = content['name']  # Name was not working so removed here and will set it at the start of each session.
+                    config.sessions = int(content['sessions'])
+                    config.ability = int(content['ability'])
                     config.completed = config.COMPLETED_STATUS_UNDEFINED
 
                     while config.completed == config.COMPLETED_STATUS_UNDEFINED:
                         pass
 
                     new_data = {
-                        'goal_level': 1,
-                        'completed': config.completed
-                    }
-
-                    return new_data, 200
-                elif 'stop' in content:
-                    print("stop session")
-                    config.stop_session = True  # High level global variable which will be checked at each node until session goal feedback is reached.
-                    config.goal_level = config.SESSION_GOAL
-                    config.phase = config.PHASE_END
-                    config.set_count += 1
-                    config.completed = config.COMPLETED_STATUS_TRUE
-
-                    new_data = {
-                        'goal_level': 1,
-                        'completed': config.completed,
-                    }
-
-                    return new_data, 200
-                else:
-                    config.completed = config.COMPLETED_STATUS_UNDEFINED
-                    config.goal_level = config.SESSION_GOAL
-                    config.phase = config.PHASE_START
-                    config.performance = None
-                    # config.performance = content['performance']
-
-                    while config.completed == config.COMPLETED_STATUS_UNDEFINED:
-                        pass
-
-                    new_data = {
-                        'goal_level': 1,
-                        'completed': config.completed,
-                        'shotSet': 0
-                    }
-
-                    if not (config.shot == -1):
-                        new_data['shotType'] = config.shot
-                        new_data['hand'] = config.hand
-
-                    if not (config.stat == ""):
-                        new_data['stat'] = config.stat
-
-                    return new_data, 200
-
-            elif int(content['goal_level']) == config.EXERCISE_GOAL:
-                logging.debug('shot goal setting controller values')
-                if 'feedback' in content:  # End of shot
-                    logging.debug('end of shot')
-                    config.score = content['score']
-                    config.target = content['tgtValue']
-                    config.performance = content['performance']
-                    config.goal_level = config.EXERCISE_GOAL
-                    config.phase = config.PHASE_END
-                    config.completed = config.COMPLETED_STATUS_FALSE
-
-                    while config.completed == config.COMPLETED_STATUS_FALSE:
-                        pass
-
-                    new_data = {
-                        'goal_level': 2,
-                        'completed': config.completed
-                    }
-
-                    return new_data, 200
-                elif 'stop' in content:
-                    config.stop_set = True  # High level global variable which will be checked at each node until set goal feedback loop is reached.
-
-                    new_data = {
-                        'goal_level': 2,
-                        'completed': config.completed,
-                    }
-
-                    return new_data, 200
-                else:
-                    config.completed = config.COMPLETED_STATUS_UNDEFINED
-                    config.goal_level = config.EXERCISE_GOAL
-                    config.phase = config.PHASE_START
-                    config.score = None
-                    config.performance = None
-
-                    if config.shot == -1:
-                        config.shot = content['shotType']
-                        config.hand = content['hand']
-                    '''if content['initialScore'] == "null":
-                        config.score = None
-                    else:
-                        config.score = float(content['initialScore'])
-                    if content['performance'] == "":
-                        config.performance = None
-                    else:
-                        config.performance = int(config.performance)'''
-
-                    while config.completed == config.COMPLETED_STATUS_UNDEFINED:
-                        pass
-
-                    new_data = {
-                        'goal_level': 2,
-                        'completed': config.completed,
-                        'shotSet': 1
-                    }
-
-                    if not (config.stat == -1):
-                        new_data['stat'] = config.stat
-
-                    return new_data, 200
-
-            elif int(content['goal_level']) == config.STAT_GOAL:
-                logging.debug('stat goal setting controller values')
-                if 'feedback' in content:  # End of stat
-                    logging.debug('end of stat')
-                    config.score = float(content['score'])
-                    config.target = float(content['tgtValue'])
-                    config.performance = int(content['performance'])
-                    config.goal_level = config.STAT_GOAL
-                    config.phase = config.PHASE_END
-                    config.completed = config.COMPLETED_STATUS_UNDEFINED
-
-                    while config.completed == config.COMPLETED_STATUS_UNDEFINED:
-                        pass
-
-                    new_data = {
-                        'goal_level': 3,
-                        'completed': config.completed
-                    }
-
-                    return new_data, 200
-                else:
-                    config.completed = config.COMPLETED_STATUS_UNDEFINED
-                    config.goal_level = config.STAT_GOAL
-                    config.phase = config.PHASE_START
-                    if config.stat == -1:
-                        config.stat = content['stat']
-                    config.target = float(content['tgtValue'])
-                    '''if content['performance'] == "":
-                        config.performance = None
-                    else:
-                        config.performance = int(config.performance)'''
-                    config.performance = None
-
-                    while config.completed != config.COMPLETED_STATUS_FALSE:
-                        pass
-
-                    new_data = {
-                        'goal_level': 3,
+                        'goal_level': 0,
                         'completed': config.completed,
                         'shotSet': 0
                     }
 
                     return new_data, 200
 
-            elif int(content['goal_level']) == config.SET_GOAL:  # Also represents baseline goal
-                '''if config.goal_level == config.BASELINE_GOAL:  # baseline goal feedback
-                    config.performance = content['performance']
-                    config.score = content['score']
-                    config.goal_level = config.EXERCISE_GOAL
-                else:'''
-                logging.debug('set goal setting controller values')
-                if 'score' in content:  # End of set
-                    logging.debug('end of set')
-                    scoreString = content['score']
-                    if scoreString[-1] == "%":
-                        scoreString = content['score'][:-1]
-                    elif scoreString[-1] == "s":
-                        scoreString = content['score'][:-5]
-                    targetString = content['tgtValue']
-                    if targetString[-1] == "%":
-                        targetString = content['tgtValue'][:-1]
-                    elif targetString[-1] == "s":
-                        targetString = content['tgtValue'][:-5]
-                    config.avg_score = float(scoreString)
-                    config.set_score_list.append(float(scoreString))
-                    config.target = float(targetString)
-                    if not content['performance'] == "":
-                        config.performance = int(content['performance'])
-                        config.set_performance_list.append(int(content['performance']))
-                        # config.stat = content['stat']  # Let guide decide what stat to work on based on baseline set.
-                        config.goal_level = config.SET_GOAL
+                elif int(content['goal_level']) == config.SESSION_GOAL:
+                    logging.debug('session goal setting controller values')
+                    if 'feedback' in content:  # End of session
+                        logging.debug('end of session')
+                        config.performance = content['performance']
+                        config.goal_level = config.SESSION_GOAL
                         config.phase = config.PHASE_END
                         config.completed = config.COMPLETED_STATUS_UNDEFINED
 
                         while config.completed == config.COMPLETED_STATUS_UNDEFINED:
                             pass
 
-                    new_data = {
-                        'goal_level': 4,
-                        'completed': config.completed,
-                        'shotSet': 1
-                    }
+                        new_data = {
+                            'goal_level': 1,
+                            'completed': config.completed
+                        }
 
-                    return new_data, 200
+                        return new_data, 200
+                    elif 'stop' in content:
+                        print("stop session")
+                        config.stop_session = True  # High level global variable which will be checked at each node until session goal feedback is reached.
+                        config.goal_level = config.SESSION_GOAL
+                        config.phase = config.PHASE_END
+                        config.set_count += 1
+                        config.completed = config.COMPLETED_STATUS_TRUE
 
-                else:  # Start of set
-                    config.goal_level = config.SET_GOAL
-                    config.phase = config.PHASE_START
-                    config.completed = config.COMPLETED_STATUS_UNDEFINED
+                        new_data = {
+                            'goal_level': 1,
+                            'completed': config.completed,
+                        }
 
-                    while config.completed != config.COMPLETED_STATUS_FALSE:
-                        pass
+                        return new_data, 200
+                    else:
+                        config.completed = config.COMPLETED_STATUS_UNDEFINED
+                        config.goal_level = config.SESSION_GOAL
+                        config.phase = config.PHASE_START
+                        config.performance = None
+                        # config.performance = content['performance']
 
-                    new_data = {
-                        'goal_level': 4,
-                        'completed': config.completed,
-                        'shotSet': 1
-                    }
+                        while config.completed == config.COMPLETED_STATUS_UNDEFINED:
+                            pass
 
-                    return new_data, 200
+                        new_data = {
+                            'goal_level': 1,
+                            'completed': config.completed,
+                            'shotSet': 0
+                        }
 
-            elif int(content['goal_level']) == config.ACTION_GOAL:
-                if expecting_action_goal:
-                    logging.debug('action goal setting controller values')
-                    config.action_score = float(content['score'])
-                    performanceValue = config.MET
-                    if content['performance'] == 'Very Low':
-                        performanceValue = config.MUCH_REGRESSED
-                    elif content['performance'] == 'Very High':
-                        performanceValue = config.REGRESSED_SWAP
-                    elif content['performance'] == 'Low':
-                        performanceValue = config.REGRESSED
-                    elif content['performance'] == 'High':
+                        if not (config.shot == -1):
+                            new_data['shotType'] = config.shot
+                            new_data['hand'] = config.hand
+
+                        if not (config.stat == ""):
+                            new_data['stat'] = config.stat
+
+                        return new_data, 200
+
+                elif int(content['goal_level']) == config.EXERCISE_GOAL:
+                    logging.debug('shot goal setting controller values')
+                    if 'feedback' in content:  # End of shot
+                        logging.debug('end of shot')
+                        config.score = content['score']
+                        config.target = content['tgtValue']
+                        config.performance = content['performance']
+                        config.goal_level = config.EXERCISE_GOAL
+                        config.phase = config.PHASE_END
+                        config.completed = config.COMPLETED_STATUS_FALSE
+
+                        while config.completed == config.COMPLETED_STATUS_FALSE:
+                            pass
+
+                        new_data = {
+                            'goal_level': 2,
+                            'completed': config.completed
+                        }
+
+                        return new_data, 200
+                    elif 'stop' in content:
+                        config.stop_set = True  # High level global variable which will be checked at each node until set goal feedback loop is reached.
+
+                        new_data = {
+                            'goal_level': 2,
+                            'completed': config.completed,
+                        }
+
+                        return new_data, 200
+                    else:
+                        config.completed = config.COMPLETED_STATUS_UNDEFINED
+                        config.goal_level = config.EXERCISE_GOAL
+                        config.phase = config.PHASE_START
+                        config.score = None
+                        config.performance = None
+
+                        if config.shot == -1:
+                            config.shot = content['shotType']
+                            config.hand = content['hand']
+                        '''if content['initialScore'] == "null":
+                            config.score = None
+                        else:
+                            config.score = float(content['initialScore'])
+                        if content['performance'] == "":
+                            config.performance = None
+                        else:
+                            config.performance = int(config.performance)'''
+
+                        while config.completed == config.COMPLETED_STATUS_UNDEFINED:
+                            pass
+
+                        new_data = {
+                            'goal_level': 2,
+                            'completed': config.completed,
+                            'shotSet': 1
+                        }
+
+                        if not (config.stat == -1):
+                            new_data['stat'] = config.stat
+
+                        return new_data, 200
+
+                elif int(content['goal_level']) == config.STAT_GOAL:
+                    logging.debug('stat goal setting controller values')
+                    if 'feedback' in content:  # End of stat
+                        logging.debug('end of stat')
+                        config.score = float(content['score'])
+                        config.target = float(content['tgtValue'])
+                        config.performance = int(content['performance'])
+                        config.goal_level = config.STAT_GOAL
+                        config.phase = config.PHASE_END
+                        config.completed = config.COMPLETED_STATUS_UNDEFINED
+
+                        while config.completed == config.COMPLETED_STATUS_UNDEFINED:
+                            pass
+
+                        new_data = {
+                            'goal_level': 3,
+                            'completed': config.completed
+                        }
+
+                        return new_data, 200
+                    else:
+                        config.completed = config.COMPLETED_STATUS_UNDEFINED
+                        config.goal_level = config.STAT_GOAL
+                        config.phase = config.PHASE_START
+                        if config.stat == -1:
+                            config.stat = content['stat']
+                        config.target = float(content['tgtValue'])
+                        '''if content['performance'] == "":
+                            config.performance = None
+                        else:
+                            config.performance = int(config.performance)'''
+                        config.performance = None
+
+                        while config.completed != config.COMPLETED_STATUS_FALSE:
+                            pass
+
+                        new_data = {
+                            'goal_level': 3,
+                            'completed': config.completed,
+                            'shotSet': 0
+                        }
+
+                        return new_data, 200
+
+                elif int(content['goal_level']) == config.SET_GOAL:  # Also represents baseline goal
+                    '''if config.goal_level == config.BASELINE_GOAL:  # baseline goal feedback
+                        config.performance = content['performance']
+                        config.score = content['score']
+                        config.goal_level = config.EXERCISE_GOAL
+                    else:'''
+                    logging.debug('set goal setting controller values')
+                    if 'score' in content:  # End of set
+                        logging.debug('end of set')
+                        scoreString = content['score']
+                        if scoreString[-1] == "%":
+                            scoreString = content['score'][:-1]
+                        elif scoreString[-1] == "s":
+                            scoreString = content['score'][:-5]
+                        targetString = content['tgtValue']
+                        if targetString[-1] == "%":
+                            targetString = content['tgtValue'][:-1]
+                        elif targetString[-1] == "s":
+                            targetString = content['tgtValue'][:-5]
+                        config.avg_score = float(scoreString)
+                        config.set_score_list.append(float(scoreString))
+                        config.target = float(targetString)
+                        if not content['performance'] == "":
+                            config.performance = int(content['performance'])
+                            config.set_performance_list.append(int(content['performance']))
+                            # config.stat = content['stat']  # Let guide decide what stat to work on based on baseline set.
+                            config.goal_level = config.SET_GOAL
+                            config.phase = config.PHASE_END
+                            config.completed = config.COMPLETED_STATUS_UNDEFINED
+
+                            while config.completed == config.COMPLETED_STATUS_UNDEFINED:
+                                pass
+
+                        new_data = {
+                            'goal_level': 4,
+                            'completed': config.completed,
+                            'shotSet': 1
+                        }
+
+                        return new_data, 200
+
+                    else:  # Start of set
+                        config.goal_level = config.SET_GOAL
+                        config.phase = config.PHASE_START
+                        config.completed = config.COMPLETED_STATUS_UNDEFINED
+
+                        while config.completed != config.COMPLETED_STATUS_FALSE:
+                            pass
+
+                        new_data = {
+                            'goal_level': 4,
+                            'completed': config.completed,
+                            'shotSet': 1
+                        }
+
+                        return new_data, 200
+
+                elif int(content['goal_level']) == config.ACTION_GOAL:
+                    if expecting_action_goal:
+                        logging.debug('action goal setting controller values')
+                        config.action_score = float(content['score'])
                         performanceValue = config.MET
-                    elif content['performance'] == 'Under':
-                        performanceValue = config.STEADY
-                    elif content['performance'] == 'Over':
-                        performanceValue = config.IMPROVED
-                    elif content['performance'] == 'Good!':
-                        performanceValue = config.MUCH_IMPROVED
+                        if content['performance'] == 'Very Low':
+                            performanceValue = config.MUCH_REGRESSED
+                        elif content['performance'] == 'Very High':
+                            performanceValue = config.REGRESSED_SWAP
+                        elif content['performance'] == 'Low':
+                            performanceValue = config.REGRESSED
+                        elif content['performance'] == 'High':
+                            performanceValue = config.MET
+                        elif content['performance'] == 'Under':
+                            performanceValue = config.STEADY
+                        elif content['performance'] == 'Over':
+                            performanceValue = config.IMPROVED
+                        elif content['performance'] == 'Good!':
+                            performanceValue = config.MUCH_IMPROVED
+                        else:
+                            logging.debug('no performanceValue found')
+                        if config.performance == self.previous_shot_performance:  # We haven't received the set goal feedback so can safely update config.performance
+                            config.performance = performanceValue            # Not perfect because we might have the same performance for set and action.
+                        config.goal_level = config.ACTION_GOAL
+                        config.shot_count += 1
+
+                        self.previous_shot_performance = performanceValue
+
+                        new_data = {
+                            'goal_level': 5,
+                            'completed': 1,
+                            'shotSet': 1
+                        }
+
+                        if config.shot_count == 29:
+                            new_data['shotSetComplete'] = 1
+                            new_data['stat'] = config.stat
+                        else:
+                            new_data['shotSetComplete'] = 0
+
                     else:
-                        logging.debug('no performanceValue found')
-                    if config.performance == self.previous_shot_performance:  # We haven't received the set goal feedback so can safely update config.performance
-                        config.performance = performanceValue            # Not perfect because we might have the same performance for set and action.
-                    config.goal_level = config.ACTION_GOAL
-                    config.shot_count += 1
+                        logging.info("Action goal not expected, not using data.")
+                        logging.debug("Action goal not expected, not setting controller values.")
+                        new_data = {
+                            'goal_level': 5,
+                            'completed': 1,
+                            'shotSet': 1,
+                            'shotSetComplete': 0
+                        }
 
-                    self.previous_shot_performance = performanceValue
+                    return new_data, 200
 
-                    new_data = {
-                        'goal_level': 5,
-                        'completed': 1,
-                        'shotSet': 1
-                    }
+            elif 'override' in content:
+                print("dealing with override in API")
+                config.override = content['override']
 
-                    if config.shot_count == 29:
-                        new_data['shotSetComplete'] = 1
-                        new_data['stat'] = config.stat
-                    else:
-                        new_data['shotSetComplete'] = 0
-
+            else:
+                print("dealing with shot/stat selection in API")
+                if 'shot_selection' in content:
+                    shotWithSpaces = content['shot_selection'].replace('%20', ' ')
+                    config.shot = shotWithSpaces
+                    config.hand = content['hand']
                 else:
-                    logging.info("Action goal not expected, not using data.")
-                    logging.debug("Action goal not expected, not setting controller values.")
-                    new_data = {
-                        'goal_level': 5,
-                        'completed': 1,
-                        'shotSet': 1,
-                        'shotSetComplete': 0
-                    }
-
-                return new_data, 200
+                    config.stat = content['stat_selection']
 
         else:
-
+            print("request not json")
             parser = reqparse.RequestParser()
 
             parser.add_argument('goal_level', required=True)

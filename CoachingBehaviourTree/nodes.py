@@ -1471,6 +1471,9 @@ class GetChoice(Node):
 
                     nodedata.shot = config.shot
                     nodedata.hand = config.hand
+                    config.used_shots.append(str(config.shot) + str(config.hand))
+                    config.performance = None
+                    config.score = -1
                     logging.debug("Returning SUCCESS from GetUserChoice, shot = " + str(nodedata.hand) + " " + str(nodedata.shot))
                     return NodeStatus(NodeStatus.SUCCESS, "Returning SUCCESS from GetUserChoice, shot = " + str(nodedata.hand) + " " + str(nodedata.shot))
                 else:  # STAT_CHOICE
@@ -1478,6 +1481,9 @@ class GetChoice(Node):
                         return NodeStatus(NodeStatus.ACTIVE, "Waiting on user's stat choice")
 
                     nodedata.stat = config.stat
+                    config.used_stats.append(config.stat)
+                    config.performance = None
+                    config.score = -1
                     logging.debug("Returning SUCCESS from GetUserChoice, stat = " + str(nodedata.stat))
                     return NodeStatus(NodeStatus.SUCCESS, "Returning SUCCESS from GetUserChoice, stat = " + str(nodedata.stat))
         else:
