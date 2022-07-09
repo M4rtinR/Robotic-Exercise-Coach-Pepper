@@ -47,6 +47,7 @@ from Policy.policy_wrapper import PolicyWrapper
 import numpy as np
 import random
 import requests
+import operator
 
 '''# Robot through Peppernet router:
 # post_address = 'http://192.168.1.237:4999/output'
@@ -687,7 +688,6 @@ class EndSubgoal(Node):
     run(nodedata)
         Send request to the API for the guide to complete the goal.
     """
-    # TODO: Dummy class which will eventually communicate with guide via API
     def __init__(self, name, *args, **kwargs):
         super(EndSubgoal, self).__init__(
             name,
@@ -748,7 +748,7 @@ class EndSubgoal(Node):
                 return NodeStatus(NodeStatus.SUCCESS, "Completed subgoal: " + str(self.goal_level - 1))
         else:
             if self.skipped_create:
-                # Set end of session time.
+                # Set the time to be the max session time so the session can stop.
                 config.session_time = config.MAX_SESSION_TIME
             return NodeStatus(NodeStatus.SUCCESS, "Stop set/session endsubgoal")
 
@@ -981,6 +981,18 @@ class TimestepCue(Node):
                                 file_contents[index] = str(score) + ", " + str(performance) + ", \n"
                                 index += 2
 
+                                # Create sorted stat list. Stat with the lowest score will come first.
+                                stat_set = {}
+                                stat_set[file_contents[index-1]] = score
+
+                            sorted_stat_set = sorted(stat_set.items(), key=operator.itemgetter(1))
+                            sorted_stat_list = []
+                            for i in sorted_stat_set:
+                                sorted_stat_list.append(i[0])
+                            sorted_stat_list.reverse()  # Reverse to get most important shot first.
+
+                            config.sorted_stat_list = sorted_stat_list
+
                             f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + self.shot + "/Baseline.txt", "w")
                             f.writelines(file_contents)
                             f.close()
@@ -1069,6 +1081,31 @@ class TimestepCue(Node):
                             f.close()
                             config.performance = file_contents[1]
                             config.score = file_contents[0]
+
+                            try:
+                                # Create sorted stat list. Stat with the lowest score will come first. If this shot hasn't
+                                # been performed before, this will be done at the end of the baseline goal.
+                                f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + self.shot + "/Baseline.txt", "r")
+                                file_contents = f.readlines()
+                                f.close()
+
+                                stat_set = {}
+                                max = len(file_contents)
+                                index = 0
+                                while index < max:
+                                    stat_set[file_contents[index]] = float(file_contents[index+1].split(", ")[0])
+                                    index += 2
+
+                                sorted_stat_set = sorted(stat_set.items(), key=operator.itemgetter(1))
+                                sorted_stat_list = []
+                                for i in sorted_stat_set:
+                                    sorted_stat_list.append(i[0])
+                                sorted_stat_list.reverse()  # Reverse to get most important shot first.
+
+                                config.sorted_stat_list = sorted_stat_list
+                            except:
+                                print("Aggregator text file found but baseline text file not found, in start of exercise goal.")
+
                         except:  # If file doesn't exist, create it.
                             os.mkdir("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + self.shot)
                             f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + self.shot + "/Aggregator.txt", "a")
@@ -1414,14 +1451,15 @@ class GetChoice(Node):
 
                     config.shot = nodedata.shot
                     config.hand = nodedata.hand
+
                     logging.debug("Returning SUCCESS from GetUserChoice, shot = " + str(nodedata.hand) + " " + str(nodedata.shot))
                     return NodeStatus(NodeStatus.SUCCESS,"Returning SUCCESS from GetUserChoice, shot = " + str(nodedata.hand) + " " + str(nodedata.shot))
                 else:  # STAT_CHOICE
                     s = 0
-                    stat = self.sorted_stat_list[s]
+                    stat = config.sorted_stat_list[s]
                     while stat in config.used_stats:
                         s += 1
-                        stat = self.sorted_stat_list[s]
+                        stat = config.sorted_stat_list[s]
 
                     config.used_stats.append(stat)
                     config.performance = None
@@ -1597,6 +1635,31 @@ class InitialiseBlackboard(Node):
             f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participant_filename, "a")
             f.write(config.participantNo + "\n0\n")  # Write participant number and 0 sessions to the new file.
             f.close()
+
+        # Populate the sorted_shot_list with data stored in file from previous sessions.
+        shot_set = {}
+        for shot in config.shot_list_master:
+            for hand in ["FH", "BH"]:
+                try:
+                    f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + hand + shot + "/Aggregator.txt", "r")
+                    aggregator_contents = f.readlines()
+                    f.close()
+
+                    score = float(aggregator_contents[0])
+                except:
+                    score = 0.5
+                # Assign a score to each shot based on the importance of the shot (taken from racketware) and data
+                # about the previous user performance for each shot. Shots that the user has done really well on in the
+                # past will be selected after shots that the user has struggled with (improve their weaknesses).
+                shot_set[str(hand) + str(shot)] = (1 - score) + (config.shot_list_importance[shot] * 0.35)
+
+        sorted_shot_set = sorted(shot_set.items(), key=operator.itemgetter(1))
+        sorted_shot_list = []
+        for i in sorted_shot_set:
+            sorted_shot_list.append(i[0])
+        sorted_shot_list.reverse()  # Reverse to get most important shot first.
+
+        nodedata.sorted_shot_list = sorted_shot_list
 
         logging.info("Chosen policy = {}".format(max_style))
         logging.debug("Returning SUCCESS from InitialiseBlackboard")

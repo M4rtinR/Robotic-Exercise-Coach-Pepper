@@ -104,7 +104,17 @@ A_POSITIVEMODELING_PRAISE = 66
 A_END = 67
 A_SILENCE = 68
 
-shot_list_master = ["Forehand Drive", "Backhand Drive", "Forehand Drop"]
+shot_list_master = ["drop", "drive", "cross court lob", "two wall boast", "straight kill", "volley kill", "volley drop"]
+shot_list_importance = {
+    "drop": 0.8,
+    "drive": 0.75,
+    "cross court lob": 0.6,
+    "two wall boast": 0.5,
+    "straight kill": 0.4,
+    "volley kill": 0.4,
+    "volley drop": 0.35
+}
+sorted_stat_list = []
 
 # Initial values which will be updated when the API gets called by the guide.
 goal_level = -1

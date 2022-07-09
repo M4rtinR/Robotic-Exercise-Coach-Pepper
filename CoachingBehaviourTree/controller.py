@@ -904,6 +904,7 @@ def get_intro_sequence(name, blackboard, initialise_node, new_goal_start, new_go
         new_goal_choice = GetChoice(name=new_goal_system_choice_name, blackboard=blackboard)
         if name == "session_goal_intro_loop":
             blackboard.save('choice_type', config.SHOT_CHOICE, new_goal_choice._id)
+            blackboard.add_remapping(initialise_node, 'sorted_shot_list', new_goal_choice, 'shot_list')
         else:
             blackboard.save('choice_type', config.STAT_CHOICE, new_goal_choice._id)
         blackboard.save('whos_choice', config.CHOICE_BY_SYSTEM, new_goal_choice._id)
