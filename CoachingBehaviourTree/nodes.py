@@ -635,16 +635,6 @@ class CreateSubgoal(Node):
                     nodedata.new_goal = self.previous_goal_level + 1
                     # Select which exercise to perform.
                     if nodedata.new_goal == config.EXERCISE_GOAL:
-                        # TODO: this will be done by the app so will need to be updated.
-                        # When we create an exercise goal, pick a new exercise and reset all the stats from the previous exercise.
-                        # This assumes that this is our first session doing this exercise. If not, previous data will be obtained
-                        # from file in TimestepCue.
-                        nodedata.new_shot = config.shot
-                        # while config.exercise_list_session[nodedata.get_data("new_exercise")] in config.used_exercises:
-                        #     nodedata.new_exercise = random.randint(0, len(config.exercise_list_session) - 1)
-                        print("In CreateSubgoal, setting exercise. Exercise = " + str(nodedata.get_data("new_exercise")))
-                        # config.target = config.exercise_target_times[nodedata.get_data("new_exercise")]
-                        config.used_shots.append(config.shot)
                         config.set_count = 0  # Reset the set count for this session to 0.
                         config.performance = None
                         config.score = -1
@@ -1267,7 +1257,8 @@ class TimestepCue(Node):
                     logging.debug("Returning ACTIVE from TimestepCue set goal")
                     return NodeStatus(NodeStatus.ACTIVE, "Waiting for set goal data from guide.")
 
-            elif self.goal_level == config.ACTION_GOAL:
+            elif self.goal_level == config.ACTION_GOAL and not config.stop_session:
+                print("Timestep cue action goal")
                 if config.goal_level == config.ACTION_GOAL:
                     config.goal_level = config.SET_GOAL
                     nodedata.phase = config.PHASE_END
@@ -1276,11 +1267,12 @@ class TimestepCue(Node):
                     nodedata.score = config.score
                     config.set_score_list.append(nodedata.score)
                     nodedata.target = config.target
-
+                    print("Returning SUCCESS from TimestepCue action goal")
                     logging.debug("Returning SUCCESS from TimestepCue action goal, stats = " + str(nodedata))
                     return NodeStatus(NodeStatus.SUCCESS, "Data for action goal obtained from guide:" + str(nodedata))
                 else:
                     # config.goal_level = config.ACTION_GOAL
+                    print("Returning ACTIVE from TimestepCue action goal")
                     logging.debug("Returning ACTIVE from TimestepCue action goal")
                     return NodeStatus(NodeStatus.ACTIVE, "Waiting for action goal input from operator.")
 
@@ -1318,6 +1310,8 @@ class TimestepCue(Node):
             nodedata.score = 0.79
             logging.debug("Returning SUCCESS from TimestepCue, stats = " + str(nodedata))
             return NodeStatus(NodeStatus.SUCCESS, "Set timestep cue values to dummy values MET, PHASE_START, 0.80, 0.79.")
+        else:
+            return NodeStatus(NodeStatus.SUCCESS, "Stop set timestep cue")
 
 
 class DurationCheck(Node):
@@ -1758,6 +1752,53 @@ class OverrideOption(Node):
             return NodeStatus(NodeStatus.FAIL, "Stop set/session override option")
 
 
+class CheckDoneBefore(Node):
+    """
+        Check if this exercise has been done by this user in a previous session.
+
+        ...
+        Methods
+        -------
+        run()
+            Check if the exercise has been done before.
+        """
+
+    def __init__(self, name, *args, **kwargs):
+        super(CheckDoneBefore, self).__init__(
+            name,
+            run_cb=self.run,
+            configure_cb=self.configure,
+            *args, **kwargs)
+
+    def configure(self, nodedata):
+        """
+        Set up the initial values needed to check if the user has done this exercies.
+        :param nodedata :type Blackboard: the blackboard associated with this Behaviour Tree containing all relevant
+            state information.
+        :return: None
+        """
+        logging.debug("Configuring OverrideOption " + self._name)
+        self.shot = nodedata.get_data("shot")
+        self.hand = nodedata.get_data("hand")
+
+    def run(self, nodedata):
+        """
+        CCheck if this exercise has been done by this user in a previous session.
+        :return: NodeStatus.SUCCESS if there is a file for this user containing information on the given exercies.
+         NodeStatus.FAIL if otherwise.
+        """
+
+        if not config.stop_set and not config.stop_session:
+            try:
+                f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + self.shot + "/Aggregator.txt", "r")
+                f.close()
+                return NodeStatus(NodeStatus.SUCCESS, "Found file containing this exercise.")
+            except:
+                return NodeStatus(NodeStatus.FAIL, "Failed to find file containing this exercise.")
+        else:
+            return NodeStatus(NodeStatus.FAIL, "Stop set/session override option")
+
+
 '''
 class OperatorInput(Node):
     """
@@ -1816,7 +1857,7 @@ class OperatorInput(Node):
         nodedata.score = rep_time_delta
         config.exercise_count += 1
         # Send exercise count to Pepper's tablet screen
-        r = requests.post(screen_post_address + str(config.exercise_count) + "/newRep")
+        r = requests.post(config.screen_post_address + str(config.exercise_count) + "/newRep")
 
         # Controller start_time will be reset when the action goal is created.
 
