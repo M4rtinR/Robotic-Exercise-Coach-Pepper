@@ -242,8 +242,8 @@ class FormatAction(Node):
         :return: NodeStatus.SUCCESS when an action has been created.
         """
         if not config.stop_set and not config.stop_session:
-            print("Formatting action: behaviour = {behaviour}, goal_level = {goal_level}, performance = {performance}, name = {name}, exercise = {exercise}".format(behaviour=self.behaviour, goal_level=self.goal_level, performance=self.performance, name=self.name, exercise=self.exercise))
-            logging.info("Formatting action: behaviour = {behaviour}, goal_level = {goal_level}, performance = {performance}, name = {name}, exercise = {exercise}".format(behaviour=self.behaviour, goal_level=self.goal_level, performance=self.performance, name=self.name, exercise=self.exercise))
+            print("Formatting action: behaviour = {behaviour}, goal_level = {goal_level}, performance = {performance}, name = {name}, exercise = {exercise}".format(behaviour=self.behaviour, goal_level=self.goal_level, performance=self.performance, name=self.name, exercise=self.shot))
+            logging.info("Formatting action: behaviour = {behaviour}, goal_level = {goal_level}, performance = {performance}, name = {name}, exercise = {exercise}".format(behaviour=self.behaviour, goal_level=self.goal_level, performance=self.performance, name=self.name, exercise=self.shot))
             if not(self.behaviour == config.A_SILENCE):
                 demo = None
                 if self.behaviour in [config.A_POSITIVEMODELING, config.A_NEGATIVEMODELING,
@@ -429,6 +429,7 @@ class DisplayBehaviour(Node):
         self.action = nodedata.get_data('action')
         self.set_start = nodedata.get_data('set_start', False)
         self.score = nodedata.get_data('score', None)
+        self.goal_level = nodedata.get_data('goal_level')
 
     def run(self, nodedata):
         """
@@ -452,7 +453,19 @@ class DisplayBehaviour(Node):
             else:
                 phase = "non-exercise"
             #utteranceURL = "http://192.168.43.19:8000/Test Utterance/non-exercise/newUtterance".replace(' ', '%20')
-            utteranceURL = config.screen_post_address + str(self.action).replace(' ', '%20') + "/" + phase + "/newUtterance"
+            if config.overridePreInstructionOption or config.overrideQuestioningOption:
+                if self.goal_level == config.SESSION_GOAL:
+                    goal_level = "shot"
+                else:
+                    goal_level = "stat"
+                if config.overridePreInstructionOption:
+                    utteranceURL = config.screen_post_address + str(self.action).replace(' ', '%20') + "/pre/" + goal_level + "/overrideOption"
+                    config.overridePreInstructionOption = False
+                else:
+                    utteranceURL = config.screen_post_address + str(self.action).replace(' ', '%20') + "/question/" + goal_level + "/overrideOption"
+                    config.overrideQuestioningOption = False
+            else:
+                utteranceURL = config.screen_post_address + str(self.action).replace(' ', '%20') + "/" + phase + "/newUtterance"
             r = requests.post(utteranceURL)
             # Send post request to Pepper
             r = requests.post(config.post_address, json=output)
@@ -1404,7 +1417,7 @@ class GetChoice(Node):
             *args, **kwargs)
 
     def configure(self, nodedata):
-        logging.debug("Configuring GetChoice: " + self._name)
+        print("Configuring GetChoice: " + self._name)
         self.choice_type = nodedata.get_data('choice_type')
         self.whos_choice = nodedata.get_data('whos_choice')
         self.sorted_shot_list = nodedata.get_data('shot_list')
@@ -1440,11 +1453,13 @@ class GetChoice(Node):
                     utteranceURL = config.screen_post_address + exerciseString + "/newPicture"
                     r = requests.post(utteranceURL)
                     r = requests.post(config.screen_post_address + "0/newRep")'''
-                    nodedata.shot = shot.split(" ")[0]
-                    nodedata.hand = shot.split(" ")[1]
+                    nodedata.shot = shot[2:]
+                    nodedata.hand = shot[:2]
 
                     config.shot = nodedata.shot
                     config.hand = nodedata.hand
+
+                    print("Hand = " + config.hand + ", shot = " + config.shot)
 
                     logging.debug("Returning SUCCESS from GetUserChoice, shot = " + str(nodedata.hand) + " " + str(nodedata.shot))
                     return NodeStatus(NodeStatus.SUCCESS,"Returning SUCCESS from GetUserChoice, shot = " + str(nodedata.hand) + " " + str(nodedata.shot))
@@ -1658,6 +1673,7 @@ class InitialiseBlackboard(Node):
         for i in sorted_shot_set:
             sorted_shot_list.append(i[0])
         sorted_shot_list.reverse()  # Reverse to get most important shot first.
+        print("InitialiseBlackboard, sorted shot list = " + str(sorted_shot_list))
 
         nodedata.sorted_shot_list = sorted_shot_list
 
@@ -1727,7 +1743,7 @@ class OverrideOption(Node):
             state information.
         :return: None
         """
-        logging.debug("Configuring OverrideOption " + self._name)
+        print("Configuring OverrideOption " + self._name)
         self.original_behaviour = nodedata.get_data("original_behaviour")
 
     def run(self, nodedata):
@@ -1737,8 +1753,9 @@ class OverrideOption(Node):
          NodeStatus.ACTIVE if still waiting for choice.
         """
 
-        if not config.stop_set and not config.stop_session or config.overriden:
+        if (not config.stop_set and not config.stop_session) or config.overriden:
             if config.override is None:
+                print("Returning ACTIVE from OverrideOption, Waiting for user to decide whether to override.")
                 return NodeStatus(NodeStatus.ACTIVE, "Waiting for user to decide whether to override.")
             else:
                 if config.override:
@@ -1749,9 +1766,11 @@ class OverrideOption(Node):
                         config.behaviour = config.A_PREINSTRUCTION
 
                     config.override = None
+                    print("Returning SUCCESS from OverrideOption, User decided to override")
                     return NodeStatus(NodeStatus.SUCCESS, "User decided to override")
                 else:
                     config.override = None
+                    print("Returning FAIL from OverrideOption, User decided not to override")
                     return NodeStatus(NodeStatus.FAIL, "User decided not to override")
         else:
             config.override = None

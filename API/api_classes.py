@@ -316,7 +316,10 @@ class TimestepCue(Resource):
 
             elif 'override' in content:
                 print("dealing with override in API")
-                config.override = content['override']
+                if content['override'] == "True":
+                    config.override = True
+                else:
+                    config.override = False
 
             else:
                 print("dealing with shot/stat selection in API")

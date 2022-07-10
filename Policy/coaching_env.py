@@ -109,7 +109,7 @@ class CoachingEnvironment(gym.Env, ABC):
             logging.debug(result)
 
         observation = self.policy.get_observation(state, action)
-        reward = self._calculate_reward(action, observation, config.score, config.target)
+        reward = self._calculate_reward(action, observation, config.score, config.target, config.performance)
 
         if action == config.A_END and config.goal_level == config.PERSON_GOAL:
             done = True

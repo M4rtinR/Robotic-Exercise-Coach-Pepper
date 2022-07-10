@@ -118,6 +118,7 @@ def create_coaching_tree():
     person_goal_intro_sequence.add_child(person_goal_intro_output)
     # Share action between person_goal_intro_action and person_goal_intro_output.
     b.add_remapping(person_goal_intro_action._id, 'action', person_goal_intro_output._id, 'action')
+    b.add_remapping(person_goal._id, 'new_goal', person_goal_intro_output._id, 'goal_level')
 
     gen_person_goal.add_child(person_goal_intro_sequence)
 
@@ -658,6 +659,7 @@ def create_coaching_tree():
     set_goal_individual_action_behav_sequence.add_child(set_goal_individual_action_output)
     # Share action between set_goal_pre_instr_intro_action and set_goal_pre_instr_intro_output.
     b.add_remapping(set_goal_individual_action._id, 'action', set_goal_individual_action_output._id, 'action')
+    b.add_remapping(action_goal._id, 'new_goal', set_goal_individual_action_output._id, 'goal_level')
     set_goal_individual_action_behav_succeed = Succeed(name="set_goal_individual_action_behav_succeed", child=set_goal_individual_action_behav_sequence)
     set_goal_individual_action_sequence.add_child(set_goal_individual_action_behav_succeed)
     # End the action goal
@@ -855,6 +857,21 @@ def get_intro_sequence(name, blackboard, initialise_node, new_goal_start, new_go
     # Share behaviour between new_goal_intro_behav and new_goal_intro_check_for_pre.
     blackboard.add_remapping(new_goal_intro_behav._id, 'behaviour', new_goal_intro_check_for_pre._id, 'behaviour')
     new_goal_intro_pre_instr_sequence.add_child(new_goal_intro_check_for_pre)
+
+    if name == "shot_goal_intro_loop" or name == "session_goal_intro_loop":
+        new_goal_system_choice_name = name + "_system_choice"
+        new_goal_choice = GetChoice(name=new_goal_system_choice_name, blackboard=blackboard)
+        if name == "session_goal_intro_loop":
+            blackboard.save('choice_type', config.SHOT_CHOICE, new_goal_choice._id)
+            blackboard.add_remapping(initialise_node, 'sorted_shot_list', new_goal_choice._id, 'shot_list')
+        else:
+            blackboard.save('choice_type', config.STAT_CHOICE, new_goal_choice._id)
+        blackboard.save('whos_choice', config.CHOICE_BY_SYSTEM, new_goal_choice._id)
+
+        new_goal_choice_until_name = new_goal_system_choice_name + "_until"
+        new_goal_choice_until = Until(name=new_goal_choice_until_name, child=new_goal_choice)
+        new_goal_intro_pre_instr_sequence.add_child(new_goal_choice_until)
+
     # Format and display pre-instruction action.
     new_goal_intro_pre_instr_action_name = name + "_pre_instr_action"
     new_goal_intro_pre_instr_action = FormatAction(name=new_goal_intro_pre_instr_action_name, blackboard=blackboard)
@@ -877,6 +894,7 @@ def get_intro_sequence(name, blackboard, initialise_node, new_goal_start, new_go
     # Share action between session_goal_intro_action and session_goal_intro_output.
     blackboard.add_remapping(new_goal_intro_pre_instr_action._id, 'action', new_goal_intro_pre_instr_output._id,
                              'action')
+    blackboard.add_remapping(new_goal._id, 'new_goal', new_goal_intro_pre_instr_output._id, 'goal_level')
     new_goal_intro_pre_instr_negate_name = name + "_pre_instr_negate"
     new_goal_intro_pre_instr_negate = Negate(name=new_goal_intro_pre_instr_negate_name,
                                              child=new_goal_intro_pre_instr_sequence)
@@ -890,15 +908,15 @@ def get_intro_sequence(name, blackboard, initialise_node, new_goal_start, new_go
         blackboard.save('original_behaviour', config.A_PREINSTRUCTION, new_goal_intro_pre_instr_override._id)
 
         new_goal_intro_pre_instr_override_until_name = new_goal_intro_pre_instr_override_name + "_until"
-        new_goal_intro_pre_instr_override_until = Until(name=new_goal_intro_pre_instr_override_until_name, child=new_goal_intro_pre_instr_override)
+        # new_goal_intro_pre_instr_override_until = Until(name=new_goal_intro_pre_instr_override_until_name, child=new_goal_intro_pre_instr_override)
 
         new_goal_intro_override_questioning_sequence_name = name + "_override_questioning_sequence"
-        new_goal_intro_override_questioning_sequence = get_intro_sequence(
+        new_goal_intro_override_questioning_sequence, new_goal_player_choice, new_goal_intro_behaviour = get_intro_sequence(
             new_goal_intro_override_questioning_sequence_name, blackboard, initialise_node, new_goal_start, new_goal, person_node, prev_goal_node)
 
         new_goal_intro_pre_instr_override_sequence_name = new_goal_intro_pre_instr_override_name + "_sequence"
         new_goal_intro_pre_instr_override_sequence = Progressor(name=new_goal_intro_pre_instr_override_sequence_name)
-        new_goal_intro_pre_instr_override_sequence.add_child(new_goal_intro_pre_instr_override_until)
+        new_goal_intro_pre_instr_override_sequence.add_child(new_goal_intro_pre_instr_override)
         new_goal_intro_pre_instr_override_sequence.add_child(new_goal_intro_override_questioning_sequence)
 
         new_goal_intro_pre_instr_override_sequence_negate_name = new_goal_intro_pre_instr_override_sequence_name + "_negate"
@@ -907,19 +925,6 @@ def get_intro_sequence(name, blackboard, initialise_node, new_goal_start, new_go
             child=new_goal_intro_pre_instr_override_sequence)
 
         new_goal_intro_pre_instr_sequence.add_child(new_goal_intro_pre_instr_override_sequence_negate)
-
-        new_goal_system_choice_name = name + "_system_choice"
-        new_goal_choice = GetChoice(name=new_goal_system_choice_name, blackboard=blackboard)
-        if name == "session_goal_intro_loop":
-            blackboard.save('choice_type', config.SHOT_CHOICE, new_goal_choice._id)
-            blackboard.add_remapping(initialise_node, 'sorted_shot_list', new_goal_choice, 'shot_list')
-        else:
-            blackboard.save('choice_type', config.STAT_CHOICE, new_goal_choice._id)
-        blackboard.save('whos_choice', config.CHOICE_BY_SYSTEM, new_goal_choice._id)
-
-        new_goal_choice_until_name = new_goal_system_choice_name + "_until"
-        new_goal_choice_until = Until(name=new_goal_choice_until_name, child=new_goal_choice)
-        new_goal_intro_pre_instr_sequence.add_child(new_goal_choice_until)
 
     # Check if questioning
     new_goal_intro_questioning_sequence_name = name + "_questioning_sequence"
@@ -954,6 +959,7 @@ def get_intro_sequence(name, blackboard, initialise_node, new_goal_start, new_go
     # Share action between session_goal_intro_action and session_goal_intro_output.
     blackboard.add_remapping(new_goal_intro_questioning_action._id, 'action', new_goal_intro_questioning_output._id,
                              'action')
+    blackboard.add_remapping(new_goal._id, 'new_goal', new_goal_intro_questioning_output._id, 'goal_level')
     new_goal_intro_questioning_negate_name = name + "_questioning_negate"
     new_goal_intro_questioning_negate = Negate(name=new_goal_intro_questioning_negate_name,
                                                child=new_goal_intro_questioning_sequence)
@@ -967,17 +973,17 @@ def get_intro_sequence(name, blackboard, initialise_node, new_goal_start, new_go
         blackboard.save('original_behaviour', config.A_QUESTIONING, new_goal_intro_questioning_override._id)
 
         new_goal_intro_override_pre_instr_sequence_name = name + "override_pre_instr_sequence"
-        new_goal_intro_override_pre_instr_sequence = get_intro_sequence(
+        new_goal_intro_override_pre_instr_sequence, new_goal_player_choice, new_goal_intro_behaviour = get_intro_sequence(
             new_goal_intro_override_pre_instr_sequence_name, blackboard, initialise_node, new_goal_start, new_goal, person_node, prev_goal_node)
 
         new_goal_intro_questioning_override_until_name = new_goal_intro_questioning_override_name + "_until"
-        new_goal_intro_questioning_override_until = Until(name=new_goal_intro_questioning_override_until_name,
-                                                        child=new_goal_intro_questioning_override)
+        # new_goal_intro_questioning_override_until = Until(name=new_goal_intro_questioning_override_until_name,
+        #                                                 child=new_goal_intro_questioning_override)
 
         new_goal_intro_questioning_override_sequence_name = new_goal_intro_questioning_override_name + "_sequence"
         new_goal_intro_questioning_override_sequence = Progressor(
             name=new_goal_intro_questioning_override_sequence_name)
-        new_goal_intro_questioning_override_sequence.add_child(new_goal_intro_questioning_override_until)
+        new_goal_intro_questioning_override_sequence.add_child(new_goal_intro_questioning_override)
         new_goal_intro_questioning_override_sequence.add_child(new_goal_intro_override_pre_instr_sequence)
 
         new_goal_intro_questioning_override_sequence_negate_name = new_goal_intro_questioning_override_sequence_name + "_negate"
@@ -1023,6 +1029,7 @@ def get_intro_sequence(name, blackboard, initialise_node, new_goal_start, new_go
     new_goal_intro_sequence.add_child(new_goal_intro_output)
     # Share action between new_goal_intro_action and new_goal_intro_output.
     blackboard.add_remapping(new_goal_intro_action._id, 'action', new_goal_intro_output._id, 'action')
+    blackboard.add_remapping(new_goal._id, 'new_goal', new_goal_intro_output._id, 'goal_level')
 
     return new_goal_intro_sequence, new_goal_choice, new_goal_intro_behav
 

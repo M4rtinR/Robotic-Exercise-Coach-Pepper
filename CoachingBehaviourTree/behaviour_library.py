@@ -13344,6 +13344,7 @@ class BehaviourLibraryFunctions:
                             elif goal_level == config.EXERCISE_GOAL:
                                 goal_level_insert = "swing metric"
                             utterance = utterance + "Which " + goal_level_insert + " would you like to work on first? If you would prefer for me to choose for you, select the 'Choose For Me' option on my screen."
+                            config.overrideQuestioningOption = True
 
                     elif behaviour in [config.A_PREINSTRUCTION, config.A_PREINSTRUCTION_QUESTIONING,
                                        config.A_PREINSTRUCTION_FIRSTNAME, config.A_PREINSTRUCTION_POSITIVEMODELING,
@@ -13366,8 +13367,10 @@ class BehaviourLibraryFunctions:
                         else:
                             if goal_level == config.SESSION_GOAL:
                                 goal_level_insert = "do a solo practice session and I'm going to coach you. We'll work on your " + hand_utterance + " " + shot_utterance + ". If you would like to work on a different shot, please tap the button on my screen."
+                                config.overridePreInstructionOption = True
                             elif goal_level == config.EXERCISE_GOAL:
                                 goal_level_insert = "focus on your " + hand_utterance + " " + shot_utterance + ", paying specific attention to the " + stat_utterance + ". If you would like to work on a different metric of your swing, other than your " + stat_utterance + ", please tap the button on my screen."
+                                config.overridePreInstructionOption = True
                             elif goal_level == config.STAT_GOAL:
                                 goal_level_insert = "get started with your " + stat_utterance
 
@@ -13398,8 +13401,10 @@ class BehaviourLibraryFunctions:
                                 shot_advice = "letting your " + hand_utterance + " " + shot_utterance + " come too loose from the side wall."
                             if goal_level == config.SESSION_GOAL:
                                 goal_level_insert = "do a solo practice session and I'm going to coach you. We'll work on not " + shot_advice + ". If you would like to work on a different shot, please tap the button on my screen."
+                                config.overridePreInstructionOption = True
                             elif goal_level == config.EXERCISE_GOAL:
                                 goal_level_insert = "focus on not " + shot_advice + ", remembering to not " + stat_advice + ". If you would like to work on a different metric of your swing, other than your " + stat_utterance + ", please tap the button on my screen."
+                                config.overridePreInstructionOption = True
                             elif goal_level == config.STAT_GOAL:
                                 goal_level_insert = "play some " + shot_utterance + "'s. I need you to remember to not " + stat_advice
 
@@ -13687,6 +13692,7 @@ class BehaviourLibraryFunctions:
                             elif goal_level == config.EXERCISE_GOAL:
                                 goal_level_insert = "swing metrics"
                             utterance = utterance + "Which of these " + goal_level_insert + " would you like to try to improve now? If you would prefer for me to choose for you, select the 'Choose For Me' option on my screen."
+                            config.overrideQuestioningOption = True
 
                     elif behaviour in [config.A_PREINSTRUCTION, config.A_PREINSTRUCTION_QUESTIONING,
                                        config.A_PREINSTRUCTION_FIRSTNAME, config.A_PREINSTRUCTION_POSITIVEMODELING,
@@ -13712,8 +13718,10 @@ class BehaviourLibraryFunctions:
                             if goal_level == config.SESSION_GOAL:
                                 goal_level_insert = " I'm going to coach you through a solo practice session. We'll work on your " + hand_utterance + " " + shot_utterance + ". If you would like to work on a different shot, please tap the button on my screen."
                                 utterance = utterance + "Today " + name + goal_level_insert + ". " + optional_question
+                                config.overridePreInstructionOption = True
                             elif goal_level == config.EXERCISE_GOAL:
                                 goal_level_insert = "I want you to focus on getting your " + hand_utterance + " " + shot_utterance + " dying in the back corner. It should get past your opponent's volley. One of the key things with the " + hand_utterance + " " + shot_utterance + " is to make sure that " + stat_advice + ". If you would like to work on a different metric of your swing, other than your " + stat_utterance + ", please tap the button on my screen."
+                                config.overridePreInstructionOption = True
                             elif goal_level == config.STAT_GOAL:
                                 goal_level_insert = "let's make sure on every shot you play, " + stat_advice
 
@@ -13738,8 +13746,10 @@ class BehaviourLibraryFunctions:
                             shot_advice = "hitting your " + hand_utterance + " " + shot_utterance + " into an area where your opponent can volley it easily."
                             if goal_level == config.SESSION_GOAL:
                                 goal_level_insert = "I'm going to coach you through a solo practice session. Make sure you're not " + shot_advice + ". If you would like to work on a different shot, please tap the button on my screen."
+                                config.overridePreInstructionOption = True
                             elif goal_level == config.EXERCISE_GOAL:
                                 goal_level_insert = "with every shot you play. Make sure you're not " + shot_advice + ". It will help if " + stat_advice + ". If you would like to work on a different metric of your swing, other than your " + stat_utterance + ", please tap the button on my screen."
+                                config.overridePreInstructionOption = True
                             elif goal_level == config.STAT_GOAL:
                                 goal_level_insert = "I need you to make sure " + stat_advice
 
@@ -14036,6 +14046,7 @@ class BehaviourLibraryFunctions:
                             elif goal_level == config.EXERCISE_GOAL:
                                 goal_level_insert = "swing metrics"
                             utterance = utterance + "Here are the " + goal_level_insert + " I could coach you through. Which would you like to try? If you would prefer for me to choose for you, select the 'Choose For Me' option on my screen."
+                            config.overrideQuestioningOption = True
 
                     elif behaviour in [config.A_PREINSTRUCTION, config.A_PREINSTRUCTION_QUESTIONING,
                                        config.A_PREINSTRUCTION_FIRSTNAME, config.A_PREINSTRUCTION_POSITIVEMODELING,
@@ -14061,8 +14072,10 @@ class BehaviourLibraryFunctions:
                                 goal_level_insert = "try to improve your " + hand_utterance + " " + shot_utterance + " during this solo session. If you would like to work on a different shot, please tap the button on my screen."
                                 if behaviour == config.A_PREINSTRUCTION_QUESTIONING:
                                     optional_question = "Ready to have some fun?"
+                                config.overridePreInstructionOption = True
                             elif goal_level == config.EXERCISE_GOAL:
                                 goal_level_insert = "work on your " + hand_utterance + " " + shot_utterance + " together. We'll particularly pay attention to your " + stat_utterance + ". If you would like to work on a different metric of your swing, other than your " + stat_utterance + ", please tap the button on my screen."
+                                config.overridePreInstructionOption = True
                             elif goal_level == config.STAT_GOAL:
                                 goal_level_insert = stat_advice + " on every shot you play"
 
@@ -14088,8 +14101,10 @@ class BehaviourLibraryFunctions:
                             shot_advice = "making sure none of your " + hand_utterance + " " + shot_utterance + " come through your opponent's volley zone"
                             if goal_level == config.SESSION_GOAL:
                                 goal_level_insert = "do a solo practice session and I'm going to coach you. We'll work on " + shot_advice + ". If you would like to work on a different shot, please tap the button on my screen."
+                                config.overridePreInstructionOption = True
                             elif goal_level == config.EXERCISE_GOAL:
                                 goal_level_insert = "focus on " + shot_advice + ", remembering to not " + stat_advice + ". If you would like to work on a different metric of your swing, other than your " + stat_utterance + ", please tap the button on my screen."
+                                config.overridePreInstructionOption = True
                             elif goal_level == config.STAT_GOAL:
                                 goal_level_insert = "play some " + shot_utterance + "'s. I need you to remember to not " + stat_advice
 
@@ -14379,6 +14394,7 @@ class BehaviourLibraryFunctions:
                             elif goal_level == config.EXERCISE_GOAL:
                                 goal_level_insert = "swing metric"
                             utterance = utterance + "On my screen, please select the " + goal_level_insert + " you would now like to work on. If you would prefer for me to choose for you, select the 'Choose For Me' option on my screen."
+                            config.overrideQuestioningOption = True
 
                     elif behaviour in [config.A_PREINSTRUCTION, config.A_PREINSTRUCTION_QUESTIONING,
                                        config.A_PREINSTRUCTION_FIRSTNAME, config.A_PREINSTRUCTION_POSITIVEMODELING,
@@ -14405,8 +14421,10 @@ class BehaviourLibraryFunctions:
                                 optional_question = ""
                                 if behaviour == config.A_PREINSTRUCTION_QUESTIONING:
                                     optional_question = "Does that make se?"
+                                config.overridePreInstructionOption = True
                             elif goal_level == config.EXERCISE_GOAL:
                                 goal_level_insert = "start looking at your " + hand_utterance + " " + shot_utterance + ". One of the most difficult things to get right on your " + hand_utterance + " " + shot_utterance + " is your " + stat_utterance + ". If you would like to work on a different metric of your swing, other than your " + stat_utterance + ", please tap the button on my screen."
+                                config.overridePreInstructionOption = True
                             elif goal_level == config.STAT_GOAL:
                                 goal_level_insert = "start looking at your " + stat_utterance
 
@@ -14437,8 +14455,10 @@ class BehaviourLibraryFunctions:
                                 shot_advice = "hit your " + hand_utterance + " " + shot_utterance + "s into the tin."
                             if goal_level == config.SESSION_GOAL:
                                 goal_level_insert = "session I'll give some coaching which will hopefully help you not " + shot_advice + ". If you would like to work on a different shot, please tap the button on my screen."
+                                config.overridePreInstructionOption = True
                             elif goal_level == config.EXERCISE_GOAL:
                                 goal_level_insert = "session, I want you to not " + shot_advice + ". One thing to focus on here is to " + stat_advice + ". If you would like to work on a different metric of your swing, other than your " + stat_utterance + ", please tap the button on my screen."
+                                config.overridePreInstructionOption = True
                             elif goal_level == config.STAT_GOAL:
                                 goal_level_insert = "next few sets of " + hand_utterance + " " + shot_utterance + "'s, please try to " + stat_advice
 

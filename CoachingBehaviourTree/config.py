@@ -156,21 +156,23 @@ metric_score_list = []  # The scores for each of the 6 stats we are measuring in
 metric_performance_list = []  # The performances of the 6 stats we are measuring in the baseline set.
 override = None  # Will be True if user decides to override the policy's decision to choose/question about shot/stat options. False if they decide not to.
 overriden = False  # Indicates whether an override has already occured at this goal level (no point asking if the user wants to override again).
+overridePreInstructionOption = False  # Will be set to True when user is being given the option to override a pre-instruction
+overrideQuestioningOption = False     # so that the correct screen can be displayed.
 
 # Initial values to be changed at the beginning of each session:
 name = "Martin"
 participantNo = "Testing.0"
 participant_filename = participantNo + "_history.txt"
-ability = 4
+ability = 6
 motivation = 8
 # 1 = DRIVE, 5 = LOB, 0 = DROP
-shot = 0
+shot = None
 # "FH" or "BH"
-hand = "FH"
+hand = None
 # "racketPreparation" = RACKET_PREP, "impactCutAngle" = IMPACT_CUT_ANGLE, "followThroughTime" = FOLLOW_THROUGH_TIME
-stat = "impactCutAngle"
+stat = None
 policy = 11
-leftHand = True
+leftHand = False
 
 # Values for RL
 alpha = 0.85
@@ -182,7 +184,10 @@ policy_matrix = None
 
 # Simulation on 4G:
 # post_address = 'http://192.168.43.19:4999/output'
+
+# Simulation on home wifi:
 # post_address = 'http://192.168.1.174:4999/output'
+# screen_post_address = "http://192.168.1.174:8000/"
 
 # Robot through ITT Pepper router:
 post_address = "http://192.168.1.207:4999/output"
