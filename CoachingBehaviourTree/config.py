@@ -104,7 +104,13 @@ A_POSITIVEMODELING_PRAISE = 66
 A_END = 67
 A_SILENCE = 68
 
-shot_list_master = ["drop", "drive", "cross court lob", "two wall boast", "straight kill", "volley kill", "volley drop"]
+shot_list_master = {"drop": 0,
+                    "drive": 1,
+                    "cross court lob": 14,
+                    "two wall boast": 7,
+                    "straight kill": 16,
+                    "volley kill": 17,
+                    "volley drop": 18}
 shot_list_importance = {
     "drop": 0.8,
     "drive": 0.75,
@@ -158,6 +164,7 @@ override = None  # Will be True if user decides to override the policy's decisio
 overriden = False  # Indicates whether an override has already occured at this goal level (no point asking if the user wants to override again).
 overridePreInstructionOption = False  # Will be set to True when user is being given the option to override a pre-instruction
 overrideQuestioningOption = False     # so that the correct screen can be displayed.
+getBehaviourGoalLevel = -1  # To keep track of which level the controller is in when getting a new behaviour from the policy.
 
 # Initial values to be changed at the beginning of each session:
 name = "Martin"

@@ -812,9 +812,9 @@ def get_intro_loop(name, blackboard, prev_goal_node, initialise_node, person_nod
     new_goal_start_until = Until(name=new_goal_start_until_name, child=new_goal_start)
     overall_intro_sequence.add_child(new_goal_start_until)
     blackboard.add_remapping(new_goal._id, 'new_goal', new_goal_start._id, 'goal')
-    blackboard.save('shot', config.shot, new_goal_start._id)
-    blackboard.save('hand', config.hand, new_goal_start._id)
-    blackboard.save('stat', config.stat, new_goal_start._id)
+    #blackboard.save('shot', config.shot, new_goal_start._id)
+    #blackboard.save('hand', config.hand, new_goal_start._id)
+    #blackboard.save('stat', config.stat, new_goal_start._id)
 
     #
     #
@@ -885,9 +885,9 @@ def get_intro_sequence(name, blackboard, initialise_node, new_goal_start, new_go
     blackboard.add_remapping(new_goal._id, 'new_goal', new_goal_intro_pre_instr_action._id, 'goal')
     blackboard.add_remapping(new_goal_intro_behav._id, 'behaviour', new_goal_intro_pre_instr_action._id, 'behaviour')
     blackboard.add_remapping(person_node, 'name', new_goal_intro_pre_instr_action._id, 'name')
-    blackboard.save('shot', config.shot, new_goal_intro_pre_instr_action._id)
-    blackboard.save('hand', config.hand, new_goal_intro_pre_instr_action._id)
-    blackboard.save('stat', config.stat, new_goal_intro_pre_instr_action._id)
+    #blackboard.save('shot', config.shot, new_goal_intro_pre_instr_action._id)
+    #blackboard.save('hand', config.hand, new_goal_intro_pre_instr_action._id)
+    #blackboard.save('stat', config.stat, new_goal_intro_pre_instr_action._id)
     new_goal_intro_pre_instr_output_name = name + "_pre_instr_output"
     new_goal_intro_pre_instr_output = DisplayBehaviour(name=new_goal_intro_pre_instr_output_name, blackboard=blackboard)
     new_goal_intro_pre_instr_sequence.add_child(new_goal_intro_pre_instr_output)
@@ -949,9 +949,9 @@ def get_intro_sequence(name, blackboard, initialise_node, new_goal_start, new_go
     blackboard.add_remapping(new_goal_intro_behav._id, 'behaviour', new_goal_intro_questioning_action._id,
                              'behaviour')
     blackboard.add_remapping(person_node, 'name', new_goal_intro_questioning_action._id, 'name')
-    blackboard.save('shot', config.shot, new_goal_intro_questioning_action._id)
-    blackboard.save('hand', config.hand, new_goal_intro_questioning_action._id)
-    blackboard.save('stat', config.stat, new_goal_intro_questioning_action._id)
+    # blackboard.save('shot', config.shot, new_goal_intro_questioning_action._id)
+    # blackboard.save('hand', config.hand, new_goal_intro_questioning_action._id)
+    # blackboard.save('stat', config.stat, new_goal_intro_questioning_action._id)
     new_goal_intro_questioning_output_name = name + "_questioning_output"
     new_goal_intro_questioning_output = DisplayBehaviour(name=new_goal_intro_questioning_output_name,
                                                          blackboard=blackboard)
@@ -1019,9 +1019,9 @@ def get_intro_sequence(name, blackboard, initialise_node, new_goal_start, new_go
     blackboard.add_remapping(new_goal._id, 'new_goal', new_goal_intro_action._id, 'goal')
     blackboard.add_remapping(new_goal_intro_behav._id, 'behaviour', new_goal_intro_action._id, 'behaviour')
     blackboard.add_remapping(person_node, 'name', new_goal_intro_action._id, 'name')
-    blackboard.save('shot', config.shot, new_goal_intro_action._id)
-    blackboard.save('hand', config.hand, new_goal_intro_action._id)
-    blackboard.save('stat', config.stat, new_goal_intro_action._id)
+    # blackboard.save('shot', config.shot, new_goal_intro_action._id)
+    # blackboard.save('hand', config.hand, new_goal_intro_action._id)
+    # blackboard.save('stat', config.stat, new_goal_intro_action._id)
 
     # Display selected behaviour if not pre-instruction or questioning
     new_goal_intro_output_name = name + "_output"
@@ -1091,9 +1091,9 @@ def get_feedback_loop(name, behav, blackboard, goal_node, initialise_node, previ
         blackboard.add_remapping(goal_node, 'new_goal', feedback_loop_end_action._id, 'goal')
         blackboard.add_remapping(feedback_behaviour._id, 'behaviour', feedback_loop_end_action._id, 'behaviour')
         blackboard.add_remapping(person_node, 'name', feedback_loop_end_action._id, 'name')
-        blackboard.save('shot', config.shot, feedback_loop_end_action._id)
-        blackboard.save('hand', config.hand, feedback_loop_end_action._id)
-        blackboard.save('stat', config.stat, feedback_loop_end_action._id)
+        # blackboard.save('shot', config.shot, feedback_loop_end_action._id)
+        # blackboard.save('hand', config.hand, feedback_loop_end_action._id)
+        # blackboard.save('stat', config.stat, feedback_loop_end_action._id)
 
         feedback_loop_display_end_output = DisplayBehaviour(name="feedback_loop_display_end_output", blackboard=blackboard)
         feedback_loop_end_sequence.add_child(feedback_loop_display_end_output)
@@ -1116,9 +1116,9 @@ def get_feedback_loop(name, behav, blackboard, goal_node, initialise_node, previ
     blackboard.add_remapping(goal_node, 'new_goal', feedback_loop_action._id, 'goal')
     blackboard.add_remapping(feedback_behaviour._id, 'behaviour', feedback_loop_action._id, 'behaviour')
     blackboard.add_remapping(person_node, 'name', feedback_loop_action._id, 'name')
-    blackboard.save('shot', config.shot, feedback_loop_action._id)
-    blackboard.save('hand', config.hand, feedback_loop_action._id)
-    blackboard.save('stat', config.stat, feedback_loop_action._id)
+    # blackboard.save('shot', config.shot, feedback_loop_action._id)
+    # blackboard.save('hand', config.hand, feedback_loop_action._id)
+    # blackboard.save('stat', config.stat, feedback_loop_action._id)
 
     # Display behaviour if not given behaviour
     output_name = name + "_output"
@@ -1183,11 +1183,11 @@ def main():
 
         # print('Behaviour = ' + str(config.behaviour))
         print("controller getting new behaviour")
-        action2 = config.policy_matrix.get_behaviour(state2, config.goal_level, config.performance, config.phase)
+        action2 = config.policy_matrix.get_behaviour(state2, config.getBehaviourGoalLevel, config.performance, config.phase)
 
         # If behaviour occurs twice, just skip to pre-instruction.
         if action2 in config.used_behaviours and (
-                config.goal_level == config.SESSION_GOAL or config.goal_level == config.EXERCISE_GOAL or config.goal_level == config.SET_GOAL):
+                config.getBehaviourGoalLevel == config.SESSION_GOAL or config.goal_level == config.EXERCISE_GOAL or config.goal_level == config.SET_GOAL):
             action2 = config.A_PREINSTRUCTION
             logging.debug('Got new behaviour: 1')
             # config.matching_behav = 0
