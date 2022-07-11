@@ -2,13 +2,13 @@
 {
     "goal_level": 4,
     "hand": "BH",
-    "shot": 0
+    "shot": 0,
     "score": 3.4,
-    "racketPreparation": 78
-    "downSwingSpeed": 3.4
-    "impactCutAngle": 32
-    "impactSpeed": 3.2
-    "followThroughSwing": 25
+    "racketPreparation": 78,
+    "downSwingSpeed": 3.4,
+    "impactCutAngle": 32,
+    "impactSpeed": 3.2,
+    "followThroughSwing": 25,
     "followThroughTime": 0.07
 }
 
@@ -16,13 +16,13 @@
 {
     "goal_level": 4,
     "hand": "FH",
-    "shot": 1
+    "shot": 1,
     "score": 2.8,
-    "racketPreparation": 93
-    "downSwingSpeed": 4.6
-    "impactCutAngle": 16
-    "impactSpeed": 4.7
-    "followThroughSwing": 38
+    "racketPreparation": 93,
+    "downSwingSpeed": 4.6,
+    "impactCutAngle": 16,
+    "impactSpeed": 4.7,
+    "followThroughSwing": 38,
     "followThroughTime": 0.13
 }
 
@@ -30,12 +30,50 @@
 {
     "goal_level": 4,
     "hand": "BH",
-    "shot": 0
+    "shot": 0,
     "score": 3.6,
-    "racketPreparation": 74
-    "downSwingSpeed": 3.5
-    "impactCutAngle": 40
-    "impactSpeed": 3.5
-    "followThroughSwing": 30
+    "racketPreparation": 74,
+    "downSwingSpeed": 3.5,
+    "impactCutAngle": 40,
+    "impactSpeed": 3.5,
+    "followThroughSwing": 30,
     "followThroughTime": 0.15
+}
+
+# Stop
+{
+    "stop": 1
+}
+
+# Set goal
+{
+    "goal_level": 4,
+    "hand": "BH",
+    "shot": 0,
+    "score": 4.0,
+    "racketPreparation": 76,
+    "downSwingSpeed": 3.4,
+    "impactCutAngle": 42,
+    "impactSpeed": 2.9,
+    "followThroughSwing": 50,
+    "followThroughTime": 0.16
+}
+
+# Set goal
+{
+    "goal_level": 4,
+    "hand": "BH",
+    "shot": 14,
+    "score": 2.1,
+    "racketPreparation": 40,
+    "downSwingSpeed": 2.0,
+    "impactCutAngle": 60,
+    "impactSpeed": 1.4,
+    "followThroughSwing": 72,
+    "followThroughTime": 0.2
+}
+
+# Stop
+{
+    "stop": 1
 }

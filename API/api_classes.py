@@ -1,13 +1,8 @@
-import time
+import os
 
-import requests
 from flask import Flask, request
 from flask_restful import Resource, Api, reqparse
-import json
 import logging
-
-from CoachingBehaviourTree import controller, nodes, config
-from Policy.policy_wrapper import PolicyWrapper
 
 app = Flask('policy_guide_api')
 api = Api(app)
@@ -62,11 +57,14 @@ class TimestepCue(Resource):
             logging.debug(content)
             logging.info("Received data from app: {}".format(content))
             if 'goal_level' in content:
+                print("goal_level in content")
                 if int(content['goal_level']) == 4:
+                    print("goal_level == 4")
                     if 'score' in content:
-                        performance = ""
+                        print("score in content")
+                        '''performance = ""
                         if not content['performance'] == "":
-                            performance = content['performance']
+                            performance = content['performance']'''
                         score = content['score']
 
                         shot = content['shot']
@@ -74,25 +72,32 @@ class TimestepCue(Resource):
 
                         # Write to file
                         try:
-                            file = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + participantNo + "/" + hand + shot + "/" + sessions + ".txt", "r")
+                            file = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + participantNo + "/" + hand + str(shot) + "/" + str(sessions) + ".txt", "r")
                             file_contents = file.readlines()
                             file.close()
+                            print("File exists")
                         except:
-                            file = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + participantNo + "/" + hand + shot + "/" + sessions + ".txt", "a")
+                            print("File does not exist")
+                            try:
+                                os.mkdir("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + participantNo + "/" + hand + str(shot))
+                                print("directory did not exist")
+                            except:
+                                print("directory already exists")
+                            file = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + participantNo + "/" + hand + str(shot) + "/" + str(sessions) + ".txt", "a")
                             file.write("0\n")
                             file.close()
                             file_contents = ["0\n"]
 
                         setsCount = int(file_contents[0].split("\n")[0])
                         setsCount += 1
-                        file_contents.insert(0, str(setsCount))
+                        file_contents[0] = str(setsCount) + "\n"
 
-                        file_contents.append(score + "\n")
+                        file_contents.append(str(score) + "\n")
                         for stat in stat_list_master:
                             file_contents.append(stat + "\n")
-                            file_contents.append(content[stat] + "\n")
+                            file_contents.append(str(content[stat]) + "\n")
 
-                        file = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + participantNo + "/" + hand + shot + "/" + sessions + ".txt", "w")
+                        file = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + participantNo + "/" + hand + str(shot) + "/" + str(sessions) + ".txt", "w")
                         file.writelines(file_contents)
                         file.close()
 
@@ -100,23 +105,23 @@ class TimestepCue(Resource):
 
                         new_data = {
                             'goal_level': 4,
-                            'completed': config.COMPLETED_STATUS_TRUE,
+                            'completed': 1,
                             'shotSet': 1
                         }
 
                         return new_data, 200
 
                     else:  # Start of set
-                        config.goal_level = config.SET_GOAL
-                        config.phase = config.PHASE_START
-                        config.completed = config.COMPLETED_STATUS_UNDEFINED
+                        goal_level = 4
+                        phase = 0
+                        completed = -1
 
-                        while config.completed != config.COMPLETED_STATUS_FALSE:
-                            pass
+                        while completed != 0:
+                            print("stuck in while loop")
 
                         new_data = {
                             'goal_level': 4,
-                            'completed': config.completed,
+                            'completed': 0,
                             'shotSet': 1
                         }
 
@@ -127,7 +132,9 @@ class TimestepCue(Resource):
                 for shot in shot_list_master.values():
                     for hand in ["FH", "BH"]:
                         try:
-                            file = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + participantNo + "/" + hand + str(shot) + "/" + sessions + ".txt", "r")
+                            filepath = "/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + participantNo + "/" + hand + str(shot) + "/" + str(sessions) + ".txt"
+                            print(filepath)
+                            file = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + participantNo + "/" + hand + str(shot) + "/" + str(sessions) + ".txt", "r")
                             file_contents = file.readlines()
                             file.close()
                             setsCount = int(file_contents[0])
@@ -135,26 +142,40 @@ class TimestepCue(Resource):
                             line = 1
                             total = 0
                             for s in range(setsCount):
+                                print(file_contents[line].split("\n")[0])
                                 total += float(file_contents[line].split("\n")[0])
-                                line += 12
+                                print("total = " + str(total))
+                                line += 13
+                                print("line = " + str(line))
 
                             averageScore = total/setsCount
                             file_contents.insert(0, str(averageScore) + "\n")
 
-                            file = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + participantNo + "/" + hand + str(shot) + "/" + sessions + ".txt", "w")
+                            file = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + participantNo + "/" + hand + str(shot) + "/" + str(sessions) + ".txt", "w")
                             file.writelines(file_contents)
                             file.close()
 
                             sessionLine = sessionLine + hand + str(shot) + ": " + str(averageScore) + ", "
+                            print("Written data for " + hand + str(shot) + " to file.")
                         except:
                             print("Did not play any " + hand + str(shot) + " in this session.")
 
                 file = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + participantNo + "/Sessions.txt", "r")
-                file_contents = f.readlines()
+                file_contents = file.readlines()
                 file.close()
 
                 file_contents[0] = str(sessions) + "\n"
-                file_contents.insert(sessions, sessionLine + "\n")
+                file_contents.append(sessionLine + "\n")
+
+                file = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + participantNo + "/Sessions.txt", "w")
+                file.writelines(file_contents)
+                file.close()
+
+                new_data = {
+                    'stop': 1
+                }
+
+                return new_data, 200
 
         else:
             print("request not json")
@@ -178,13 +199,13 @@ class TimestepCue(Resource):
 api.add_resource(TimestepCue, '/cue')
 
 if __name__ == '__main__':
-    global sessions
     try:
         f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + participantNo + "/Sessions.txt", "r")
         f_contents = f.readlines()
         f.close()
         sessions = int(f_contents[0].split("\n")[0]) + 1
     except:
+        os.mkdir("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + participantNo)
         f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + participantNo + "/Sessions.txt", "a")
         f.write("1\n")
         f.close()
