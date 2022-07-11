@@ -13,9 +13,48 @@ app = Flask('policy_guide_api')
 api = Api(app)
 expecting_action_goal = False
 
+stat_list_master = ["racketPreparation", "downSwingSpeed", "impactCutAngle", "impactSpeed", "followThroughSwing", "followThroughTime"]
+shot_list_master = {"drop": 0, "drive": 1, "cross court lob": 14, "two wall boast": 7, "straight kill": 16, "volley kill": 17, "volley drop": 18}
+sessions = 0
+
+participantNo = "TestingBaseline0"
+
+'''
+Layout of participant history files:
+    Directory: <participant number>
+        File: Sessions.txt
+            Contents: (Updated at end of session, when operator types end)
+                <no. of sessions>
+                <exercise name>: <score in first session>, <exercise name>: <score in first session>, ...
+                <exercise name>: <score in second session>, <exercise name>: <score in second session>, ...
+                ...
+        Directory: <exercise name>
+            File: <session no.>.txt
+                Contents:
+                    <overall score> (updated at end of session)
+                    <no. of sets> (updated at end of set)
+                    <first set score>
+                    <stat name>
+                    <score list for each shot in set>
+                    <stat name»
+                    <score list for each shot in set>
+                    ...
+                    <second set score>
+                    <stat name>
+                    <score list for each shot in set>
+                    <stat name>
+                    <score list for each shot in set>
+                    ...
+            ...
+        Directory: <exercise name>
+            ...
+        ...
+'''
+
 class TimestepCue(Resource):
     previous_shot_performance = None
     def post(self):
+        global sessions
         if request.is_json:
             print("request is json")
             logging.debug("request is json")
@@ -23,224 +62,45 @@ class TimestepCue(Resource):
             logging.debug(content)
             logging.info("Received data from app: {}".format(content))
             if 'goal_level' in content:
-                if int(content['goal_level']) == config.PERSON_GOAL:
-                    # logging.info("Received data from app: {}".format(content))
-                    config.goal_level = config.PERSON_GOAL
-                    # config.name = content['name']  # Name was not working so removed here and will set it at the start of each session.
-                    config.sessions = int(content['sessions'])
-                    config.ability = int(content['ability'])
-                    config.completed = config.COMPLETED_STATUS_UNDEFINED
-
-                    while config.completed == config.COMPLETED_STATUS_UNDEFINED:
-                        pass
-
-                    new_data = {
-                        'goal_level': 0,
-                        'completed': config.completed,
-                        'shotSet': 0
-                    }
-
-                    return new_data, 200
-
-                elif int(content['goal_level']) == config.SESSION_GOAL:
-                    logging.debug('session goal setting controller values')
-                    if 'feedback' in content:  # End of session
-                        logging.debug('end of session')
-                        config.performance = content['performance']
-                        config.goal_level = config.SESSION_GOAL
-                        config.phase = config.PHASE_END
-                        config.completed = config.COMPLETED_STATUS_UNDEFINED
-
-                        while config.completed == config.COMPLETED_STATUS_UNDEFINED:
-                            pass
-
-                        new_data = {
-                            'goal_level': 1,
-                            'completed': config.completed
-                        }
-
-                        return new_data, 200
-                    elif 'stop' in content:
-                        print("stop session")
-                        config.stop_session = True  # High level global variable which will be checked at each node until session goal feedback is reached.
-                        config.goal_level = config.SESSION_GOAL
-                        config.phase = config.PHASE_END
-                        config.set_count += 1
-                        config.completed = config.COMPLETED_STATUS_TRUE
-
-                        new_data = {
-                            'goal_level': 1,
-                            'completed': config.completed,
-                        }
-
-                        return new_data, 200
-                    else:
-                        config.completed = config.COMPLETED_STATUS_UNDEFINED
-                        config.goal_level = config.SESSION_GOAL
-                        config.phase = config.PHASE_START
-                        config.performance = None
-                        # config.performance = content['performance']
-
-                        while config.completed == config.COMPLETED_STATUS_UNDEFINED:
-                            pass
-
-                        new_data = {
-                            'goal_level': 1,
-                            'completed': config.completed,
-                            'shotSet': 0
-                        }
-
-                        if not (config.shot == -1):
-                            new_data['shotType'] = config.shot
-                            new_data['hand'] = config.hand
-
-                        if not (config.stat == ""):
-                            new_data['stat'] = config.stat
-
-                        return new_data, 200
-
-                elif int(content['goal_level']) == config.EXERCISE_GOAL:
-                    logging.debug('shot goal setting controller values')
-                    if 'feedback' in content:  # End of shot
-                        logging.debug('end of shot')
-                        config.score = content['score']
-                        config.target = content['tgtValue']
-                        config.performance = content['performance']
-                        config.goal_level = config.EXERCISE_GOAL
-                        config.phase = config.PHASE_END
-                        config.completed = config.COMPLETED_STATUS_FALSE
-
-                        while config.completed == config.COMPLETED_STATUS_FALSE:
-                            pass
-
-                        new_data = {
-                            'goal_level': 2,
-                            'completed': config.completed
-                        }
-
-                        return new_data, 200
-                    elif 'stop' in content:
-                        config.stop_set = True  # High level global variable which will be checked at each node until set goal feedback loop is reached.
-
-                        new_data = {
-                            'goal_level': 2,
-                            'completed': config.completed,
-                        }
-
-                        return new_data, 200
-                    else:
-                        config.completed = config.COMPLETED_STATUS_UNDEFINED
-                        config.goal_level = config.EXERCISE_GOAL
-                        config.phase = config.PHASE_START
-                        config.score = None
-                        config.performance = None
-
-                        if config.shot == -1:
-                            config.shot = content['shotType']
-                            config.hand = content['hand']
-                        '''if content['initialScore'] == "null":
-                            config.score = None
-                        else:
-                            config.score = float(content['initialScore'])
-                        if content['performance'] == "":
-                            config.performance = None
-                        else:
-                            config.performance = int(config.performance)'''
-
-                        while config.completed == config.COMPLETED_STATUS_UNDEFINED:
-                            pass
-
-                        new_data = {
-                            'goal_level': 2,
-                            'completed': config.completed,
-                            'shotSet': 1
-                        }
-
-                        if not (config.stat == -1):
-                            new_data['stat'] = config.stat
-
-                        return new_data, 200
-
-                elif int(content['goal_level']) == config.STAT_GOAL:
-                    logging.debug('stat goal setting controller values')
-                    if 'feedback' in content:  # End of stat
-                        logging.debug('end of stat')
-                        config.score = float(content['score'])
-                        config.target = float(content['tgtValue'])
-                        config.performance = int(content['performance'])
-                        config.goal_level = config.STAT_GOAL
-                        config.phase = config.PHASE_END
-                        config.completed = config.COMPLETED_STATUS_UNDEFINED
-
-                        while config.completed == config.COMPLETED_STATUS_UNDEFINED:
-                            pass
-
-                        new_data = {
-                            'goal_level': 3,
-                            'completed': config.completed
-                        }
-
-                        return new_data, 200
-                    else:
-                        config.completed = config.COMPLETED_STATUS_UNDEFINED
-                        config.goal_level = config.STAT_GOAL
-                        config.phase = config.PHASE_START
-                        if config.stat == -1:
-                            config.stat = content['stat']
-                        config.target = float(content['tgtValue'])
-                        '''if content['performance'] == "":
-                            config.performance = None
-                        else:
-                            config.performance = int(config.performance)'''
-                        config.performance = None
-
-                        while config.completed != config.COMPLETED_STATUS_FALSE:
-                            pass
-
-                        new_data = {
-                            'goal_level': 3,
-                            'completed': config.completed,
-                            'shotSet': 0
-                        }
-
-                        return new_data, 200
-
-                elif int(content['goal_level']) == config.SET_GOAL:  # Also represents baseline goal
-                    '''if config.goal_level == config.BASELINE_GOAL:  # baseline goal feedback
-                        config.performance = content['performance']
-                        config.score = content['score']
-                        config.goal_level = config.EXERCISE_GOAL
-                    else:'''
-                    logging.debug('set goal setting controller values')
-                    if 'score' in content:  # End of set
-                        logging.debug('end of set')
-                        scoreString = content['score']
-                        if scoreString[-1] == "%":
-                            scoreString = content['score'][:-1]
-                        elif scoreString[-1] == "s":
-                            scoreString = content['score'][:-5]
-                        targetString = content['tgtValue']
-                        if targetString[-1] == "%":
-                            targetString = content['tgtValue'][:-1]
-                        elif targetString[-1] == "s":
-                            targetString = content['tgtValue'][:-5]
-                        config.avg_score = float(scoreString)
-                        config.set_score_list.append(float(scoreString))
-                        config.target = float(targetString)
+                if int(content['goal_level']) == 4:
+                    if 'score' in content:
+                        performance = ""
                         if not content['performance'] == "":
-                            config.performance = int(content['performance'])
-                            config.set_performance_list.append(int(content['performance']))
-                            # config.stat = content['stat']  # Let guide decide what stat to work on based on baseline set.
-                            config.goal_level = config.SET_GOAL
-                            config.phase = config.PHASE_END
-                            config.completed = config.COMPLETED_STATUS_UNDEFINED
+                            performance = content['performance']
+                        score = content['score']
 
-                            while config.completed == config.COMPLETED_STATUS_UNDEFINED:
-                                pass
+                        shot = content['shot']
+                        hand = content['hand']
+
+                        # Write to file
+                        try:
+                            file = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + participantNo + "/" + hand + shot + "/" + sessions + ".txt", "r")
+                            file_contents = file.readlines()
+                            file.close()
+                        except:
+                            file = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + participantNo + "/" + hand + shot + "/" + sessions + ".txt", "a")
+                            file.write("0\n")
+                            file.close()
+                            file_contents = ["0\n"]
+
+                        setsCount = int(file_contents[0].split("\n")[0])
+                        setsCount += 1
+                        file_contents.insert(0, str(setsCount))
+
+                        file_contents.append(score + "\n")
+                        for stat in stat_list_master:
+                            file_contents.append(stat + "\n")
+                            file_contents.append(content[stat] + "\n")
+
+                        file = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + participantNo + "/" + hand + shot + "/" + sessions + ".txt", "w")
+                        file.writelines(file_contents)
+                        file.close()
+
+                        logging.debug('written shot set data to file')
 
                         new_data = {
                             'goal_level': 4,
-                            'completed': config.completed,
+                            'completed': config.COMPLETED_STATUS_TRUE,
                             'shotSet': 1
                         }
 
@@ -262,73 +122,39 @@ class TimestepCue(Resource):
 
                         return new_data, 200
 
-                elif int(content['goal_level']) == config.ACTION_GOAL:
-                    if expecting_action_goal:
-                        logging.debug('action goal setting controller values')
-                        config.action_score = float(content['score'])
-                        performanceValue = config.MET
-                        if content['performance'] == 'Very Low':
-                            performanceValue = config.MUCH_REGRESSED
-                        elif content['performance'] == 'Very High':
-                            performanceValue = config.REGRESSED_SWAP
-                        elif content['performance'] == 'Low':
-                            performanceValue = config.REGRESSED
-                        elif content['performance'] == 'High':
-                            performanceValue = config.MET
-                        elif content['performance'] == 'Under':
-                            performanceValue = config.STEADY
-                        elif content['performance'] == 'Over':
-                            performanceValue = config.IMPROVED
-                        elif content['performance'] == 'Good!':
-                            performanceValue = config.MUCH_IMPROVED
-                        else:
-                            logging.debug('no performanceValue found')
-                        if config.performance == self.previous_shot_performance:  # We haven't received the set goal feedback so can safely update config.performance
-                            config.performance = performanceValue            # Not perfect because we might have the same performance for set and action.
-                        config.goal_level = config.ACTION_GOAL
-                        config.shot_count += 1
+            elif 'stop' in content:
+                sessionLine = ""
+                for shot in shot_list_master.values():
+                    for hand in ["FH", "BH"]:
+                        try:
+                            file = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + participantNo + "/" + hand + str(shot) + "/" + sessions + ".txt", "r")
+                            file_contents = file.readlines()
+                            file.close()
+                            setsCount = int(file_contents[0])
 
-                        self.previous_shot_performance = performanceValue
+                            line = 1
+                            total = 0
+                            for s in range(setsCount):
+                                total += float(file_contents[line].split("\n")[0])
+                                line += 12
 
-                        new_data = {
-                            'goal_level': 5,
-                            'completed': 1,
-                            'shotSet': 1
-                        }
+                            averageScore = total/setsCount
+                            file_contents.insert(0, str(averageScore) + "\n")
 
-                        if config.shot_count == 29:
-                            new_data['shotSetComplete'] = 1
-                            new_data['stat'] = config.stat
-                        else:
-                            new_data['shotSetComplete'] = 0
+                            file = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + participantNo + "/" + hand + str(shot) + "/" + sessions + ".txt", "w")
+                            file.writelines(file_contents)
+                            file.close()
 
-                    else:
-                        logging.info("Action goal not expected, not using data.")
-                        logging.debug("Action goal not expected, not setting controller values.")
-                        new_data = {
-                            'goal_level': 5,
-                            'completed': 1,
-                            'shotSet': 1,
-                            'shotSetComplete': 0
-                        }
+                            sessionLine = sessionLine + hand + str(shot) + ": " + str(averageScore) + ", "
+                        except:
+                            print("Did not play any " + hand + str(shot) + " in this session.")
 
-                    return new_data, 200
+                file = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + participantNo + "/Sessions.txt", "r")
+                file_contents = f.readlines()
+                file.close()
 
-            elif 'override' in content:
-                print("dealing with override in API")
-                if content['override'] == "True":
-                    config.override = True
-                else:
-                    config.override = False
-
-            else:
-                print("dealing with shot/stat selection in API")
-                if 'shot_selection' in content:
-                    shotWithSpaces = content['shot_selection'].replace('%20', ' ')
-                    config.shot = shotWithSpaces
-                    config.hand = content['hand']
-                else:
-                    config.stat = content['stat_selection']
+                file_contents[0] = str(sessions) + "\n"
+                file_contents.insert(sessions, sessionLine + "\n")
 
         else:
             print("request not json")
@@ -347,379 +173,20 @@ class TimestepCue(Resource):
 
             args = parser.parse_args()  # parse arguments to dictionary
             logging.debug('recevied post request')
-            if int(args['goal_level']) == config.PERSON_GOAL:
-                logging.debug('player goal setting controller values')
-                config.goal_level = config.PERSON_GOAL
-                config.name = args['name']
-                config.sessions = int(args['sessions'])
-                config.ability = int(args['ability'])
 
-                while config.completed == config.COMPLETED_STATUS_UNDEFINED:
-                    pass
-
-                return {args['goal_level']: config.completed}, 200
-
-            elif int(args['goal_level']) == config.SESSION_GOAL:
-                logging.debug('session goal setting controller values')
-                config.completed = config.COMPLETED_STATUS_UNDEFINED
-                config.goal_level = config.SESSION_GOAL
-                config.performance = int(args['performance'])
-
-                while config.completed == config.COMPLETED_STATUS_UNDEFINED:
-                    pass
-
-                new_data = {
-                    'completed': config.completed
-                }
-
-                if not(config.shot == -1):
-                    new_data['shot'] = config.shot
-
-                return {args['goal_level']: new_data}, 200
-
-            elif int(args['goal_level']) == config.EXERCISE_GOAL:
-                logging.debug('shot goal setting controller values')
-                config.completed = config.COMPLETED_STATUS_UNDEFINED
-                config.goal_level = config.EXERCISE_GOAL
-                config.performance = int(args['performance'])
-
-                while config.completed == config.COMPLETED_STATUS_UNDEFINED:
-                    pass
-
-                new_data = {
-                    'completed': config.completed
-                }
-
-                if not (config.stat == -1):
-                    new_data['stat'] = config.stat
-
-                return {args['goal_level']: new_data}, 200
-
-        # create new dataframe containing new values
-        '''new_data = {
-            'name': args['name'],
-            'skill': args['skill'],
-            'sessions': args['sessions']
-        }'''
-
-        # TODO: Might have to use userID instead of push to retrieve the user info in the controller.
-        # new_post_ref = ref.push(new_data)
-
-        # return {new_post_ref.key: new_data}, 200
-
-'''class Users(Resource):
-    def get(self):
-        parser = reqparse.RequestParser()
-        parser.add_argument('userID', required=True)
-        args = parser.parse_args()
-
-        ref = db.reference("/Users")
-        users = ref.get()
-
-        if args['userID'] in [key for key in users]:
-            user_ref = db.reference("/Users/" + args['userID'])
-            user = user_ref.get()
-
-            return user, 200
-        else:
-            return {
-                       'message': f"'{args['userID']}' user not found."
-                   }, 404
-
-    def post(self):
-        parser = reqparse.RequestParser()
-
-        parser.add_argument('name', required=True)
-        parser.add_argument('skill', required=True)
-        parser.add_argument('sessions', required=True)
-
-        args = parser.parse_args()  # parse arguments to dictionary
-
-        ref = db.reference("/Users")
-
-        # create new dataframe containing new values
-        new_data = {
-            'name': args['name'],
-            'skill': args['skill'],
-            'sessions': args['sessions']
-        }
-
-        # TODO: Might have to use userID instead of push to retrieve the user info in the controller.
-        new_post_ref = ref.push(new_data)
-
-        return {new_post_ref.key: new_data}, 200
-
-    def put(self):
-        parser = reqparse.RequestParser()
-        parser.add_argument('userID', required=True)
-        parser.add_argument('name', required=False)
-        parser.add_argument('skill', required=False)
-        parser.add_argument('sessions', required=False)
-
-        args = parser.parse_args()
-
-        ref = db.reference("/Users")
-        users = ref.get()
-
-        if args['userID'] in [key for key in users]:
-            user_ref = db.reference("/Users/" + args['userID'])
-            user = user_ref.get()
-
-            updated_data = {}
-            updated = 0
-
-            if not (args['name'] is None):
-                ref.child(args['userID']).update({'name': args['name']})
-                updated_data['name'] = args['name']
-                updated = 1
-            if not (args['skill'] is None):
-                ref.child(args['userID']).update({'skill': args['skill']})
-                updated_data['skill'] = args['skill']
-                updated = 1
-            if not (args['sessions'] is None):
-                ref.child(args['userID']).update({'sessions': args['sessions']})
-                updated_data['sessions'] = args['sessions']
-                updated = 1
-
-            if updated:
-                return {args['userID']: updated_data}, 200
-            else:
-                return {
-                           'message': f"'{args['userID']}' invalid arguments."
-                       }, 500
-
-        else:
-            return {
-                       'message': f"'{args['userID']}' user not found."
-                   }, 404
-
-
-class Goals(Resource):
-    # controller requests new goal and guide posts new goal
-
-    def get(self):
-        parser = reqparse.RequestParser()
-        parser.add_argument('userID', required=True)
-        args = parser.parse_args()
-
-        ref = db.reference("/Users")
-        users = ref.get()
-
-        if args['userID'] in [key for key in users]:
-            goals_ref = db.reference("/Users/" + args['userID'] + "/Goals")
-            goals = goals_ref.get()
-
-            return goals, 200
-        else:
-            return {
-                       'message': f"'{args['userID']}' user not found."
-                   }, 404
-
-    def post(self):
-        # controller will post a goal request
-        parser = reqparse.RequestParser()
-
-        parser.add_argument('userID', required=True)
-        parser.add_argument('goal_type', required=True)
-        parser.add_argument('shotOrStat', required=False)
-
-        args = parser.parse_args()  # parse arguments to dictionary
-
-        ref = db.reference("/Users")
-        users = ref.get()
-
-        if args['userID'] in [key for key in users]:
-
-            # create new dataframe containing new values
-            new_data = {
-                'goal_type': args['goal_type'],
-            }
-
-            if not(args['shotOrStat'] is None):
-                new_data['shotOrStat'] = args['shotOrStat']
-
-            ref.child(args['userID']).child('Goals').push(new_data)
-
-            return new_data, 200
-        else:
-            return {
-                       'message': f"'{args['userID']}' user not found."
-                   }, 404
-
-    def put(self):
-        # guide will put new information in the goal once it has created it and controller will update completed once
-        # the correct stage of the behaviour tree has been reached.
-        parser = reqparse.RequestParser()
-        parser.add_argument('userID', required=True)
-        parser.add_argument('goalID', required=True)
-        parser.add_argument('completed', required=True)
-        parser.add_argument('performance', required=False)
-        parser.add_argument('target', required=False)
-        parser.add_argument('score', required=False)
-
-        args = parser.parse_args()
-
-        ref = db.reference("/Users")
-        users = ref.get()
-
-        if args['userID'] in [key for key in users]:
-            goals_ref = db.reference("/Users/" + args['userID'] + "/Goals")
-            goals = goals_ref.get()
-
-            if args['goalID'] in [key for key in goals]:
-
-                updated_data = {}
-                updated = 0
-
-                if not (args['completed'] is None):
-                    goals_ref.child(args['goalID']).update({'completed': args['completed']})
-                    updated_data['completed'] = args['completed']
-                    updated = 1
-
-                if not (args['performance'] is None):
-                    goals_ref.child(args['goalID']).update({'performance': args['performance']})
-                    updated_data['performance'] = args['performance']
-                    updated = 1
-
-                if not (args['target'] is None):
-                    goals_ref.child(args['goalID']).update({'target': args['target']})
-                    updated_data['target'] = args['target']
-                    updated = 1
-
-                if not (args['score'] is None):
-                    goals_ref.child(args['goalID']).update({'score': args['score']})
-                    updated_data['score'] = args['score']
-                    updated = 1
-
-                if updated:
-                    return {args['goalID']: updated_data}, 200
-                else:
-                    return {
-                               'message': f"'{args['goalID']}' invalid arguments."
-                           }, 500
-            else:
-                return {
-                           'message': f"'{args['goalID']}' goal not found."
-                       }, 404
-        else:
-            return {
-                       'message': f"'{args['userID']}' user not found."
-                   }, 404
-
-
-class Actions(Resource):
-    # guide posts every time shot is played or goal has been created
-
-    def get(self):
-        # controller will get the actions
-        parser = reqparse.RequestParser()
-        parser.add_argument('userID', required=True)
-        parser.add_argument('goalID', required=True)
-        args = parser.parse_args()
-
-        ref = db.reference("/Users")
-        users = ref.get()
-
-        if args['userID'] in [key for key in users]:
-            goals_ref = db.reference("/Users/" + args['userID'] + "/Goals")
-            goals = goals_ref.get()
-
-            if args['goalID'] in [key for key in goals]:
-                actions_ref = db.reference("/Users/" + args['userID'] + "/Goals/" + args['goalID'] + "/Actions")
-                actions = actions_ref.get()
-
-                return actions, 200
-            else:
-                return {
-                           'message': f"'{args['goalID']}' goal not found."
-                       }, 404
-        else:
-            return {
-                       'message': f"'{args['userID']}' user not found."
-                   }, 404
-
-    def post(self):
-        # guide will post an action every time the user hits a shot
-        parser = reqparse.RequestParser()
-
-        parser.add_argument('userID', required=True)
-        parser.add_argument('goalID', required=True)
-        parser.add_argument('score', required=True)
-        parser.add_argument('target', required=True)
-
-        args = parser.parse_args()  # parse arguments to dictionary
-
-        ref = db.reference("/Users")
-        users = ref.get()
-
-        if args['userID'] in [key for key in users]:
-            goals_ref = db.reference("/Users/" + args['userID'] + "/Goals")
-            goals = goals_ref.get()
-
-            if args['goalID'] in [key for key in goals]:
-                # create new dataframe containing new values
-                new_data = {
-                    'score': args['score'],
-                    'target': args['target']
-                }
-
-                new_post_ref = goals_ref.child(args['goalID']).child('Actions').push(new_data)
-
-                return {new_post_ref.key: new_data}, 200
-            else:
-                return {
-                           'message': f"'{args['goalID']}' goal not found."
-                       }, 404
-        else:
-            return {
-                       'message': f"'{args['userID']}' user not found."
-                   }, 404
-
-    def delete(self):
-        # guide will delete all actions before posting a new one so that the controller is always up to date with the interaction
-        parser = reqparse.RequestParser()
-
-        parser.add_argument('userID', required=True)
-        parser.add_argument('goalID', required=True)
-
-        args = parser.parse_args()  # parse arguments to dictionary
-
-        ref = db.reference("/Users")
-        users = ref.get()
-
-        if args['userID'] in [key for key in users]:
-            goals_ref = db.reference("/Users/" + args['userID'] + "/Goals")
-            goals = goals_ref.get()
-
-            if args['goalID'] in [key for key in goals]:
-                actions_ref = db.reference("/Users/" + args['userID'] + "/Goals/" + args['goalID'] + "/Actions")
-                actions = actions_ref.get()
-
-                if not(actions is None):
-
-                    for action_key in actions:
-                        actions_ref.child(action_key).set({})
-
-                    return {actions_ref.key: actions}, 200
-                else: return {
-                           'message': f"no actions available to delete."
-                       }, 404
-
-            else:
-                return {
-                           'message': f"'{args['goalID']}' goal not found."
-                       }, 404
-        else:
-            return {
-                       'message': f"'{args['userID']}' user not found."
-                   }, 404
-
-
-api.add_resource(Users, '/users')
-api.add_resource(Goals, '/goals')
-api.add_resource(Actions, '/actions')'''
 
 api.add_resource(TimestepCue, '/cue')
 
 if __name__ == '__main__':
+    global sessions
+    try:
+        f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + participantNo + "/Sessions.txt", "r")
+        f_contents = f.readlines()
+        f.close()
+        sessions = int(f_contents[0].split("\n")[0]) + 1
+    except:
+        f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + participantNo + "/Sessions.txt", "a")
+        f.write("1\n")
+        f.close()
+        sessions = 1
     app.run()  # run our Flask app

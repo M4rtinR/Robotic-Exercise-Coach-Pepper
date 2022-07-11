@@ -1,98 +1,41 @@
-# Player goal
-{
-    "goal_level": 0,
-    "name": "Martin",
-    "ability": 5,
-    "sessions": 1,
-    "shotPerformance": {
-        "shotClass": {
-            "shotType": 0,
-            "hand": 1
-        },
-    "score": 0.68
-    }
-}
-
-
-# Session goal
-{
-    "goal_level": 1,
-    "performance": 3,
-    "children": {
-        "goal_level": 2,
-        "performance": 2
-    }
-}
-
-
-# Shot goal
-{
-    "goal_level": 2,
-    "shotType": 1,
-    "hand": "FH",
-    "initialScore": 0.04,
-    "performance": 2,
-    "children": {
-        "goal_level": 3,
-        "performance": 0
-    }
-}
-
-
-# Stat goal
-{
-    "goal_level": 3,
-    "stat": "preparation",
-    "tgtValue": 0.90,
-    "performance": 2,
-    "children": {
-        "goal_level": 4,
-        "performance": 6
-    }
-}
-
-
-# Baseline goal
-{
-    "goal_level": 4
-}
-
-# Set goal
-{
-    "goal_level": 4
-}
-
-# Action goal
-{
-    "goal_level": 5,
-    "score": 0.66,
-    "performance": 2
-}
-
-
-## Feedback
 # Set goal
 {
     "goal_level": 4,
-    "score": 0.66,
-    "performance": 2,
-    "tgtValue": 0.8
+    "hand": "BH",
+    "shot": 0
+    "score": 3.4,
+    "racketPreparation": 78
+    "downSwingSpeed": 3.4
+    "impactCutAngle": 32
+    "impactSpeed": 3.2
+    "followThroughSwing": 25
+    "followThroughTime": 0.07
 }
 
-# Stat goal
+# Set goal
 {
-    "goal_level": 3,
-    "feedback": 1,
-    "score": 0.70,
-    "performance": 3,
-    "tgtValue": 0.80
+    "goal_level": 4,
+    "hand": "FH",
+    "shot": 1
+    "score": 2.8,
+    "racketPreparation": 93
+    "downSwingSpeed": 4.6
+    "impactCutAngle": 16
+    "impactSpeed": 4.7
+    "followThroughSwing": 38
+    "followThroughTime": 0.13
 }
 
-# Shot goal
+# Set goal
 {
-    "goal_level": 2,
-    "feedback": 1,
-    "score": 0.70,
-    "performance": 2,
-    "tgtValue": 0.80
+    "goal_level": 4,
+    "hand": "BH",
+    "shot": 0
+    "score": 3.6,
+    "racketPreparation": 74
+    "downSwingSpeed": 3.5
+    "impactCutAngle": 40
+    "impactSpeed": 3.5
+    "followThroughSwing": 30
+    "followThroughTime": 0.15
 }
