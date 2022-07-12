@@ -210,4 +210,4 @@ if __name__ == '__main__':
         f.write("1\n")
         f.close()
         sessions = 1
-    app.run()  # run our Flask app
+    app.run(host='192.168.1.207', port=4801)  # run our Flask app
