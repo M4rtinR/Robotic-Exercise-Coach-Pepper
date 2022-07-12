@@ -8,11 +8,11 @@ app = Flask('policy_guide_api')
 api = Api(app)
 expecting_action_goal = False
 
-stat_list_master = ["racketPreparation", "downSwingSpeed", "impactCutAngle", "impactSpeed", "followThroughSwing", "followThroughTime"]
+stat_list_master = ["racketPreparation", "approachTiming", "impactCutAngle", "impactSpeed", "followThroughRoll", "followThroughTime"]
 shot_list_master = {"drop": 0, "drive": 1, "cross court lob": 14, "two wall boast": 7, "straight kill": 16, "volley kill": 17, "volley drop": 18}
 sessions = 0
 
-participantNo = "TestingBaseline0"
+participantNo = "TestingBaseline1"
 
 '''
 Layout of participant history files:
