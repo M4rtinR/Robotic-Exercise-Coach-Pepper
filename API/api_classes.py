@@ -129,8 +129,8 @@ class TimestepCue(Resource):
 
             elif 'stop' in content:
                 sessionLine = ""
-                for shot in shot_list_master.values():
-                    for hand in ["FH", "BH"]:
+                for shot in shot_list_master.keys():
+                    for hand in ["forehand", "backhand"]:
                         try:
                             filepath = "/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + participantNo + "/" + hand + str(shot) + "/" + str(sessions) + ".txt"
                             print(filepath)
