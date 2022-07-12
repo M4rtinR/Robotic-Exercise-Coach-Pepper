@@ -145,7 +145,8 @@ gamma = 0.95
 policy_matrix = None
 
 # Robot through Peppernet router:
-# post_address = 'http://192.168.1.237:4999/output'
+# post_address = 'http://192.168.1.207:4999/output'
+# screen_post_address = "http://192.168.1.207:8000/"
 
 # Simulation on 4G:
 # post_address = 'http://192.168.43.19:4999/output'
