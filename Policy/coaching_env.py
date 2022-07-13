@@ -100,7 +100,7 @@ class CoachingEnvironment(gym.Env, ABC):
         # config.behaviour = 1
 
         print("config.behaviour = " + str(config.behaviour))
-        while not config.behaviour_displayed:  # Keep ticking the tree until a behaviour is given by the robot. This is the point the controller can select a new action and learn.
+        while not config.need_new_behaviour:  # Keep ticking the tree until a behaviour is given by the robot. This is the point the controller can select a new action and learn.
             result = self.coaching_tree.tick()
             if config.behaviour_displayed:
                 print("Tree ticked, not returning: " + str(result))

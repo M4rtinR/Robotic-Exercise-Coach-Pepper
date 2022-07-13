@@ -223,7 +223,7 @@ class FormatAction(Node):
         # print("Configuring FormatAction: " + self._name + ". PHASE = " + str(nodedata.get_data('phase')) + ". performance = " + str(nodedata.get_data('performance')) + ". config.performance = " + str(config.performance) + ". shot = " + str(nodedata.get_data('shot')))
         # logging.debug("FormatAction nodedata: " + str(nodedata))
         self.goal_level = nodedata.get_data('goal')          # Which level of goal we are currently in (e.g. SET_GOAL)
-        self.performance = nodedata.get_data('performance', 0)  # Which level of performance the player achieved (e.g. MET)
+        self.performance = nodedata.get_data('performance', None)  # Which level of performance the player achieved (e.g. MET)
         self.phase = nodedata.get_data('phase')              # PHASE_START or PHASE_END
         self.score = nodedata.get_data('score')              # Numerical score from sensor relating to a stat (can be None)
         self.target = nodedata.get_data('target')            # Numerical target score for stat (can be None)
@@ -279,7 +279,7 @@ class FormatAction(Node):
                         if self.goal_level == config.ACTION_GOAL:
                             question = "Concurrent"
                         else:
-                            if self.performance is None:
+                            if self.performance is None or self.performance == -1:
                                 question = "FirstTime"
                             else:
                                 question = "GoodBad"
@@ -293,7 +293,8 @@ class FormatAction(Node):
                                       config.A_PREINSTRUCTION_FIRSTNAME,
                                       config.A_MANUALMANIPULATION_PREINSTRUCTION] and self.goal_level == config.SET_GOAL:
                     r = requests.post(config.screen_post_address + "0/newRep")
-
+                if self.performance is None:
+                    self.performance = -1
                 pre_msg = self.behaviour_lib.get_pre_msg(self.behaviour, self.goal_level, self.performance, self.phase, self.name, self.shot, self.hand, self.stat, config.shot_count == 3 and config.set_count == 1, config.set_count == 1)
                 if (self.score is None and self.performance is None):  # or config.given_score >= 2:
                     nodedata.action = Action(pre_msg, demo=demo, question=question)
@@ -377,6 +378,7 @@ class CheckForBehaviour(Node):
                 config.used_behaviours = []
                 logging.debug("Returning SUCCESS from CheckForBehaviour, behaviour found = " + str(self.behaviour))
                 # config.completed = config.COMPLETED_STATUS_FALSE
+                config.behaviour_displayed = True  # Set to true so that we get a new behaviour for the new goal level.
                 return NodeStatus(NodeStatus.SUCCESS, "Behaviour " + str(self.check_behaviour) + " found in the form " + str(self.behaviour))
             else:
                 logging.debug("Returning FAIL from CheckForBehaviour, behaviour not found = " + str(self.check_behaviour) + ", input behaviour = " + str(self.behaviour))
@@ -480,7 +482,7 @@ class DisplayBehaviour(Node):
             r = requests.post(config.post_address, json=output)
 
             # Wait for response before continuing because the session might be paused.
-            while not (r.status_code == 200):
+            while r.status_code is None:
                 time.sleep(0.2)
 
             config.behaviour_displayed = True
@@ -490,7 +492,7 @@ class DisplayBehaviour(Node):
                 config.scores_provided += 1
                 print("Setting has_score_been_provided to True")
             if self.set_start:
-                api_classes.expecting_action_goal = True
+                config.expecting_action_goal = True
             logging.debug("Returning SUCCESS from DisplayBehaviour")
             return NodeStatus(NodeStatus.SUCCESS, "Printed action message to output.")
         else:
@@ -651,8 +653,9 @@ class CreateSubgoal(Node):
                 logging.debug("Returning FAIL from CreateSubGoal, previous goal level = " + str(self.previous_goal_level))
                 return NodeStatus(NodeStatus.FAIL, "Cannot create subgoal of ACTION_GOAL.")
             else:
-                if self.previous_goal_level == config.EXERCISE_GOAL and self.exercise_data is False:
-                    nodedata.new_goal = 6
+                if self.previous_goal_level == config.EXERCISE_GOAL and (config.score is None or config.score == -1):
+                    nodedata.new_goal = config.BASELINE_GOAL
+                    config.goal_level = config.BASELINE_GOAL
                 else:
                     nodedata.new_goal = self.previous_goal_level + 1
                     # Select which exercise to perform.
@@ -988,13 +991,14 @@ class TimestepCue(Node):
                             file_contents = f.readlines()
                             f.close()
 
+                            stat_set = {}
                             index = 1
                             for score, performance in nodedata.score, nodedata.performance:
                                 file_contents[index] = str(score) + ", " + str(performance) + ", \n"
                                 index += 2
 
                                 # Create sorted stat list. Stat with the lowest score will come first.
-                                stat_set = {}
+
                                 stat_set[file_contents[index-1]] = score
 
                             sorted_stat_set = sorted(stat_set.items(), key=operator.itemgetter(1))
@@ -1088,16 +1092,20 @@ class TimestepCue(Node):
                     else:
                         # Get performance data of previous time user did this exercise from file.
                         try:
+                            print("Trying to open aggregator")
                             f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + str(self.shot) + "/Aggregator.txt", "r")
+                            print("Opened aggregator")
                             file_contents = f.readlines()
                             f.close()
                             config.performance = file_contents[1]
                             config.score = file_contents[0]
 
                             try:
+                                print("Trying to open baseline")
                                 # Create sorted stat list. Stat with the lowest score will come first. If this shot hasn't
                                 # been performed before, this will be done at the end of the baseline goal.
                                 f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + str(self.shot) + "/Baseline.txt", "r")
+                                print("Opened baseline")
                                 file_contents = f.readlines()
                                 f.close()
 
@@ -1124,6 +1132,7 @@ class TimestepCue(Node):
                             print(self.shot)
                             os.mkdir("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + str(self.shot))
                             f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + str(self.shot) + "/Aggregator.txt", "a")
+                            file_contents = "0"
                             file_contents = "0"
                             f.write(file_contents)
                             f.close()
@@ -1326,6 +1335,7 @@ class TimestepCue(Node):
                     logging.debug("Returning SUCCESS from TimestepCue baseline goal, stats = " + str(nodedata))
                     return NodeStatus(NodeStatus.SUCCESS, "Data for baseline goal obtained from guide:" + str(nodedata))
                 else:
+                    config.goal_level = 4
                     logging.debug("Returning ACTIVE from TimestepCue baseline goal")
                     return NodeStatus(NodeStatus.ACTIVE, "Waiting for baseline goal data from guide.")
 
@@ -1465,7 +1475,7 @@ class GetChoice(Node):
                     utteranceURL = config.screen_post_address + exerciseString + "/newPicture"
                     r = requests.post(utteranceURL)
                     r = requests.post(config.screen_post_address + "0/newRep")'''
-                    nodedata.shot = config.shot_list_master.get(shot[2:])
+                    nodedata.shot = shot[2:]
                     nodedata.hand = shot[:2]
 
                     config.shot = nodedata.shot
@@ -1537,7 +1547,7 @@ class EndSetEvent(Node):
             *args, **kwargs)
 
     def configure(self, nodedata):
-        logging.debug("Configuring EndSetEvent: " + self._name + ", setting shotcount to " + str(config.shot_count))
+        print("Configuring EndSetEvent: " + self._name + ", setting shotcount to " + str(config.shot_count))
         self.shotcount = config.shot_count
         self.firstTime = config.set_count == 0
 

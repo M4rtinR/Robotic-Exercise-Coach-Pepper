@@ -13197,7 +13197,7 @@ class BehaviourLibraryFunctions:
         if phase is None:
             logging.debug("Setting phase to -1")
             phase = -1
-
+        print("behaviour = " + str(behaviour) + ", goal_level = " + str(goal_level) + ", performance = " + str(performance) + ", phase = " + str(phase))
         if behaviour > 68 or behaviour < 1 or goal_level > 6 or goal_level < 0 or performance > 7 or performance < -1 or phase > 1 or phase < -1:
             msg = "Error: I don't know how to perform that behaviour."
         else:
@@ -13226,11 +13226,11 @@ class BehaviourLibraryFunctions:
         hand_utterance = "forehand"
         if hand == "BH":
             hand_utterance = "backhand"
-        shot_utterance = "drive"
-        if shot == 5:
+        shot_utterance = shot
+        '''if shot == 5:
             shot_utterance = "lob"
         elif shot == 0:
-            shot_utterance = "drop"
+            shot_utterance = "drop"'''
         stat_utterance = "racket preparation"
         if stat == "impactCutAngle":
             stat_utterance = "racket face angle"
@@ -13395,9 +13395,9 @@ class BehaviourLibraryFunctions:
                                 utterance = utterance + "Play another set of 30 " + hand_utterance + " " + shot_utterance + "s please. Remember, don't " + stat_advice
                         else:
                             shot_advice = "letting your " + hand_utterance + " " + shot_utterance + " land too short."
-                            if shot == 5:
+                            if shot == "cross_court_lob":
                                 shot_advice = "hitting you " + hand_utterance + " " + shot_utterance + " onto your opponent's volley."
-                            elif shot == 0:
+                            elif shot == "drop":
                                 shot_advice = "letting your " + hand_utterance + " " + shot_utterance + " come too loose from the side wall."
                             if goal_level == config.SESSION_GOAL:
                                 goal_level_insert = "do a solo practice session and I'm going to coach you. We'll work on not " + shot_advice + ". If you would like to work on a different shot, please tap the button on my screen."
@@ -14449,9 +14449,9 @@ class BehaviourLibraryFunctions:
                                 utterance = utterance + "The only thing I want you to focus on in this next set is to " + stat_advice + " Play a set of 30 " + hand_utterance + " " + shot_utterance + "s please. Start when you're ready."
                         else:
                             shot_advice = "over hit your " + hand_utterance + " " + shot_utterance + "s."
-                            if shot == 5:
+                            if shot == "cross court lob":
                                 shot_advice = "hit your " + hand_utterance + " " + shot_utterance + " onto your opponent's volley."
-                            elif shot == 0:
+                            elif shot == "drop":
                                 shot_advice = "hit your " + hand_utterance + " " + shot_utterance + "s into the tin."
                             if goal_level == config.SESSION_GOAL:
                                 goal_level_insert = "session I'll give some coaching which will hopefully help you not " + shot_advice + ". If you would like to work on a different shot, please tap the button on my screen."
@@ -14549,9 +14549,9 @@ class BehaviourLibraryFunctions:
                                 if behaviour == config.A_POSTINSTRUCTIONNEGATIVE_QUESTIONING:
                                     optional_question = ". OK?"
                                 shot_advice = "over hit your " + hand_utterance + " " + shot_utterance + "s."
-                                if shot == 5:
+                                if shot == "cross court lob":
                                     shot_advice = "hit your " + hand_utterance + " " + shot_utterance + " onto your opponent's volley."
-                                elif shot == 0:
+                                elif shot == "drop":
                                     shot_advice = "hit your " + hand_utterance + " " + shot_utterance + "s into the tin."
                                 utterance = utterance + "When performing your " + goal_level_insert + ", try to avoid " + shot_advice + " " + optional_question
                             else:
@@ -14944,10 +14944,8 @@ class BehaviourLibraryFunctions:
             shotName = "forehand_drive"
             if hand == "BH":
                 shotName = "backhand_drive"
-            elif shot == 5:
-                shotName = "lob"
-            elif shot == 0:
-                shotName = "lob"
+            else:
+                shotName = shot
             demoName = shotName + posNeg
         else:
             statName = "racket_up"

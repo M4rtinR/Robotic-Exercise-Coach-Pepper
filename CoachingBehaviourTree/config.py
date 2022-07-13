@@ -165,6 +165,7 @@ overriden = False  # Indicates whether an override has already occured at this g
 overridePreInstructionOption = False  # Will be set to True when user is being given the option to override a pre-instruction
 overrideQuestioningOption = False     # so that the correct screen can be displayed.
 getBehaviourGoalLevel = -1  # To keep track of which level the controller is in when getting a new behaviour from the policy.
+expecting_action_goal = False
 
 # Initial values to be changed at the beginning of each session:
 name = "Martin"

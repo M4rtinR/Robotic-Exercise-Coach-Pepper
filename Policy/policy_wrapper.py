@@ -118,7 +118,7 @@ class PolicyWrapper:
         """
         valid_list = []
 
-        logging.debug('goal_level = ' + str(goal_level))
+        print('Getting valid list, goal_level = ' + str(goal_level) + ', performance = ' + str(performance) + ', phase = ' + str(phase))
         # Person Goal
         if goal_level == config.PERSON_GOAL:
             logging.debug('Creating list for person goal')

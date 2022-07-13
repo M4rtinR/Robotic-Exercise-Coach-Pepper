@@ -11,7 +11,6 @@ from Policy.policy_wrapper import PolicyWrapper
 
 app = Flask('policy_guide_api')
 api = Api(app)
-expecting_action_goal = False
 
 class TimestepCue(Resource):
     previous_shot_performance = None
@@ -90,8 +89,10 @@ class TimestepCue(Resource):
                             'shotSet': 0
                         }
 
+                        print("sending: " + str(config.shot))
                         if not (config.shot == -1):
-                            new_data['shotType'] = config.shot
+                            print("sending: " + str(config.shot_list_master.get(config.shot)))
+                            new_data['shotType'] = config.shot_list_master.get(config.shot)
                             new_data['hand'] = config.hand
 
                         if not (config.stat == ""):
@@ -263,8 +264,8 @@ class TimestepCue(Resource):
                         return new_data, 200
 
                 elif int(content['goal_level']) == config.ACTION_GOAL:
-                    if expecting_action_goal:
-                        logging.debug('action goal setting controller values')
+                    if config.expecting_action_goal:
+                        print('action goal setting controller values')
                         config.action_score = float(content['score'])
                         performanceValue = config.MET
                         if content['performance'] == 'Very Low':
@@ -297,13 +298,14 @@ class TimestepCue(Resource):
                         }
 
                         if config.shot_count == 29:
+                            print("Setting shot_setComplet = 1")
                             new_data['shotSetComplete'] = 1
-                            new_data['stat'] = config.stat
+                            # new_data['stat'] = config.stat
                         else:
                             new_data['shotSetComplete'] = 0
 
                     else:
-                        logging.info("Action goal not expected, not using data.")
+                        print("Action goal not expected, not using data.")
                         logging.debug("Action goal not expected, not setting controller values.")
                         new_data = {
                             'goal_level': 5,
@@ -329,6 +331,7 @@ class TimestepCue(Resource):
                     config.hand = content['hand']
                 else:
                     config.stat = content['stat_selection']
+                config.override = False
 
         else:
             print("request not json")
