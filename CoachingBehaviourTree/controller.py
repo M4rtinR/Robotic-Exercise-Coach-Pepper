@@ -1151,6 +1151,7 @@ def update(state, state2, reward, action, action2):
     predict = config.policy_matrix.get_matrix()[state][action]
     target = reward + config.gamma * config.policy_matrix.get_matrix()[state2][action2]
     config.policy_matrix.update_matrix(state, action, 0.0 if config.policy_matrix.get_matrix()[state][action] + config.alpha * (target - predict) < 0.0 else config.policy_matrix.get_matrix()[state][action] + config.alpha * (target - predict))
+    reward = None
     return config.policy
 
 
