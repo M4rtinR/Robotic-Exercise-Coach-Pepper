@@ -911,14 +911,16 @@ def get_intro_sequence(name, blackboard, initialise_node, new_goal_start, new_go
         baseline_goal_end = EndSubgoal(name="baseline_goal_end", blackboard=blackboard)
         gen_baseline_goal.add_child(baseline_goal_end)
         blackboard.add_remapping(baseline_goal._id, 'new_goal', baseline_goal_end._id, 'goal')
+
         # Wait for timestep cue with stats for baseline set just played.
         baseline_goal_end_cue = TimestepCue(name="baseline_goal_end_cue", blackboard=blackboard)
         baseline_goal_end_cue_until = Until(name="baseline_goal_end_cue_until", child=baseline_goal_end_cue)
         gen_baseline_goal.add_child(baseline_goal_end_cue_until)
         blackboard.add_remapping(baseline_goal_end._id, 'new_goal', baseline_goal_end_cue._id, 'goal')
         blackboard.add_remapping(baseline_goal_end._id, 'phase', baseline_goal_end_cue._id, 'phase')
-        blackboard.save('shot', config.shot, baseline_goal_end_cue._id)
-        blackboard.save('hand', config.hand, baseline_goal_end_cue._id)
+        # blackboard.save('shot', config.shot, baseline_goal_end_cue._id)
+        # blackboard.save('hand', config.hand, baseline_goal_end_cue._id)
+
         first_time_check_selector.add_child(gen_baseline_goal)
         new_goal_intro_pre_instr_sequence.add_child(first_time_check_selector)
 
@@ -935,6 +937,22 @@ def get_intro_sequence(name, blackboard, initialise_node, new_goal_start, new_go
         new_goal_choice_until_name = new_goal_system_choice_name + "_until"
         new_goal_choice_until = Until(name=new_goal_choice_until_name, child=new_goal_choice)
         new_goal_intro_pre_instr_sequence.add_child(new_goal_choice_until)
+
+        '''if name == "shot_goal_intro_loop":
+            first_time_check_selector_post_choice = Selector(name="first_time_check_selector_post_choice")
+            first_time_check_post_choice = CheckDoneBefore(name="first_time_check_post_choice", blackboard=blackboard)
+            blackboard.save("shot", config.shot, first_time_check_post_choice._id)
+            blackboard.save("hand", config.hand, first_time_check_post_choice._id)
+            first_time_check_selector_post_choice.add_child(first_time_check_post_choice)
+            # Wait for timestep cue with stats for baseline set just played.
+            baseline_goal_end_cue = TimestepCue(name="baseline_goal_end_cue", blackboard=blackboard)
+            baseline_goal_end_cue_until = Until(name="baseline_goal_end_cue_until", child=baseline_goal_end_cue)
+            first_time_check_selector_post_choice.add_child(baseline_goal_end_cue_until)
+            blackboard.add_remapping(baseline_goal_end._id, 'new_goal', baseline_goal_end_cue._id, 'goal')
+            blackboard.add_remapping(baseline_goal_end._id, 'phase', baseline_goal_end_cue._id, 'phase')
+            blackboard.save('shot', config.shot, baseline_goal_end_cue._id)
+            blackboard.save('hand', config.hand, baseline_goal_end_cue._id)
+            new_goal_intro_pre_instr_sequence.add_child(first_time_check_selector_post_choice)'''
 
     # Format and display pre-instruction action.
     new_goal_intro_pre_instr_action_name = name + "_pre_instr_action"
@@ -1062,8 +1080,8 @@ def get_intro_sequence(name, blackboard, initialise_node, new_goal_start, new_go
         gen_baseline_goal.add_child(baseline_goal_end_cue_until)
         blackboard.add_remapping(baseline_goal_end._id, 'new_goal', baseline_goal_end_cue._id, 'goal')
         blackboard.add_remapping(baseline_goal_end._id, 'phase', baseline_goal_end_cue._id, 'phase')
-        blackboard.save('shot', config.shot, baseline_goal_end_cue._id)
-        blackboard.save('hand', config.hand, baseline_goal_end_cue._id)
+        # blackboard.save('shot', config.shot, baseline_goal_end_cue._id)
+        # blackboard.save('hand', config.hand, baseline_goal_end_cue._id)
         first_time_check_selector.add_child(gen_baseline_goal)
         new_goal_intro_questioning_sequence.add_child(first_time_check_selector)
 
@@ -1136,6 +1154,22 @@ def get_intro_sequence(name, blackboard, initialise_node, new_goal_start, new_go
         new_goal_choice_until_name = new_goal_player_choice_name + "_until"
         new_goal_choice_until = Until(name=new_goal_choice_until_name, child=new_goal_choice)
         new_goal_intro_questioning_sequence.add_child(new_goal_choice_until)
+
+        '''if name == "shot_goal_intro_loop":
+            first_time_check_selector_post_choice = Selector(name="first_time_check_selector_post_choice")
+            first_time_check_post_choice = CheckDoneBefore(name="first_time_check_post_choice", blackboard=blackboard)
+            blackboard.save("shot", config.shot, first_time_check_post_choice._id)
+            blackboard.save("hand", config.hand, first_time_check_post_choice._id)
+            first_time_check_selector_post_choice.add_child(first_time_check_post_choice)
+            # Wait for timestep cue with stats for baseline set just played.
+            baseline_goal_end_cue = TimestepCue(name="baseline_goal_end_cue", blackboard=blackboard)
+            baseline_goal_end_cue_until = Until(name="baseline_goal_end_cue_until", child=baseline_goal_end_cue)
+            first_time_check_selector_post_choice.add_child(baseline_goal_end_cue_until)
+            blackboard.add_remapping(baseline_goal_end._id, 'new_goal', baseline_goal_end_cue._id, 'goal')
+            blackboard.add_remapping(baseline_goal_end._id, 'phase', baseline_goal_end_cue._id, 'phase')
+            blackboard.save('shot', config.shot, baseline_goal_end_cue._id)
+            blackboard.save('hand', config.hand, baseline_goal_end_cue._id)
+            new_goal_intro_questioning_sequence.add_child(first_time_check_selector_post_choice)'''
 
     # Format selected behaviour if not pre-instruction or questioning (i.e. create the output action)
     new_goal_intro_action_name = name + "_action"

@@ -267,15 +267,7 @@ class FormatAction(Node):
                 if self.behaviour in [config.A_QUESTIONING, config.A_QUESTIONING_FIRSTNAME,
                                       config.A_QUESTIONING_POSITIVEMODELING,
                                       config.A_POSITIVEMODELING_QUESTIONING, config.A_QUESTIONING_NEGATIVEMODELING]:
-                    if not (self.behaviour in [config.A_PREINSTRUCTION_POSITIVEMODELING, config.A_PREINSTRUCTION,
-                                               config.A_POSITIVEMODELING_PREINSTRUCTION,
-                                               config.A_PREINSTRUCTION_PRAISE,
-                                               config.A_PREINSTRUCTION_NEGATIVEMODELING,
-                                               config.A_PREINSTRUCTION_QUESTIONING,
-                                               config.A_PREINSTRUCTION_MANUALMANIPULATION,
-                                               config.A_PREINSTRUCTION_FIRSTNAME,
-                                               config.A_MANUALMANIPULATION_PREINSTRUCTION] and (
-                                    self.goal_level == config.SESSION_GOAL or self.goal_level == config.EXERCISE_GOAL)):
+                    if not (self.goal_level == config.SESSION_GOAL or self.goal_level == config.EXERCISE_GOAL):
                         if self.goal_level == config.ACTION_GOAL:
                             question = "Concurrent"
                         else:
@@ -283,6 +275,11 @@ class FormatAction(Node):
                                 question = "FirstTime"
                             else:
                                 question = "GoodBad"
+                    else:
+                        if self.phase == config.PHASE_START:
+                            question = "Concurrent"
+                        else:
+                            question = "GoodBad"
 
                 # If this is the start of a new exercise set, we need to reset the counter on Pepper's screen.
                 if self.behaviour in [config.A_PREINSTRUCTION_POSITIVEMODELING, config.A_PREINSTRUCTION,
@@ -612,7 +609,6 @@ class CreateSubgoal(Node):
     run(nodedata)
         Send request to the API for the guide to create a subgoal.
     """
-    # TODO: Dummy class which will eventually communicate with guide via API
     def __init__(self, name, *args, **kwargs):
         super(CreateSubgoal, self).__init__(
             name,
@@ -661,8 +657,9 @@ class CreateSubgoal(Node):
                     # Select which exercise to perform.
                     if nodedata.new_goal == config.EXERCISE_GOAL:
                         config.set_count = 0  # Reset the set count for this session to 0.
-                        config.performance = None
-                        config.score = -1
+                        if not(self.previous_goal_level == config.BASELINE_GOAL):
+                            config.performance = None
+                            config.score = -1
 
                         # Update exercise picture on Pepper's tablet screen and reset the counter
                         if nodedata.get_data("new_exercise") == 0:
@@ -719,6 +716,7 @@ class EndSubgoal(Node):
         print("Configuring EndSubgoal: " + self._name)
         logging.debug("Configuring EndSubgoal: " + self._name)
         self.goal_level = nodedata.get_data('goal', -1)
+        self.skipped_create = nodedata.get_data('skipped_create', False)
 
     def run(self, nodedata):
         """
@@ -737,7 +735,7 @@ class EndSubgoal(Node):
                 if self.goal_level == config.BASELINE_GOAL:
                     nodedata.stat = 1
                     nodedata.phase = config.PHASE_END
-                    nodedata.new_goal = config.STAT_GOAL
+                    nodedata.new_goal = config.EXERCISE_GOAL
                     config.completed = config.COMPLETED_STATUS_TRUE
                 else:
                     config.goal_level -= 1
@@ -796,7 +794,7 @@ class TimestepCue(Node):
         self.shot = nodedata.get_data('shot', config.shot)
         self.hand = nodedata.get_data('hand', config.hand)
         self.stat = nodedata.get_data('stat', config.stat)
-        config.completed = config.COMPLETED_STATUS_FALSE
+        # config.completed = config.COMPLETED_STATUS_FALSE
 
     def run(self, nodedata):
         """
@@ -888,8 +886,9 @@ class TimestepCue(Node):
         :return: NodeStatus.ACTIVE when waiting for data from the guide, NodeStatus.SUCCESS when data has been received
             and added to the blackboard, NodeStatus.FAIL otherwise.
         """
-        if not config.stop_set and (
-                not config.stop_session and config.phase == config.PHASE_START):  # If the session is stopped, we still need to go into timestep cue to write the appropriate data up to now to the file.
+        if not config.stop_set and (not config.stop_session or (
+                config.stop_session and config.phase == config.PHASE_END)):  # If the session is stopped, we still need to go into timestep cue to write the appropriate data up to now to the file.
+            print("checking goal level: " + str(self.goal_level))
             # Will be ACTIVE when waiting for data and SUCCESS when got data and added to blackboard, FAIL when connection error.
             if self.goal_level == -1:  # Person goal created after receiving info from guide.
                 print("Timestep Cue, self.goal_level = " + str(self.goal_level))
@@ -908,6 +907,7 @@ class TimestepCue(Node):
                         f.close()
 
                         nodedata.phase = config.PHASE_END
+                        config.completed = config.COMPLETED_STATUS_TRUE
                         logging.info(
                             "Feedback for session, performance = {performance}".format(performance=nodedata.performance))
                         logging.debug("Returning SUCCESS from TimestepCue person goal (end), stats = " + str(nodedata))
@@ -930,6 +930,7 @@ class TimestepCue(Node):
                         nodedata.player_ability = config.ability
                         nodedata.name = config.name
                         nodedata.phase = config.PHASE_START
+                        config.completed = config.COMPLETED_STATUS_FALSE
                         logging.debug("Returning SUCCESS from TimestepCue player goal, stats = " + str(nodedata))
                         return NodeStatus(NodeStatus.SUCCESS, "Data for person goal obtained from guide:" + str(nodedata))
                 else:
@@ -956,6 +957,7 @@ class TimestepCue(Node):
                         nodedata.phase = config.PHASE_END
 
                         config.stop_session = False  # Resume the final behaviours of the session.
+                        config.completed = config.COMPLETED_STATUS_TRUE
 
                         logging.info(
                             "Feedback for session, performance = {performance}".format(performance=nodedata.performance))
@@ -970,6 +972,7 @@ class TimestepCue(Node):
                             config.performance = int(file_contents[config.sessions])
                         nodedata.performance = config.performance
                         nodedata.phase = config.PHASE_START
+                        config.completed = config.COMPLETED_STATUS_FALSE
                         logging.debug("Returning SUCCESS from TimestepCue session goal, stats = " + str(nodedata))
                         return NodeStatus(NodeStatus.SUCCESS, "Data for session goal obtained from guide:" + str(nodedata))
                 else:
@@ -981,39 +984,25 @@ class TimestepCue(Node):
                 if config.goal_level == config.EXERCISE_GOAL:
                     if config.phase == config.PHASE_END:  # Feedback sequence
                         if config.completed == config.COMPLETED_STATUS_TRUE:  # This is actually the end of a baseline goal. Might need to update this so it's not as weirdly laid out.
-                            logging.debug("Baseline goal feedback sequence")
+                            print("Baseline goal feedback sequence")
                             # Will get list of scores.
                             nodedata.phase = config.PHASE_END
                             nodedata.score = config.metric_score_list
-                            nodedata.performance = config.metric_performance_list
 
                             f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + str(self.shot) + "/Baseline.txt", "r")
                             file_contents = f.readlines()
                             f.close()
 
-                            stat_set = {}
                             index = 1
-                            for score, performance in nodedata.score, nodedata.performance:
-                                file_contents[index] = str(score) + ", " + str(performance) + ", \n"
+                            for score in nodedata.score:
+                                file_contents[index] = str(score) + "\n"
                                 index += 2
-
-                                # Create sorted stat list. Stat with the lowest score will come first.
-
-                                stat_set[file_contents[index-1]] = score
-
-                            sorted_stat_set = sorted(stat_set.items(), key=operator.itemgetter(1))
-                            sorted_stat_list = []
-                            for i in sorted_stat_set:
-                                sorted_stat_list.append(i[0])
-                            sorted_stat_list.reverse()  # Reverse to get most important shot first.
-
-                            config.sorted_stat_list = sorted_stat_list
 
                             f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + str(self.shot) + "/Baseline.txt", "w")
                             f.writelines(file_contents)
                             f.close()
 
-                            logging.debug("Returning SUCCESS from TimestepCue shot goal (end), stats = " + str(nodedata))
+                            print("Returning SUCCESS from TimestepCue shot goal (baseline goal end), stats = " + str(nodedata))
                             return NodeStatus(NodeStatus.SUCCESS, "Data for shot goal obtained from guide:" + str(nodedata))
                         elif config.completed == config.COMPLETED_STATUS_FALSE:  # Feedback Sequence
                             logging.debug("Exercise goal feedback sequence")
@@ -1079,16 +1068,17 @@ class TimestepCue(Node):
                             config.shot_performance_list = []
                             config.shot_score_list = []
                             nodedata.target = config.target
+                            config.completed = config.COMPLETED_STATUS_TRUE
 
                             nodedata.phase = config.PHASE_END
-                            logging.info(
+                            print(
                                 "Feedback for shot, score = {score}, target = {target}, performance = {performance}".format(
                                     score=nodedata.score, target=nodedata.target, performance=nodedata.performance))
                             logging.debug("Returning SUCCESS from TimestepCue shot goal (end), stats = " + str(nodedata))
                             return NodeStatus(NodeStatus.SUCCESS, "Data for shot goal obtained from guide:" + str(nodedata))
                         else:
-                            logging.debug("Returning ACTIVE from TimestepCue shot goal, config.completed = COMPLETED_STATUS_UNDEFINED")
-                            return NodeStatus(NodeStatus.ACTIVE, "Waiting for shot goal data from guide.")
+                            logging.debug("Returning FAIL from TimestepCue shot goal, config.completed = COMPLETED_STATUS_UNDEFINED")
+                            return NodeStatus(NodeStatus.FAIL, "Waiting for shot goal data from guide.")  # return FAIL to reset config variables.
                     else:
                         # Get performance data of previous time user did this exercise from file.
                         try:
@@ -1143,14 +1133,15 @@ class TimestepCue(Node):
                         nodedata.performance = config.performance
                         nodedata.score = config.score
                         nodedata.target = config.target
+                        config.completed = config.COMPLETED_STATUS_FALSE
 
                         nodedata.phase = config.PHASE_START
                         # config.goal_level = config.SET_GOAL
                         logging.debug("Returning SUCCESS from TimestepCue exercise goal, stats = " + str(nodedata))
                         return NodeStatus(NodeStatus.SUCCESS, "Data for exercise goal obtained from guide:" + str(nodedata))
                 else:
-                    logging.debug("Returning ACTIVE from TimestepCue exercise goal, config.goal_level != 2")
-                    return NodeStatus(NodeStatus.ACTIVE, "Waiting for exercise goal data from guide.")
+                    print("Returning FAIL from TimestepCue exercise goal, config.goal_level != 2")
+                    return NodeStatus(NodeStatus.FAIL, "Waiting for exercise goal data from guide.")  # returning FAIL so it configures again.
 
             elif self.goal_level == config.STAT_GOAL:  # For stat goal should have target and performance from last time this stat was practiced.
                 if config.goal_level == config.STAT_GOAL:
@@ -1182,7 +1173,7 @@ class TimestepCue(Node):
                             config.stat_score_list = []
 
                             nodedata.phase = config.PHASE_END
-
+                        config.completed = config.COMPLETED_STATUS_TRUE
                         logging.info("Feedback for stat, score = {score}, target = {target}, performance = {performance}".format(score=nodedata.score, target=nodedata.target, performance=nodedata.performance))
                         logging.debug("Returning SUCCESS from TimestepCue stat goal, stats = " + str(nodedata))
                         return NodeStatus(NodeStatus.SUCCESS, "Data for stat goal obtained from guide:" + str(nodedata))
@@ -1215,6 +1206,7 @@ class TimestepCue(Node):
                         f.writelines(file_contents)
                         f.close()
 
+                        config.completed = config.COMPLETED_STATUS_FALSE
                         nodedata.performance = config.performance
                         nodedata.phase = config.PHASE_START
                         logging.debug("Returning SUCCESS from TimestepCue stat goal, stats = " + str(nodedata))
@@ -1251,6 +1243,7 @@ class TimestepCue(Node):
                         config.set_performance_list = []
                         config.set_score_list = []
                         nodedata.target = config.target
+                        config.completed = config.COMPLETED_STATUS_TRUE
                         logging.info("Feedback for exercise set, score = {score}, target = {target}, performance = {performance}".format(score=nodedata.score, target=nodedata.target, performance=nodedata.performance))
                         logging.debug("Returning SUCCESS from TimestepCue set goal feedback, stats = " + str(nodedata))
                         return NodeStatus(NodeStatus.SUCCESS, "Data for set goal obtained from guide:" + str(nodedata))
@@ -1281,7 +1274,7 @@ class TimestepCue(Node):
                             f.close()
 
                         config.shot_count = 0
-                        # config.completed = config.COMPLETED_STATUS_FALSE
+                        config.completed = config.COMPLETED_STATUS_FALSE
                         logging.debug("Returning SUCCESS from TimestepCue set goal, stats = " + str(nodedata))
                         return NodeStatus(NodeStatus.SUCCESS, "Data for set goal obtained from guide:" + str(nodedata))
                 else:
@@ -1320,13 +1313,13 @@ class TimestepCue(Node):
                     f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + str(self.shot) + "/Baseline.txt", "a")
                     file_contents = ["racketPreparation\n",
                                      "0\n",
-                                     "downSwingSpeed\n",
+                                     "approachTiming\n",
                                      "0\n",
                                      "impactCutAngle\n",
                                      "0\n",
                                      "impactSpeed\n",
                                      "0\n",
-                                     "followThroughSwing\n",
+                                     "followThroughRoll\n",
                                      "0\n",
                                      "followThroughTime\n",
                                      "0\n"]
@@ -1460,8 +1453,8 @@ class GetChoice(Node):
                         shot = self.sorted_shot_list[s]
 
                     config.used_shots.append(shot)
-                    config.performance = None
-                    config.score = -1
+                    #config.performance = None
+                    #config.score = -1
 
                     '''# Update exercise picture on Pepper's tablet screen and reset the counter
                     if nodedata.get_data("new_exercise") == 0:
@@ -1493,8 +1486,8 @@ class GetChoice(Node):
                         stat = config.sorted_stat_list[s]
 
                     config.used_stats.append(stat)
-                    config.performance = None
-                    config.score = -1
+                    #config.performance = None
+                    #config.score = -1
 
                     nodedata.stat = stat
                     config.stat = stat
@@ -1509,8 +1502,8 @@ class GetChoice(Node):
                     nodedata.shot = config.shot
                     nodedata.hand = config.hand
                     config.used_shots.append(str(config.shot) + str(config.hand))
-                    config.performance = None
-                    config.score = -1
+                    #config.performance = None
+                    #config.score = -1
                     logging.debug("Returning SUCCESS from GetUserChoice, shot = " + str(nodedata.hand) + " " + str(nodedata.shot))
                     return NodeStatus(NodeStatus.SUCCESS, "Returning SUCCESS from GetUserChoice, shot = " + str(nodedata.hand) + " " + str(nodedata.shot))
                 else:  # STAT_CHOICE
@@ -1519,8 +1512,8 @@ class GetChoice(Node):
 
                     nodedata.stat = config.stat
                     config.used_stats.append(config.stat)
-                    config.performance = None
-                    config.score = -1
+                    #config.performance = None
+                    #config.score = -1
                     logging.debug("Returning SUCCESS from GetUserChoice, stat = " + str(nodedata.stat))
                     return NodeStatus(NodeStatus.SUCCESS, "Returning SUCCESS from GetUserChoice, stat = " + str(nodedata.stat))
         else:
@@ -1562,7 +1555,7 @@ class EndSetEvent(Node):
 
         if self.shotcount >= 30 or config.stop_set or config.stop_session:
             api_classes.expecting_action_goal = False
-            config.completed = config.COMPLETED_STATUS_TRUE
+            # config.completed = config.COMPLETED_STATUS_TRUE
             config.set_count += 1
             config.phase = config.PHASE_END  # When a set is completed, feedback should be given, so phase becomes end.
             # config.repetitions = -1
@@ -1838,8 +1831,12 @@ class CheckDoneBefore(Node):
         if not config.stop_set and not config.stop_session:
             try:
                 f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + str(self.shot) + "/Aggregator.txt", "r")
+                f_contents = f.readlines()
                 f.close()
-                return NodeStatus(NodeStatus.SUCCESS, "Found file containing this exercise.")
+                if len(f_contents) > 1:
+                    return NodeStatus(NodeStatus.SUCCESS, "Found file containing this exercise.")
+                else:
+                    return NodeStatus(NodeStatus.FAIL, "Failed to find file containing this exercise.")
             except:
                 return NodeStatus(NodeStatus.FAIL, "Failed to find file containing this exercise.")
         else:

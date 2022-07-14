@@ -1,5 +1,6 @@
 import time
 
+import numpy
 import requests
 from flask import Flask, request
 from flask_restful import Resource, Api, reqparse
@@ -80,7 +81,7 @@ class TimestepCue(Resource):
                         config.performance = None
                         # config.performance = content['performance']
 
-                        while config.completed == config.COMPLETED_STATUS_UNDEFINED:
+                        while config.completed == config.COMPLETED_STATUS_UNDEFINED or config.shot is None:
                             pass
 
                         new_data = {
@@ -130,36 +131,156 @@ class TimestepCue(Resource):
 
                         return new_data, 200
                     else:
-                        config.completed = config.COMPLETED_STATUS_UNDEFINED
-                        config.goal_level = config.EXERCISE_GOAL
-                        config.phase = config.PHASE_START
-                        config.score = None
-                        config.performance = None
-
-                        if config.shot == -1:
-                            config.shot = content['shotType']
-                            config.hand = content['hand']
-                        '''if content['initialScore'] == "null":
+                        if content['impactSpeed'] == 'null':
+                            config.completed = config.COMPLETED_STATUS_UNDEFINED
+                            config.goal_level = config.EXERCISE_GOAL
+                            config.phase = config.PHASE_START
                             config.score = None
-                        else:
-                            config.score = float(content['initialScore'])
-                        if content['performance'] == "":
                             config.performance = None
+
+                            if config.shot == -1:
+                                config.shot = content['shotType']
+                                config.hand = content['hand']
+                            '''if content['initialScore'] == "null":
+                                config.score = None
+                            else:
+                                config.score = float(content['initialScore'])
+                            if content['performance'] == "":
+                                config.performance = None
+                            else:
+                                config.performance = int(config.performance)'''
+
+                            while config.completed == config.COMPLETED_STATUS_UNDEFINED:
+                                pass
+
+                            new_data = {
+                                'goal_level': 2,
+                                'completed': config.completed,
+                                'shotSet': 1
+                            }
+
+                            if not (config.stat == -1):
+                                new_data['stat'] = config.stat
+
                         else:
-                            config.performance = int(config.performance)'''
+                            print('end of baseline set')
 
-                        while config.completed == config.COMPLETED_STATUS_UNDEFINED:
-                            pass
+                            print("setting config.score = " + content['score'])
+                            config.score = float(content['score'])
+                            accList = []
+                            print('Created accList')
+                            racketPreparationStringList = content['racketPreparation'].split(", ")
+                            print('Got racket prep list')
+                            # config.metric_score_list.append(sum(racketPreparationList) / len(racketPreparationList))
+                            # print('calculated racket prep average')
+                            accList.append(float(content['racketPreparationAcc']))
+                            print('get racket prep acc')
+                            approachTimingStringList = content["approachTiming"].split(", ")
+                            print('got approach timing list')
+                            # config.metric_score_list.append(sum(approachTimingList) / len(approachTimingList))
+                            # print('calculated approcah timimng average')
+                            accList.append(float(content['approachTimingAcc']))
+                            print('got approach timing acc')
+                            impactCutAngleStringList = content["impactCutAngle"].split(", ")
+                            print('got impact cut angle list')
+                            # config.metric_score_list.append(sum(impactCutAngleList) / len(impactCutAngleList))
+                            # print('calculated impact cut angle average')
+                            accList.append(float(content['impactCutAngleAcc']))
+                            print('got impact cut angle acc')
+                            impactSpeedStringList = content["impactSpeed"].split(", ")
+                            print('got impact speed list')
+                            # config.metric_score_list.append(sum(impactSpeedList) / len(impactSpeedList))
+                            # print('calculated impact speed average')
+                            accList.append(float(content['impactSpeedAcc']))
+                            print('got impact speed acc')
+                            followThroughRollStringList = content["followThroughRoll"].split(", ")
+                            print('got follow thorugh roll list')
+                            # config.metric_score_list.append(sum(followThroughRollList) / len(followThroughRollList))
+                            # print('calculated follow through roll average')
+                            accList.append(float(content['followThroughRollAcc']))
+                            print('got follow through roll acc')
+                            followThroughTimeStringList = content["followThroughTime"].split(", ")
+                            print('got gollow through time list')
+                            # config.metric_score_list.append(sum(followThroughTimeList) / len(followThroughTimeList))
+                            # print('calculated follow through time average')
+                            accList.append(float(content['followThroughTimeAcc']))
+                            print('got gollow through time acc')
+                            config.sorted_stat_list = sorted(accList)
+                            print('sorted stat list')
 
-                        new_data = {
-                            'goal_level': 2,
-                            'completed': config.completed,
-                            'shotSet': 1
-                        }
+                            print("populating lists with floats")
+                            for i in range(len(racketPreparationStringList)):
+                                if i == 0:
+                                    print("first list element")
+                                    racketPreparationFloatList = [float(racketPreparationStringList[i][1:])]
+                                    print("first racket prep done")
+                                    approachTimingFloatList = [float(approachTimingStringList[i][1:])]
+                                    print("first approach timing done")
+                                    impactCutAngleFloatList = [float(impactCutAngleStringList[i][1:])]
+                                    print("first impact cut angle done")
+                                    impactSpeedFloatList = [float(impactSpeedStringList[i][1:])]
+                                    print("first impact speed done")
+                                    followThroughRollFloatList = [float(followThroughRollStringList[i][1:])]
+                                    print("first follow through roll done")
+                                    followThroughTimeFloatList = [float(followThroughTimeStringList[i][1:])]
+                                    print("first follow through time done")
+                                elif i == len(racketPreparationStringList) - 1:
+                                    print("last list element")
+                                    racketPreparationFloatList.append(float(
+                                        racketPreparationStringList[i][0:len(racketPreparationStringList[i]) - 1]))
+                                    print("last racket prep done")
+                                    approachTimingFloatList.append(float(
+                                        approachTimingStringList[i][0:len(approachTimingStringList[i]) - 1]))
+                                    print("last approach timing done")
+                                    impactCutAngleFloatList.append(float(
+                                        impactCutAngleStringList[i][0:len(impactCutAngleStringList[i]) - 1]))
+                                    print("last impact cut angle done")
+                                    impactSpeedFloatList.append(float(
+                                        impactSpeedStringList[i][0:len(impactSpeedStringList[i]) - 1]))
+                                    print("last impact speed done")
+                                    followThroughRollFloatList.append(float(
+                                        followThroughRollStringList[i][0:len(followThroughRollStringList[i]) - 1]))
+                                    print("last follow thorugh roll done")
+                                    followThroughTimeFloatList.append(float(
+                                        followThroughTimeStringList[i][0:len(followThroughTimeStringList[i]) - 1]))
+                                    print("last follow thorugh time done")
+                                else:
+                                    print("Regular element: " + str(i))
+                                    racketPreparationFloatList.append(float(racketPreparationStringList[i]))
+                                    print("racket prep done")
+                                    approachTimingFloatList.append(float(approachTimingStringList[i]))
+                                    print("approach timing done")
+                                    impactCutAngleFloatList.append(float(impactCutAngleStringList[i]))
+                                    print("impact cut angle done")
+                                    impactSpeedFloatList.append(float(impactSpeedStringList[i]))
+                                    print("impact speed done")
+                                    followThroughRollFloatList.append(float(followThroughRollStringList[i]))
+                                    print("follow through roll done")
+                                    followThroughTimeFloatList.append(float(followThroughTimeStringList[i]))
+                                    print("follow through time done")
 
-                        if not (config.stat == -1):
-                            new_data['stat'] = config.stat
+                            print("calculating average of lists")
+                            for list in [racketPreparationFloatList, approachTimingFloatList, impactCutAngleFloatList,
+                                         impactSpeedFloatList, followThroughRollFloatList, followThroughTimeFloatList]:
+                                config.metric_score_list.append(sum(list) / len(list))
+                            print("list averages calculated")
 
+                            config.goal_level = config.EXERCISE_GOAL
+                            config.phase = config.PHASE_END
+                            config.completed = config.COMPLETED_STATUS_TRUE
+
+                            print("waiting for config.stat")
+                            while config.stat is None:
+                                pass
+
+                            print("returning stat data to app")
+                            new_data = {
+                                'goal_level': 4,
+                                'completed': config.completed,
+                                'shotSet': 1,
+                                'stat': config.stat
+                            }
+                        print("returning data to app")
                         return new_data, 200
 
                 elif int(content['goal_level']) == config.STAT_GOAL:

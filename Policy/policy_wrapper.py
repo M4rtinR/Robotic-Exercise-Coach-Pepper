@@ -138,41 +138,48 @@ class PolicyWrapper:
                 valid_list.append(config.A_PRAISE)
 
         # Session, Exercise and Set Goals will all have the same action categories (different individual actions)
-        elif goal_level == config.SESSION_GOAL or goal_level == config.EXERCISE_GOAL or goal_level == config.SET_GOAL:
+        elif goal_level == config.SESSION_GOAL or goal_level == config.EXERCISE_GOAL or goal_level == config.STAT_GOAL or goal_level == config.SET_GOAL:
             valid_list.extend([config.A_POSTINSTRUCTIONPOSITIVE, config.A_POSTINSTRUCTIONNEGATIVE,
                                config.A_QUESTIONING, config.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING,
                                config.A_POSTINSTRUCTIONPOSITIVE_FIRSTNAME,
                                config.A_POSTINSTRUCTIONNEGATIVE_QUESTIONING, config.A_QUESTIONING_FIRSTNAME,
-                               config.A_POSTINSTRUCTIONNEGATIVE_FIRSTNAME,
-                               config.A_QUESTIONING_POSITIVEMODELING, config.A_POSITIVEMODELING_QUESTIONING,
-                               config.A_POSTINSTRUCTIONPOSITIVE_POSITIVE_MODELING,
-                               config.A_POSTINSTRUCTIONPOSITIVE_NEGATIVE_MODELING,
-                               config.A_POSTINSTRUCTIONNEGATIVE_POSITIVEMODELING,
-                               config.A_POSTINSTRUCTIONNEGATIVE_NEGATIVEMODELING,
-                               config.A_QUESTIONING_NEGATIVEMODELING,
-                               config.A_POSITIVEMODELING_POSTINSTRUCTIONPOSITIVE,
-                               config.A_NEGATIVEMODELING_POSTINSTRUCTIONNEGATIVE])
+                               config.A_POSTINSTRUCTIONNEGATIVE_FIRSTNAME])
+            if goal_level == config.EXERCISE_GOAL or goal_level == config.STAT_GOAL or goal_level == config.SET_GOAL:
+                valid_list.extend([config.A_QUESTIONING_POSITIVEMODELING, config.A_POSITIVEMODELING_QUESTIONING,
+                                   config.A_POSTINSTRUCTIONPOSITIVE_POSITIVE_MODELING,
+                                   config.A_POSTINSTRUCTIONPOSITIVE_NEGATIVE_MODELING,
+                                   config.A_POSTINSTRUCTIONNEGATIVE_POSITIVEMODELING,
+                                   config.A_POSTINSTRUCTIONNEGATIVE_NEGATIVEMODELING,
+                                   config.A_QUESTIONING_NEGATIVEMODELING,
+                                   config.A_POSITIVEMODELING_POSTINSTRUCTIONPOSITIVE,
+                                   config.A_NEGATIVEMODELING_POSTINSTRUCTIONNEGATIVE])
             if phase == config.PHASE_START:
                 valid_list.extend([config.A_PREINSTRUCTION, config.A_PREINSTRUCTION_QUESTIONING,
-                                   config.A_PREINSTRUCTION_FIRSTNAME,
-                                   config.A_PREINSTRUCTION_POSITIVEMODELING,
-                                   config.A_PREINSTRUCTION_NEGATIVEMODELING,
-                                   config.A_POSITIVEMODELING_PREINSTRUCTION])
+                                   config.A_PREINSTRUCTION_FIRSTNAME])
+                if goal_level == config.EXERCISE_GOAL or goal_level == config.STAT_GOAL or goal_level == config.SET_GOAL:
+                    valid_list.extend([config.A_PREINSTRUCTION_POSITIVEMODELING,
+                                       config.A_PREINSTRUCTION_NEGATIVEMODELING,
+                                       config.A_POSITIVEMODELING_PREINSTRUCTION])
                 if performance == config.MET:
-                    valid_list.extend([config.A_PRAISE, config.A_PRAISE_FIRSTNAME,
-                                       config.A_POSITIVEMODELING_PRAISE])
+                    valid_list.extend([config.A_PRAISE, config.A_PRAISE_FIRSTNAME])
+                    if goal_level == config.EXERCISE_GOAL or goal_level == config.STAT_GOAL or goal_level == config.SET_GOAL:
+                        valid_list.extend(([config.A_POSITIVEMODELING_PRAISE]))
                 elif performance == config.MUCH_IMPROVED:
-                    valid_list.extend([config.A_PRAISE, config.A_PRAISE_FIRSTNAME,
-                                       config.A_POSITIVEMODELING_PRAISE])
+                    valid_list.extend([config.A_PRAISE, config.A_PRAISE_FIRSTNAME])
+                    if goal_level == config.EXERCISE_GOAL or goal_level == config.STAT_GOAL or goal_level == config.SET_GOAL:
+                        valid_list.extend(([config.A_POSITIVEMODELING_PRAISE]))
                 elif performance == config.IMPROVED:
-                    valid_list.extend([config.A_PRAISE, config.A_PRAISE_FIRSTNAME,
-                                       config.A_POSITIVEMODELING_PRAISE])
+                    valid_list.extend([config.A_PRAISE, config.A_PRAISE_FIRSTNAME])
+                    if goal_level == config.EXERCISE_GOAL or goal_level == config.STAT_GOAL or goal_level == config.SET_GOAL:
+                        valid_list.extend(([config.A_POSITIVEMODELING_PRAISE]))
                 elif performance == config.IMPROVED_SWAP:
-                    valid_list.extend([config.A_PRAISE, config.A_PRAISE_FIRSTNAME,
-                                       config.A_POSITIVEMODELING_PRAISE])
+                    valid_list.extend([config.A_PRAISE, config.A_PRAISE_FIRSTNAME])
+                    if goal_level == config.EXERCISE_GOAL or goal_level == config.STAT_GOAL or goal_level == config.SET_GOAL:
+                        valid_list.extend(([config.A_POSITIVEMODELING_PRAISE]))
                 elif performance == config.STEADY:
-                    valid_list.extend([config.A_PRAISE, config.A_PRAISE_FIRSTNAME,
-                                       config.A_POSITIVEMODELING_PRAISE])
+                    valid_list.extend([config.A_PRAISE, config.A_PRAISE_FIRSTNAME])
+                    if goal_level == config.EXERCISE_GOAL or goal_level == config.STAT_GOAL or goal_level == config.SET_GOAL:
+                        valid_list.extend(([config.A_POSITIVEMODELING_PRAISE]))
                 elif performance == config.REGRESSED:
                     valid_list.extend([config.A_SCOLD, config.A_CONSOLE, config.A_SCOLD_FIRSTNAME,
                                        config.A_CONSOLE_FIRSTNAME])
