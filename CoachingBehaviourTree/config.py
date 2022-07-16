@@ -120,7 +120,7 @@ shot_list_importance = {
     "volley kill": 0.4,
     "volley drop": 0.35
 }
-sorted_stat_list = []
+stat_list = {}
 
 # Initial values which will be updated when the API gets called by the guide.
 goal_level = -1

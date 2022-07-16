@@ -993,9 +993,12 @@ class TimestepCue(Node):
                             file_contents = f.readlines()
                             f.close()
 
+                            stat_list = ["racketPreparation", "approachTiming", "impactCutAngle", "impactSpeed",
+                                         "followThroughRoll", "followThroughTime"]
                             index = 1
                             for score in nodedata.score:
-                                file_contents[index] = str(score) + "\n"
+                                stat_name = stat_list[int(index/2 - 0.5)]
+                                file_contents[index] = str(score) + ", " + str(config.stat_list[stat_name]) + ", \n"
                                 index += 2
 
                             f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + str(self.shot) + "/Baseline.txt", "w")
@@ -1103,16 +1106,17 @@ class TimestepCue(Node):
                                 max = len(file_contents)
                                 index = 0
                                 while index < max:
-                                    stat_set[file_contents[index]] = float(file_contents[index+1].split(", ")[0])
+                                    stat_name = file_contents[index].replace("\n", "")
+                                    stat_set[stat_name] = float(file_contents[index+1].split(", ")[0].replace("\n", ""))
                                     index += 2
 
-                                sorted_stat_set = sorted(stat_set.items(), key=operator.itemgetter(1))
-                                sorted_stat_list = []
-                                for i in sorted_stat_set:
-                                    sorted_stat_list.append(i[0])
-                                sorted_stat_list.reverse()  # Reverse to get most important shot first.
+                                #sorted_stat_set = sorted(stat_set.items(), key=operator.itemgetter(1))
+                                #sorted_stat_list = []
+                                #for i in sorted_stat_set:
+                                #    sorted_stat_list.append(i[0])
+                                #sorted_stat_list.reverse()  # Reverse to get most important shot first.
 
-                                config.sorted_stat_list = sorted_stat_list
+                                config.sorted_stat = stat_set
                             except:
                                 print("Aggregator text file found but baseline text file not found, in start of exercise goal.")
 
@@ -1436,7 +1440,7 @@ class GetChoice(Node):
         self.choice_type = nodedata.get_data('choice_type')
         self.whos_choice = nodedata.get_data('whos_choice')
         self.sorted_shot_list = nodedata.get_data('shot_list')
-        self.sorted_stat_list = nodedata.get_data('stat_list')
+        # self.sorted_stat_list = nodedata.get_data('stat_list')
 
     def run(self, nodedata):
         """
@@ -1479,11 +1483,11 @@ class GetChoice(Node):
                     logging.debug("Returning SUCCESS from GetUserChoice, shot = " + str(nodedata.hand) + " " + str(nodedata.shot))
                     return NodeStatus(NodeStatus.SUCCESS,"Returning SUCCESS from GetUserChoice, shot = " + str(nodedata.hand) + " " + str(nodedata.shot))
                 else:  # STAT_CHOICE
-                    s = 0
-                    stat = config.sorted_stat_list[s]
+                    stat = max(config.stat_list, key=config.stat_list.get())
                     while stat in config.used_stats:
-                        s += 1
-                        stat = config.sorted_stat_list[s]
+                        tempStatList = config.stat_list
+                        tempStatList.pop(stat)#
+                        stat = max(tempStatList, key=tempStatList.get())
 
                     config.used_stats.append(stat)
                     #config.performance = None

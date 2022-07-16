@@ -13408,7 +13408,7 @@ class BehaviourLibraryFunctions:
                             elif goal_level == config.STAT_GOAL:
                                 goal_level_insert = "play some " + shot_utterance + "'s. I need you to remember to not " + stat_advice
 
-                            utterance = utterance + "Today " + name + ", we're going to " + goal_level_insert
+                            utterance = "Today " + name + ", we're going to " + goal_level_insert
 
                     elif behaviour in [config.A_PRAISE, config.A_PRAISE_FIRSTNAME, config.A_POSITIVEMODELING_PRAISE,
                                        config.A_CONSOLE, config.A_CONSOLE_FIRSTNAME]:
@@ -13604,7 +13604,7 @@ class BehaviourLibraryFunctions:
             # Baseline Goal
             elif goal_level == config.BASELINE_GOAL:
                 if phase == config.PHASE_START:
-                    utterance = utterance + "Firstly, 30 " + hand_utterance + " " + shot_utterance + "s to yourself please so I can see what your swing looks like"
+                    utterance = utterance + "Firstly, hit 30 " + hand_utterance + " " + shot_utterance + "s to yourself please so I can see what your swing looks like"
                     if behaviour == config.A_PREINSTRUCTION_QUESTIONING:
                         utterance = utterance + ". OK?"
                     if behaviour == config.A_PREINSTRUCTION_FIRSTNAME:
@@ -13753,7 +13753,7 @@ class BehaviourLibraryFunctions:
                             elif goal_level == config.STAT_GOAL:
                                 goal_level_insert = "I need you to make sure " + stat_advice
 
-                            utterance = utterance + "Today " + name + ", " + goal_level_insert
+                            utterance = "Today " + name + ", " + goal_level_insert
 
                     elif behaviour in [config.A_PRAISE, config.A_PRAISE_FIRSTNAME, config.A_POSITIVEMODELING_PRAISE,
                                        config.A_CONSOLE, config.A_CONSOLE_FIRSTNAME]:
@@ -14082,7 +14082,7 @@ class BehaviourLibraryFunctions:
                             if behaviour == config.A_PREINSTRUCTION_QUESTIONING:
                                 optional_question = "Will that work for you?"
 
-                            utterance = utterance + "Today let's " + goal_level_insert + " " + name + ". " + optional_question
+                            utterance = "Today let's " + goal_level_insert + " " + name + ". " + optional_question
 
                     elif behaviour == config.A_PREINSTRUCTION_NEGATIVEMODELING:
                         stat_advice = "lift your racket too late"
@@ -14432,7 +14432,7 @@ class BehaviourLibraryFunctions:
                             if behaviour == config.A_PREINSTRUCTION_QUESTIONING:
                                 optional_question = "Does that make sense?"
 
-                            utterance = utterance + "In this session " + name + ", we're going to " + goal_level_insert + ". " + optional_question
+                            utterance = "In this session " + name + ", we're going to " + goal_level_insert + ". " + optional_question
 
                     elif behaviour == config.A_PREINSTRUCTION_NEGATIVEMODELING:
                         stat_advice = "not start the swing with your racket below the ball."
