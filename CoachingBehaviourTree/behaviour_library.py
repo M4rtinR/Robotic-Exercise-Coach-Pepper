@@ -17,6 +17,8 @@ BehaviourLibraryFunctions :dataclass
 import logging
 from dataclasses import dataclass, field
 import random
+
+from CoachingBehaviourTree import config
 from Policy.policy import Policy
 from Policy.policy_wrapper import PolicyWrapper
 

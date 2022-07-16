@@ -4,6 +4,8 @@ import numpy as np
 import random
 from random import choices
 
+from CoachingBehaviourTree import controller, config
+
 
 class Policy:
     """

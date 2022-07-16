@@ -21,6 +21,7 @@ from task_behavior_engine.decorator import Until, While, Negate, Repeat, UntilCo
 from task_behavior_engine.tree import NodeStatus, Blackboard
 
 from API import api_classes
+from CoachingBehaviourTree import nodes, config
 from CoachingBehaviourTree.nodes import FormatAction, DisplayBehaviour, CheckForBehaviour, GetBehaviour, GetStats, \
     GetDuration, CreateSubgoal, TimestepCue, DurationCheck, GetUserChoice, EndSetEvent, InitialiseBlackboard, EndSubgoal
 from Policy.policy import Policy
@@ -858,17 +859,73 @@ def get_feedback_loop(name, behav, blackboard, goal_node, initialise_node, previ
     return overall_feedback_sequence, feedback_behaviour, end_goal
 
 
-def main():
-    loggingFilename = "" + participantNo + ".log"
-    logging.basicConfig(format='%(levelname)s:%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.INFO, filename=loggingFilename)
-    logging.info("Logging started")
-    coaching_tree = create_coaching_tree()
-    result = NodeStatus(NodeStatus.ACTIVE)
+def update(state, state2, reward, action, action2):
+    print("Updating policy, state: " + str(state) + ", action: " + str(action))
+    predict = config.policy_matrix.get_matrix()[state][action]
+    target = reward + config.gamma * config.policy_matrix.get_matrix()[state2][action2]
+    config.policy_matrix.update_matrix(state, action, 0.0 if config.policy_matrix.get_matrix()[state][action] + config.alpha * (target - predict) < 0.0 else config.policy_matrix.get_matrix()[state][action] + config.alpha * (target - predict))
+    reward = None
+    return config.policy
 
-    while result == NodeStatus.ACTIVE:
-        result = coaching_tree.tick()
+
+def main():
+    #TODO: for testing purposes. Delete the next if-else statement after testing.
+    filename = "/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participant_filename
+    print(filename)
+    if os.path.exists(filename):
+        os.remove(filename)
+    else:
+        print("The file does not exist")
+    loggingFilename = "" + config.participantNo + ".log"
+    logging.basicConfig(format='%(levelname)s:%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.DEBUG, filename=loggingFilename)
+    logging.info("Logging started")
+
+    # Create the environment
+    env = CoachingEnvironment()
+    state1, config.policy_matrix = env.reset()
+    done = False
+
+    result = NodeStatus(NodeStatus.ACTIVE)
+    action1 = config.policy_matrix.get_behaviour(state1, config.PERSON_GOAL, None, config.PHASE_START)
+    config.behaviour = action1
+    config.need_new_behaviour = False
+    # print('Got behaviour: ' + str(config.behaviour))
+
+    while not done:
+        print("controller stepping")
+        state2, reward, done, result = env.step(action1, state1)
+
+        # print('Behaviour = ' + str(config.behaviour))
+        print("controller getting new behaviour")
+        action2 = config.policy_matrix.get_behaviour(state2, config.goal_level, config.performance, config.phase)
+        config.need_new_behaviour = False
+        config.behaviour_displayed = False
+
+        # If behaviour occurs twice, just skip to pre-instruction.
+        if action2 in config.used_behaviours and (
+                config.getBehaviourGoalLevel == config.SESSION_GOAL or config.goal_level == config.EXERCISE_GOAL or config.goal_level == config.SET_GOAL):
+            action2 = config.A_PREINSTRUCTION
+            logging.debug('Got new behaviour: 1')
+            # config.matching_behav = 0
+        else:
+            config.used_behaviours.append(action2)
+
+        # Learning the Q-value
+        if reward is not None:
+            update(state1, state2, reward, action1, action2)
+#
+        config.behaviour = action2
+        config.prev_behav = action2
+        state1 = state2
+        action1 = action2
+
         logging.debug(result)
         time.sleep(1)
+
+    # Write final policy to file
+    f = open(filename, "w")
+    f.writelines(config.policy_matrix.get_matrix())
+    f.close()
 
 def api_start():
     api_classes.app.run(host='0.0.0.0', port=5000)

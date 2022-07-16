@@ -529,11 +529,11 @@ class CreateSubgoal(Node):
         else:
             if self.previous_goal_level == PolicyWrapper.EXERCISE_GOAL and self.stat is None:
                 nodedata.new_goal = 6
-                # api_classes.expecting_action_goal = True
+                api_classes.expecting_action_goal = True
             else:
                 nodedata.new_goal = self.previous_goal_level + 1
-                # if nodedata.new_goal == PolicyWrapper.ACTION_GOAL:
-                    # api_classes.expecting_action_goal = True
+                if nodedata.new_goal == PolicyWrapper.ACTION_GOAL:
+                    api_classes.expecting_action_goal = True
             logging.info("Created subgoal, new goal level = {}".format(nodedata.new_goal))
             logging.debug("Returning SUCCESS from CreateSubGoal, new goal level = " + str(nodedata.new_goal))
             return NodeStatus(NodeStatus.SUCCESS, "Created subgoal: " + str(self.previous_goal_level + 1))
