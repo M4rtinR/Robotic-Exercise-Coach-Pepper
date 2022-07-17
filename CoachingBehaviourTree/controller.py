@@ -22,11 +22,10 @@ from task_behavior_engine.decorator import Until, While, Negate, Repeat, UntilCo
 from task_behavior_engine.tree import NodeStatus, Blackboard
 
 from API import api_classes
-from CoachingBehaviourTree import nodes, config
+from CoachingBehaviourTree import config
 from CoachingBehaviourTree.nodes import FormatAction, DisplayBehaviour, CheckForBehaviour, GetBehaviour, GetStats, \
     GetDuration, CreateSubgoal, TimestepCue, DurationCheck, GetUserChoice, EndSetEvent, InitialiseBlackboard, EndSubgoal
-from Policy.policy import Policy
-from Policy.policy_wrapper import PolicyWrapper
+from Policy.CoachingEnvironment import CoachingEnvironment
 
 
 def create_coaching_tree():

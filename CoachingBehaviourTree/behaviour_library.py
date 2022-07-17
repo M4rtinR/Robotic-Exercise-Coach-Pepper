@@ -19,8 +19,6 @@ from dataclasses import dataclass, field
 import random
 
 from CoachingBehaviourTree import config
-from Policy.policy import Policy
-from Policy.policy_wrapper import PolicyWrapper
 
 squash_behaviour_library = {
     # Keys have format <goal level code>_?<behaviour code>_?<performance code>_?<phase code>_?<post code>

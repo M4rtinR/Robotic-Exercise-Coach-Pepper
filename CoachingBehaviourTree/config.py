@@ -172,6 +172,7 @@ expecting_action_goal = False
 # Initial values to be changed at the beginning of each session:
 name = "Jamie"
 participantNo = "RobotariumFilming"
+participant_filename = participantNo + "_history.txt"
 ability = 5
 motivation = 8
 # 1 = DRIVE, 5 = LOB, 0 = DROP
@@ -195,12 +196,12 @@ policy_matrix = None
 # post_address = 'http://192.168.43.19:4999/output'
 
 # Simulation on home wifi:
-# post_address = 'http://192.168.1.174:4999/output'
+post_address = 'http://192.168.1.174:4999/output'
 # screen_post_address = "http://192.168.1.174:8000/"
 
 # Robot through ITT Pepper router:
-post_address = "http://192.168.1.207:4999/output"
-screen_post_address = "http://192.168.1.207:8000/"
+# post_address = "http://192.168.1.207:4999/output"
+# screen_post_address = "http://192.168.1.207:8000/"
 
 # Robot through hotspot:
 # post_address = "http://192.168.43.19:4999/output"
