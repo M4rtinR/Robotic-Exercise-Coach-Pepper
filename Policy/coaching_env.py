@@ -8,7 +8,7 @@ from gym import spaces
 import numpy as np
 from typing import Optional
 # from gym.utils.renderer import Renderer
-from CoachingBehaviourTree import controller, config
+from CoachingBehaviourTree import config
 
 from Policy.policy_wrapper import PolicyWrapper
 
@@ -39,9 +39,8 @@ class CoachingEnvironment(gym.Env, ABC):
     get_observation(state, behaviour)
         Obtain an observation from the underlying policy.
     """
-
-    def __init__(self, render_mode: Optional[str] = None):
-        self.coaching_tree = controller.create_coaching_tree()
+    def __init__(self, coaching_tree, render_mode: Optional[str] = None):
+        self.coaching_tree = coaching_tree
         self.observation_space = spaces.Discrete(69)
         self.action_space = spaces.Discrete(68)  # All the possible states but without A_START
         self.policy = None
@@ -59,8 +58,7 @@ class CoachingEnvironment(gym.Env, ABC):
             self.policy = PolicyWrapper(policy=matrix)
         else:
             # TODO: check this is the correct measure for choosing the initial policy.
-            belief_distribution = [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0] if config.ability < 4 else [0, 0, 0, 0, 0, 0, 0,
-                                                                                                   0, 1, 0, 0, 0]
+            belief_distribution = [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0] if config.ability < 4 else [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0]
             observation = 0
             self.policy = PolicyWrapper(belief=belief_distribution)
 
@@ -210,7 +208,7 @@ class CoachingEnvironment(gym.Env, ABC):
                 reward = -0.3
             elif performance == config.MUCH_REGRESSED:
                 reward = -0.6
-
+                
             # Levels of performance:
             MET = 0             # Met the target
             MUCH_IMPROVED = 1   # Moved a lot closer to the target

@@ -25,7 +25,7 @@ from API import api_classes
 from CoachingBehaviourTree import config
 from CoachingBehaviourTree.nodes import FormatAction, DisplayBehaviour, CheckForBehaviour, GetBehaviour, GetStats, \
     GetDuration, CreateSubgoal, TimestepCue, DurationCheck, GetUserChoice, EndSetEvent, InitialiseBlackboard, EndSubgoal
-from Policy.CoachingEnvironment import CoachingEnvironment
+from Policy.coaching_env import CoachingEnvironment
 
 
 def create_coaching_tree():
@@ -841,7 +841,8 @@ def main():
     logging.info("Logging started")
 
     # Create the environment
-    env = CoachingEnvironment()
+    coaching_tree = create_coaching_tree()
+    env = CoachingEnvironment(coaching_tree)
     state1, config.policy_matrix = env.reset()
     done = False
 

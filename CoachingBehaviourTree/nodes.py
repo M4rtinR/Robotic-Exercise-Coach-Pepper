@@ -104,16 +104,18 @@ class GetBehaviour(Node):
         :return: None
         """
         logging.debug("Configuring GetBehaviour: " + self._name)
-        logging.debug(str(nodedata))
+        # logging.debug(str(nodedata))
         self.belief = nodedata.get_data('belief')            # Belief distribution over policies.
         self.goal_level = nodedata.get_data('goal')          # Which level of goal we are currently in (e.g. SET_GOAL)
         self.performance = nodedata.get_data('performance')  # Which level of performance the player achieved (e.g. MET)
         self.phase = nodedata.get_data('phase')              # PHASE_START or PHASE_END
         self.previous_phase = nodedata.get_data('previous_phase', config.PHASE_START)  # PHASE_START or PHASE_END
-        if self.previous_phase == config.PHASE_START:
+        self.state = config.observation # Have to set observation as global variable in controller because when we're in the while loop, the pre-behav-node will be different the first time to the subsequent times.
+        self.need_score = nodedata.get_data('need_score', False)
+        '''if self.previous_phase == config.PHASE_START:
             self.state = nodedata.get_data('state')  # Previous state based on observation.
         else:
-            self.state = nodedata.get_data('feedback_state')
+            self.state = nodedata.get_data('feedback_state')'''
 
     def run(self, nodedata):
         """
@@ -122,25 +124,41 @@ class GetBehaviour(Node):
             for accesses by other nodes.
         :return: NodeStatus.SUCCESS when a behaviour and observation has been obtained from the policy wrapper.
         """
-        logging.debug('GetBehaviour, self.goal_level = ' + str(self.goal_level) + ', nodedata.goal = ' + str(nodedata.goal))
-        policy = PolicyWrapper(self.belief)  # TODO: generate this at start of interaction and store on blackboard.
-        nodedata.behaviour, nodedata.obs_behaviour = policy.get_behaviour(self.state, self.goal_level, self.performance, self.phase)
-        logging.debug('Got behaviour: ' + str(nodedata.behaviour))
-
-        # If behaviour occurs twice, just skip to pre-instruction.
-        if nodedata.behaviour in config.used_behaviours and (self.goal_level == config.SESSION_GOAL or self.goal_level == config.EXERCISE_GOAL or self.goal_level == config.BASELINE_GOAL or self.goal_level == config.SET_GOAL or self.goal_level == config.STAT_GOAL):
-            nodedata.behaviour = config.A_PREINSTRUCTION
-            logging.debug('Got new behaviour: 1')
-            # config.matching_behav = 0
+        #if not config.stop_set and not config.stop_session:
+        # print('GetBehaviour, self.goal_level = ' + str(self.goal_level) + ', nodedata.goal = ' + str(nodedata.goal))
+        # policy = PolicyWrapper(self.belief)  # TODO: generate this at start of interaction and store on blackboard.
+        #, nodedata.obs_behaviour
+        # nodedata.behaviour = policy.get_behaviour(self.state, self.goal_level, self.performance, self.phase)
+        if config.behaviour_displayed:  # If we need a new behaviour, return active so that control as passed back to controller to generate new behaviour from policy.
+            config.need_new_behaviour = True
+            logging.debug("Returning ACTIVE from GetBehaviour, nodedata = " + str(nodedata))
+            return NodeStatus(NodeStatus.ACTIVE, "Need new behaviour")
         else:
-            config.used_behaviours.append(nodedata.behaviour)
+            # config.need_new_behaviour = True
+            nodedata.behaviour = config.behaviour
+            print('GetBehaviour Got behaviour: ' + str(config.behaviour))
 
-        config.prev_behav = nodedata.behaviour
-
-        nodedata.observation = policy.get_observation(self.state, nodedata.obs_behaviour)
-        # logging.debug('Got observation: ' + str(nodedata.behaviour))
-        logging.debug("Returning SUCCESS from GetBehaviour, nodedata = " + str(nodedata))
-        return NodeStatus(NodeStatus.SUCCESS, "Obtained behaviour " + str(nodedata.behaviour))
+            # If behaviour occurs twice, just skip to pre-instruction.
+            """if nodedata.behaviour in config.used_behaviours and (self.goal_level == config.SESSION_GOAL or self.goal_level == config.EXERCISE_GOAL or self.goal_level == config.SET_GOAL):
+                nodedata.behaviour = config.A_PREINSTRUCTION
+                logging.debug('Got new behaviour: 1')
+                # config.matching_behav = 0
+            else:
+                config.used_behaviours.append(nodedata.behaviour)
+    
+            config.prev_behav = nodedata.behaviour
+    
+            config.observation = policy.get_observation(self.state, nodedata.behaviour)"""
+            print("self.need_score = " + str(self.need_score) + ", config.scores_provided = " + str(config.scores_provided) + ", config.has_score_been_provided = " + str(config.has_score_been_provided))
+            if self.need_score and config.scores_provided < 1:
+                config.has_score_been_provided = False
+                print("set has_score_been_provided to False")
+            # logging.debug('Got observation: ' + str(nodedata.behaviour))
+            print("Returning SUCCESS from GetBehaviour, nodedata = " + str(nodedata))
+            logging.debug("Returning SUCCESS from GetBehaviour, nodedata = " + str(nodedata))
+            return NodeStatus(NodeStatus.SUCCESS, "Obtained behaviour " + str(nodedata.behaviour))
+        #else:
+        #    return NodeStatus(NodeStatus.SUCCESS, "Stop set/session get behaviour")
 
     def cleanup(self, nodedata):
         """
@@ -312,6 +330,7 @@ class CheckForBehaviour(Node):
         # SUCCESS if next behaviour is given behaviour, else FAIL
         if self._is_example_of_behaviour(self.behaviour, self.check_behaviour):
             config.used_behaviours = []
+            #config.behaviour_displayed = True
             logging.debug("Returning SUCCESS from CheckForBehaviour, behaviour found = " + str(self.behaviour))
             # config.completed = config.COMPLETED_STATUS_FALSE
             return NodeStatus(NodeStatus.SUCCESS, "Behaviour " + str(self.check_behaviour) + " found in the form " + str(self.behaviour))
@@ -389,6 +408,8 @@ class DisplayBehaviour(Node):
         r = requests.post(post_address, json=output)
         if self.set_start:
             api_classes.expecting_action_goal = True
+
+        config.behaviour_displayed = True
         logging.debug("Returning SUCCESS from DisplayBehaviour")
         return NodeStatus(NodeStatus.SUCCESS, "Printed action message to output.")
 
