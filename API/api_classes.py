@@ -334,10 +334,10 @@ class TimestepCue(Resource):
                         config.goal_level = config.EXERCISE_GOAL
                     else:'''
                     config.dont_send_action_response = True
-                    logging.debug('set goal setting controller values')
+                    print('set goal setting controller values')
 
                     if 'score' in content:  # End of set
-                        logging.debug('end of set')
+                        print('end of set')
                         scoreString = content['score']
                         if scoreString[-1] == "%":
                             scoreString = content['score'][:-1]
@@ -371,6 +371,7 @@ class TimestepCue(Resource):
                         return new_data, 200
 
                     else:  # Start of set
+                        print("Start of set")
                         config.goal_level = config.SET_GOAL
                         config.phase = config.PHASE_START
                         config.completed = config.COMPLETED_STATUS_UNDEFINED
@@ -417,6 +418,7 @@ class TimestepCue(Resource):
                         new_data = {
                             'goal_level': 5,
                             'completed': 1,
+                            'shotSet': 1
                         }
 
                         if config.shot_count == 29:
@@ -425,11 +427,6 @@ class TimestepCue(Resource):
                             # new_data['stat'] = config.stat
                         else:
                             new_data['shotSetComplete'] = 0
-
-                        if not config.dont_send_action_response:
-                            new_data['shotSet'] = 1
-                        else:
-                            new_data['shotSet'] = 0
 
                     else:
                         print("Action goal not expected, not using data.")

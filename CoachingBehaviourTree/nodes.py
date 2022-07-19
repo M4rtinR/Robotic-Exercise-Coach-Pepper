@@ -676,6 +676,7 @@ class CreateSubgoal(Node):
                         r = requests.post(config.screen_post_address + "0/newRep")
                     elif nodedata.new_goal == config.STAT_GOAL:
                         config.stat_confirmed = True
+                        config.given_stat_explanation = False
                 config.phase = config.PHASE_START  # Start of goal will always be before something happens.
                 print("Created subgoal, new goal level = {}".format(nodedata.new_goal))
                 logging.info("Created subgoal, new goal level = {}".format(nodedata.new_goal))
@@ -741,7 +742,7 @@ class EndSubgoal(Node):
                     nodedata.new_goal = config.EXERCISE_GOAL
                     config.completed = config.COMPLETED_STATUS_TRUE
                 else:
-                    config.goal_level -= 1
+                    # config.goal_level -= 1
                     # TODO: I've set max set_count to 3 but there may be some freedom there depending on user performance.
                     if ((self.goal_level == config.SET_GOAL and config.set_count == 3) or self.goal_level == config.STAT_GOAL or self.goal_level == config.EXERCISE_GOAL or self.goal_level == config.SESSION_GOAL) and not config.stop_session:
                         config.phase = config.PHASE_END
@@ -1230,17 +1231,18 @@ class TimestepCue(Node):
                     return NodeStatus(NodeStatus.ACTIVE, "Waiting for stat goal data from guide.")
 
             elif self.goal_level == config.SET_GOAL:
+                print("config.goal_level = " + str(config.goal_level))
                 if config.goal_level == config.SET_GOAL:
                     print("config.goal_level == config.SET_GOAL")
                     if config.phase == config.PHASE_END:  # Just finished previous goal level so into feedback sequence.
                         nodedata.phase = config.PHASE_END
-                        if not (len(config.stat_performance_list) == 0):
+                        if not (len(config.set_performance_list) == 0):
                             # print("performance list = " + str(config.set_performance_list) + ", mode = " + str(mode(config.set_performance_list)))
                             nodedata.performance = config.performance
-                            print("Average performance = " + str(nodedata.performance))
+                            print("Average performance = " + str(nodedata.get_data("performance")))
                             nodedata.score = config.avg_score
                             print("config.avg_score = " + str(config.avg_score))
-                            print("nodedata.score = " + str(nodedata.score))
+                            print("nodedata.score = " + str(nodedata.get_data("score")))
                             # Update score in controller
                             config.stat_performance_list.append(nodedata.performance)
                             config.stat_score_list.append(nodedata.score)
@@ -1260,7 +1262,7 @@ class TimestepCue(Node):
                         config.set_score_list = []
                         nodedata.target = config.target
                         config.completed = config.COMPLETED_STATUS_TRUE
-                        logging.info("Feedback for exercise set, score = {score}, target = {target}, performance = {performance}".format(score=nodedata.get_data("score"), target=nodedata.target, performance=nodedata.performance))
+                        logging.info("Feedback for exercise set, score = {score}, target = {target}, performance = {performance}".format(score=nodedata.get_data("score"), target=nodedata.get_data("target"), performance=nodedata.get_data("performance")))
                         logging.debug("Returning SUCCESS from TimestepCue set goal feedback, stats = " + str(nodedata))
                         return NodeStatus(NodeStatus.SUCCESS, "Data for set goal obtained from guide:" + str(nodedata))
                     else:  # For set goal we need information about the previous set if this is not the first set of this exercise.
@@ -1289,6 +1291,7 @@ class TimestepCue(Node):
                             f.writelines(file_contents)
                             f.close()
 
+                        nodedata.target = config.target
                         config.shot_count = 0
                         config.completed = config.COMPLETED_STATUS_FALSE
                         logging.debug("Returning SUCCESS from TimestepCue set goal, stats = " + str(nodedata))

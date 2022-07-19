@@ -851,7 +851,7 @@ def get_intro_sequence(name, blackboard, initialise_node, new_goal_start, new_go
     # Check if pre-instruction
     new_goal_intro_pre_instr_sequence_name = name + "_pre_instruction_sequence"
     new_goal_intro_pre_instr_sequence = Progressor(name=new_goal_intro_pre_instr_sequence_name)
-    new_goal_intro_check_for_pre_name = name + "_chec_for_pre"
+    new_goal_intro_check_for_pre_name = name + "_check_for_pre"
     new_goal_intro_check_for_pre = CheckForBehaviour(name=new_goal_intro_check_for_pre_name, blackboard=blackboard)
     blackboard.save('check_behaviour', config.A_PREINSTRUCTION, new_goal_intro_check_for_pre._id)
     # Share behaviour between new_goal_intro_behav and new_goal_intro_check_for_pre.

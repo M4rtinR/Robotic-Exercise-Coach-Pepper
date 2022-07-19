@@ -32,6 +32,8 @@ class Action:
     demo: str = None
     question: str = None
     goal: int = None
+    phase: int = None
+    stat: int = None
 
     def __str__(self):
         """
@@ -41,6 +43,39 @@ class Action:
         if self.score is not None and config.has_score_been_provided is False:
             if self.goal is not config.ACTION_GOAL:
                 # TODO: add score-specific utterance (e.g. seconds, degrees) to explain the score better to the user.
-                return f'{self.pre_msg}. You got an average score of {round(self.score, 2)} and were aiming for {round(self.target, 2)} seconds.'
+                print("self.score = " + str(self.score))
+                print("self.target = " + str(self.target))
+                if self.stat == "racketPreparation" or self.stat == "approachTiming":
+                    stat_measure = "%"
+                    if self.stat == "racketPreparation":
+                        stat_explanation = "The % relates to how high your racket gets before you hit the ball. Generally, the higher the better!"
+                    else:
+                        stat_explanation = "The % relates to how well you have timed your swing to the ball. Generally, the higher the percentage, the better!"
+                elif self.stat == "impactCutAngle" or self.stat == "followThroughRoll":
+                    stat_measure = " degrees"
+                    if self.stat == "impactCutAngle":
+                        stat_explanation = "This is the angle of your racket face at contact."
+                    else:
+                        stat_explanation = "This relates to how much you roll your wrist over after hitting the ball."
+                elif self.stat == "impactSpeed":
+                    stat_measure = ""
+                    stat_explanation = "This is the velocity of your racket as your strike the ball."
+                else:  # followThroughTime
+                    stat_measure = " seconds"
+                    stat_explanation = "This is a measure of how long it takes between hitting the ball and your swing stopping."
+
+                if self.phase == config.PHASE_START:
+                    returnString = f'{self.pre_msg}. In the last set you got an average score of {round(self.score, 2)}' + stat_measure + f' and were aiming for {round(self.target, 2)}' + stat_measure + '. '
+                    if config.given_stat_explanation:
+                        return returnString
+                    else:
+                        return returnString + stat_explanation
+                else:
+                    returnString = f'{self.pre_msg}. You got an average score of {round(self.score, 2)}' + stat_measure + f' and were aiming for {round(self.target, 2)}' + stat_measure + '. '
+                    if config.given_stat_explanation:
+                        return returnString
+                    else:
+                        config.given_stat_explanation = True
+                        return returnString + stat_explanation
 
         return f'{self.pre_msg}'

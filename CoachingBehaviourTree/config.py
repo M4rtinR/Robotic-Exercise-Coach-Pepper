@@ -167,6 +167,8 @@ overrideQuestioningOption = False     # so that the correct screen can be displa
 getBehaviourGoalLevel = -1  # To keep track of which level the controller is in when getting a new behaviour from the policy.
 expecting_action_goal = False
 stat_confirmed = False  # Becomes true when stat goal is created with chosen stat, reset to false on end stat goal.
+dont_send_action_response = False  # Whether or not to send the response to the action goal (i.e. if we have completed the set, do not send it).
+given_stat_explanation = False  # We don't want to keep giving an explanation of what the same stat means. This will prevent that.
 
 # Initial values to be changed at the beginning of each session:
 name = "Martin"
