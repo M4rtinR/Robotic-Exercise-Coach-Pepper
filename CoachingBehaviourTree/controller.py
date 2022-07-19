@@ -1010,112 +1010,113 @@ def get_intro_sequence(name, blackboard, initialise_node, new_goal_start, new_go
 
         new_goal_intro_pre_instr_sequence.add_child(new_goal_intro_pre_instr_override_sequence_negate)
 
-    # Check if questioning
-    new_goal_intro_questioning_sequence_name = name + "_questioning_sequence"
-    new_goal_intro_questioning_sequence = Progressor(name=new_goal_intro_questioning_sequence_name)
-    new_goal_intro_check_for_questioning_name = name + "_check_for_questioning"
-    new_goal_intro_check_for_questioning = CheckForBehaviour(name=new_goal_intro_check_for_questioning_name, blackboard=blackboard)
-    blackboard.save('check_behaviour', config.A_QUESTIONING, new_goal_intro_check_for_questioning._id)
-    # Share behaviour between new_goal_intro_behav and new_goal_intro_check_for_questioning.
-    blackboard.add_remapping(new_goal_intro_behav._id, 'behaviour', new_goal_intro_check_for_questioning._id, 'behaviour')
-    new_goal_intro_questioning_sequence.add_child(new_goal_intro_check_for_questioning)
+    if name == "shot_goal_intro_loop" or name == "session_goal_intro_loop":  # Questioning is only special if we're in shot goal or session goal (choosing stat or shot)
+        # Check if questioning
+        new_goal_intro_questioning_sequence_name = name + "_questioning_sequence"
+        new_goal_intro_questioning_sequence = Progressor(name=new_goal_intro_questioning_sequence_name)
+        new_goal_intro_check_for_questioning_name = name + "_check_for_questioning"
+        new_goal_intro_check_for_questioning = CheckForBehaviour(name=new_goal_intro_check_for_questioning_name, blackboard=blackboard)
+        blackboard.save('check_behaviour', config.A_QUESTIONING, new_goal_intro_check_for_questioning._id)
+        # Share behaviour between new_goal_intro_behav and new_goal_intro_check_for_questioning.
+        blackboard.add_remapping(new_goal_intro_behav._id, 'behaviour', new_goal_intro_check_for_questioning._id, 'behaviour')
+        new_goal_intro_questioning_sequence.add_child(new_goal_intro_check_for_questioning)
 
-    if name == "shot_goal_intro_loop":
-        first_time_check_selector = Selector(name="first_time_check_selector")
-        first_time_check = CheckDoneBefore(name="first_time_check", blackboard=blackboard)
-        blackboard.save("shot", config.shot, first_time_check._id)
-        blackboard.save("hand", config.hand, first_time_check._id)
-        first_time_check_selector.add_child(first_time_check)
-        # gen_baseline_goal, baseline_goal, baseline_goal_start, baseline_goal_shot_choice, baseline_goal_intro_behav = get_intro_loop(
-        #     name="baseline_goal_pre_instr_intro_loop", blackboard=blackboard, prev_goal_node=new_goal._id,
-        #     initialise_node=initialise_node, person_node=person_node)
+        if name == "shot_goal_intro_loop":
+            first_time_check_selector = Selector(name="first_time_check_selector")
+            first_time_check = CheckDoneBefore(name="first_time_check", blackboard=blackboard)
+            blackboard.save("shot", config.shot, first_time_check._id)
+            blackboard.save("hand", config.hand, first_time_check._id)
+            first_time_check_selector.add_child(first_time_check)
+            # gen_baseline_goal, baseline_goal, baseline_goal_start, baseline_goal_shot_choice, baseline_goal_intro_behav = get_intro_loop(
+            #     name="baseline_goal_pre_instr_intro_loop", blackboard=blackboard, prev_goal_node=new_goal._id,
+            #     initialise_node=initialise_node, person_node=person_node)
 
-        gen_baseline_goal = Progressor(name="gen_baseline_goal")
+            gen_baseline_goal = Progressor(name="gen_baseline_goal")
 
-        baseline_goal = CreateSubgoal(name="create_baseline_goal", blackboard=blackboard)
-        blackboard.add_remapping(new_goal._id, "new_goal", baseline_goal._id, "goal")
-        gen_baseline_goal.add_child(baseline_goal)
+            baseline_goal = CreateSubgoal(name="create_baseline_goal", blackboard=blackboard)
+            blackboard.add_remapping(new_goal._id, "new_goal", baseline_goal._id, "goal")
+            gen_baseline_goal.add_child(baseline_goal)
 
-        baseline_goal_start = TimestepCue(name="baseline_goal_start", blackboard=blackboard)
-        blackboard.add_remapping(baseline_goal._id, 'new_goal', baseline_goal_start._id, 'goal')
-        baseline_goal_start_until = Until(name="baseline_goal_start_until", child=baseline_goal_start)
-        gen_baseline_goal.add_child(baseline_goal_start_until)
+            baseline_goal_start = TimestepCue(name="baseline_goal_start", blackboard=blackboard)
+            blackboard.add_remapping(baseline_goal._id, 'new_goal', baseline_goal_start._id, 'goal')
+            baseline_goal_start_until = Until(name="baseline_goal_start_until", child=baseline_goal_start)
+            gen_baseline_goal.add_child(baseline_goal_start_until)
 
-        baseline_goal_intro_behav = GetBehaviour(name="baseline_goal_intro_behav", blackboard=blackboard)
-        gen_baseline_goal.add_child(baseline_goal_intro_behav)
-        # Share data between initialise, new_goal_start, and new_goal_intro_behav.
-        blackboard.add_remapping(initialise_node, 'belief', baseline_goal_intro_behav._id, 'belief')
-        blackboard.add_remapping(baseline_goal_start._id, 'phase', baseline_goal_intro_behav._id, 'phase')
-        blackboard.add_remapping(baseline_goal._id, 'new_goal', baseline_goal_intro_behav._id, 'goal')
+            baseline_goal_intro_behav = GetBehaviour(name="baseline_goal_intro_behav", blackboard=blackboard)
+            gen_baseline_goal.add_child(baseline_goal_intro_behav)
+            # Share data between initialise, new_goal_start, and new_goal_intro_behav.
+            blackboard.add_remapping(initialise_node, 'belief', baseline_goal_intro_behav._id, 'belief')
+            blackboard.add_remapping(baseline_goal_start._id, 'phase', baseline_goal_intro_behav._id, 'phase')
+            blackboard.add_remapping(baseline_goal._id, 'new_goal', baseline_goal_intro_behav._id, 'goal')
 
-        baseline_goal_intro_action = FormatAction(name="baseline_goal_intro_action", blackboard=blackboard)
-        gen_baseline_goal.add_child(baseline_goal_intro_action)
+            baseline_goal_intro_action = FormatAction(name="baseline_goal_intro_action", blackboard=blackboard)
+            gen_baseline_goal.add_child(baseline_goal_intro_action)
 
-        # Share data between initialise, new_goal_start, new_goal, new_goal_intro_behav and new_goal_intro_action.
-        blackboard.add_remapping(initialise_node, 'bl', baseline_goal_intro_action._id, 'bl')
-        blackboard.add_remapping(baseline_goal_start._id, 'phase', baseline_goal_intro_action._id, 'phase')
-        blackboard.add_remapping(baseline_goal._id, 'new_goal', baseline_goal_intro_action._id, 'goal')
-        blackboard.add_remapping(baseline_goal_intro_behav._id, 'behaviour', baseline_goal_intro_action._id,
+            # Share data between initialise, new_goal_start, new_goal, new_goal_intro_behav and new_goal_intro_action.
+            blackboard.add_remapping(initialise_node, 'bl', baseline_goal_intro_action._id, 'bl')
+            blackboard.add_remapping(baseline_goal_start._id, 'phase', baseline_goal_intro_action._id, 'phase')
+            blackboard.add_remapping(baseline_goal._id, 'new_goal', baseline_goal_intro_action._id, 'goal')
+            blackboard.add_remapping(baseline_goal_intro_behav._id, 'behaviour', baseline_goal_intro_action._id,
+                                     'behaviour')
+            blackboard.add_remapping(person_node, 'name', baseline_goal_intro_action._id, 'name')
+
+            baseline_goal_intro_output = DisplayBehaviour(name="baseline_goal_intro_output", blackboard=blackboard)
+            gen_baseline_goal.add_child(baseline_goal_intro_output)
+            # Share action between new_goal_intro_action and new_goal_intro_output.
+            blackboard.add_remapping(baseline_goal_intro_action._id, 'action', baseline_goal_intro_output._id, 'action')
+            blackboard.add_remapping(baseline_goal._id, 'new_goal', baseline_goal_intro_output._id, 'goal_level')
+            blackboard.save('set_start', True, baseline_goal_intro_output._id)
+
+            # Wait for user to finish set
+            baseline_goal_end_set_event = EndSetEvent(name="baseline_goal_end_set_event", blackboard=blackboard)
+            baseline_goal_end_set_until = Until(name="baseline_goal_end_set_until", child=baseline_goal_end_set_event)
+            gen_baseline_goal.add_child(baseline_goal_end_set_until)
+            # End baseline goal
+            baseline_goal_end = EndSubgoal(name="baseline_goal_end", blackboard=blackboard)
+            gen_baseline_goal.add_child(baseline_goal_end)
+            blackboard.add_remapping(baseline_goal._id, 'new_goal', baseline_goal_end._id, 'goal')
+            # Wait for timestep cue with stats for baseline set just played.
+            baseline_goal_end_cue = TimestepCue(name="baseline_goal_end_cue", blackboard=blackboard)
+            baseline_goal_end_cue_until = Until(name="baseline_goal_end_cue_until", child=baseline_goal_end_cue)
+            gen_baseline_goal.add_child(baseline_goal_end_cue_until)
+            blackboard.add_remapping(baseline_goal_end._id, 'new_goal', baseline_goal_end_cue._id, 'goal')
+            blackboard.add_remapping(baseline_goal_end._id, 'phase', baseline_goal_end_cue._id, 'phase')
+            # blackboard.save('shot', config.shot, baseline_goal_end_cue._id)
+            # blackboard.save('hand', config.hand, baseline_goal_end_cue._id)
+            first_time_check_selector.add_child(gen_baseline_goal)
+            new_goal_intro_questioning_sequence.add_child(first_time_check_selector)
+
+        # Format and display questioning action.
+        new_goal_intro_questioning_action_name = name + "_questioning_action"
+        new_goal_intro_questioning_action = FormatAction(name=new_goal_intro_questioning_action_name, blackboard=blackboard)
+        new_goal_intro_questioning_sequence.add_child(new_goal_intro_questioning_action)
+        # Share data between initialise, session_goal_start, session_goal, new_goal_intro_behav and session_goal_intro_action.
+        blackboard.add_remapping(initialise_node, 'bl', new_goal_intro_questioning_action._id, 'bl')
+        blackboard.add_remapping(new_goal_start._id, 'performance', new_goal_intro_questioning_action._id, 'performance')
+        blackboard.add_remapping(new_goal_start._id, 'phase', new_goal_intro_questioning_action._id, 'phase')
+        blackboard.add_remapping(new_goal_start._id, 'score', new_goal_intro_questioning_action._id, 'score')
+        blackboard.add_remapping(new_goal_start._id, 'target', new_goal_intro_questioning_action._id, 'target')
+        blackboard.add_remapping(new_goal._id, 'new_goal', new_goal_intro_questioning_action._id, 'goal')
+        blackboard.add_remapping(new_goal_intro_behav._id, 'behaviour', new_goal_intro_questioning_action._id,
                                  'behaviour')
-        blackboard.add_remapping(person_node, 'name', baseline_goal_intro_action._id, 'name')
+        blackboard.add_remapping(person_node, 'name', new_goal_intro_questioning_action._id, 'name')
+        # blackboard.save('shot', config.shot, new_goal_intro_questioning_action._id)
+        # blackboard.save('hand', config.hand, new_goal_intro_questioning_action._id)
+        # blackboard.save('stat', config.stat, new_goal_intro_questioning_action._id)
+        new_goal_intro_questioning_output_name = name + "_questioning_output"
+        new_goal_intro_questioning_output = DisplayBehaviour(name=new_goal_intro_questioning_output_name,
+                                                             blackboard=blackboard)
+        new_goal_intro_questioning_sequence.add_child(new_goal_intro_questioning_output)
+        # Share action between session_goal_intro_action and session_goal_intro_output.
+        blackboard.add_remapping(new_goal_intro_questioning_action._id, 'action', new_goal_intro_questioning_output._id,
+                                 'action')
+        blackboard.add_remapping(new_goal._id, 'new_goal', new_goal_intro_questioning_output._id, 'goal_level')
+        new_goal_intro_questioning_negate_name = name + "_questioning_negate"
+        new_goal_intro_questioning_negate = Negate(name=new_goal_intro_questioning_negate_name,
+                                                   child=new_goal_intro_questioning_sequence)
+        new_goal_intro_sequence.add_child(new_goal_intro_questioning_negate)
 
-        baseline_goal_intro_output = DisplayBehaviour(name="baseline_goal_intro_output", blackboard=blackboard)
-        gen_baseline_goal.add_child(baseline_goal_intro_output)
-        # Share action between new_goal_intro_action and new_goal_intro_output.
-        blackboard.add_remapping(baseline_goal_intro_action._id, 'action', baseline_goal_intro_output._id, 'action')
-        blackboard.add_remapping(baseline_goal._id, 'new_goal', baseline_goal_intro_output._id, 'goal_level')
-        blackboard.save('set_start', True, baseline_goal_intro_output._id)
-
-        # Wait for user to finish set
-        baseline_goal_end_set_event = EndSetEvent(name="baseline_goal_end_set_event", blackboard=blackboard)
-        baseline_goal_end_set_until = Until(name="baseline_goal_end_set_until", child=baseline_goal_end_set_event)
-        gen_baseline_goal.add_child(baseline_goal_end_set_until)
-        # End baseline goal
-        baseline_goal_end = EndSubgoal(name="baseline_goal_end", blackboard=blackboard)
-        gen_baseline_goal.add_child(baseline_goal_end)
-        blackboard.add_remapping(baseline_goal._id, 'new_goal', baseline_goal_end._id, 'goal')
-        # Wait for timestep cue with stats for baseline set just played.
-        baseline_goal_end_cue = TimestepCue(name="baseline_goal_end_cue", blackboard=blackboard)
-        baseline_goal_end_cue_until = Until(name="baseline_goal_end_cue_until", child=baseline_goal_end_cue)
-        gen_baseline_goal.add_child(baseline_goal_end_cue_until)
-        blackboard.add_remapping(baseline_goal_end._id, 'new_goal', baseline_goal_end_cue._id, 'goal')
-        blackboard.add_remapping(baseline_goal_end._id, 'phase', baseline_goal_end_cue._id, 'phase')
-        # blackboard.save('shot', config.shot, baseline_goal_end_cue._id)
-        # blackboard.save('hand', config.hand, baseline_goal_end_cue._id)
-        first_time_check_selector.add_child(gen_baseline_goal)
-        new_goal_intro_questioning_sequence.add_child(first_time_check_selector)
-
-    # Format and display questioning action.
-    new_goal_intro_questioning_action_name = name + "_questioning_action"
-    new_goal_intro_questioning_action = FormatAction(name=new_goal_intro_questioning_action_name, blackboard=blackboard)
-    new_goal_intro_questioning_sequence.add_child(new_goal_intro_questioning_action)
-    # Share data between initialise, session_goal_start, session_goal, new_goal_intro_behav and session_goal_intro_action.
-    blackboard.add_remapping(initialise_node, 'bl', new_goal_intro_questioning_action._id, 'bl')
-    blackboard.add_remapping(new_goal_start._id, 'performance', new_goal_intro_questioning_action._id, 'performance')
-    blackboard.add_remapping(new_goal_start._id, 'phase', new_goal_intro_questioning_action._id, 'phase')
-    blackboard.add_remapping(new_goal_start._id, 'score', new_goal_intro_questioning_action._id, 'score')
-    blackboard.add_remapping(new_goal_start._id, 'target', new_goal_intro_questioning_action._id, 'target')
-    blackboard.add_remapping(new_goal._id, 'new_goal', new_goal_intro_questioning_action._id, 'goal')
-    blackboard.add_remapping(new_goal_intro_behav._id, 'behaviour', new_goal_intro_questioning_action._id,
-                             'behaviour')
-    blackboard.add_remapping(person_node, 'name', new_goal_intro_questioning_action._id, 'name')
-    # blackboard.save('shot', config.shot, new_goal_intro_questioning_action._id)
-    # blackboard.save('hand', config.hand, new_goal_intro_questioning_action._id)
-    # blackboard.save('stat', config.stat, new_goal_intro_questioning_action._id)
-    new_goal_intro_questioning_output_name = name + "_questioning_output"
-    new_goal_intro_questioning_output = DisplayBehaviour(name=new_goal_intro_questioning_output_name,
-                                                         blackboard=blackboard)
-    new_goal_intro_questioning_sequence.add_child(new_goal_intro_questioning_output)
-    # Share action between session_goal_intro_action and session_goal_intro_output.
-    blackboard.add_remapping(new_goal_intro_questioning_action._id, 'action', new_goal_intro_questioning_output._id,
-                             'action')
-    blackboard.add_remapping(new_goal._id, 'new_goal', new_goal_intro_questioning_output._id, 'goal_level')
-    new_goal_intro_questioning_negate_name = name + "_questioning_negate"
-    new_goal_intro_questioning_negate = Negate(name=new_goal_intro_questioning_negate_name,
-                                               child=new_goal_intro_questioning_sequence)
-    new_goal_intro_sequence.add_child(new_goal_intro_questioning_negate)
-
-    if name == "shot_goal_intro_loop" or name == "session_goal_intro_loop":
+    # if name == "shot_goal_intro_loop" or name == "session_goal_intro_loop":
         # See if user wants to choose for themselves (override the pre-instruction).
         new_goal_intro_questioning_override_name = name + "_questioning_override"
         new_goal_intro_questioning_override = OverrideOption(name=new_goal_intro_questioning_override_name,

@@ -490,6 +490,7 @@ class DisplayBehaviour(Node):
                 print("Setting has_score_been_provided to True")
             if self.set_start:
                 config.expecting_action_goal = True
+                config.dont_send_action_response = False
             logging.debug("Returning SUCCESS from DisplayBehaviour")
             return NodeStatus(NodeStatus.SUCCESS, "Printed action message to output.")
         else:
@@ -673,6 +674,8 @@ class CreateSubgoal(Node):
                         utteranceURL = config.screen_post_address + exerciseString + "/newPicture"
                         r = requests.post(utteranceURL)
                         r = requests.post(config.screen_post_address + "0/newRep")
+                    elif nodedata.new_goal == config.STAT_GOAL:
+                        config.stat_confirmed = True
                 config.phase = config.PHASE_START  # Start of goal will always be before something happens.
                 print("Created subgoal, new goal level = {}".format(nodedata.new_goal))
                 logging.info("Created subgoal, new goal level = {}".format(nodedata.new_goal))
@@ -742,6 +745,8 @@ class EndSubgoal(Node):
                     # TODO: I've set max set_count to 3 but there may be some freedom there depending on user performance.
                     if ((self.goal_level == config.SET_GOAL and config.set_count == 3) or self.goal_level == config.STAT_GOAL or self.goal_level == config.EXERCISE_GOAL or self.goal_level == config.SESSION_GOAL) and not config.stop_session:
                         config.phase = config.PHASE_END
+                        if self.goal_level == config.STAT_GOAL:
+                            config.stat_confirmed = False
                     else:
                         config.phase = config.PHASE_START
                     nodedata.new_goal = self.goal_level - 1
@@ -1022,7 +1027,7 @@ class TimestepCue(Node):
                                 f.close()
                                 print("File contents = " + str(aggregator_contents))
 
-                                f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + str(self.shot) + "/" + config.sessions + ".txt", "r")
+                                f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + str(self.shot) + "/" + str(config.sessions) + ".txt", "r")
                                 this_session_contents = f.readlines()
                                 f.close()
 
@@ -1059,7 +1064,7 @@ class TimestepCue(Node):
                                 f.writelines(aggregator_contents)
                                 f.close()
 
-                                f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + str(self.shot) + "/" + config.sessions + ".txt", "w")
+                                f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + str(self.shot) + "/" + str(config.sessions) + ".txt", "w")
                                 f.writelines(this_session_contents)
                                 f.close()
 
@@ -1157,7 +1162,7 @@ class TimestepCue(Node):
                             nodedata.score = config.score
                             nodedata.target = config.target
 
-                            f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + str(self.shot) + "/" + config.sessions + ".txt", "r")
+                            f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + str(self.shot) + "/" + str(config.sessions) + ".txt", "r")
                             file_contents = f.readlines()
                             f.close()
 
@@ -1165,7 +1170,7 @@ class TimestepCue(Node):
                             index = file_contents.index(stat_name)
                             file_contents.insert(index+1, nodedata.score + ", " + nodedata.performance + ", \n")
 
-                            f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + str(self.shot) + "/" + config.sessions + ".txt", "w")
+                            f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + str(self.shot) + "/" + str(config.sessions) + ".txt", "w")
                             f.writelines(file_contents)
                             f.close()
 
@@ -1201,12 +1206,17 @@ class TimestepCue(Node):
                         except:
                             print("File error")
 
-                        f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + str(self.shot) + "/" + config.sessions + ".txt", "r")
-                        file_contents = f.readlines()
-                        f.close()
+                        try:
+                            f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + str(self.shot) + "/" + str(config.sessions) + ".txt", "r")
+                            file_contents = f.readlines()
+                            f.close()
+                        except:
+                            f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + str(self.shot) + "/" + str(config.sessions) + ".txt", "a")
+                            file_contents = []
+                            f.close()
 
                         file_contents.append(stat_name)
-                        f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + str(self.shot) + "/" + config.sessions + ".txt", "w")
+                        f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + str(self.shot) + "/" + str(config.sessions) + ".txt", "w")
                         f.writelines(file_contents)
                         f.close()
 
@@ -1227,19 +1237,21 @@ class TimestepCue(Node):
                         if not (len(config.stat_performance_list) == 0):
                             # print("performance list = " + str(config.set_performance_list) + ", mode = " + str(mode(config.set_performance_list)))
                             nodedata.performance = config.performance
-                            # print("Average performance = " + str(nodedata.performance))
+                            print("Average performance = " + str(nodedata.performance))
                             nodedata.score = config.avg_score
+                            print("config.avg_score = " + str(config.avg_score))
+                            print("nodedata.score = " + str(nodedata.score))
                             # Update score in controller
                             config.stat_performance_list.append(nodedata.performance)
                             config.stat_score_list.append(nodedata.score)
 
                             # Write to file
-                            f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + str(self.shot) + "/" + config.sessions + ".txt", "r")
+                            f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + str(self.shot) + "/" + str(config.sessions) + ".txt", "r")
                             file_contents = f.readlines()
                             f.close()
 
                             file_contents.append(str(nodedata.score) + ", " + str(nodedata.performance) + ", \n")
-                            f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + str(self.shot) + "/" + config.sessions + ".txt", "w")
+                            f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + str(self.shot) + "/" + str(config.sessions) + ".txt", "w")
                             f.writelines(file_contents)
                             f.close()
 
@@ -1248,13 +1260,13 @@ class TimestepCue(Node):
                         config.set_score_list = []
                         nodedata.target = config.target
                         config.completed = config.COMPLETED_STATUS_TRUE
-                        logging.info("Feedback for exercise set, score = {score}, target = {target}, performance = {performance}".format(score=nodedata.score, target=nodedata.target, performance=nodedata.performance))
+                        logging.info("Feedback for exercise set, score = {score}, target = {target}, performance = {performance}".format(score=nodedata.get_data("score"), target=nodedata.target, performance=nodedata.performance))
                         logging.debug("Returning SUCCESS from TimestepCue set goal feedback, stats = " + str(nodedata))
                         return NodeStatus(NodeStatus.SUCCESS, "Data for set goal obtained from guide:" + str(nodedata))
                     else:  # For set goal we need information about the previous set if this is not the first set of this exercise.
                         nodedata.phase = config.PHASE_START
 
-                        f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + str(self.shot) + "/" + config.sessions + ".txt", "r")
+                        f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + str(self.shot) + "/" + str(config.sessions) + ".txt", "r")
                         file_contents = f.readlines()
                         f.close()
                         stat_name = str(self.stat) + "\n"
@@ -1264,16 +1276,16 @@ class TimestepCue(Node):
                             nodedata.score = config.stat_score_list[len(config.stat_score_list) - 1]
 
                             index = file_contents.index(stat_name)
-                            file_contents.insert(index+1, config.set_count)
-                            f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + str(self.shot) + "/" + config.sessions + ".txt", "w")
+                            file_contents.insert(index+1, str(config.set_count) + "\n")
+                            f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + str(self.shot) + "/" + str(config.sessions) + ".txt", "w")
                             f.writelines(file_contents)
                             f.close()
                         else:
                             nodedata.performance = None
                             nodedata.score = None
 
-                            file_contents.append(config.set_count)
-                            f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + str(self.shot) + "/" + config.sessions + ".txt", "w")
+                            file_contents.append(str(config.set_count) + "\n")
+                            f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + str(self.shot) + "/" + str(config.sessions) + ".txt", "w")
                             f.writelines(file_contents)
                             f.close()
 
@@ -1483,11 +1495,11 @@ class GetChoice(Node):
                     logging.debug("Returning SUCCESS from GetUserChoice, shot = " + str(nodedata.hand) + " " + str(nodedata.shot))
                     return NodeStatus(NodeStatus.SUCCESS,"Returning SUCCESS from GetUserChoice, shot = " + str(nodedata.hand) + " " + str(nodedata.shot))
                 else:  # STAT_CHOICE
-                    stat = max(config.stat_list, key=config.stat_list.get())
+                    stat = min(config.stat_list, key=config.stat_list.get)
+                    tempStatList = config.stat_list
                     while stat in config.used_stats:
-                        tempStatList = config.stat_list
-                        tempStatList.pop(stat)#
-                        stat = max(tempStatList, key=tempStatList.get())
+                        tempStatList.pop(stat)
+                        stat = min(tempStatList, key=tempStatList.get)
 
                     config.used_stats.append(stat)
                     #config.performance = None
@@ -1558,7 +1570,7 @@ class EndSetEvent(Node):
         # self.shotcount += 1  # TODO Set this to 0 when set starts.
 
         if self.shotcount >= 30 or config.stop_set or config.stop_session:
-            api_classes.expecting_action_goal = False
+            config.expecting_action_goal = False
             # config.completed = config.COMPLETED_STATUS_TRUE
             config.set_count += 1
             config.phase = config.PHASE_END  # When a set is completed, feedback should be given, so phase becomes end.
@@ -1785,6 +1797,7 @@ class OverrideOption(Node):
                         config.behaviour = config.A_PREINSTRUCTION
 
                     config.override = None
+                    config.need_new_behaviour = False
                     print("Returning SUCCESS from OverrideOption, User decided to override")
                     return NodeStatus(NodeStatus.SUCCESS, "User decided to override")
                 else:

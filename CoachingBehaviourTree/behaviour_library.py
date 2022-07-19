@@ -13697,6 +13697,7 @@ class BehaviourLibraryFunctions:
                     elif behaviour in [config.A_PREINSTRUCTION, config.A_PREINSTRUCTION_QUESTIONING,
                                        config.A_PREINSTRUCTION_FIRSTNAME, config.A_PREINSTRUCTION_POSITIVEMODELING,
                                        config.A_POSITIVEMODELING_PREINSTRUCTION]:
+                        question = ""
                         if behaviour == config.A_PREINSTRUCTION_QUESTIONING:
                             question = "OK?"
                         stat_advice = "the first thing that happens is your racket goes up"
@@ -13706,11 +13707,11 @@ class BehaviourLibraryFunctions:
                             stat_advice = "your follow through goes towards where you want the ball to go"
                         if goal_level == config.SET_GOAL:
                             if final_set:
-                                utterance = utterance + "Let's do one last set of 30 " + hand_utterance + " " + shot_utterance + "s please. Hopefully this session has helped you improve your " + stat_utterance + ". Let's find out!"
+                                utterance = utterance + "Let's do one last set of 30 " + hand_utterance + " " + shot_utterance + "s please. Hopefully this session has helped you improve your " + stat_utterance + " " + question + ". Let's find out!"
                             elif second_set:
-                                utterance = utterance + "Let's do another set of 30 " + hand_utterance + " " + shot_utterance + " please " + name + ". Remember, " + stat_advice + question + " You can start now."
+                                utterance = utterance + "Let's do another set of 30 " + hand_utterance + " " + shot_utterance + " please " + name + ". Remember, " + stat_advice + " " + question + " You can start now."
                             else:
-                                utterance = utterance + "Lets do a set of 30 " + hand_utterance + " " + shot_utterance + "s. The key thing here is to make sure that " + stat_advice
+                                utterance = utterance + "Lets do a set of 30 " + hand_utterance + " " + shot_utterance + "s. The key thing here is to make sure that " + stat_advice + " " + question + " You can start now."
                         else:
                             optional_question = ""
                             if behaviour == config.A_PREINSTRUCTION_QUESTIONING:

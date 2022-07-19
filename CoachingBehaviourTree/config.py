@@ -166,6 +166,7 @@ overridePreInstructionOption = False  # Will be set to True when user is being g
 overrideQuestioningOption = False     # so that the correct screen can be displayed.
 getBehaviourGoalLevel = -1  # To keep track of which level the controller is in when getting a new behaviour from the policy.
 expecting_action_goal = False
+stat_confirmed = False  # Becomes true when stat goal is created with chosen stat, reset to false on end stat goal.
 
 # Initial values to be changed at the beginning of each session:
 name = "Martin"

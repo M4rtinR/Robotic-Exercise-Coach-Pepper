@@ -126,7 +126,7 @@ class TimestepCue(Resource):
 
                         new_data = {
                             'goal_level': 2,
-                            'completed': config.completed,
+                            'completed': config.completed
                         }
 
                         return new_data, 200
@@ -270,15 +270,15 @@ class TimestepCue(Resource):
                             config.completed = config.COMPLETED_STATUS_TRUE
 
                             print("waiting for config.stat")
-                            #while config.stat is None:
-                            #    pass
+                            while config.stat_confirmed is False:
+                                pass
 
-                            print("returning stat data to app: " + "racketPreparation")
+                            print("returning stat data to app: " + config.stat)
                             new_data = {
                                 'goal_level': '4',
                                 'completed': str(config.completed),
                                 'shotSet': '1',
-                                'stat': 'racketPreparation'
+                                'stat': config.stat
                             }
                         print("returning data to app: " + str(new_data))
                         return new_data, 200
@@ -333,7 +333,9 @@ class TimestepCue(Resource):
                         config.score = content['score']
                         config.goal_level = config.EXERCISE_GOAL
                     else:'''
+                    config.dont_send_action_response = True
                     logging.debug('set goal setting controller values')
+
                     if 'score' in content:  # End of set
                         logging.debug('end of set')
                         scoreString = content['score']
@@ -415,7 +417,6 @@ class TimestepCue(Resource):
                         new_data = {
                             'goal_level': 5,
                             'completed': 1,
-                            'shotSet': 1
                         }
 
                         if config.shot_count == 29:
@@ -424,6 +425,11 @@ class TimestepCue(Resource):
                             # new_data['stat'] = config.stat
                         else:
                             new_data['shotSetComplete'] = 0
+
+                        if not config.dont_send_action_response:
+                            new_data['shotSet'] = 1
+                        else:
+                            new_data['shotSet'] = 0
 
                     else:
                         print("Action goal not expected, not using data.")
