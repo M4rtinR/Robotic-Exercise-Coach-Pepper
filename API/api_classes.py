@@ -245,46 +245,50 @@ class TimestepCue(Resource):
                     return new_data, 200
 
             elif int(content['goal_level']) == config.ACTION_GOAL:
-                if expecting_action_goal:
-                    logging.debug('action goal setting controller values')
-                    config.action_score = float(content['score'])
+                #if expecting_action_goal:
+                logging.debug('action goal setting controller values')
+                config.action_score = float(content['score'])
+                performanceValue = config.MET
+                if content['performance'] == 'Very Low':
+                    performanceValue = config.MUCH_REGRESSED
+                elif content['performance'] == 'Very High':
+                    performanceValue = config.REGRESSED_SWAP
+                elif content['performance'] == 'Low':
+                    performanceValue = config.REGRESSED
+                elif content['performance'] == 'High':
                     performanceValue = config.MET
-                    if content['performance'] == 'Very Low':
-                        performanceValue = config.MUCH_REGRESSED
-                    elif content['performance'] == 'Very High':
-                        performanceValue = config.REGRESSED_SWAP
-                    elif content['performance'] == 'Low':
-                        performanceValue = config.REGRESSED
-                    elif content['performance'] == 'High':
-                        performanceValue = config.MET
-                    elif content['performance'] == 'Under':
-                        performanceValue = config.STEADY
-                    elif content['performance'] == 'Over':
-                        performanceValue = config.IMPROVED
-                    elif content['performance'] == 'Good!':
-                        performanceValue = config.MUCH_IMPROVED
-                    else:
-                        logging.debug('no performanceValue found')
-                    if config.performance == self.previous_shot_performance:  # We haven't received the set goal feedback so can safely update config.performance
-                        config.performance = performanceValue            # Not perfect because we might have the same performance for set and action.
-                    config.goal_level = config.ACTION_GOAL
-                    config.shot_count += 1
-
-                    self.previous_shot_performance = performanceValue
-
-                    new_data = {
-                        'goal_level': 5,
-                        'completed': 1,
-                        'shotSet': 1
-                    }
-
-                    if config.shot_count == 29:
-                        new_data['shotSetComplete'] = 1
-                        new_data['stat'] = config.stat
-                    else:
-                        new_data['shotSetComplete'] = 0
-
+                elif content['performance'] == 'Under':
+                    performanceValue = config.STEADY
+                elif content['performance'] == 'Over':
+                    performanceValue = config.IMPROVED
+                elif content['performance'] == 'Good!':
+                    performanceValue = config.MUCH_IMPROVED
                 else:
+                    logging.debug('no performanceValue found')
+                if config.performance == self.previous_shot_performance:  # We haven't received the set goal feedback so can safely update config.performance
+                    config.performance = performanceValue            # Not perfect because we might have the same performance for set and action.
+                config.goal_level = config.ACTION_GOAL
+                config.shot_count += 1
+                config.completed = config.COMPLETED_STATUS_UNDEFINED
+
+                self.previous_shot_performance = performanceValue
+
+                while expecting_action_goal is False and not config.completed == config.COMPLETED_STATUS_TRUE:
+                    pass
+
+                new_data = {
+                    'goal_level': 5,
+                    'completed': 1,
+                    'shotSet': 1
+                }
+
+                if config.shot_count == 29:
+                    new_data['shotSetComplete'] = 1
+                    new_data['stat'] = config.stat
+                else:
+                    new_data['shotSetComplete'] = 0
+
+                '''else:
                     logging.info("Action goal not expected, not using data.")
                     logging.debug("Action goal not expected, not setting controller values.")
                     new_data = {
@@ -292,7 +296,7 @@ class TimestepCue(Resource):
                         'completed': 1,
                         'shotSet': 1,
                         'shotSetComplete': 0
-                    }
+                    }'''
 
                 return new_data, 200
 

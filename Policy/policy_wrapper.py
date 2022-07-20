@@ -55,7 +55,7 @@ class PolicyWrapper:
         count = 0
         #if goal_level == config.ACTION_GOAL:
         debugString = "behaviour = ", behaviour, ". valid_behaviours: %s", valid_behaviours
-        print(debugString)
+        # print(debugString)
 
         while not(behaviour in valid_behaviours):
             logging.debug("Not valid behaviour")

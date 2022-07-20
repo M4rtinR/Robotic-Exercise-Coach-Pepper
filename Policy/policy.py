@@ -209,11 +209,11 @@ class Policy:
         logging.debug(self.transition_matrix[style - 1][self._get_action(state)])"""
 
         # TODO: make it an epsilon-greedy policy.
-        print("transition matrix = " + str(self.transition_matrix))
-        print("state = " + str(state))
-        print("matrix = " + str(self.transition_matrix[state]))
+        # print("transition matrix = " + str(self.transition_matrix))
+        # print("state = " + str(state))
+        # print("matrix = " + str(self.transition_matrix[state]))
         choicess = choices(range(68), self.transition_matrix[state])
-        print("choices = " + str(choicess))
+        # print("choices = " + str(choicess))
         action = choicess[0]
         logging.debug("action: " + str(action))
         count = 1
@@ -2382,7 +2382,7 @@ class Policy:
             count += 1
 
         # Return only the matrix associated with the chosen policy according to our belief distribution.
-        print("belief = " + str(self.belief_distribution))
+        # print("belief = " + str(self.belief_distribution))
         return tm[choices(range(0, 12), self.belief_distribution)[0]]
 
     def get_matrix(self):

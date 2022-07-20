@@ -136,7 +136,7 @@ class GetBehaviour(Node):
         else:
             # config.need_new_behaviour = True
             nodedata.behaviour = config.behaviour
-            print('GetBehaviour Got behaviour: ' + str(config.behaviour))
+            # print('GetBehaviour Got behaviour: ' + str(config.behaviour))
 
             # If behaviour occurs twice, just skip to pre-instruction.
             """if nodedata.behaviour in config.used_behaviours and (self.goal_level == config.SESSION_GOAL or self.goal_level == config.EXERCISE_GOAL or self.goal_level == config.SET_GOAL):
@@ -149,12 +149,12 @@ class GetBehaviour(Node):
             config.prev_behav = nodedata.behaviour
     
             config.observation = policy.get_observation(self.state, nodedata.behaviour)"""
-            print("self.need_score = " + str(self.need_score) + ", config.scores_provided = " + str(config.scores_provided) + ", config.has_score_been_provided = " + str(config.has_score_been_provided))
+            # print("self.need_score = " + str(self.need_score) + ", config.scores_provided = " + str(config.scores_provided) + ", config.has_score_been_provided = " + str(config.has_score_been_provided))
             if self.need_score and config.scores_provided < 1:
                 config.has_score_been_provided = False
-                print("set has_score_been_provided to False")
+                # print("set has_score_been_provided to False")
             # logging.debug('Got observation: ' + str(nodedata.behaviour))
-            print("Returning SUCCESS from GetBehaviour, nodedata = " + str(nodedata))
+            # print("Returning SUCCESS from GetBehaviour, nodedata = " + str(nodedata))
             logging.debug("Returning SUCCESS from GetBehaviour, nodedata = " + str(nodedata))
             return NodeStatus(NodeStatus.SUCCESS, "Obtained behaviour " + str(nodedata.behaviour))
         #else:
@@ -273,6 +273,7 @@ class FormatAction(Node):
             logging.debug("Returning FAIL from FormatAction, behaviour = " + str(self.behaviour))
             return NodeStatus(NodeStatus.FAIL, "Behaviour == A_SILENCE")
 
+        print("behaviour = " + str(self.behaviour) + ", action = " + str(nodedata.action))
         logging.debug("Returning SUCCESS from FormatAction, action = " + str(nodedata.action))
         return NodeStatus(NodeStatus.SUCCESS, "Created action from given behaviour.")
 
@@ -405,7 +406,7 @@ class DisplayBehaviour(Node):
             output['demo'] = self.action.demo
         if self.action.question is not None:
             output['question'] = self.action.question
-        r = requests.post(post_address, json=output)
+        # r = requests.post(post_address, json=output)
         if self.set_start:
             api_classes.expecting_action_goal = True
 
@@ -450,7 +451,7 @@ class GetStats(Node):
         output = {
             "start": str(1)
         }
-        r = requests.post(post_address, json=output)
+        # r = requests.post(post_address, json=output)
 
         # Will be ACTIVE when waiting for data and SUCCESS when got data and added to blackboard, FAIL when connection error.
         # logging.debug("In get stats")
@@ -625,8 +626,9 @@ class EndSubgoal(Node):
                     config.completed = config.COMPLETED_STATUS_TRUE
                 if self.goal_level == config.EXERCISE_GOAL:
                     config.session_time += 1
-                # if self.goal_level == config.ACTION_GOAL:
+                if self.goal_level == config.ACTION_GOAL:
                     # api_classes.expecting_action_goal = False
+                    config.completed = config.COMPLETED_STATUS_TRUE
             if nodedata.new_goal == -1:
                 print("Completed")
                 time.sleep(5.0)
@@ -660,7 +662,7 @@ class TimestepCue(Node):
         logging.debug("Configuring TimestepCue: " + self._name)
         self.goal_level = nodedata.get_data('goal')
         self.phase = nodedata.get_data('phase')
-        config.completed = config.COMPLETED_STATUS_FALSE
+        # config.completed = config.COMPLETED_STATUS_FALSE
 
     def run(self, nodedata):
         """
@@ -689,6 +691,7 @@ class TimestepCue(Node):
                     nodedata.player_ability = config.ability
                     nodedata.name = config.name
                     nodedata.phase = config.PHASE_START
+                    config.completed = config.COMPLETED_STATUS_FALSE
                     logging.debug("Returning SUCCESS from TimestepCue player goal, stats = " + str(nodedata))
                     return NodeStatus(NodeStatus.SUCCESS, "Data for person goal obtained from guide:" + str(nodedata))
             else:
@@ -708,6 +711,7 @@ class TimestepCue(Node):
                 else:
                     nodedata.performance = config.performance
                     nodedata.phase = config.PHASE_START
+                    config.completed = config.COMPLETED_STATUS_FALSE
                     logging.debug("Returning SUCCESS from TimestepCue session goal, stats = " + str(nodedata))
                     return NodeStatus(NodeStatus.SUCCESS, "Data for session goal obtained from guide:" + str(nodedata))
             else:
@@ -740,7 +744,8 @@ class TimestepCue(Node):
                 else:
                     nodedata.performance = config.performance
                     nodedata.phase = config.PHASE_START
-                    config.goal_level = config.SET_GOAL
+                    # config.goal_level = config.SET_GOAL
+                    config.completed = config.COMPLETED_STATUS_FALSE
                     logging.debug("Returning SUCCESS from TimestepCue shot goal, stats = " + str(nodedata))
                     return NodeStatus(NodeStatus.SUCCESS, "Data for shot goal obtained from guide:" + str(nodedata))
             else:
@@ -760,6 +765,7 @@ class TimestepCue(Node):
                 else:
                     nodedata.performance = config.performance
                     nodedata.phase = config.PHASE_START
+                    config.completed = config.COMPLETED_STATUS_FALSE
                     logging.debug("Returning SUCCESS from TimestepCue stat goal, stats = " + str(nodedata))
                     return NodeStatus(NodeStatus.SUCCESS, "Data for stat goal obtained from guide:" + str(nodedata))
             else:
@@ -780,7 +786,7 @@ class TimestepCue(Node):
                     nodedata.phase = config.PHASE_START
                     nodedata.performance = config.performance
                     config.shot_count = 0
-                    # config.completed = config.COMPLETED_STATUS_FALSE
+                    config.completed = config.COMPLETED_STATUS_FALSE
                     logging.debug("Returning SUCCESS from TimestepCue set goal, stats = " + str(nodedata))
                     return NodeStatus(NodeStatus.SUCCESS, "Data for set goal obtained from guide:" + str(nodedata))
             else:
@@ -960,7 +966,7 @@ class EndSetEvent(Node):
                 "stop": str(1)
             }
             logging.info("Stopping set: That's 30, you can stop there.")
-            r = requests.post(post_address, json=output)
+            # r = requests.post(post_address, json=output)
 
             logging.info("Shot set completed.")
             logging.debug("Returning SUCCESS from EndSetEvent, shot count = " + str(self.shotcount))

@@ -821,6 +821,8 @@ def get_feedback_loop(name, behav, blackboard, goal_node, initialise_node, previ
 
 def update(state, state2, reward, action, action2):
     print("Updating policy, state: " + str(state) + ", action: " + str(action))
+    print("State2 = " + str(state2) + ", action2 = " + str(action2))
+    print("Reward = " + str(reward))
     predict = config.policy_matrix.get_matrix()[state][action]
     target = reward + config.gamma * config.policy_matrix.get_matrix()[state2][action2]
     config.policy_matrix.update_matrix(state, action, 0.0 if config.policy_matrix.get_matrix()[state][action] + config.alpha * (target - predict) < 0.0 else config.policy_matrix.get_matrix()[state][action] + config.alpha * (target - predict))
@@ -837,7 +839,7 @@ def main():
     else:
         print("The file does not exist")
     loggingFilename = "" + config.participantNo + ".log"
-    logging.basicConfig(format='%(levelname)s:%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.DEBUG, filename=loggingFilename)
+    logging.basicConfig(format='%(levelname)s:%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.INFO, filename=loggingFilename)
     logging.info("Logging started")
 
     # Create the environment
@@ -853,11 +855,11 @@ def main():
     # print('Got behaviour: ' + str(config.behaviour))
 
     while not done:
-        print("controller stepping")
+        # print("controller stepping")
         state2, reward, done, result = env.step(action1, state1)
 
         # print('Behaviour = ' + str(config.behaviour))
-        print("controller getting new behaviour")
+        # print("controller getting new behaviour")
         action2 = config.policy_matrix.get_behaviour(state2, config.goal_level, config.performance, config.phase)
         config.need_new_behaviour = False
         config.behaviour_displayed = False
