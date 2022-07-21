@@ -136,7 +136,7 @@ class GetBehaviour(Node):
             # policy = PolicyWrapper(self.belief)  # TODO: generate this at start of interaction and store on blackboard.
             #, nodedata.obs_behaviour
             # nodedata.behaviour = policy.get_behaviour(self.state, self.goal_level, self.performance, self.phase)
-            if config.behaviour_displayed:  # If we need a new behaviour, return active so that control as passed back to controller to generate new behaviour from policy.
+            if config.behaviour_displayed or ((config.behaviour == config.A_HUSTLE or config.behaviour == config.A_SILENCE) and not self.goal_level == config.ACTION_GOAL):  # If we need a new behaviour, return active so that control as passed back to controller to generate new behaviour from policy.
                 config.need_new_behaviour = True
                 logging.debug("Returning ACTIVE from GetBehaviour, nodedata = " + str(nodedata))
                 return NodeStatus(NodeStatus.ACTIVE, "Need new behaviour")
@@ -156,10 +156,10 @@ class GetBehaviour(Node):
                 config.prev_behav = nodedata.behaviour
         
                 config.observation = policy.get_observation(self.state, nodedata.behaviour)"""
-                print("self.need_score = " + str(self.need_score) + ", config.scores_provided = " + str(config.scores_provided) + ", config.has_score_been_provided = " + str(config.has_score_been_provided))
-                if self.need_score and config.scores_provided < 1:
+                ''' print("self.need_score = " + str(self.need_score) + ", config.scores_provided = " + str(config.scores_provided) + ", config.has_score_been_provided = " + str(config.has_score_been_provided))
+                if self.need_score and not config.scores_provided < 1:
                     config.has_score_been_provided = False
-                    print("set has_score_been_provided to False")
+                    print("set has_score_been_provided to False")'''
                 # logging.debug('Got observation: ' + str(nodedata.behaviour))
                 print("Returning SUCCESS from GetBehaviour, nodedata = " + str(nodedata))
                 logging.debug("Returning SUCCESS from GetBehaviour, nodedata = " + str(nodedata))
@@ -242,7 +242,7 @@ class FormatAction(Node):
         :return: NodeStatus.SUCCESS when an action has been created.
         """
         if not config.stop_set and not config.stop_session:
-            print("Formatting action: behaviour = {behaviour}, goal_level = {goal_level}, performance = {performance}, name = {name}, shot = {shot}, hand = {hand}".format(behaviour=self.behaviour, goal_level=self.goal_level, performance=self.performance, name=self.name, shot=self.shot, hand=self.hand))
+            print("Formatting action: behaviour = {behaviour}, goal_level = {goal_level}, performance = {performance}, score = {score}, target = {target}, name = {name}, shot = {shot}, hand = {hand}".format(behaviour=self.behaviour, goal_level=self.goal_level, performance=self.performance, score=self.score, target=self.target, name=self.name, shot=self.shot, hand=self.hand))
             logging.info("Formatting action: behaviour = {behaviour}, goal_level = {goal_level}, performance = {performance}, name = {name}, exercise = {exercise}".format(behaviour=self.behaviour, goal_level=self.goal_level, performance=self.performance, name=self.name, exercise=self.shot))
             if not(self.behaviour == config.A_SILENCE):
                 demo = None
@@ -267,19 +267,22 @@ class FormatAction(Node):
                 if self.behaviour in [config.A_QUESTIONING, config.A_QUESTIONING_FIRSTNAME,
                                       config.A_QUESTIONING_POSITIVEMODELING,
                                       config.A_POSITIVEMODELING_QUESTIONING, config.A_QUESTIONING_NEGATIVEMODELING]:
-                    if not (self.goal_level == config.SESSION_GOAL or self.goal_level == config.EXERCISE_GOAL):
-                        if self.goal_level == config.ACTION_GOAL:
-                            question = "Concurrent"
+                    if config.overrideQuestioningOption:
+                        question = "Concurrent"
+                    else:
+                        if not (self.goal_level == config.SESSION_GOAL or self.goal_level == config.EXERCISE_GOAL):
+                            if self.goal_level == config.ACTION_GOAL:
+                                question = "Concurrent"
+                            else:
+                                if self.performance is None or self.performance == -1:
+                                    question = "FirstTime"
+                                else:
+                                    question = "GoodBad"
                         else:
-                            if self.performance is None or self.performance == -1:
-                                question = "FirstTime"
+                            if self.phase == config.PHASE_START:
+                                question = "Concurrent"
                             else:
                                 question = "GoodBad"
-                    else:
-                        if self.phase == config.PHASE_START:
-                            question = "Concurrent"
-                        else:
-                            question = "GoodBad"
 
                 # If this is the start of a new exercise set, we need to reset the counter on Pepper's screen.
                 if self.behaviour in [config.A_PREINSTRUCTION_POSITIVEMODELING, config.A_PREINSTRUCTION,
@@ -292,11 +295,47 @@ class FormatAction(Node):
                     r = requests.post(config.screen_post_address + "0/newRep")
                 if self.performance is None:
                     self.performance = -1
-                pre_msg = self.behaviour_lib.get_pre_msg(self.behaviour, self.goal_level, self.performance, self.phase, self.name, self.shot, self.hand, self.stat, config.shot_count == 3 and config.set_count == 1, config.set_count == 1)
-                if (self.score is None and self.performance is None):  # or config.given_score >= 2:
+                pre_msg = self.behaviour_lib.get_pre_msg(self.behaviour, self.goal_level, self.performance, self.phase, self.name, self.shot, self.hand, self.stat, config.shot_count == 3 and config.set_count == 1, config.set_count == 1 or config.set_count == 2, self.score, self.target)
+                if (self.score is None and self.performance is None) or config.has_score_been_provided:  # or config.given_score >= 2:
+                    print("Formatting action, no score or performance")
                     nodedata.action = Action(pre_msg, demo=demo, question=question)
                 else:
-                    nodedata.action = Action(pre_msg, self.score, self.target, demo=demo, question=question, goal=self.goal_level)
+                    print("Formatiing action, got score and performance")
+                    print("ACTION, self.score = " + str(self.score))
+                    print("ACTION, self.target = " + str(self.target))
+                    if self.stat == "racketPreparation" or self.stat == "approachTiming":
+                        stat_measure = "%"
+                        if self.stat == "racketPreparation":
+                            stat_explanation = "The % relates to how high your racket gets before you hit the ball. Generally, the higher the better!"
+                        else:
+                            stat_explanation = "The % relates to how well you have timed your swing to the ball. Generally, the higher the percentage, the better!"
+                    elif self.stat == "impactCutAngle" or self.stat == "followThroughRoll":
+                        stat_measure = " degrees"
+                        if self.stat == "impactCutAngle":
+                            stat_explanation = "This is the angle of your racket face at contact."
+                        else:
+                            stat_explanation = "This relates to how much you roll your wrist over after hitting the ball."
+                    elif self.stat == "impactSpeed":
+                        stat_measure = ""
+                        stat_explanation = "This is the velocity of your racket as your strike the ball."
+                    else:  # followThroughTime
+                        stat_measure = " seconds"
+                        stat_explanation = "This is a measure of how long it takes between hitting the ball and your swing stopping."
+
+                    if config.given_stat_explanation:
+                        nodedata.action = Action(pre_msg, self.score, self.target, demo=demo, question=question,
+                                                 goal=self.goal_level, stat_measure=stat_measure)
+                        '''has_score_been_provided=config.has_score_been_provided,'''
+
+                    else:
+                        nodedata.action = Action(pre_msg, self.score, self.target, demo=demo, question=question,
+                                                 goal=self.goal_level, stat_measure=stat_measure, stat_explanation=stat_explanation)
+                        '''has_score_been_provided=config.has_score_been_provided,'''
+
+                        # config.given_stat_explanation = True
+
+                    # config.has_score_been_provided = True
+
                     #if self.goal_level == config.EXERCISE_GOAL or self.goal_level == config.SESSION_GOAL or self.goal_level == config.PERSON_GOAL:
                     #    config.given_score += 1
             else:
@@ -484,9 +523,10 @@ class DisplayBehaviour(Node):
 
             config.behaviour_displayed = True
             #config.need_new_behaviour = True
-            if self.score is not None and config.has_score_been_provided is False:
+            if self.score is not None:  # and config.has_score_been_provided is False:
                 config.has_score_been_provided = True
-                config.scores_provided += 1
+                config.given_stat_explanation = True
+                # config.scores_provided += 1
                 print("Setting has_score_been_provided to True")
             if self.set_start:
                 config.expecting_action_goal = True
@@ -657,10 +697,10 @@ class CreateSubgoal(Node):
                     nodedata.new_goal = self.previous_goal_level + 1
                     # Select which exercise to perform.
                     if nodedata.new_goal == config.EXERCISE_GOAL:
-                        config.set_count = 0  # Reset the set count for this session to 0.
+                        config.stat_count = 0  # Reset the set count for this session to 0.
                         if not(self.previous_goal_level == config.BASELINE_GOAL):
                             config.performance = None
-                            config.score = -1
+                            config.score = None
 
                         # Update exercise picture on Pepper's tablet screen and reset the counter
                         if nodedata.get_data("new_exercise") == 0:
@@ -677,6 +717,8 @@ class CreateSubgoal(Node):
                     elif nodedata.new_goal == config.STAT_GOAL:
                         config.stat_confirmed = True
                         config.given_stat_explanation = False
+                        config.set_count = 0
+                        config.stat_count += 1
                 config.phase = config.PHASE_START  # Start of goal will always be before something happens.
                 print("Created subgoal, new goal level = {}".format(nodedata.new_goal))
                 logging.info("Created subgoal, new goal level = {}".format(nodedata.new_goal))
@@ -752,8 +794,10 @@ class EndSubgoal(Node):
                         config.phase = config.PHASE_START
                     nodedata.new_goal = self.goal_level - 1
                     nodedata.phase = config.PHASE_START  # All behaviours have happened so its start of new goal.
-                    config.completed = config.COMPLETED_STATUS_TRUE
-                    config.scores_provided = 0  # At new goal level we will need to provide the average score again.
+                    if config.goal_level == self.goal_level:  # This should stop things changing if we receive json requests out of order.
+                        config.completed = config.COMPLETED_STATUS_TRUE
+                    config.has_score_been_provided = False
+                    # config.scores_provided = 0  # At new goal level we will need to provide the average score again.
                     if self.goal_level == config.EXERCISE_GOAL:
                         config.session_time += 1
                         config.shot = None
@@ -1309,9 +1353,9 @@ class TimestepCue(Node):
                     config.goal_level = config.SET_GOAL
                     nodedata.phase = config.PHASE_END
                     nodedata.performance = config.performance
-                    config.set_performance_list.append(nodedata.performance)
-                    nodedata.score = config.score
-                    config.set_score_list.append(nodedata.score)
+                    config.set_performance_list.append(nodedata.get_data("performance"))
+                    nodedata.score = config.action_score
+                    config.set_score_list.append(nodedata.get_data("score"))
                     nodedata.target = config.target
                     print("Returning SUCCESS from TimestepCue action goal")
                     logging.debug("Returning SUCCESS from TimestepCue action goal, stats = " + str(nodedata))

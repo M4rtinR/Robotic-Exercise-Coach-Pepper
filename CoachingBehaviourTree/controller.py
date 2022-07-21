@@ -976,6 +976,7 @@ def get_intro_sequence(name, blackboard, initialise_node, new_goal_start, new_go
     # Share action between session_goal_intro_action and session_goal_intro_output.
     blackboard.add_remapping(new_goal_intro_pre_instr_action._id, 'action', new_goal_intro_pre_instr_output._id,
                              'action')
+    blackboard.add_remapping(new_goal_start._id, 'score', new_goal_intro_pre_instr_output._id, 'score')
     blackboard.add_remapping(new_goal._id, 'new_goal', new_goal_intro_pre_instr_output._id, 'goal_level')
     if name == "set_goal_intro_loop":
         blackboard.save('set_start', True, new_goal_intro_pre_instr_output._id)
@@ -1110,6 +1111,7 @@ def get_intro_sequence(name, blackboard, initialise_node, new_goal_start, new_go
         # Share action between session_goal_intro_action and session_goal_intro_output.
         blackboard.add_remapping(new_goal_intro_questioning_action._id, 'action', new_goal_intro_questioning_output._id,
                                  'action')
+        blackboard.add_remapping(new_goal_start._id, 'score', new_goal_intro_questioning_output._id, 'score')
         blackboard.add_remapping(new_goal._id, 'new_goal', new_goal_intro_questioning_output._id, 'goal_level')
         new_goal_intro_questioning_negate_name = name + "_questioning_negate"
         new_goal_intro_questioning_negate = Negate(name=new_goal_intro_questioning_negate_name,
@@ -1197,6 +1199,7 @@ def get_intro_sequence(name, blackboard, initialise_node, new_goal_start, new_go
     # Share action between new_goal_intro_action and new_goal_intro_output.
     blackboard.add_remapping(new_goal_intro_action._id, 'action', new_goal_intro_output._id, 'action')
     blackboard.add_remapping(new_goal._id, 'new_goal', new_goal_intro_output._id, 'goal_level')
+    blackboard.add_remapping(new_goal_start._id, 'score', new_goal_intro_output._id, 'score')
 
     return new_goal_intro_sequence, new_goal_choice, new_goal_intro_behav
 
@@ -1267,6 +1270,7 @@ def get_feedback_loop(name, behav, blackboard, goal_node, initialise_node, previ
         # Share action between feedback_loop_end_action and feedback_loop_display_end_output.
         blackboard.add_remapping(feedback_loop_end_action._id, 'action', feedback_loop_display_end_output._id, 'action')
         blackboard.add_remapping(timestep_cue_node, 'target', feedback_loop_display_end_output._id, 'target')
+        blackboard.add_remapping(timestep_cue_node, 'score', feedback_loop_display_end_output._id, 'score')
 
         feedback_loop_sequence.add_child(Negate(name=negate_name, child=feedback_loop_end_sequence))
 

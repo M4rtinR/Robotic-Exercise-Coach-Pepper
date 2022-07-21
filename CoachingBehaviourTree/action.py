@@ -29,22 +29,27 @@ class Action:
     score: float = None
     target: float = None
     post_msg: str = None
+    # has_score_been_provided: bool = False
     demo: str = None
     question: str = None
     goal: int = None
-    phase: int = None
-    stat: int = None
+    stat_measure: str = None
+    stat_explanation: str = None
 
     def __str__(self):
         """
         Format the output of the data stored in this instance of Action.
         :return:type str: the complete formatted utterance.
         """
-        if self.score is not None and config.has_score_been_provided is False:
-            if self.goal is not config.ACTION_GOAL:
+        if self.score is not None and not self.goal == config.ACTION_GOAL:
+            if self.stat_explanation is not None:
+                return f'{self.pre_msg}. You got an average score of {round(self.score, 2)}' + self.stat_measure + f' and were aiming for {round(self.target, 2)}' + self.stat_measure + '. ' + self.stat_explanation
+            else:
+                return f'{self.pre_msg}. You got an average score of {round(self.score, 2)}' + self.stat_measure + f' and were aiming for {round(self.target, 2)}' + self.stat_measure + '.'
+            '''if self.goal is not config.ACTION_GOAL:
                 # TODO: add score-specific utterance (e.g. seconds, degrees) to explain the score better to the user.
-                print("self.score = " + str(self.score))
-                print("self.target = " + str(self.target))
+                print("ACTION, self.score = " + str(self.score))
+                print("ACTION, self.target = " + str(self.target))
                 if self.stat == "racketPreparation" or self.stat == "approachTiming":
                     stat_measure = "%"
                     if self.stat == "racketPreparation":
@@ -67,15 +72,20 @@ class Action:
                 if self.phase == config.PHASE_START:
                     returnString = f'{self.pre_msg}. In the last set you got an average score of {round(self.score, 2)}' + stat_measure + f' and were aiming for {round(self.target, 2)}' + stat_measure + '. '
                     if config.given_stat_explanation:
+                        print("ACTION, Phase Start, already given stat explanation")
                         return returnString
                     else:
+                        print("ACTION, Phase Start, giving stat explanation now")
                         return returnString + stat_explanation
                 else:
                     returnString = f'{self.pre_msg}. You got an average score of {round(self.score, 2)}' + stat_measure + f' and were aiming for {round(self.target, 2)}' + stat_measure + '. '
                     if config.given_stat_explanation:
+                        print("ACTION, Phase End, already given stat explanation")
                         return returnString
                     else:
+                        print("ACTION, Phase End, giving stat explanation now")
                         config.given_stat_explanation = True
-                        return returnString + stat_explanation
+                        return returnString + stat_explanation'''
+        else:
 
-        return f'{self.pre_msg}'
+            return f'{self.pre_msg}'

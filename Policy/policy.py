@@ -282,7 +282,7 @@ class Policy:
         # TODO: make it an epsilon-greedy policy.
         print("transition matrix = " + str(self.transition_matrix))
         print("state = " + str(state) + ", matrix = " + str(self.transition_matrix[state]))
-        choicess = choices(range(68), self.transition_matrix[state])
+        choicess = choices(range(69), self.transition_matrix[state])
         print("choices = " + str(choicess))
         action = choicess[0]
         logging.debug("action: " + str(action))
@@ -291,10 +291,10 @@ class Policy:
             # Manual manipulation is not possible for the robot so if this is the case, get new behaviour
             if count <= 10:  # Either from original state
                 logging.debug("count <= 10")
-                action = choices(range(68), self.transition_matrix[state])[0]
+                action = choices(range(69), self.transition_matrix[state])[0]
             else:  # or from manual manipulation if this is the only behaviour following the original state.
                 logging.debug("count > 10")
-                action = choices(range(68), self.transition_matrix[state])[0]
+                action = choices(range(69), self.transition_matrix[state])[0]
             count += 1
 
         # Special case when action == 44 (A_END) for coach styles.
@@ -313,7 +313,7 @@ class Policy:
         """
 
         # If action == silence, nothing changes
-        if action == config.A_SILENCE:
+        if action == config.A_SILENCE and sum(self.transition_matrix[action]) == 0.0:
             return state
         else:
             return action
@@ -2428,12 +2428,12 @@ class Policy:
                   0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]],
         }
 
-        tm = [[[0.0 for x in range(68)] for y in range(68)] for z in range(12)]
+        tm = [[[0.0 for x in range(69)] for y in range(69)] for z in range(12)]
         for count in range(12):
             if count < 6:
-                for row in range(68):
+                for row in range(69):
                     if row < 45:
-                        for col in range(68):
+                        for col in range(69):
                             if col < 45:
                                 if row == 44 and not(col == 44):  # A_END cases
                                     tm[count][67][col] = switcher[count][row][col]

@@ -302,6 +302,9 @@ class TimestepCue(Resource):
                             'completed': config.completed
                         }
 
+                        if config.stat_count == 2:
+                            new_data["final"] = 1
+
                         return new_data, 200
                     else:
                         config.completed = config.COMPLETED_STATUS_UNDEFINED
@@ -338,6 +341,7 @@ class TimestepCue(Resource):
 
                     if 'score' in content:  # End of set
                         print('end of set')
+                        print('content = ' + str(content))
                         scoreString = content['score']
                         if scoreString[-1] == "%":
                             scoreString = content['score'][:-1]
@@ -359,14 +363,17 @@ class TimestepCue(Resource):
                             config.phase = config.PHASE_END
                             config.completed = config.COMPLETED_STATUS_UNDEFINED
 
-                            while config.completed == config.COMPLETED_STATUS_UNDEFINED:
-                                pass
+                        while config.completed == config.COMPLETED_STATUS_UNDEFINED:
+                            pass
 
                         new_data = {
                             'goal_level': 4,
                             'completed': config.completed,
                             'shotSet': 1
                         }
+
+                        if config.set_count == 3:
+                            new_data["final"] = 1
 
                         return new_data, 200
 
@@ -391,6 +398,7 @@ class TimestepCue(Resource):
                     if config.expecting_action_goal:
                         print('action goal setting controller values')
                         config.action_score = float(content['score'])
+                        config.has_score_been_provided = False
                         performanceValue = config.MET
                         if content['performance'] == 'Very Low':
                             performanceValue = config.MUCH_REGRESSED
@@ -409,6 +417,7 @@ class TimestepCue(Resource):
                         else:
                             logging.debug('no performanceValue found')
                         if config.performance == self.previous_shot_performance:  # We haven't received the set goal feedback so can safely update config.performance
+                            print("updating config.performance: " + str(performanceValue))
                             config.performance = performanceValue            # Not perfect because we might have the same performance for set and action.
                         config.goal_level = config.ACTION_GOAL
                         config.shot_count += 1

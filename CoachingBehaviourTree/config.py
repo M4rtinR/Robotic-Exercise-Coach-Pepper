@@ -146,6 +146,7 @@ shot_score_list = []  # 1 entry for each stat worked on
 session_performance_list = []  # 1 entry for each shot performed
 session_score_list = []  # 1 entry for each shot performed
 set_count = 0
+stat_count = 0
 given_score = 0
 shot_list_session = ["Forehand Drive", "Backhand Drive", "Forehand Drop"]  # Delete from this list once the exercise has been completed in the session.
 used_shots = []
