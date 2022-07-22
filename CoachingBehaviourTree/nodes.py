@@ -234,7 +234,7 @@ class FormatAction(Node):
             nodes.
         :return: NodeStatus.SUCCESS when an action has been created.
         """
-        logging.info("Formatting action: behaviour = {behaviour}, goal_level = {goal_level}, performance = {performance}, name = {name}, shot = {shot}, hand = {hand}, stat = {stat}".format(behaviour=self.behaviour, goal_level=self.goal_level, performance=self.performance, name=self.name, shot=self.shot, hand=self.hand, stat=self.stat))
+        print("Formatting action: behaviour = {behaviour}, goal_level = {goal_level}, performance = {performance}, name = {name}, shot = {shot}, hand = {hand}, stat = {stat}".format(behaviour=self.behaviour, goal_level=self.goal_level, performance=self.performance, name=self.name, shot=self.shot, hand=self.hand, stat=self.stat))
         if not(self.behaviour == config.A_SILENCE):
             demo = None
             if self.behaviour in [config.A_POSITIVEMODELING, config.A_NEGATIVEMODELING,
@@ -691,7 +691,7 @@ class TimestepCue(Node):
                     nodedata.player_ability = config.ability
                     nodedata.name = config.name
                     nodedata.phase = config.PHASE_START
-                    config.completed = config.COMPLETED_STATUS_FALSE
+                    # config.completed = config.COMPLETED_STATUS_FALSE
                     logging.debug("Returning SUCCESS from TimestepCue player goal, stats = " + str(nodedata))
                     return NodeStatus(NodeStatus.SUCCESS, "Data for person goal obtained from guide:" + str(nodedata))
             else:
