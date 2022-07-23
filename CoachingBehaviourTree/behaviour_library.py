@@ -13613,7 +13613,7 @@ class BehaviourLibraryFunctions:
                                         elif stat == "impactCutAngle":
                                             stat_advice = "open your racket face quite as much as last time "
                                         elif stat == "impactSpeed":
-                                            stat_advice = "try to hit the ball too hard "
+                                            stat_advice = "hit the ball too hard "
                                         elif stat == "followThroughTime":
                                             stat_advice = "make your follow through too big "
                                         elif stat == "followThroughRoll":
@@ -13937,7 +13937,7 @@ class BehaviourLibraryFunctions:
                             elif stat == "followThroughTime":
                                 stat_advice = "your follow through goes towards where you want the ball to go "
                             elif stat == "followThroughRoll":
-                                stat_advice = "try to keep your wrist solid even after you stroke the ball "
+                                stat_advice = "you try to keep your wrist solid even after you strike the ball "
                         else:
                             if score < target:
                                 stat_advice = "the first thing that happens is your racket goes up "
@@ -13962,7 +13962,7 @@ class BehaviourLibraryFunctions:
                                 elif stat == "followThroughTime":
                                     stat_advice = "you shorten the follow through slightly to make it more direct "
                                 elif stat == "followThroughRoll":
-                                    stat_advice = "try to keep your wrist solid even after you stroke the ball "
+                                    stat_advice = "you try to keep your wrist solid even after you strike the ball "
                         if goal_level == config.SET_GOAL:
                             if final_set:
                                 utterance = utterance + "Let's do one last set of 30 " + hand_utterance + " " + shot_utterance + "s please " + name + ". Hopefully this session has helped you improve your " + stat_utterance + " " + question + ". Let's find out!"
@@ -14011,7 +14011,7 @@ class BehaviourLibraryFunctions:
                                 elif stat == "followThroughTime":
                                     stat_advice = "you don't stop the follow through too short "
                                 elif stat == "followThroughRoll":
-                                    stat_advice = "you let the wrist become too rigid after you strike the ball "
+                                    stat_advice = "you don't let the wrist become too rigid after you strike the ball "
                             else:
                                 stat_advice = "you don't lift your racket up quite as high and early as the last time "
                                 if stat == "approachTiming":
@@ -14026,15 +14026,20 @@ class BehaviourLibraryFunctions:
                                     stat_advice = "you don't let the racket face roll over as much as the last time after you strike the ball "
                         if goal_level == config.SET_GOAL:
                             if final_set:
-                                utterance = utterance + "Let's do one last set of 30 " + hand_utterance + " " + shot_utterance + "s " + name + ". Your " + stat_utterance + " should not have deteriorated over the session!"
+                                utterance = utterance + "Let's do one last set of 30 " + hand_utterance + " " + shot_utterance + "s please " + name + ". Your " + stat_utterance + " should not have deteriorated over the session!"
                             elif second_set:
-                                utterance = utterance + "Let's do another set of 30 " + hand_utterance + " " + shot_utterance + " please " + name + ". The key thing here is to make sure that " + stat_advice + ". You can start now."
+                                utterance = utterance + "Let's do another set of 30 " + hand_utterance + " " + shot_utterance + "s please " + name + ". The key thing here is to make sure that " + stat_advice + ". You can start now."
 
                             else:
                                 utterance = utterance + "Lets do a set of 30 " + hand_utterance + " " + shot_utterance + "s please " + name + ". The key thing here is to make sure that " + stat_advice + ". You can start now."
 
                         else:
-                            shot_advice = "hitting your " + hand_utterance + " " + shot_utterance + " into an area where your opponent can volley it easily."
+                            if shot == "drive":
+                                shot_advice = "hitting your " + hand_utterance + " " + shot_utterance + " onto your opponent's volley."
+                            elif shot == "cross court lob":
+                                shot_advice = "hitting your " + hand_utterance + " " + shot_utterance + " out on the side wall."
+                            else:  # shot == "drop" or shot == "volley drop" or shot == "straight kill" or shot == "volley kill" or shot == "two wall boast":
+                                shot_advice = "hitting your " + hand_utterance + " " + shot_utterance + " into the tin."
                             if goal_level == config.SESSION_GOAL:
                                 goal_level_insert = "I'm going to coach you through a solo practice session. Make sure you're not " + shot_advice + ". If you would like to work on a different shot, please tap the button on my screen."
                                 config.overridePreInstructionOption = True
@@ -14085,11 +14090,17 @@ class BehaviourLibraryFunctions:
                     elif performance == config.MUCH_IMPROVED:
                         performance_insert = "got a lot better"
                         performance_reaction = "which was great!"
-                    elif performance == config.IMPROVED or performance == config.IMPROVED_SWAP:
+                    elif performance == config.IMPROVED:
                         performance_insert = "got better"
+                        performance_reaction = "which was great!"
+                    elif performance == config.IMPROVED_SWAP:
+                        performance_insert = "got better but actually went too much the other way"
                         performance_reaction = "which was great!"
                     elif performance == config.REGRESSED or performance == config.REGRESSED_SWAP:
                         performance_insert = "regressed slightly"
+                        performance_reaction = "but that's OK."
+                    elif performance == config.REGRESSED_SWAP:
+                        performance_insert = "regressed slightly and actually went too much the other way"
                         performance_reaction = "but that's OK."
                     elif performance == config.MUCH_REGRESSED:
                         performance_insert = "regressed"
@@ -14126,19 +14137,51 @@ class BehaviourLibraryFunctions:
                             utterance = utterance + "Your " + goal_level_insert + " " + performance_insert + "in that practice " + optional_question + " " + name + " " + performance_reaction
                         else:
                             optional_question = ""
-                            if performance == config.MET or performance == config.STEADY or performance == config.MUCH_IMPROVED or performance == config.IMPROVED:
+                            if score is None or target is None:
+                                stat_advice = "your racket does not start down by your side "
+                                if stat == "approachTiming":
+                                    stat_advice = "you don't wait too long before starting the down swing "
+                                elif stat == "impactCutAngle":
+                                    stat_advice = "you don't close the racket face at the point of impact "
+                                elif stat == "impactSpeed":
+                                    stat_advice = "the racket head is not moving too slowly as you strike the ball "
+                                elif stat == "followThroughTime":
+                                    stat_advice = "you don't stop the follow through too short "
+                                elif stat == "followThroughRoll":
+                                    stat_advice = "you don't let the racket face roll over as much as the last time after you strike the ball "
+                            else:
+                                if score < target:
+                                    stat_advice = "your racket does not start down by your side "
+                                    if stat == "approachTiming":
+                                        stat_advice = "you don't wait too long before starting the down swing "
+                                    elif stat == "impactCutAngle":
+                                        stat_advice = "you don't close the racket face at the point of impact "
+                                    elif stat == "impactSpeed":
+                                        stat_advice = "the racket head is not moving too slowly as you strike the ball "
+                                    elif stat == "followThroughTime":
+                                        stat_advice = "you don't stop the follow through too short "
+                                    elif stat == "followThroughRoll":
+                                        stat_advice = "you let the wrist become too rigid after you strike the ball "
+                                else:
+                                    stat_advice = "you don't lift your racket up quite as high and early as the last time "
+                                    if stat == "approachTiming":
+                                        stat_advice = "you don't start the down swing too early "
+                                    elif stat == "impactCutAngle":
+                                        stat_advice = "you don't open the racket face quite as much as you were the last time "
+                                    elif stat == "impactSpeed":
+                                        stat_advice = "you don't try to swing quite as fast as the last time "
+                                    elif stat == "followThroughTime":
+                                        stat_advice = "you don't let the follow through come round yourself "
+                                    elif stat == "followThroughRoll":
+                                        stat_advice = "you don't let the racket face roll over as much as the last time after you strike the ball "
+                            if performance == config.MET or performance == config.STEADY or performance == config.MUCH_IMPROVED or performance == config.IMPROVED or performance == config.IMPROVED_SWAP:
                                 if behaviour == config.A_POSTINSTRUCTIONNEGATIVE_QUESTIONING:
                                     optional_question = ". OK?"
-                                stat_advice = "your racket does not start down by your side"
-                                if stat == "impactCutAngle":
-                                    stat_advice = "you don't close the racket face at the point of impact"
-                                elif stat == "followThroughTime":
-                                    stat_advice = "you don't let the follow through come round yourself"
-                                utterance = utterance + "On your " + goal_level_insert + ", make sure you don't " + stat_advice + optional_question
+                                utterance = utterance + "On your " + goal_level_insert + ", make sure " + stat_advice + optional_question
                             else:
                                 if behaviour == config.A_POSTINSTRUCTIONNEGATIVE_QUESTIONING:
                                     optional_question = "were they?"
-                                utterance = utterance + "Your " + goal_level_insert + " weren't the best there " + optional_question
+                                utterance = utterance + "Your " + goal_level_insert + " weren't the best there " + optional_question + ". Make sure " + stat_advice
 
                     elif behaviour in [config.A_QUESTIONING, config.A_QUESTIONING_FIRSTNAME,
                                        config.A_QUESTIONING_POSITIVEMODELING,
@@ -14172,12 +14215,43 @@ class BehaviourLibraryFunctions:
                                  config.A_CONCURRENTINSTRUCTIONPOSITIVE_POSITIVEMODELING,
                                  config.A_POSITIVEMODELING_CONCURRENTINSTRUCTIONPOSITIVE]:
                     stat_insert = ""
-                    if stat == "racketPreparation":
-                        stat_insert = "Get the racket high early"
-                    elif stat == "impactCutAngle":
-                        stat_insert = "Open racket face"
-                    elif stat == "followThroughTime":
-                        stat_insert = "Pay attention to the line of the follow through"
+                    if score is None or target is None:
+                        stat_insert = "Get the racket high early "
+                        if stat == "approachTiming":
+                            stat_insert = "Watch your timing "
+                        elif stat == "impactCutAngle":
+                            stat_insert = "Open racket face "
+                        elif stat == "impactSpeed":
+                            stat_insert = "Quick racket head speed "
+                        elif stat == "followThroughTime":
+                            stat_insert = "Make the follow through direct "
+                        elif stat == "followThroughRoll":
+                            stat_insert = "Pay attention to the line of the follow through "
+                    else:
+                        if score < target:
+                            stat_insert = "Get the racket high early "
+                            if stat == "approachTiming":
+                                stat_insert = "Watch your timing "
+                            elif stat == "impactCutAngle":
+                                stat_insert = "Open racket face "
+                            elif stat == "impactSpeed":
+                                stat_insert = "Quick racket head speed "
+                            elif stat == "followThroughTime":
+                                stat_insert = "Follow through towards the target "
+                            elif stat == "followThroughRoll":
+                                stat_insert = "Pay attention to the line of the follow through "
+                        else:
+                            stat_insert = "Start the swing a bit lower "
+                            if stat == "approachTiming":
+                                stat_insert = "Watch your timing "
+                            elif stat == "impactCutAngle":
+                                stat_insert = "Close the racket face "
+                            elif stat == "impactSpeed":
+                                stat_insert = "SLow the swing down "
+                            elif stat == "followThroughTime":
+                                stat_insert = "Make the follow through direct "
+                            elif stat == "followThroughRoll":
+                                stat_insert = "Pay attention to the line of the follow through "
                     optional_question = ""
                     if behaviour == config.A_CONCURRENTINSTRUCTIONPOSITIVE_QUESTIONING:
                         optional_question = "OK?"
@@ -14186,12 +14260,18 @@ class BehaviourLibraryFunctions:
                 elif behaviour in [config.A_QUESTIONING, config.A_QUESTIONING_FIRSTNAME]:
                     stat_insert = ""
                     if stat == "racketPreparation":
-                        stat_insert = "Where was the racket prep?"
+                        stat_insert = "Where was the racket prep "
+                    elif stat == "approachTiming":
+                        stat_insert = "What was the timing like there "
                     elif stat == "impactCutAngle":
-                        stat_insert = "Was that an open racket face?"
+                        stat_insert = "Was that an open racket face "
+                    elif stat == "impactSpeed":
+                        stat_insert = "How hard did you hit that "
                     elif stat == "followThroughTime":
-                        stat_insert = "What line was the follow through on there?"
-                    utterance = utterance + stat_insert + " " + name
+                        stat_insert = "How long was the follow through "
+                    elif stat == "followThroughRoll":
+                        stat_insert = "What line was the follow through on there "
+                    utterance = utterance + stat_insert + name + "?"
 
                 elif behaviour in [config.A_HUSTLE, config.A_HUSTLE_FIRSTNAME, config.A_POSITIVEMODELING_HUSTLE]:
                     utterance = utterance + "Keep it up " + name
@@ -14203,22 +14283,56 @@ class BehaviourLibraryFunctions:
                     if behaviour == config.A_CONCURRENTINSTRUCTIONPOSITIVE_PRAISE:
                         if stat == "racketPreparation":
                             stat_insert = "racket prep"
+                        elif stat == "approachTiming":
+                            stat_insert = "timing"
                         elif stat == "impactCutAngle":
-                            stat_insert = "open racket face"
-                        elif stat == "followThroughTime":
+                            stat_insert = "racket face angle"
+                        elif stat == "impactSpeed":
+                            stat_insert = "swing speed"
+                        elif stat == "followThroughTime" or stat == "followThroughRoll":
                             stat_insert = "follow through"
                     utterance = utterance + "Nice " + stat_insert + " " + name
 
                 elif behaviour in [config.A_CONCURRENTINSTRUCTIONNEGATIVE,
                                    config.A_CONCURRENTINSTRUCTIONNEGATIVE_NEGATIVEMODELING,
                                    config.A_CONCURRENTINSTRUCTIONNEGATIVE_FIRSTNAME]:
-                    stat_insert = ""
-                    if stat == "racketPreparation":
-                        stat_insert = "Your racket's not high enough"
-                    elif stat == "impactCutAngle":
-                        stat_insert = "That was a closed racket face"
-                    elif stat == "followThroughTime":
-                        stat_insert = "You're not extending the follow through"
+                    if score is None or target is None:
+                        stat_insert = "Your racket's not high enough "
+                        if stat == "approachTiming":
+                            stat_insert = "Your timing is off "
+                        elif stat == "impactCutAngle":
+                            stat_insert = "That was a closed racket face "
+                        elif stat == "impactSpeed":
+                            stat_insert = "Your swing speed is not right "
+                        elif stat == "followThroughTime":
+                            stat_insert = "You're not extending the follow through "
+                        elif stat == "followThroughRoll":
+                            stat_insert = "You're rolling your wrist too much "
+                    else:
+                        if score < target:
+                            stat_insert = "Your racket's not high enough "
+                            if stat == "approachTiming":
+                                stat_insert = "You're swinging too late "
+                            elif stat == "impactCutAngle":
+                                stat_insert = "That was a closed racket face "
+                            elif stat == "impactSpeed":
+                                stat_insert = "Your swing speed is too slow "
+                            elif stat == "followThroughTime":
+                                stat_insert = "You're not extending the follow through "
+                            elif stat == "followThroughRoll":
+                                stat_insert = "You're rolling your wrist too much "
+                        else:
+                            stat_insert = "Your racket's too high "
+                            if stat == "approachTiming":
+                                stat_insert = "You're swinging too early "
+                            elif stat == "impactCutAngle":
+                                stat_insert = "That was too open a racket face "
+                            elif stat == "impactSpeed":
+                                stat_insert = "Your swing speed is too fast "
+                            elif stat == "followThroughTime":
+                                stat_insert = "You're extending the follow through too much "
+                            elif stat == "followThroughRoll":
+                                stat_insert = "You're not letting your wrist roll enough "
                     utterance = utterance + stat_insert + " " + name
 
                 elif behaviour in [config.A_CONSOLE, config.A_CONSOLE_FIRSTNAME, config.A_SCOLD,
@@ -14266,11 +14380,17 @@ class BehaviourLibraryFunctions:
                     elif performance == config.MUCH_IMPROVED:
                         performance_insert = "improved massively"
                         performance_reaction = "so that was great!"
-                    elif performance == config.IMPROVED or performance == config.IMPROVED_SWAP:
+                    elif performance == config.IMPROVED:
                         performance_insert = "refined your technique well"
                         performance_reaction = "so that was great!"
-                    elif performance == config.REGRESSED or performance == config.REGRESSED_SWAP:
+                    elif performance == config.IMPROVED_SWAP:
+                        performance_insert = "went too far the other way but refined your technique well"
+                        performance_reaction = "so that was great!"
+                    elif performance == config.REGRESSED:
                         performance_insert = "didn't manage to improve"
+                        performance_reaction = "but we can change that today!"
+                    elif performance == config.REGRESSED_SWAP:
+                        performance_insert = "went too far the other way and didn't manage to improve"
                         performance_reaction = "but we can change that today!"
                     elif performance == config.MUCH_REGRESSED:
                         performance_insert = "took a step backwards with it"
@@ -14327,7 +14447,7 @@ class BehaviourLibraryFunctions:
                             if performance_insert == "":
                                 utterance = "Is this the first time we've worked " + goal_level_insert + " together " + name + "? Touch the back of my hand for yes or the top of my head for no."
                             else:
-                                utterance = utterance + "When we worked " + goal_level_insert + " before" + name + ", how do you feel you got on? Touch the back of my hand of my hand for good or the top of my head if you think it still needs work."
+                                utterance = utterance + "When we worked " + goal_level_insert + " before" + name + ", how do you feel you got on? Touch the back of my hand for good or the top of my head if you think it still needs work."
 
                         else:
                             if goal_level == config.SESSION_GOAL:
@@ -14340,18 +14460,50 @@ class BehaviourLibraryFunctions:
                     elif behaviour in [config.A_PREINSTRUCTION, config.A_PREINSTRUCTION_QUESTIONING,
                                        config.A_PREINSTRUCTION_FIRSTNAME, config.A_PREINSTRUCTION_POSITIVEMODELING,
                                        config.A_POSITIVEMODELING_PREINSTRUCTION]:
-                        stat_advice = "lift your racket high and early"
-                        if stat == "impactCutAngle":
-                            stat_advice = "try to get the racket face pointing upwards as you make contact with the ball"
-                        elif stat == "followThroughTime":
-                            stat_advice = "point the follow through towards where you want the ball to go"
+                        if score is None or target is None:
+                            stat_advice = "lift your racket high and early "
+                            if stat == "approachTiming":
+                                stat_advice = "think about where you're hitting the ball in your stance "
+                            elif stat == "impactCutAngle":
+                                stat_advice = "try to get the racket face pointing upwards as you make contact with the ball "
+                            elif stat == "impactSpeed":
+                                stat_advice = "get the racket head moving quickly "
+                            elif stat == "followThroughTime":
+                                stat_advice = "point the follow through towards where you want the ball to go "
+                            elif stat == "followThroughRoll":
+                                stat_advice = "point the follow through towards where you want the ball to go "
+                        else:
+                            if score < target:
+                                stat_advice = "lift your racket high and early "
+                                if stat == "approachTiming":
+                                    stat_advice = "think about where you're hitting the ball in your stance "
+                                elif stat == "impactCutAngle":
+                                    stat_advice = "try to get the racket face pointing upwards as you make contact with the ball "
+                                elif stat == "impactSpeed":
+                                    stat_advice = "get the racket head moving quickly "
+                                elif stat == "followThroughTime":
+                                    stat_advice = "point the follow through towards where you want the ball to go "
+                                elif stat == "followThroughRoll":
+                                    stat_advice = "point the follow through towards where you want the ball to go "
+                            else:
+                                stat_advice = "lift your racket to an appropriate position for the shot "
+                                if stat == "approachTiming":
+                                    stat_advice = "think about where you're hitting the ball in your stance "
+                                elif stat == "impactCutAngle":
+                                    stat_advice = "try to get the racket face pointing towards the front wall as you make contact with the ball "
+                                elif stat == "impactSpeed":
+                                    stat_advice = "slow down and control the swing "
+                                elif stat == "followThroughTime":
+                                    stat_advice = "point the follow through towards where you want the ball to go "
+                                elif stat == "followThroughRoll":
+                                    stat_advice = "point the follow through towards where you want the ball to go "
                         question = ""
                         if behaviour == config.A_PREINSTRUCTION_QUESTIONING:
                             question = "OK?"
                         if goal_level == config.SET_GOAL:
                             if final_set:
                                 utterance = utterance + "The last thing we're going to do is see if your " + stat_utterance + " has improved during this session " + question + ". So please play another set of 30 " + hand_utterance + " " + shot_utterance + "s. As always, I'll let you know when to stop."
-                            elif second_set:
+                            elif not second_set:
                                 utterance = utterance + "The next thing we're going to do is see if we can improve your " + stat_utterance + name + " " + question + ".  So please play another set of 30 " + hand_utterance + " " + shot_utterance + "s. As always, I'll let you know when to stop."
                             else:
                                 utterance = utterance + "In this next set, I want you to really " + stat_advice + " " + question + ". Go for another set of 30 " + hand_utterance + " " + shot_utterance + "s and see how you get on. I'll let you know when to stop."
@@ -14374,11 +14526,43 @@ class BehaviourLibraryFunctions:
                             utterance = "Today let's " + goal_level_insert + " " + name + ". " + optional_question
 
                     elif behaviour == config.A_PREINSTRUCTION_NEGATIVEMODELING:
-                        stat_advice = "lift your racket too late"
-                        if stat == "impactCutAngle":
-                            stat_advice = "let your racket face point down as you make contact with the ball"
-                        elif stat == "followThroughTime":
-                            stat_advice = "point your follow through away from the target"
+                        if score is None or target is None:
+                            stat_advice = "lift your racket too late "
+                            if stat == "approachTiming":
+                                stat_advice = "hit the shot too early or too late "
+                            elif stat == "impactCutAngle":
+                                stat_advice = "let your racket face point down as you make contact with the ball "
+                            elif stat == "impactSpeed":
+                                stat_advice = "decelerate the swing before you've hit the shot "
+                            elif stat == "followThroughTime":
+                                stat_advice = "point your follow through away from the target "
+                            elif stat == "followThroughRoll":
+                                stat_advice = "use the wrist too much to direct the follow through "
+                        else:
+                            if score < target:
+                                stat_advice = "lift your racket too late "
+                                if stat == "approachTiming":
+                                    stat_advice = "hit the shot too late "
+                                elif stat == "impactCutAngle":
+                                    stat_advice = "let your racket face point down as you make contact with the ball "
+                                elif stat == "impactSpeed":
+                                    stat_advice = "decelerate the swing before you've hit the shot "
+                                elif stat == "followThroughTime":
+                                    stat_advice = "point your follow through away from the target "
+                                elif stat == "followThroughRoll":
+                                    stat_advice = "use the wrist too much to direct the follow through "
+                            else:
+                                stat_advice = "lift your racket too high "
+                                if stat == "approachTiming":
+                                    stat_advice = "hit the shot too early "
+                                elif stat == "impactCutAngle":
+                                    stat_advice = "let your racket face point upwards too much as you make contact with the ball "
+                                elif stat == "impactSpeed":
+                                    stat_advice = "swing too fast as you hit the shot "
+                                elif stat == "followThroughTime":
+                                    stat_advice = "point your follow through away from the target "
+                                elif stat == "followThroughRoll":
+                                    stat_advice = "keep your wrist too firm so you can't direct the follow through "
                         if goal_level == config.SET_GOAL:
                             if final_set:
                                 utterance = utterance + "The last thing we're going to do is make sure your " + stat_utterance + "hasn't gotten worse during this session! So please play another set of 30 " + hand_utterance + " " + shot_utterance + "s. As always, I'll let you know when to stop"
@@ -14387,7 +14571,11 @@ class BehaviourLibraryFunctions:
                             else:
                                 utterance = utterance + "In this next set, really make sure you don't " + stat_advice + name + ". Go for a set of 30 " + hand_utterance + " " + shot_utterance + "s and see how you get on. I'll let you know when to stop"
                         else:
-                            shot_advice = "making sure none of your " + hand_utterance + " " + shot_utterance + " come through your opponent's volley zone"
+                            if shot == "drive" or shot == "cross court lob":
+                                shot_advice = "making sure none of your " + hand_utterance + " " + shot_utterance + "s come through your opponent's volley zone"
+                            else:  # shot == "drop" or shot == "volley drop" or shot == "straight kill" or shot == "volley kill" or shot == "two wall boast":
+                                shot_advice = "making sure none of your " + hand_utterance + " " + shot_utterance + " ."
+                            shot_advice = "making sure none of your " + hand_utterance + " " + shot_utterance + "s sit up for your opponent to attack"
                             if goal_level == config.SESSION_GOAL:
                                 goal_level_insert = "do a solo practice session and I'm going to coach you. We'll work on " + shot_advice + ". If you would like to work on a different shot, please tap the button on my screen."
                                 config.overridePreInstructionOption = True
@@ -14459,15 +14647,21 @@ class BehaviourLibraryFunctions:
                         elif performance == config.MUCH_IMPROVED:
                             performance_insert = "improved massively"
                             performance_reaction = "so that was great!"
-                        elif performance == config.IMPROVED or performance == config.IMPROVED_SWAP:
+                        elif performance == config.IMPROVED:
                             performance_insert = "got more refined"
                             performance_reaction = "so that was great!"
-                        elif performance == config.REGRESSED or performance == config.REGRESSED_SWAP:
+                        elif performance == config.IMPROVED_SWAP:
+                            performance_insert = "went too far the other way but got more refined"
+                            performance_reaction = "so that was great!"
+                        elif performance == config.REGRESSED:
                             performance_insert = "didn't manage to improve"
-                            performance_reaction = "but you can change that!"
+                            performance_reaction = "but we can change that!"
+                        elif performance == config.REGRESSED_SWAP:
+                            performance_insert = "went too far the other way and didn't manage to improve"
+                            performance_reaction = "but we can change that!"
                         elif performance == config.MUCH_REGRESSED:
                             performance_insert = "took a step backwards with it"
-                            performance_reaction = "but you can change that!"
+                            performance_reaction = "but we can change that!"
                         if behaviour in [config.A_POSTINSTRUCTIONPOSITIVE, config.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING,
                                          config.A_POSTINSTRUCTIONPOSITIVE_FIRSTNAME,
                                          config.A_POSTINSTRUCTIONPOSITIVE_POSITIVE_MODELING,
@@ -14479,15 +14673,46 @@ class BehaviourLibraryFunctions:
                             utterance = utterance + goal_level_insert + " " + performance_insert + " " + optional_question + " " + name + " " + performance_reaction
                         else:
                             optional_question = ""
-                            if performance == config.MET or performance == config.STEADY or performance == config.MUCH_IMPROVED or performance == config.IMPROVED:
+                            if performance == config.MET or performance == config.STEADY or performance == config.MUCH_IMPROVED or performance == config.IMPROVED or performance == config.IMPROVED_SWAP:
                                 if behaviour == config.A_POSTINSTRUCTIONNEGATIVE_QUESTIONING:
                                     optional_question = ". OK?"
-                                stat_advice = "lift your racket too late"
-                                if stat == "impactCutAngle":
-                                    stat_advice = "let your racket face point down as you make contact with the ball"
-                                elif stat == "followThroughTime":
-                                    stat_advice = "point your follow through away from the target"
-
+                                if score is None or target is None:
+                                    stat_advice = "lift your racket too late "
+                                    if stat == "approachTiming":
+                                        stat_advice = "hit the shot too early or too late "
+                                    elif stat == "impactCutAngle":
+                                        stat_advice = "let your racket face point down as you make contact with the ball "
+                                    elif stat == "impactSpeed":
+                                        stat_advice = "decelerate the swing before you've hit the shot "
+                                    elif stat == "followThroughTime":
+                                        stat_advice = "point your follow through away from the target "
+                                    elif stat == "followThroughRoll":
+                                        stat_advice = "use the wrist too much to direct the follow through "
+                                else:
+                                    if score < target:
+                                        stat_advice = "lift your racket too late "
+                                        if stat == "approachTiming":
+                                            stat_advice = "hit the shot too late "
+                                        elif stat == "impactCutAngle":
+                                            stat_advice = "let your racket face point down as you make contact with the ball "
+                                        elif stat == "impactSpeed":
+                                            stat_advice = "decelerate the swing before you've hit the shot "
+                                        elif stat == "followThroughTime":
+                                            stat_advice = "point your follow through away from the target "
+                                        elif stat == "followThroughRoll":
+                                            stat_advice = "use the wrist too much to direct the follow through "
+                                    else:
+                                        stat_advice = "lift your racket too high "
+                                        if stat == "approachTiming":
+                                            stat_advice = "hit the shot too early "
+                                        elif stat == "impactCutAngle":
+                                            stat_advice = "let your racket face point upwards too much as you make contact with the ball "
+                                        elif stat == "impactSpeed":
+                                            stat_advice = "swing too fast as you hit the shot "
+                                        elif stat == "followThroughTime":
+                                            stat_advice = "point your follow through away from the target "
+                                        elif stat == "followThroughRoll":
+                                            stat_advice = "keep your wrist too firm so you can't direct the follow through "
 
                                 utterance = utterance + "With your " + goal_level_insert + ", don't " + stat_advice + optional_question
                             else:
@@ -14520,13 +14745,43 @@ class BehaviourLibraryFunctions:
                                  config.A_CONCURRENTINSTRUCTIONPOSITIVE_FIRSTNAME,
                                  config.A_CONCURRENTINSTRUCTIONPOSITIVE_POSITIVEMODELING,
                                  config.A_POSITIVEMODELING_CONCURRENTINSTRUCTIONPOSITIVE]:
-                    stat_insert = ""
-                    if stat == "racketPreparation":
-                        stat_insert = "Lift the racket high"
-                    elif stat == "impactCutAngle":
-                        stat_insert = "I want to hear those strings singing!"
-                    elif stat == "followThroughTime":
-                        stat_insert = "Extend"
+                    if score is None or target is None:
+                        stat_insert = "Lift the racket high "
+                        if stat == "approachTiming":
+                            stat_insert = "Time the swing "
+                        elif stat == "impactCutAngle":
+                            stat_insert = "I want to hear those strings singing! "
+                        elif stat == "impactSpeed":
+                            stat_insert = "Swing quickly "
+                        elif stat == "followThroughTime":
+                            stat_insert = "Extend "
+                        elif stat == "followThroughRoll":
+                            stat_insert = "Solid wrist "
+                    else:
+                        if score < target:
+                            stat_insert = "Lift the racket high "
+                            if stat == "approachTiming":
+                                stat_insert = "Time the swing "
+                            elif stat == "impactCutAngle":
+                                stat_insert = "I want to hear those strings singing! "
+                            elif stat == "impactSpeed":
+                                stat_insert = "Swing quickly "
+                            elif stat == "followThroughTime":
+                                stat_insert = "Extend "
+                            elif stat == "followThroughRoll":
+                                stat_insert = "Solid wrist "
+                        else:
+                            stat_insert = "Lift the racket less "
+                            if stat == "approachTiming":
+                                stat_insert = "Time the swing "
+                            elif stat == "impactCutAngle":
+                                stat_insert = "Hit it flatter "
+                            elif stat == "impactSpeed":
+                                stat_insert = "Swing slower "
+                            elif stat == "followThroughTime":
+                                stat_insert = "Shorten the follow through "
+                            elif stat == "followThroughRoll":
+                                stat_insert = "Let the wrist help the follow through "
                     optional_question = ""
                     if behaviour == config.A_CONCURRENTINSTRUCTIONPOSITIVE_QUESTIONING:
                         optional_question = "OK?"
@@ -14535,12 +14790,18 @@ class BehaviourLibraryFunctions:
                 elif behaviour in [config.A_QUESTIONING, config.A_QUESTIONING_FIRSTNAME]:
                     stat_insert = ""
                     if stat == "racketPreparation":
-                        stat_insert = "How high was your racket?"
+                        stat_insert = "How high was your racket "
+                    elif stat == "approachTiming":
+                        stat_insert = "Did you time that one well "
                     elif stat == "impactCutAngle":
-                        stat_insert = "Did you have an open racket face?"
+                        stat_insert = "Did you have an open racket face "
+                    elif stat == "impactSpeed":
+                        stat_insert = "How fast was that swing "
                     elif stat == "followThroughTime":
-                        stat_insert = "Where did that swing finish?"
-                    utterance = utterance + stat_insert + " " + name
+                        stat_insert = "Where did that swing finish "
+                    elif stat == "followThroughRoll":
+                        stat_insert = "What angle was the wrist at "
+                    utterance = utterance + stat_insert + name + "?"
 
                 elif behaviour in [config.A_HUSTLE, config.A_HUSTLE_FIRSTNAME, config.A_POSITIVEMODELING_HUSTLE]:
                     utterance = utterance + "Let's go " + name
@@ -14548,26 +14809,85 @@ class BehaviourLibraryFunctions:
                 elif behaviour in [config.A_PRAISE, config.A_PRAISE_FIRSTNAME,
                                    config.A_CONCURRENTINSTRUCTIONPOSITIVE_PRAISE,
                                    config.A_POSITIVEMODELING_PRAISE]:
-                    stat_insert = ""
-                    if behaviour == config.A_CONCURRENTINSTRUCTIONPOSITIVE_PRAISE:
-                        if stat == "racketPreparation":
-                            stat_insert = "Lift the racket high"
+                    if score is None or target is None:
+                        stat_insert = "Lift the racket high "
+                        if stat == "approachTiming":
+                            stat_insert = "Time the swing "
                         elif stat == "impactCutAngle":
-                            stat_insert = "I want to hear those strings singing!"
+                            stat_insert = "I want to hear those strings singing! "
+                        elif stat == "impactSpeed":
+                            stat_insert = "Swing quickly "
                         elif stat == "followThroughTime":
-                            stat_insert = "Extend"
+                            stat_insert = "Extend "
+                        elif stat == "followThroughRoll":
+                            stat_insert = "Solid wrist "
+                    else:
+                        if score < target:
+                            stat_insert = "Lift the racket high "
+                            if stat == "approachTiming":
+                                stat_insert = "Time the swing "
+                            elif stat == "impactCutAngle":
+                                stat_insert = "I want to hear those strings singing! "
+                            elif stat == "impactSpeed":
+                                stat_insert = "Swing quickly "
+                            elif stat == "followThroughTime":
+                                stat_insert = "Extend "
+                            elif stat == "followThroughRoll":
+                                stat_insert = "Solid wrist "
+                        else:
+                            stat_insert = "Lift the racket less "
+                            if stat == "approachTiming":
+                                stat_insert = "Time the swing "
+                            elif stat == "impactCutAngle":
+                                stat_insert = "Hit it flatter "
+                            elif stat == "impactSpeed":
+                                stat_insert = "Swing slower "
+                            elif stat == "followThroughTime":
+                                stat_insert = "Shorten the follow through "
+                            elif stat == "followThroughRoll":
+                                stat_insert = "Let the wrist help the follow through "
                     utterance = utterance + "Nice shot. " + name + " " + stat_insert
 
                 elif behaviour in [config.A_CONCURRENTINSTRUCTIONNEGATIVE,
                                    config.A_CONCURRENTINSTRUCTIONNEGATIVE_NEGATIVEMODELING,
                                    config.A_CONCURRENTINSTRUCTIONNEGATIVE_FIRSTNAME]:
-                    stat_insert = ""
-                    if stat == "racketPreparation":
-                        stat_insert = "Don't start the swing too low"
-                    elif stat == "impactCutAngle":
-                        stat_insert = "I should be able to hear the cut on the ball"
-                    elif stat == "followThroughTime":
-                        stat_insert = "Don't stop the follow through too soon"
+                    if score is None or target is None:
+                        stat_insert = "Don't start the swing too low "
+                        if stat == "approachTiming":
+                            stat_insert = "Don't forget about the timing "
+                        elif stat == "impactCutAngle":
+                            stat_insert = "I should be able to hear the cut on the ball "
+                        elif stat == "impactSpeed":
+                            stat_insert = "Don't forget about the racket head speed "
+                        elif stat == "followThroughTime":
+                            stat_insert = "Don't stop the follow through too soon "
+                        elif stat == "followThroughRoll":
+                            stat_insert = "Don't roll the wrist too much "
+                    else:
+                        if score < target:
+                            stat_insert = "Don't start the swing too low "
+                            if stat == "approachTiming":
+                                stat_insert = "Don't forget about the timing "
+                            elif stat == "impactCutAngle":
+                                stat_insert = "I should be able to hear the cut on the ball "
+                            elif stat == "impactSpeed":
+                                stat_insert = "Don't forget about the racket head speed "
+                            elif stat == "followThroughTime":
+                                stat_insert = "Don't stop the follow through too soon "
+                            elif stat == "followThroughRoll":
+                                stat_insert = "Don't keep the wrist so rigid "
+                        else:
+                            stat_insert = "Don't start the swing too high "
+                            if stat == "approachTiming":
+                                stat_insert = "Don't forget about the timing "
+                            elif stat == "impactCutAngle":
+                                stat_insert = "I shouldn't be able to hear so much cut on the ball "
+                            elif stat == "impactSpeed":
+                                stat_insert = "Don't forget about the racket head speed "
+                            elif stat == "followThroughTime":
+                                stat_insert = "Don't let the follow through go so much "
+                            elif stat == "followThroughRoll":
+                                stat_insert = "Don't roll the wrist too much "
                     utterance = utterance + stat_insert + " " + name
 
                 elif behaviour in [config.A_CONSOLE, config.A_CONSOLE_FIRSTNAME, config.A_SCOLD,
@@ -14836,7 +15156,7 @@ class BehaviourLibraryFunctions:
                             utterance = utterance + "During that " + goal_level_insert + " you " + performance_insert + " " + optional_question + " " + name + " " + performance_reaction
                         else:
                             optional_question = ""
-                            if performance == config.MET or performance == config.STEADY or performance == config.MUCH_IMPROVED or performance == config.IMPROVED:
+                            if performance == config.MET or performance == config.STEADY or performance == config.MUCH_IMPROVED or performance == config.IMPROVED or performance == config.IMPROVED_SWAP:
                                 if behaviour == config.A_POSTINSTRUCTIONNEGATIVE_QUESTIONING:
                                     optional_question = ". OK?"
                                 shot_advice = "over hit your " + hand_utterance + " " + shot_utterance + "s."

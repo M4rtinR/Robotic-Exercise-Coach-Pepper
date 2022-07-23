@@ -790,6 +790,9 @@ class EndSubgoal(Node):
                         config.phase = config.PHASE_END
                         if self.goal_level == config.STAT_GOAL:
                             config.stat_confirmed = False
+                            config.stat = None
+                            config.target = -1
+                            config.avg_score = -1
                     else:
                         config.phase = config.PHASE_START
                     nodedata.new_goal = self.goal_level - 1
@@ -959,7 +962,7 @@ class TimestepCue(Node):
                         nodedata.phase = config.PHASE_END
                         config.completed = config.COMPLETED_STATUS_TRUE
                         logging.info(
-                            "Feedback for session, performance = {performance}".format(performance=nodedata.performance))
+                            "Feedback for session, performance = {performance}".format(performance=nodedata.get_data("performance")))
                         logging.debug("Returning SUCCESS from TimestepCue person goal (end), stats = " + str(nodedata))
                         return NodeStatus(NodeStatus.SUCCESS, "Data for stat goal obtained from guide:" + str(nodedata))
                     else:
@@ -1010,7 +1013,7 @@ class TimestepCue(Node):
                         config.completed = config.COMPLETED_STATUS_TRUE
 
                         logging.info(
-                            "Feedback for session, performance = {performance}".format(performance=nodedata.performance))
+                            "Feedback for session, performance = {performance}".format(performance=nodedata.get_data("performance")))
                         logging.debug("Returning SUCCESS from TimestepCue session goal (end), stats = " + str(nodedata))
                         return NodeStatus(NodeStatus.SUCCESS, "Data for stat goal obtained from guide:" + str(nodedata))
                     else:
@@ -1080,11 +1083,11 @@ class TimestepCue(Node):
                                 baseline_contents = f.readlines()
                                 f.close()
 
-                                this_session_contents.insert(0, nodedata.score + "\n")
-                                this_session_contents.insert(1, nodedata.performance + "\n")
+                                this_session_contents.insert(0, str(nodedata.score) + "\n")
+                                this_session_contents.insert(1, str(nodedata.performance) + "\n")
 
-                                aggregator_contents[0] = nodedata.score + "\n"
-                                aggregator_contents[1] = nodedata.performance + "\n"
+                                aggregator_contents[0] = str(nodedata.score) + "\n"
+                                aggregator_contents[1] = str(nodedata.performance) + "\n"
 
                                 this_session_line_no = 2
                                 while len(this_session_contents) > this_session_line_no:
@@ -1126,7 +1129,7 @@ class TimestepCue(Node):
                             nodedata.phase = config.PHASE_END
                             print(
                                 "Feedback for shot, score = {score}, target = {target}, performance = {performance}".format(
-                                    score=nodedata.score, target=nodedata.target, performance=nodedata.performance))
+                                    score=nodedata.get_data("score"), target=nodedata.get_data("target"), performance=nodedata.get_data("performance")))
                             logging.debug("Returning SUCCESS from TimestepCue shot goal (end), stats = " + str(nodedata))
                             return NodeStatus(NodeStatus.SUCCESS, "Data for shot goal obtained from guide:" + str(nodedata))
                         else:
@@ -1213,14 +1216,14 @@ class TimestepCue(Node):
 
                             stat_name = str(self.stat) + "\n"
                             index = file_contents.index(stat_name)
-                            file_contents.insert(index+1, nodedata.score + ", " + nodedata.performance + ", \n")
+                            file_contents.insert(index+1, str(nodedata.score) + ", " + str(nodedata.performance) + ", \n")
 
                             f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + str(self.shot) + "/" + str(config.sessions) + ".txt", "w")
                             f.writelines(file_contents)
                             f.close()
 
                             config.shot_performance_list.append(nodedata.performance)
-                            config.shot_score_list.sppend(nodedata.score)
+                            config.shot_score_list.append(nodedata.score)
 
                             # Clear the controller's lists for the stat that has just happened.
                             config.stat_performance_list = []
@@ -1228,7 +1231,7 @@ class TimestepCue(Node):
 
                             nodedata.phase = config.PHASE_END
                         config.completed = config.COMPLETED_STATUS_TRUE
-                        logging.info("Feedback for stat, score = {score}, target = {target}, performance = {performance}".format(score=nodedata.score, target=nodedata.target, performance=nodedata.performance))
+                        logging.info("Feedback for stat, score = {score}, target = {target}, performance = {performance}".format(score=nodedata.get_data("score"), target=nodedata.get_data("target"), performance=nodedata.get_data("performance")))
                         logging.debug("Returning SUCCESS from TimestepCue stat goal, stats = " + str(nodedata))
                         return NodeStatus(NodeStatus.SUCCESS, "Data for stat goal obtained from guide:" + str(nodedata))
                     else:
@@ -1881,14 +1884,14 @@ class CheckDoneBefore(Node):
             state information.
         :return: None
         """
-        logging.debug("Configuring OverrideOption " + self._name)
+        print("Configuring CheckDoneBefore " + self._name)
         self.shot = nodedata.get_data("shot")
         self.hand = nodedata.get_data("hand")
 
     def run(self, nodedata):
         """
         CCheck if this exercise has been done by this user in a previous session.
-        :return: NodeStatus.SUCCESS if there is a file for this user containing information on the given exercies.
+        :return: NodeStatus.SUCCESS if there is a file for this user containing information on the given exercise.
          NodeStatus.FAIL if otherwise.
         """
 
@@ -1898,10 +1901,13 @@ class CheckDoneBefore(Node):
                 f_contents = f.readlines()
                 f.close()
                 if len(f_contents) > 1:
+                    print("Returning SUCCESS from CheckDoneBefore")
                     return NodeStatus(NodeStatus.SUCCESS, "Found file containing this exercise.")
                 else:
+                    print("Returning FAIL from CheckDoneBefore: found file but not long enough")
                     return NodeStatus(NodeStatus.FAIL, "Failed to find file containing this exercise.")
             except:
+                print("Returning FAIL from CheckDoneBefore: could not find file")
                 return NodeStatus(NodeStatus.FAIL, "Failed to find file containing this exercise.")
         else:
             return NodeStatus(NodeStatus.FAIL, "Stop set/session override option")

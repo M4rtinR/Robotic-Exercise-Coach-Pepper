@@ -714,13 +714,15 @@ def create_coaching_tree():
     stat_goal_end_until = Until(name="stat_goal_end_until", child=stat_goal_end)
     gen_stat_goal.add_child(stat_goal_end_until)
     stat_goal_feedback_loop, stat_goal_feedback_behav, stat_goal_feedback_end = get_feedback_loop(name="stat_goal_feedback_loop", behav=config.A_PREINSTRUCTION, blackboard=b, goal_node=stat_goal._id, initialise_node=initialise._id, previous_behav_node=set_goal_feedback_behav._id, timestep_cue_node=stat_goal_end._id, person_node=player_start._id, prev_goal_node=shot_goal._id)
-    gen_stat_goal.add_child(stat_goal_feedback_loop)
+    stat_goal_feedback_negate = Negate(name="stat_goal_feedback_negate", child=stat_goal_feedback_loop)
+    gen_stat_goal.add_child(stat_goal_feedback_negate)
     # Remap the observation from the feedback loop to be the new state when an intro behaviour is given for the next stat.
     b.add_remapping(stat_goal_end, 'phase', stat_goal_intro_behav, 'previous_phase')
     b.add_remapping(stat_goal_feedback_behav, 'observation', stat_goal_intro_behav, 'feedback_state')
 
     stat_goal_until_count = UntilCount(name="stat_goal_until_count", max_count=2, child=gen_stat_goal)
-    gen_shot_goal.add_child(stat_goal_until_count)
+    stat_goal_until_count_negate = Negate(name="stat_goal_until_count_negate", child=stat_goal_until_count)
+    gen_shot_goal.add_child(stat_goal_until_count_negate)
 
     # Shot feedback loop until pre-instruction
     # Wait for timestep cue (i.e. shot goal has been completed by guide and we are ready for feedback behaviours).
@@ -1361,7 +1363,7 @@ def main():
 
         # If behaviour occurs twice, just skip to pre-instruction.
         if action2 in config.used_behaviours and (
-                config.getBehaviourGoalLevel == config.SESSION_GOAL or config.goal_level == config.EXERCISE_GOAL or config.goal_level == config.SET_GOAL):
+                config.getBehaviourGoalLevel == config.SESSION_GOAL or config.goal_level == config.EXERCISE_GOAL or config.goal_level == config.STAT_GOAL or config.goal_level == config.SET_GOAL):
             action2 = config.A_PREINSTRUCTION
             logging.debug('Got new behaviour: 1')
             # config.matching_behav = 0

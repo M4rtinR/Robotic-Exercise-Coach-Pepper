@@ -274,6 +274,7 @@ class TimestepCue(Resource):
                                 pass
 
                             print("returning stat data to app: " + config.stat)
+                            config.stat_confirmed = False  # Reset stat_confirmed for next time.
                             new_data = {
                                 'goal_level': '4',
                                 'completed': str(config.completed),
@@ -284,11 +285,21 @@ class TimestepCue(Resource):
                         return new_data, 200
 
                 elif int(content['goal_level']) == config.STAT_GOAL:
-                    logging.debug('stat goal setting controller values')
+                    print('stat goal setting controller values')
                     if 'feedback' in content:  # End of stat
-                        logging.debug('end of stat')
-                        config.score = float(content['score'])
-                        config.target = float(content['tgtValue'])
+                        print('end of stat')
+                        scoreString = content['score']
+                        if scoreString[-1] == "%":
+                            scoreString = content['score'][:-1]
+                        elif scoreString[-1] == "s":
+                            scoreString = content['score'][:-5]
+                        config.score = float(scoreString)
+                        targetString = content['tgtValue']
+                        if targetString[-1] == "%":
+                            targetString = content['tgtValue'][:-1]
+                        elif targetString[-1] == "s":
+                            targetString = content['tgtValue'][:-5]
+                        config.target = float(targetString)
                         config.performance = int(content['performance'])
                         config.goal_level = config.STAT_GOAL
                         config.phase = config.PHASE_END
@@ -304,6 +315,11 @@ class TimestepCue(Resource):
 
                         if config.stat_count == 2:
                             new_data["final"] = 1
+                        else:
+                            while config.stat_confirmed is False:
+                                pass
+                            print("New stat = " + str(config.stat))
+                            new_data["stat"] = config.stat
 
                         return new_data, 200
                     else:
@@ -312,7 +328,13 @@ class TimestepCue(Resource):
                         config.phase = config.PHASE_START
                         if config.stat == -1:
                             config.stat = content['stat']
-                        config.target = float(content['tgtValue'])
+                        targetString = content['tgtValue']
+                        if targetString[-1] == "%":
+                            targetString = content['tgtValue'][:-1]
+                        elif targetString[-1] == "s":
+                            targetString = content['tgtValue'][:-5]
+                        config.target = float(targetString)
+                        config.score = -1
                         '''if content['performance'] == "":
                             config.performance = None
                         else:
@@ -327,7 +349,7 @@ class TimestepCue(Resource):
                             'completed': config.completed,
                             'shotSet': 0
                         }
-
+                        print("returning from stat goal start")
                         return new_data, 200
 
                 elif int(content['goal_level']) == config.SET_GOAL:  # Also represents baseline goal
@@ -383,15 +405,18 @@ class TimestepCue(Resource):
                         config.phase = config.PHASE_START
                         config.completed = config.COMPLETED_STATUS_UNDEFINED
 
+                        print("Waiting")
                         while config.completed != config.COMPLETED_STATUS_FALSE:
                             pass
 
+                        print("Setting data")
                         new_data = {
                             'goal_level': 4,
                             'completed': config.completed,
                             'shotSet': 1
                         }
 
+                        print("Returning")
                         return new_data, 200
 
                 elif int(content['goal_level']) == config.ACTION_GOAL:
