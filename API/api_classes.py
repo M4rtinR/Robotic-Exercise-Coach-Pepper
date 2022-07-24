@@ -374,6 +374,8 @@ class TimestepCue(Resource):
                             targetString = content['tgtValue'][:-1]
                         elif targetString[-1] == "s":
                             targetString = content['tgtValue'][:-5]
+
+                        print('got values from content')
                         config.avg_score = float(scoreString)
                         config.set_score_list.append(float(scoreString))
                         config.target = float(targetString)
@@ -396,7 +398,7 @@ class TimestepCue(Resource):
 
                         if config.set_count == 3:
                             new_data["final"] = 1
-
+                        print("returning new_data: " + str(new_data))
                         return new_data, 200
 
                     else:  # Start of set
@@ -455,7 +457,7 @@ class TimestepCue(Resource):
                             'shotSet': 1
                         }
 
-                        if config.shot_count == 29:
+                        if config.shot_count == config.SHOTS_PER_SET - 1:
                             print("Setting shot_setComplet = 1")
                             new_data['shotSetComplete'] = 1
                             # new_data['stat'] = config.stat

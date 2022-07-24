@@ -14134,7 +14134,7 @@ class BehaviourLibraryFunctions:
                             optional_question = ""
                             if behaviour == config.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING:
                                 optional_question = "didn't it?"
-                            utterance = utterance + "Your " + goal_level_insert + " " + performance_insert + "in that practice " + optional_question + " " + name + " " + performance_reaction
+                            utterance = utterance + "Your " + goal_level_insert + " " + performance_insert + " in that practice " + optional_question + " " + name + " " + performance_reaction
                         else:
                             optional_question = ""
                             if score is None or target is None:
@@ -14161,7 +14161,7 @@ class BehaviourLibraryFunctions:
                                     elif stat == "followThroughTime":
                                         stat_advice = "you don't stop the follow through too short "
                                     elif stat == "followThroughRoll":
-                                        stat_advice = "you let the wrist become too rigid after you strike the ball "
+                                        stat_advice = "you don't let the wrist become too rigid after you strike the ball "
                                 else:
                                     stat_advice = "you don't lift your racket up quite as high and early as the last time "
                                     if stat == "approachTiming":
@@ -14436,7 +14436,7 @@ class BehaviourLibraryFunctions:
                             if performance_insert == "":
                                 if behaviour == config.A_POSTINSTRUCTIONNEGATIVE_QUESTIONING:
                                     optional_question = "isn't it?"
-                                utterance = "I think this is the first time we've worked on your " + goal_level_insert + " together " + optional_question + name
+                                utterance = "I think this is the first time we've worked " + goal_level_insert + " together " + optional_question + name
                             else:
                                 utterance = utterance + goal_level_insert + " before, you took a step backwards with it" + optional_question
                     elif behaviour in [config.A_QUESTIONING, config.A_QUESTIONING_FIRSTNAME,
@@ -14714,7 +14714,7 @@ class BehaviourLibraryFunctions:
                                         elif stat == "followThroughRoll":
                                             stat_advice = "keep your wrist too firm so you can't direct the follow through "
 
-                                utterance = utterance + "With your " + goal_level_insert + ", don't " + stat_advice + optional_question
+                                utterance = utterance + "With your " + stat_utterance + ", don't " + stat_advice + optional_question
                             else:
                                 if behaviour == config.A_POSTINSTRUCTIONNEGATIVE_QUESTIONING:
                                     optional_question = "did you?"
@@ -14723,7 +14723,7 @@ class BehaviourLibraryFunctions:
                     elif behaviour in [config.A_QUESTIONING, config.A_QUESTIONING_FIRSTNAME,
                                        config.A_QUESTIONING_POSITIVEMODELING,
                                        config.A_POSITIVEMODELING_QUESTIONING, config.A_QUESTIONING_NEGATIVEMODELING]:
-                        utterance = utterance + goal_level_insert + "was what we were working on " + name + ". What did you think of it? Touch the back of my hand if it felt good or the top of my head if you think it still needs work."
+                        utterance = utterance + goal_level_insert + " was what we were working on " + name + ". What did you think of it? Touch the back of my hand if it felt good or the top of my head if you think it still needs work."
 
                     elif behaviour in [config.A_PRAISE, config.A_PRAISE_FIRSTNAME, config.A_POSITIVEMODELING_PRAISE,
                                        config.A_CONSOLE, config.A_CONSOLE_FIRSTNAME]:

@@ -104,6 +104,9 @@ A_POSITIVEMODELING_PRAISE = 66
 A_END = 67
 A_SILENCE = 68
 
+SHOTS_PER_SET = 10
+SETS_PER_STAT = 3
+
 shot_list_master = {"drop": 0,
                     "drive": 1,
                     "cross court lob": 14,
@@ -170,6 +173,8 @@ expecting_action_goal = False
 stat_confirmed = False  # Becomes true when stat goal is created with chosen stat, reset to false on end stat goal.
 dont_send_action_response = False  # Whether or not to send the response to the action goal (i.e. if we have completed the set, do not send it).
 given_stat_explanation = False  # We don't want to keep giving an explanation of what the same stat means. This will prevent that.
+session_goal_created = False  # Used to keep track of whether or not we have already created the session/shot goal when we choose a new shot/stat
+shot_goal_created = False
 
 # Initial values to be changed at the beginning of each session:
 name = "Martin"

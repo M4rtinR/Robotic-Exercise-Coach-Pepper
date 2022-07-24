@@ -295,7 +295,7 @@ class FormatAction(Node):
                     r = requests.post(config.screen_post_address + "0/newRep")
                 if self.performance is None:
                     self.performance = -1
-                pre_msg = self.behaviour_lib.get_pre_msg(self.behaviour, self.goal_level, self.performance, self.phase, self.name, self.shot, self.hand, self.stat, config.shot_count == 3 and config.set_count == 1, config.set_count == 1 or config.set_count == 2, self.score, self.target)
+                pre_msg = self.behaviour_lib.get_pre_msg(self.behaviour, self.goal_level, self.performance, self.phase, self.name, self.shot, self.hand, self.stat, config.shot_count == 3 and config.set_count == config.SETS_PER_STAT, not config.set_count == 0 and not config.set_count == config.SETS_PER_STAT, self.score, self.target)
                 if (self.score is None and self.performance is None) or config.has_score_been_provided:  # or config.given_score >= 2:
                     print("Formatting action, no score or performance")
                     nodedata.action = Action(pre_msg, demo=demo, question=question)
@@ -306,9 +306,9 @@ class FormatAction(Node):
                     if self.stat == "racketPreparation" or self.stat == "approachTiming":
                         stat_measure = "%"
                         if self.stat == "racketPreparation":
-                            stat_explanation = "The % relates to how high your racket gets before you hit the ball. Generally, the higher the better!"
+                            stat_explanation = "The % relates to how high your racket gets before you hit the ball."
                         else:
-                            stat_explanation = "The % relates to how well you have timed your swing to the ball. Generally, the higher the percentage, the better!"
+                            stat_explanation = "The % relates to how well you have timed your swing to the ball."
                     elif self.stat == "impactCutAngle" or self.stat == "followThroughRoll":
                         stat_measure = " degrees"
                         if self.stat == "impactCutAngle":
@@ -683,6 +683,7 @@ class CreateSubgoal(Node):
             # Will return SUCCESS once request sent to API, FAIL if called on ACTION_GOAL or connection error.
             if self.previous_goal_level == config.BASELINE_GOAL:
                 nodedata.new_goal = config.STAT_GOAL
+                config.getBehaviourGoalLevel = config.STAT_GOAL
                 logging.info("Created subgoal, new goal level = {}".format(nodedata.new_goal))
                 logging.debug("Returning SUCCESS from CreateSubGoal, new goal level = " + str(nodedata.goal))
                 return NodeStatus(NodeStatus.SUCCESS, "Created subgoal: 3 from BASELINE_GOAL")
@@ -693,8 +694,10 @@ class CreateSubgoal(Node):
                 if self.previous_goal_level == config.EXERCISE_GOAL and (config.score is None or config.score == -1):
                     nodedata.new_goal = config.BASELINE_GOAL
                     config.goal_level = config.BASELINE_GOAL
+                    config.getBehaviourGoalLevel = config.BASELINE_GOAL
                 else:
                     nodedata.new_goal = self.previous_goal_level + 1
+                    config.getBehaviourGoalLevel = self.previous_goal_level + 1
                     # Select which exercise to perform.
                     if nodedata.new_goal == config.EXERCISE_GOAL:
                         config.stat_count = 0  # Reset the set count for this session to 0.
@@ -782,11 +785,12 @@ class EndSubgoal(Node):
                     nodedata.stat = 1
                     nodedata.phase = config.PHASE_END
                     nodedata.new_goal = config.EXERCISE_GOAL
+                    config.getBehaviourGoalLevel = config.EXERCISE_GOAL
                     config.completed = config.COMPLETED_STATUS_TRUE
                 else:
                     # config.goal_level -= 1
                     # TODO: I've set max set_count to 3 but there may be some freedom there depending on user performance.
-                    if ((self.goal_level == config.SET_GOAL and config.set_count == 3) or self.goal_level == config.STAT_GOAL or self.goal_level == config.EXERCISE_GOAL or self.goal_level == config.SESSION_GOAL) and not config.stop_session:
+                    if ((self.goal_level == config.SET_GOAL and config.set_count == config.SETS_PER_STAT) or self.goal_level == config.STAT_GOAL or self.goal_level == config.EXERCISE_GOAL or self.goal_level == config.SESSION_GOAL) and not config.stop_session:
                         config.phase = config.PHASE_END
                         if self.goal_level == config.STAT_GOAL:
                             config.stat_confirmed = False
@@ -796,6 +800,7 @@ class EndSubgoal(Node):
                     else:
                         config.phase = config.PHASE_START
                     nodedata.new_goal = self.goal_level - 1
+                    config.getBehaviourGoalLevel = self.goal_level - 1
                     nodedata.phase = config.PHASE_START  # All behaviours have happened so its start of new goal.
                     if config.goal_level == self.goal_level:  # This should stop things changing if we receive json requests out of order.
                         config.completed = config.COMPLETED_STATUS_TRUE
@@ -1214,6 +1219,7 @@ class TimestepCue(Node):
                             file_contents = f.readlines()
                             f.close()
 
+                            print("file contents of session_no.txt = " + str(file_contents))
                             stat_name = str(self.stat) + "\n"
                             index = file_contents.index(stat_name)
                             file_contents.insert(index+1, str(nodedata.score) + ", " + str(nodedata.performance) + ", \n")
@@ -1282,6 +1288,7 @@ class TimestepCue(Node):
                 if config.goal_level == config.SET_GOAL:
                     print("config.goal_level == config.SET_GOAL")
                     if config.phase == config.PHASE_END:  # Just finished previous goal level so into feedback sequence.
+                        print("set goal phase end")
                         nodedata.phase = config.PHASE_END
                         if not (len(config.set_performance_list) == 0):
                             # print("performance list = " + str(config.set_performance_list) + ", mode = " + str(mode(config.set_performance_list)))
@@ -1309,10 +1316,13 @@ class TimestepCue(Node):
                         config.set_score_list = []
                         nodedata.target = config.target
                         config.completed = config.COMPLETED_STATUS_TRUE
+                        if config.set_count < config.SETS_PER_STAT:
+                            config.goal_level -= 1  # Do this manually here because the app doesn't send data between sets.
                         logging.info("Feedback for exercise set, score = {score}, target = {target}, performance = {performance}".format(score=nodedata.get_data("score"), target=nodedata.get_data("target"), performance=nodedata.get_data("performance")))
                         logging.debug("Returning SUCCESS from TimestepCue set goal feedback, stats = " + str(nodedata))
                         return NodeStatus(NodeStatus.SUCCESS, "Data for set goal obtained from guide:" + str(nodedata))
                     else:  # For set goal we need information about the previous set if this is not the first set of this exercise.
+                        print("Set goal phase start")
                         nodedata.phase = config.PHASE_START
 
                         f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + str(self.shot) + "/" + str(config.sessions) + ".txt", "r")
@@ -1340,12 +1350,15 @@ class TimestepCue(Node):
 
                         nodedata.target = config.target
                         config.shot_count = 0
+                        print("Setting to completed status false")
                         config.completed = config.COMPLETED_STATUS_FALSE
                         logging.debug("Returning SUCCESS from TimestepCue set goal, stats = " + str(nodedata))
                         return NodeStatus(NodeStatus.SUCCESS, "Data for set goal obtained from guide:" + str(nodedata))
                 else:
                     # config.goal_level = config.SET_GOAL
                     # config.phase = config.PHASE_END
+                    if config.goal_level == config.STAT_GOAL and config.stat_count > 1:
+                        config.completed = config.COMPLETED_STATUS_FALSE
                     print("Returning ACTIVE from TimestepCue set goal")
                     logging.debug("Returning ACTIVE from TimestepCue set goal")
                     return NodeStatus(NodeStatus.ACTIVE, "Waiting for set goal data from guide.")
@@ -1563,6 +1576,7 @@ class GetChoice(Node):
             else:  # CHOICE_BY_PERSON
                 if self.choice_type == config.SHOT_CHOICE:
                     if config.shot is None:
+                        print("Returning ACTIVE form user's choice")
                         return NodeStatus(NodeStatus.ACTIVE, "Waiting on user's shot choice")
 
                     nodedata.shot = config.shot
@@ -1570,6 +1584,7 @@ class GetChoice(Node):
                     config.used_shots.append(str(config.shot) + str(config.hand))
                     #config.performance = None
                     #config.score = -1
+                    print("Returning SUCCESS from GetUserChoice, shot = " + str(nodedata.hand) + " " + str(nodedata.shot))
                     logging.debug("Returning SUCCESS from GetUserChoice, shot = " + str(nodedata.hand) + " " + str(nodedata.shot))
                     return NodeStatus(NodeStatus.SUCCESS, "Returning SUCCESS from GetUserChoice, shot = " + str(nodedata.hand) + " " + str(nodedata.shot))
                 else:  # STAT_CHOICE
@@ -1619,7 +1634,7 @@ class EndSetEvent(Node):
         #   one for waiting for user selection so that the tree doesn't grind to a halt.
         # self.shotcount += 1  # TODO Set this to 0 when set starts.
 
-        if self.shotcount >= 30 or config.stop_set or config.stop_session:
+        if self.shotcount >= config.SHOTS_PER_SET or config.stop_set or config.stop_session:
             config.expecting_action_goal = False
             # config.completed = config.COMPLETED_STATUS_TRUE
             config.set_count += 1
@@ -1907,11 +1922,74 @@ class CheckDoneBefore(Node):
                     print("Returning FAIL from CheckDoneBefore: found file but not long enough")
                     return NodeStatus(NodeStatus.FAIL, "Failed to find file containing this exercise.")
             except:
-                print("Returning FAIL from CheckDoneBefore: could not find file")
-                return NodeStatus(NodeStatus.FAIL, "Failed to find file containing this exercise.")
+                if config.stat_count > 0:  # If we've already worked on it today, the file won't be there yet but we don't need to do baseline goal.
+                    print("Returning SUCCESS from CheckDoneBefore, more than one stat worked on today.")
+                    return NodeStatus(NodeStatus.SUCCESS, "Found file containing this exercise.")
+                else:
+                    print("Returning FAIL from CheckDoneBefore: could not find file")
+                    return NodeStatus(NodeStatus.FAIL, "Failed to find file containing this exercise.")
         else:
             return NodeStatus(NodeStatus.FAIL, "Stop set/session override option")
 
+
+class CheckCreated(Node):
+    """
+        Check if the given goal_level has already been created in this session.
+
+        ...
+        Methods
+        -------
+        run()
+            Check if the exercise has been done before.
+        """
+
+    def __init__(self, name, *args, **kwargs):
+        super(CheckCreated, self).__init__(
+            name,
+            run_cb=self.run,
+            configure_cb=self.configure,
+            *args, **kwargs)
+
+    def configure(self, nodedata):
+        """
+        Set up the initial values needed to check if the user has done this exercies.
+        :param nodedata :type Blackboard: the blackboard associated with this Behaviour Tree containing all relevant
+            state information.
+        :return: None
+        """
+        print("Configuring CheckCreated " + self._name)
+        self.check_goal = nodedata.get_data('check_goal')
+        # self.goal = nodedata.get_data('goal_level')
+
+    def run(self, nodedata):
+        """
+        CCheck if this exercise has been done by this user in a previous session.
+        :return: NodeStatus.SUCCESS if there is a file for this user containing information on the given exercise.
+         NodeStatus.FAIL if otherwise.
+        """
+
+        print("check_goal = " + str(self.check_goal) + ", goal = " + str(config.getBehaviourGoalLevel))
+        if not config.stop_set and not config.stop_session:
+            if config.getBehaviourGoalLevel == self.check_goal:
+                if self.check_goal == config.SESSION_GOAL:
+                    config.session_goal_created = True
+                else:
+                    config.shot_goal_created = True
+                print("Returning SUCCESS from CheckCreated")
+                return NodeStatus(NodeStatus.SUCCESS, "Found goal level match.")
+            else:
+                if self.check_goal == config.SESSION_GOAL:
+                    if config.session_goal_created:
+                        print("Returning SUCCESS from CheckCreated")
+                        return NodeStatus(NodeStatus.SUCCESS, "Already created.")
+                else:
+                    if config.shot_goal_created:
+                        print("Returning SUCCESS from CheckCreated")
+                        return NodeStatus(NodeStatus.SUCCESS, "Already created.")
+                print("Returning FAIL from CheckCreated")
+                return NodeStatus(NodeStatus.FAIL, "No goal level match.")
+        else:
+            return NodeStatus(NodeStatus.FAIL, "Stop set/session override option")
 
 '''
 class OperatorInput(Node):
