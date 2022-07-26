@@ -668,8 +668,9 @@ class CreateSubgoal(Node):
         logging.debug("Configuring CreateSubgoal: " + self._name)
         logging.debug("createSubgoal nodedata = " + str(nodedata))
         self.previous_goal_level = nodedata.get_data('goal', -1)
-        self.shot = nodedata.get_data('shot')
-        self.stat = nodedata.get_data('stat')
+        self.shot = nodedata.get_data('shot', config.shot)
+        self.hand = nodedata.get_data('hand', config.hand)
+        self.stat = nodedata.get_data('stat', config.stat)
 
     def run(self, nodedata):
         """
@@ -706,15 +707,8 @@ class CreateSubgoal(Node):
                             config.score = None
 
                         # Update exercise picture on Pepper's tablet screen and reset the counter
-                        if nodedata.get_data("new_exercise") == 0:
-                            exerciseString = "TabletopCircles"
-                        elif nodedata.get_data("new_exercise") == 1:
-                            exerciseString = "TowelSlides"
-                        elif nodedata.get_data("new_exercise") == 2:
-                            exerciseString = "CaneRotations"
-                        else:
-                            exerciseString = "ShoulderOpeners"
-                        utteranceURL = config.screen_post_address + exerciseString + "/newPicture"
+                        shotString = nodedata.get_data("hand") + " " + nodedata.get_data("shot")
+                        utteranceURL = config.screen_post_address + shotString + "/newPicture"
                         r = requests.post(utteranceURL)
                         r = requests.post(config.screen_post_address + "0/newRep")
                     elif nodedata.new_goal == config.STAT_GOAL:
