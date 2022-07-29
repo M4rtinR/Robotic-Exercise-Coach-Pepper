@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 
+from CoachingBehaviourTree import config
+
 
 @dataclass
 class Action:

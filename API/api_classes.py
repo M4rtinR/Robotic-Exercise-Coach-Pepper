@@ -216,9 +216,13 @@ class TimestepCue(Resource):
                         config.goal_level = config.SET_GOAL
                         config.phase = config.PHASE_END
                         config.completed = config.COMPLETED_STATUS_UNDEFINED
+                    else:
+                        config.goal_level = config.EXERCISE_GOAL
+                        config.phase = config.PHASE_END
+                        config.completed = config.COMPLETED_STATUS_TRUE
 
-                        while config.completed == config.COMPLETED_STATUS_UNDEFINED:
-                            pass
+                    while not config.completed == config.COMPLETED_STATUS_FALSE:
+                        pass
 
                     new_data = {
                         'goal_level': 4,
@@ -273,7 +277,7 @@ class TimestepCue(Resource):
 
                 self.previous_shot_performance = performanceValue
 
-                while expecting_action_goal is False and not config.completed == config.COMPLETED_STATUS_TRUE:
+                while config.done_baseline_goal and (expecting_action_goal is False or not config.completed == config.COMPLETED_STATUS_TRUE):
                     pass
 
                 new_data = {
