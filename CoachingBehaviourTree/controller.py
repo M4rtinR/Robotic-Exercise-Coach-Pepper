@@ -132,7 +132,7 @@ def create_coaching_tree():
     # Create overall intro Progressor
     gen_session_goal = Progressor(name="gen_session_goal")  # Progressor because the Negate will make the While return SUCCESS when question or pre-instruction has been displayed.
 
-    session_goal_intro_sequence, session_goal, session_goal_start, session_goal_shot_choice, session_goal_intro_behav = get_intro_loop(name="session_goal_intro_loop", blackboard=b, prev_goal_node=person_goal._id, initialise_node=initialise._id, person_node=player_start._id)
+    session_goal_intro_sequence, session_goal, session_goal_start, session_goal_shot_choice, session_goal_intro_behav = get_intro_loop(name="session_goal_intro_loop", blackboard=b, prev_goal_node=person_goal._id, initialise_node=initialise._id, person_node=player_start._id, shot_choice_node=None, stat_choice_node=None)
     # gen_session_goal.add_child(session_goal_intro_sequence)
 
     '''
@@ -266,7 +266,7 @@ def create_coaching_tree():
 
     shot_goal_intro_sequence, shot_goal, shot_goal_start, shot_goal_stat_choice, shot_goal_intro_behav = get_intro_loop(
         name="shot_goal_intro_loop", blackboard=b, prev_goal_node=session_goal._id, initialise_node=initialise._id,
-        person_node=player_start._id)
+        person_node=player_start._id, shot_choice_node=session_goal_shot_choice._id, stat_choice_node=None)
     # gen_shot_goal.add_child(shot_goal_intro_sequence)
 
     '''
@@ -433,7 +433,7 @@ def create_coaching_tree():
 
     stat_goal_intro_sequence, stat_goal, stat_goal_start, stat_goal_stat_choice, stat_goal_intro_behav = get_intro_loop(
         name="stat_goal_intro_loop", blackboard=b, prev_goal_node=shot_goal._id, initialise_node=initialise._id,
-        person_node=player_start._id)
+        person_node=player_start._id, shot_choice_node=session_goal_shot_choice._id, stat_choice_node=shot_goal_stat_choice._id)
     gen_stat_goal.add_child(stat_goal_intro_sequence)
 
     '''
@@ -532,7 +532,7 @@ def create_coaching_tree():
 
     set_goal_intro_sequence, set_goal, set_goal_start, set_goal_choice, set_goal_intro_behav = get_intro_loop(
         name="set_goal_intro_loop", blackboard=b, prev_goal_node=stat_goal._id, initialise_node=initialise._id,
-        person_node=player_start._id)
+        person_node=player_start._id, shot_choice_node=session_goal_shot_choice._id, stat_choice_node=shot_goal_stat_choice._id)
     gen_set_goal.add_child(set_goal_intro_sequence)
 
     '''
@@ -635,6 +635,9 @@ def create_coaching_tree():
     set_goal_individual_action_sequence.add_child(action_goal)
     # Share data between stat_goal and set_goal.
     b.add_remapping(set_goal._id, 'new_goal', action_goal._id, 'goal')
+    b.add_remapping(session_goal_shot_choice._id, 'shot', action_goal._id, 'shot')
+    b.add_remapping(session_goal_shot_choice._id, 'hand', action_goal._id, 'hand')
+    b.add_remapping(shot_goal_stat_choice._id, 'stat', action_goal._id, 'stat')
     # Wait for operator input, and then call timestep cue (i.e. the user has completed a rep of the given exercise)
     # set_goal_individual_action_rep = OperatorInput(name="set_goal_individual_action_rep", blackboard=b)
     set_goal_individual_action_cue = TimestepCue(name="set_goal_individual_action_cue", blackboard=b)
@@ -704,14 +707,14 @@ def create_coaching_tree():
     gen_set_goal.add_child(set_goal_end_until)
     #shot_goal_coaching.add_child(gen_set_goal)
 
-    set_goal_feedback_loop, set_goal_feedback_behav, set_goal_feedback_end = get_feedback_loop(name="set_goal_feedback_loop", behav=config.A_PREINSTRUCTION, blackboard=b, goal_node=set_goal._id, initialise_node=initialise._id, previous_behav_node=set_goal_individual_action_behav._id, timestep_cue_node=set_goal_end._id, person_node=player_start._id, prev_goal_node=shot_goal._id)
+    set_goal_feedback_loop, set_goal_feedback_behav, set_goal_feedback_end = get_feedback_loop(name="set_goal_feedback_loop", behav=config.A_PREINSTRUCTION, blackboard=b, goal_node=set_goal._id, initialise_node=initialise._id, timestep_cue_node=set_goal_end._id, person_node=player_start._id,shot_choice_node=session_goal_shot_choice._id, stat_choice_node=shot_goal_stat_choice._id)
     set_goal_feedback_negate = Negate(name="set_goal_feedback_loop_negate", child=set_goal_feedback_loop)
     gen_set_goal.add_child(set_goal_feedback_negate)
 
     # Remap the observation from the feedback loop to be the new state when an intro behaviour is given for the next set.
     b.add_remapping(set_goal_end._id, 'phase', set_goal_intro_behav._id, 'previous_phase')
     # b.save('feedback)state', observation, set_goal_intro_behav)
-    set_goal_until_count = UntilCount(name="set_goal_until_count", max_count=3, child=gen_set_goal)
+    set_goal_until_count = UntilCount(name="set_goal_until_count", max_count=config.SETS_PER_STAT, child=gen_set_goal)
     #shot_goal_coaching.add_child(set_goal_until_count)
     #shot_goal_coaching_twice = UntilCount(name="shot_goal_coaching_twice", max_count=2, child=set_goal_until)
     set_goal_until_count_negate = Negate(name="set_goal_until_count_negate", child=set_goal_until_count)  # Negate this because on the second set the FAIL will be passed through, stopping the current exercise finishing.
@@ -732,7 +735,7 @@ def create_coaching_tree():
     b.add_remapping(session_goal_shot_choice._id, 'hand', stat_goal_end._id, 'hand')
     stat_goal_end_until = Until(name="stat_goal_end_until", child=stat_goal_end)
     gen_stat_goal.add_child(stat_goal_end_until)
-    stat_goal_feedback_loop, stat_goal_feedback_behav, stat_goal_feedback_end = get_feedback_loop(name="stat_goal_feedback_loop", behav=config.A_PREINSTRUCTION, blackboard=b, goal_node=stat_goal._id, initialise_node=initialise._id, previous_behav_node=set_goal_feedback_behav._id, timestep_cue_node=stat_goal_end._id, person_node=player_start._id, prev_goal_node=shot_goal._id)
+    stat_goal_feedback_loop, stat_goal_feedback_behav, stat_goal_feedback_end = get_feedback_loop(name="stat_goal_feedback_loop", behav=config.A_PREINSTRUCTION, blackboard=b, goal_node=stat_goal._id, initialise_node=initialise._id, timestep_cue_node=stat_goal_end._id, person_node=player_start._id, shot_choice_node=session_goal_shot_choice._id, stat_choice_node=shot_goal_stat_choice._id)
     stat_goal_feedback_negate = Negate(name="stat_goal_feedback_negate", child=stat_goal_feedback_loop)
     gen_stat_goal.add_child(stat_goal_feedback_negate)
     # Remap the observation from the feedback loop to be the new state when an intro behaviour is given for the next stat.
@@ -749,23 +752,22 @@ def create_coaching_tree():
     # Shot feedback loop until pre-instruction
     # Wait for timestep cue (i.e. shot goal has been completed by guide and we are ready for feedback behaviours).
     shot_goal_end = TimestepCue(name="shot_goal_ended_timestep", blackboard=b)
-    b.add_remapping(set_goal_feedback_end._id, 'new_goal', shot_goal_end._id, 'goal')
+    b.add_remapping(stat_goal_feedback_end._id, 'new_goal', shot_goal_end._id, 'goal')
     b.add_remapping(session_goal_shot_choice._id, 'shot', shot_goal_end._id, 'shot')
     b.add_remapping(session_goal_shot_choice._id, 'hand', shot_goal_end._id, 'hand')
     shot_goal_end_until = Until(name="shot_goal_end_until", child=shot_goal_end)
     gen_shot_goal.add_child(shot_goal_end_until)
-    shot_goal_feedback_loop, shot_goal_feedback_behav, shot_goal_feedback_end = get_feedback_loop(name="shot_goal_feedback_loop", behav=config.A_PREINSTRUCTION, blackboard=b, goal_node=shot_goal._id, initialise_node=initialise._id, previous_behav_node=stat_goal_feedback_behav._id, timestep_cue_node=shot_goal_end._id, person_node=player_start._id, prev_goal_node=session_goal._id)
+    shot_goal_feedback_loop, shot_goal_feedback_behav, shot_goal_feedback_end = get_feedback_loop(name="shot_goal_feedback_loop", behav=config.A_PREINSTRUCTION, blackboard=b, goal_node=shot_goal._id, initialise_node=initialise._id, timestep_cue_node=shot_goal_end._id, person_node=player_start._id, shot_choice_node=session_goal_shot_choice._id, stat_choice_node=None)
     gen_shot_goal.add_child(shot_goal_feedback_loop)
     # Remap the observation from the feedback loop to be the new state when an intro behaviour is given for the next shot.
     b.add_remapping(shot_goal_end, 'phase', shot_goal_intro_behav, 'previous_phase')
     # b.save('feedback_state', observation, shot_goal_intro_behav)
 
-    shot_goal_repeat = Repeat(name="shot_goal_repeat", child=gen_shot_goal)
-
     shot_goal_sequence = Progressor(name="shot_goal_sequence")
     shot_goal_sequence.add_child(session_goal_intro_sequence)
-    shot_goal_sequence.add_child(shot_goal_repeat)
-    session_goal_selector.add_child(shot_goal_sequence)
+    shot_goal_sequence.add_child(gen_shot_goal)
+    shot_goal_repeat = Repeat(name="shot_goal_repeat", child=shot_goal_sequence)
+    session_goal_selector.add_child(shot_goal_repeat)
 
     session_goal_until = Until(name="session_goal_until", child=session_goal_selector)
     gen_session_goal.add_child(session_goal_until)
@@ -778,7 +780,7 @@ def create_coaching_tree():
     b.add_remapping(shot_goal_feedback_end._id, 'new_goal', session_goal_end._id, 'goal')
     session_goal_end_until = Until(name="session_goal_end_until", child=session_goal_end)
     gen_session_goal.add_child(session_goal_end_until)
-    session_goal_feedback_loop, session_goal_feedback_behav, session_goal_feedback_end = get_feedback_loop(name="session_goal_feedback_loop", behav=config.A_END, blackboard=b, goal_node=session_goal._id, initialise_node=initialise._id, previous_behav_node=shot_goal_feedback_behav._id, timestep_cue_node=session_goal_end._id, person_node=player_start._id, prev_goal_node=person_goal._id)
+    session_goal_feedback_loop, session_goal_feedback_behav, session_goal_feedback_end = get_feedback_loop(name="session_goal_feedback_loop", behav=config.A_END, blackboard=b, goal_node=session_goal._id, initialise_node=initialise._id, timestep_cue_node=session_goal_end._id, person_node=player_start._id, shot_choice_node=None, stat_choice_node=None)
     gen_session_goal.add_child(session_goal_feedback_loop)
 
     gen_person_goal.add_child(gen_session_goal)
@@ -795,14 +797,13 @@ def create_coaching_tree():
                                                                                 behav=config.A_END, blackboard=b,
                                                                                 goal_node=person_goal._id,
                                                                                 initialise_node=initialise._id,
-                                                                                previous_behav_node=session_goal_feedback_behav._id,
-                                                                                timestep_cue_node=person_goal_end._id, person_node=player_start._id, prev_goal_node=None)
+                                                                                timestep_cue_node=person_goal_end._id, person_node=player_start._id, shot_choice_node=None, stat_choice_node=None)
     gen_person_goal.add_child(person_goal_feedback_loop)
 
     root.add_child(gen_person_goal)
     return root
 
-def get_intro_loop(name, blackboard, prev_goal_node, initialise_node, person_node):
+def get_intro_loop(name, blackboard, prev_goal_node, initialise_node, person_node, shot_choice_node, stat_choice_node):
     """
     Creates a subtree which gives the introduction at a given goal level.
     :param name :type str: the name to be used when creating nodes of the tree.
@@ -873,18 +874,25 @@ def get_intro_loop(name, blackboard, prev_goal_node, initialise_node, person_nod
 
     # Share data between previous goal and new goal.
     blackboard.add_remapping(prev_goal_node, 'new_goal', new_goal._id, 'goal')
+    if name == "shot_goal_intro_loop" or name == "stat_goal_intro_loop" or name == "set_goal_intro_loop":
+        blackboard.add_remapping(shot_choice_node, 'shot', new_goal._id, 'shot')
+        blackboard.add_remapping(shot_choice_node, 'hand', new_goal._id, 'hand')
+        if name == "stat_goal_intro_loop" or name == "set_goal_intro_loop":
+            blackboard.add_remapping(stat_choice_node, 'stat', new_goal._id, 'stat')
 
     blackboard.add_remapping(new_goal._id, 'new_goal', new_goal_start._id, 'goal')
-    #blackboard.save('shot', config.shot, new_goal_start._id)
-    #blackboard.save('hand', config.hand, new_goal_start._id)
-    #blackboard.save('stat', config.stat, new_goal_start._id)
+    if name == "shot_goal_intro_loop" or name == "stat_goal_intro_loop" or name == "set_goal_intro_loop":
+        blackboard.add_remapping(shot_choice_node, 'shot', new_goal_start._id, 'shot')
+        blackboard.add_remapping(shot_choice_node, 'hand', new_goal_start._id, 'hand')
+        if name == "stat_goal_intro_loop" or name == "set_goal_intro_loop":
+            blackboard.add_remapping(stat_choice_node, 'stat', new_goal_start._id, 'stat')
 
     #
     #
     # Display behaviours until pre-instruction or questioning
     #
     #
-    new_goal_intro_sequence, new_goal_player_choice, new_goal_intro_behav = get_intro_sequence(name, blackboard, initialise_node, new_goal_start, new_goal, person_node, prev_goal_node)
+    new_goal_intro_sequence, new_goal_player_choice, new_goal_intro_behav = get_intro_sequence(name, blackboard, initialise_node, new_goal_start, new_goal, person_node, prev_goal_node, shot_choice_node, stat_choice_node)
 
     new_goal_intro_while_name = name + "_while"
     new_goal_intro_while = While(name=new_goal_intro_while_name, child=new_goal_intro_sequence)
@@ -894,7 +902,7 @@ def get_intro_loop(name, blackboard, prev_goal_node, initialise_node, person_nod
 
     return overall_intro_sequence, new_goal, new_goal_start, new_goal_player_choice, new_goal_intro_behav
 
-def get_intro_sequence(name, blackboard, initialise_node, new_goal_start, new_goal, person_node, prev_goal_node):
+def get_intro_sequence(name, blackboard, initialise_node, new_goal_start, new_goal, person_node, prev_goal_node, shot_choice_node, stat_choice_node):
     new_goal_intro_sequence_name = name + "_intro_behav_sequence"
     new_goal_intro_sequence = Progressor(name=new_goal_intro_sequence_name)
 
@@ -935,10 +943,16 @@ def get_intro_sequence(name, blackboard, initialise_node, new_goal_start, new_go
 
         baseline_goal = CreateSubgoal(name="create_baseline_goal", blackboard=blackboard)
         blackboard.add_remapping(new_goal._id, "new_goal", baseline_goal._id, "goal")
+        if name == "shot_goal_intro_loop" or name == "stat_goal_intro_loop" or name == "set_goal_intro_loop":
+            blackboard.add_remapping(shot_choice_node, 'shot', baseline_goal._id, 'shot')
+            blackboard.add_remapping(shot_choice_node, 'hand', baseline_goal._id, 'hand')
         gen_baseline_goal.add_child(baseline_goal)
 
         baseline_goal_start = TimestepCue(name="baseline_goal_start", blackboard=blackboard)
         blackboard.add_remapping(baseline_goal._id, 'new_goal', baseline_goal_start._id, 'goal')
+        if name == "shot_goal_intro_loop" or name == "stat_goal_intro_loop" or name == "set_goal_intro_loop":
+            blackboard.add_remapping(shot_choice_node, 'shot', baseline_goal_start._id, 'shot')
+            blackboard.add_remapping(shot_choice_node, 'hand', baseline_goal_start._id, 'hand')
         baseline_goal_start_until = Until(name="baseline_goal_start_until", child=baseline_goal_start)
         gen_baseline_goal.add_child(baseline_goal_start_until)
 
@@ -981,8 +995,9 @@ def get_intro_sequence(name, blackboard, initialise_node, new_goal_start, new_go
         gen_baseline_goal.add_child(baseline_goal_end_cue_until)
         blackboard.add_remapping(baseline_goal_end._id, 'new_goal', baseline_goal_end_cue._id, 'goal')
         blackboard.add_remapping(baseline_goal_end._id, 'phase', baseline_goal_end_cue._id, 'phase')
-        # blackboard.save('shot', config.shot, baseline_goal_end_cue._id)
-        # blackboard.save('hand', config.hand, baseline_goal_end_cue._id)
+        if name == "shot_goal_intro_loop" or name == "stat_goal_intro_loop" or name == "set_goal_intro_loop":
+            blackboard.add_remapping(shot_choice_node, 'shot', baseline_goal_end_cue._id, 'shot')
+            blackboard.add_remapping(shot_choice_node, 'hand', baseline_goal_end_cue._id, 'hand')
 
         first_time_check_selector.add_child(gen_baseline_goal)
         new_goal_intro_pre_instr_sequence.add_child(first_time_check_selector)
@@ -1030,9 +1045,11 @@ def get_intro_sequence(name, blackboard, initialise_node, new_goal_start, new_go
     blackboard.add_remapping(new_goal._id, 'new_goal', new_goal_intro_pre_instr_action._id, 'goal')
     blackboard.add_remapping(new_goal_intro_behav._id, 'behaviour', new_goal_intro_pre_instr_action._id, 'behaviour')
     blackboard.add_remapping(person_node, 'name', new_goal_intro_pre_instr_action._id, 'name')
-    #blackboard.save('shot', config.shot, new_goal_intro_pre_instr_action._id)
-    #blackboard.save('hand', config.hand, new_goal_intro_pre_instr_action._id)
-    #blackboard.save('stat', config.stat, new_goal_intro_pre_instr_action._id)
+    if name == "shot_goal_intro_loop" or name == "stat_goal_intro_loop" or name == "set_goal_intro_loop":
+        blackboard.add_remapping(shot_choice_node, 'shot', new_goal_intro_pre_instr_action._id, 'shot')
+        blackboard.add_remapping(shot_choice_node, 'hand', new_goal_intro_pre_instr_action._id, 'hand')
+        if name == "stat_goal_intro_loop" or name == "set_goal_intro_loop":
+            blackboard.add_remapping(stat_choice_node, 'stat', new_goal_intro_pre_instr_action._id, 'stat')
     new_goal_intro_pre_instr_output_name = name + "_pre_instr_output"
     new_goal_intro_pre_instr_output = DisplayBehaviour(name=new_goal_intro_pre_instr_output_name, blackboard=blackboard)
     new_goal_intro_pre_instr_sequence.add_child(new_goal_intro_pre_instr_output)
@@ -1060,7 +1077,7 @@ def get_intro_sequence(name, blackboard, initialise_node, new_goal_start, new_go
 
         new_goal_intro_override_questioning_sequence_name = name + "_override_questioning_sequence"
         new_goal_intro_override_questioning_sequence, new_goal_player_choice, new_goal_intro_behaviour = get_intro_sequence(
-            new_goal_intro_override_questioning_sequence_name, blackboard, initialise_node, new_goal_start, new_goal, person_node, prev_goal_node)
+            new_goal_intro_override_questioning_sequence_name, blackboard, initialise_node, new_goal_start, new_goal, person_node, prev_goal_node, shot_choice_node, stat_choice_node)
 
         new_goal_intro_pre_instr_override_sequence_name = new_goal_intro_pre_instr_override_name + "_sequence"
         new_goal_intro_pre_instr_override_sequence = Progressor(name=new_goal_intro_pre_instr_override_sequence_name)
@@ -1099,10 +1116,16 @@ def get_intro_sequence(name, blackboard, initialise_node, new_goal_start, new_go
 
             baseline_goal = CreateSubgoal(name="create_baseline_goal", blackboard=blackboard)
             blackboard.add_remapping(new_goal._id, "new_goal", baseline_goal._id, "goal")
+            if name == "shot_goal_intro_loop" or name == "stat_goal_intro_loop" or name == "set_goal_intro_loop":
+                blackboard.add_remapping(shot_choice_node, 'shot', baseline_goal._id, 'shot')
+                blackboard.add_remapping(shot_choice_node, 'hand', baseline_goal._id, 'hand')
             gen_baseline_goal.add_child(baseline_goal)
 
             baseline_goal_start = TimestepCue(name="baseline_goal_start", blackboard=blackboard)
             blackboard.add_remapping(baseline_goal._id, 'new_goal', baseline_goal_start._id, 'goal')
+            if name == "shot_goal_intro_loop" or name == "stat_goal_intro_loop" or name == "set_goal_intro_loop":
+                blackboard.add_remapping(shot_choice_node, 'shot', baseline_goal_start._id, 'shot')
+                blackboard.add_remapping(shot_choice_node, 'hand', baseline_goal_start._id, 'hand')
             baseline_goal_start_until = Until(name="baseline_goal_start_until", child=baseline_goal_start)
             gen_baseline_goal.add_child(baseline_goal_start_until)
 
@@ -1145,8 +1168,9 @@ def get_intro_sequence(name, blackboard, initialise_node, new_goal_start, new_go
             gen_baseline_goal.add_child(baseline_goal_end_cue_until)
             blackboard.add_remapping(baseline_goal_end._id, 'new_goal', baseline_goal_end_cue._id, 'goal')
             blackboard.add_remapping(baseline_goal_end._id, 'phase', baseline_goal_end_cue._id, 'phase')
-            # blackboard.save('shot', config.shot, baseline_goal_end_cue._id)
-            # blackboard.save('hand', config.hand, baseline_goal_end_cue._id)
+            if name == "shot_goal_intro_loop" or name == "stat_goal_intro_loop" or name == "set_goal_intro_loop":
+                blackboard.add_remapping(shot_choice_node, 'shot', baseline_goal_end_cue._id, 'shot')
+                blackboard.add_remapping(shot_choice_node, 'hand', baseline_goal_end_cue._id, 'hand')
             first_time_check_selector.add_child(gen_baseline_goal)
             new_goal_intro_questioning_sequence.add_child(first_time_check_selector)
 
@@ -1164,9 +1188,9 @@ def get_intro_sequence(name, blackboard, initialise_node, new_goal_start, new_go
         blackboard.add_remapping(new_goal_intro_behav._id, 'behaviour', new_goal_intro_questioning_action._id,
                                  'behaviour')
         blackboard.add_remapping(person_node, 'name', new_goal_intro_questioning_action._id, 'name')
-        # blackboard.save('shot', config.shot, new_goal_intro_questioning_action._id)
-        # blackboard.save('hand', config.hand, new_goal_intro_questioning_action._id)
-        # blackboard.save('stat', config.stat, new_goal_intro_questioning_action._id)
+        if name == "shot_goal_intro_loop":
+            blackboard.add_remapping(shot_choice_node, 'shot', new_goal_intro_questioning_action._id, 'shot')
+            blackboard.add_remapping(shot_choice_node, 'hand', new_goal_intro_questioning_action._id, 'hand')
         new_goal_intro_questioning_output_name = name + "_questioning_output"
         new_goal_intro_questioning_output = DisplayBehaviour(name=new_goal_intro_questioning_output_name,
                                                              blackboard=blackboard)
@@ -1190,7 +1214,7 @@ def get_intro_sequence(name, blackboard, initialise_node, new_goal_start, new_go
 
         new_goal_intro_override_pre_instr_sequence_name = name + "override_pre_instr_sequence"
         new_goal_intro_override_pre_instr_sequence, new_goal_player_choice, new_goal_intro_behaviour = get_intro_sequence(
-            new_goal_intro_override_pre_instr_sequence_name, blackboard, initialise_node, new_goal_start, new_goal, person_node, prev_goal_node)
+            new_goal_intro_override_pre_instr_sequence_name, blackboard, initialise_node, new_goal_start, new_goal, person_node, prev_goal_node, shot_choice_node, stat_choice_node)
 
         new_goal_intro_questioning_override_until_name = new_goal_intro_questioning_override_name + "_until"
         # new_goal_intro_questioning_override_until = Until(name=new_goal_intro_questioning_override_until_name,
@@ -1251,9 +1275,11 @@ def get_intro_sequence(name, blackboard, initialise_node, new_goal_start, new_go
     blackboard.add_remapping(new_goal._id, 'new_goal', new_goal_intro_action._id, 'goal')
     blackboard.add_remapping(new_goal_intro_behav._id, 'behaviour', new_goal_intro_action._id, 'behaviour')
     blackboard.add_remapping(person_node, 'name', new_goal_intro_action._id, 'name')
-    # blackboard.save('shot', config.shot, new_goal_intro_action._id)
-    # blackboard.save('hand', config.hand, new_goal_intro_action._id)
-    # blackboard.save('stat', config.stat, new_goal_intro_action._id)
+    if name == "shot_goal_intro_loop" or name == "stat_goal_intro_loop" or name == "set_goal_intro_loop":
+        blackboard.add_remapping(shot_choice_node, 'shot', new_goal_intro_action._id, 'shot')
+        blackboard.add_remapping(shot_choice_node, 'hand', new_goal_intro_action._id, 'hand')
+        if name == "stat_goal_intro_loop" or name == "set_goal_intro_loop":
+            blackboard.add_remapping(stat_choice_node, 'stat', new_goal_intro_action._id, 'stat')
 
     # Display selected behaviour if not pre-instruction or questioning
     new_goal_intro_output_name = name + "_output"
@@ -1267,7 +1293,7 @@ def get_intro_sequence(name, blackboard, initialise_node, new_goal_start, new_go
     return new_goal_intro_sequence, new_goal_choice, new_goal_intro_behav
 
 
-def get_feedback_loop(name, behav, blackboard, goal_node, initialise_node, previous_behav_node, timestep_cue_node, person_node, prev_goal_node):
+def get_feedback_loop(name, behav, blackboard, goal_node, initialise_node, timestep_cue_node, person_node, shot_choice_node, stat_choice_node):
     """
     Creates a subtree which gives feedback at a given goal level.
     :param name :type str: the name to be used when creating nodes of the tree.
@@ -1324,9 +1350,11 @@ def get_feedback_loop(name, behav, blackboard, goal_node, initialise_node, previ
         blackboard.add_remapping(goal_node, 'new_goal', feedback_loop_end_action._id, 'goal')
         blackboard.add_remapping(feedback_behaviour._id, 'behaviour', feedback_loop_end_action._id, 'behaviour')
         blackboard.add_remapping(person_node, 'name', feedback_loop_end_action._id, 'name')
-        # blackboard.save('shot', config.shot, feedback_loop_end_action._id)
-        # blackboard.save('hand', config.hand, feedback_loop_end_action._id)
-        # blackboard.save('stat', config.stat, feedback_loop_end_action._id)
+        if name == "shot_goal_feedback_loop" or name == "stat_goal_feedback_loop" or name == "set_goal_feedback_loop":
+            blackboard.add_remapping(shot_choice_node, 'shot', feedback_loop_end_action._id, 'shot')
+            blackboard.add_remapping(shot_choice_node, 'hand', feedback_loop_end_action._id, 'hand')
+            if name == "stat_goal_feedback_loop" or name == "set_goal_feedback_loop":
+                blackboard.add_remapping(stat_choice_node, 'stat', feedback_loop_end_action._id, 'stat')
 
         feedback_loop_display_end_output = DisplayBehaviour(name="feedback_loop_display_end_output", blackboard=blackboard)
         feedback_loop_end_sequence.add_child(feedback_loop_display_end_output)
@@ -1350,9 +1378,11 @@ def get_feedback_loop(name, behav, blackboard, goal_node, initialise_node, previ
     blackboard.add_remapping(goal_node, 'new_goal', feedback_loop_action._id, 'goal')
     blackboard.add_remapping(feedback_behaviour._id, 'behaviour', feedback_loop_action._id, 'behaviour')
     blackboard.add_remapping(person_node, 'name', feedback_loop_action._id, 'name')
-    # blackboard.save('shot', config.shot, feedback_loop_action._id)
-    # blackboard.save('hand', config.hand, feedback_loop_action._id)
-    # blackboard.save('stat', config.stat, feedback_loop_action._id)
+    if name == "shot_goal_feedback_loop" or name == "stat_goal_feedback_loop" or name == "set_goal_feedback_loop":
+        blackboard.add_remapping(shot_choice_node, 'shot', feedback_loop_action._id, 'shot')
+        blackboard.add_remapping(shot_choice_node, 'hand', feedback_loop_action._id, 'hand')
+        if name == "stat_goal_feedback_loop" or name == "set_goal_feedback_loop":
+            blackboard.add_remapping(stat_choice_node, 'stat', feedback_loop_action._id, 'stat')
 
     # Display behaviour if not given behaviour
     output_name = name + "_output"

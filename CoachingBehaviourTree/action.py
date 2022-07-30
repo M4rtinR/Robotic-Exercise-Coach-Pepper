@@ -35,6 +35,8 @@ class Action:
     goal: int = None
     stat_measure: str = None
     stat_explanation: str = None
+    shot: str = None
+    hand: str = None
 
     def __str__(self):
         """
@@ -48,7 +50,7 @@ class Action:
                 else:
                     return f'{self.pre_msg}. You got an average score of {round(self.score, 2)}' + self.stat_measure + f' and were aiming for {round(self.target, 2)}' + self.stat_measure + '.'
             else:
-                return f'{self.pre_msg}. You got an average accuracy of {round(self.score, 2)} out of 5.'
+                return f'{self.pre_msg}. You got an average accuracy of {round(self.score, 2)} out of 5 for your {"backhand" if self.hand == "BH" else "forehand"} {self.shot}s today.'
             '''if self.goal is not config.ACTION_GOAL:
                 # TODO: add score-specific utterance (e.g. seconds, degrees) to explain the score better to the user.
                 print("ACTION, self.score = " + str(self.score))

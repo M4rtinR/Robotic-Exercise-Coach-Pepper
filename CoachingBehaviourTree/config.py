@@ -104,8 +104,8 @@ A_POSITIVEMODELING_PRAISE = 66
 A_END = 67
 A_SILENCE = 68
 
-SHOTS_PER_SET = 30
-SETS_PER_STAT = 3
+SHOTS_PER_SET = 10
+SETS_PER_STAT = 2
 
 shot_list_master = {"drop": 0,
                     "drive": 1,

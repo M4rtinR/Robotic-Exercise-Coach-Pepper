@@ -13241,7 +13241,7 @@ class BehaviourLibraryFunctions:
         elif stat == "followThroughTime":
             stat_utterance = "follow through length"
         elif stat == "followThroughRoll":
-            stat_utterance = "follow through direction"
+            stat_utterance = "follow through roll"
         if behaviour in [config.A_PREINSTRUCTION_FIRSTNAME, config.A_POSTINSTRUCTIONPOSITIVE_FIRSTNAME,
                          config.A_POSTINSTRUCTIONNEGATIVE_FIRSTNAME, config.A_PRAISE_FIRSTNAME,
                          config.A_SCOLD_FIRSTNAME,
@@ -13358,7 +13358,7 @@ class BehaviourLibraryFunctions:
                                 goal_level_insert = "shot"
                             elif goal_level == config.EXERCISE_GOAL:
                                 goal_level_insert = "swing metric"
-                            utterance = utterance + "Which " + goal_level_insert + " would you like to work on first? If you would prefer for me to choose for you, select the 'Choose For Me' option on my screen."
+                            utterance = utterance + "Which " + goal_level_insert + " would you like to work on next? If you would prefer for me to choose for you, select the 'Choose For Me' option on my screen."
                             config.overrideQuestioningOption = True
 
                     elif behaviour in [config.A_PREINSTRUCTION, config.A_PREINSTRUCTION_QUESTIONING,
@@ -13929,7 +13929,7 @@ class BehaviourLibraryFunctions:
                         if score is None or target is None:
                             stat_advice = "the first thing that happens is your racket goes up "
                             if stat == "approachTiming":
-                                stat_advice = "you start the down so that you can hit the ball in the appropriate position "
+                                stat_advice = "you start the downswing so that you can hit the ball in the appropriate position "
                             elif stat == "impactCutAngle":
                                 stat_advice = "your racket face stays open as you strike the ball "
                             elif stat == "impactSpeed":
@@ -13942,7 +13942,7 @@ class BehaviourLibraryFunctions:
                             if score < target:
                                 stat_advice = "the first thing that happens is your racket goes up "
                                 if stat == "approachTiming":
-                                    stat_advice = "you start the down swing early enough "
+                                    stat_advice = "you start the downswing swing early enough "
                                 elif stat == "impactCutAngle":
                                     stat_advice = "your racket face stays open as you strike the ball "
                                 elif stat == "impactSpeed":
@@ -14440,7 +14440,7 @@ class BehaviourLibraryFunctions:
                             if performance_insert == "":
                                 if behaviour == config.A_POSTINSTRUCTIONNEGATIVE_QUESTIONING:
                                     optional_question = "isn't it?"
-                                utterance = "I think this is the first time we've worked " + goal_level_insert + " together " + optional_question + name
+                                utterance = "I think this is the first time we've worked " + goal_level_insert + " in a session " + optional_question + name
                             else:
                                 utterance = utterance + goal_level_insert + " before, you took a step backwards with it" + optional_question
                     elif behaviour in [config.A_QUESTIONING, config.A_QUESTIONING_FIRSTNAME,
@@ -14449,7 +14449,7 @@ class BehaviourLibraryFunctions:
                         if goal_level == config.STAT_GOAL or goal_level == config.SET_GOAL:
                             goal_level_insert = "on your " + stat_utterance
                             if performance_insert == "":
-                                utterance = "Is this the first time we've worked " + goal_level_insert + " together " + name + "? Touch the back of my hand for yes or the top of my head for no."
+                                utterance = "Is this the first time we've worked " + goal_level_insert + " in a session " + name + "? Touch the back of my hand for yes or the top of my head for no."
                             else:
                                 utterance = utterance + "When we worked " + goal_level_insert + " before" + name + ", how do you feel you got on? Touch the back of my hand for good or the top of my head if you think it still needs work."
 
@@ -14721,7 +14721,7 @@ class BehaviourLibraryFunctions:
                             else:
                                 if behaviour == config.A_POSTINSTRUCTIONNEGATIVE_QUESTIONING:
                                     optional_question = "did you?"
-                                utterance = utterance + "You didn't do so well with your " + goal_level_insert + " that time " + optional_question
+                                utterance = utterance + goal_level_insert + " wasn't the best " + optional_question
 
                     elif behaviour in [config.A_QUESTIONING, config.A_QUESTIONING_FIRSTNAME,
                                        config.A_QUESTIONING_POSITIVEMODELING,

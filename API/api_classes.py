@@ -43,10 +43,12 @@ class TimestepCue(Resource):
                     return new_data, 200
 
                 elif int(content['goal_level']) == config.SESSION_GOAL:
-                    logging.debug('session goal setting controller values')
+                    print('session goal setting controller values')
                     if 'feedback' in content:  # End of session
                         logging.debug('end of session')
-                        config.performance = content['performance']
+                        config.score = float(content['score'][0:len(content['score']) - 1])
+                        config.target = 5
+                        config.performance = int(content['performance'])
                         config.goal_level = config.SESSION_GOAL
                         config.phase = config.PHASE_END
                         config.completed = config.COMPLETED_STATUS_UNDEFINED
@@ -105,20 +107,26 @@ class TimestepCue(Resource):
                     logging.debug('shot goal setting controller values')
                     if 'feedback' in content:  # End of shot
                         logging.debug('end of shot')
-                        config.score = content['score']
-                        config.target = content['tgtValue']
-                        config.performance = content['performance']
+                        config.score = float(content['score'][0:len(content['score']) - 1])
+                        config.target = 5
+                        config.performance = int(content['performance'])
                         config.goal_level = config.EXERCISE_GOAL
                         config.phase = config.PHASE_END
                         config.completed = config.COMPLETED_STATUS_FALSE
 
-                        while config.completed == config.COMPLETED_STATUS_FALSE:
+                        while config.completed == config.COMPLETED_STATUS_FALSE or (config.shot is None and config.session_time < config.MAX_SESSION_TIME):
                             pass
 
                         new_data = {
-                            'goal_level': 2,
-                            'completed': config.completed
+                            'goal_level': "2",
+                            'completed': str(config.completed)
                         }
+
+                        if config.session_time < config.MAX_SESSION_TIME:
+                            new_data['shot'] = config.shot
+                            new_data['hand'] = config.hand
+                        else:
+                            new_data['final'] = "1"
 
                         return new_data, 200
                     elif 'stop' in content:
@@ -396,7 +404,7 @@ class TimestepCue(Resource):
                             'shotSet': 1
                         }
 
-                        if config.set_count == 3:
+                        if config.set_count == config.SETS_PER_STAT:
                             new_data["final"] = 1
                         print("returning new_data: " + str(new_data))
                         return new_data, 200
@@ -490,7 +498,8 @@ class TimestepCue(Resource):
                     config.shot = shotWithSpaces
                     config.hand = content['hand']
                 else:
-                    config.stat = content['stat_selection']
+                    config.stat = content['stat_selection'].replace('%20', ' ')
+                    print("New stat = " + config.stat)
                 config.override = False
 
         else:

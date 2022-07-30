@@ -233,6 +233,7 @@ class FormatAction(Node):
         self.shot = nodedata.get_data('shot', config.shot)   # The shot type (can be None)
         self.hand = nodedata.get_data('hand', config.hand)   # Forehand or backhand associated with shot (can be None)
         self.stat = nodedata.get_data('stat', config.stat)   # The stat type (can be None)
+        # print("Configuring FormatAction: " + self._name + ". PHASE = " + str(nodedata.get_data('phase')) + ". performance = " + str(nodedata.get_data('performance')) + ". config.performance = " + str(config.performance) + ". shot = " + str(nodedata.get_data('shot')) + ". stat = " + str(nodedata.get_data('stat') + ", " + str(self.stat)))
 
     def run(self, nodedata):
         """
@@ -242,8 +243,8 @@ class FormatAction(Node):
         :return: NodeStatus.SUCCESS when an action has been created.
         """
         if not config.stop_set and not config.stop_session:
-            print("Formatting action: behaviour = {behaviour}, goal_level = {goal_level}, performance = {performance}, score = {score}, target = {target}, name = {name}, shot = {shot}, hand = {hand}".format(behaviour=self.behaviour, goal_level=self.goal_level, performance=self.performance, score=self.score, target=self.target, name=self.name, shot=self.shot, hand=self.hand))
-            logging.info("Formatting action: behaviour = {behaviour}, goal_level = {goal_level}, performance = {performance}, name = {name}, exercise = {exercise}".format(behaviour=self.behaviour, goal_level=self.goal_level, performance=self.performance, name=self.name, exercise=self.shot))
+            print("Formatting action: behaviour = {behaviour}, goal_level = {goal_level}, performance = {performance}, score = {score}, target = {target}, name = {name}, shot = {shot}, hand = {hand}, stat = {stat}".format(behaviour=self.behaviour, goal_level=self.goal_level, performance=self.performance, score=self.score, target=self.target, name=self.name, shot=config.shot, hand=config.hand, stat=config.stat))
+            logging.info("Formatting action: behaviour = {behaviour}, goal_level = {goal_level}, performance = {performance}, name = {name}, exercise = {exercise}".format(behaviour=self.behaviour, goal_level=self.goal_level, performance=self.performance, name=self.name, exercise=config.shot))
             if not(self.behaviour == config.A_SILENCE):
                 demo = None
                 if self.behaviour in [config.A_POSITIVEMODELING, config.A_NEGATIVEMODELING,
@@ -262,7 +263,7 @@ class FormatAction(Node):
                                       config.A_POSITIVEMODELING_CONCURRENTINSTRUCTIONPOSITIVE,
                                       config.A_POSITIVEMODELING_QUESTIONING, config.A_POSITIVEMODELING_HUSTLE,
                                       config.A_POSITIVEMODELING_PRAISE]:
-                    demo = self.behaviour_lib.get_demo_string(self.behaviour, self.goal_level, self.shot, self.hand, self.stat, config.leftHand)
+                    demo = self.behaviour_lib.get_demo_string(self.behaviour, self.goal_level, config.shot, config.hand, config.stat, config.leftHand)
                 question = None
                 if self.behaviour in [config.A_QUESTIONING, config.A_QUESTIONING_FIRSTNAME,
                                       config.A_QUESTIONING_POSITIVEMODELING,
@@ -295,7 +296,7 @@ class FormatAction(Node):
                     r = requests.post(config.screen_post_address + "0/newRep")
                 if self.performance is None:
                     self.performance = -1
-                pre_msg = self.behaviour_lib.get_pre_msg(self.behaviour, self.goal_level, self.performance, self.phase, self.name, self.shot, self.hand, self.stat, config.shot_count == 3 and config.set_count == config.SETS_PER_STAT, not config.set_count == 0 and not config.set_count == config.SETS_PER_STAT, self.score, self.target)
+                pre_msg = self.behaviour_lib.get_pre_msg(self.behaviour, self.goal_level, self.performance, self.phase, self.name, config.shot, config.hand, config.stat, config.shot_count == 3 and config.set_count == config.SETS_PER_STAT, not config.set_count == 0 and not config.set_count == config.SETS_PER_STAT, self.score, self.target)
                 if (self.score is None and self.performance is None) or config.has_score_been_provided:  # or config.given_score >= 2:
                     print("Formatting action, no score or performance")
                     nodedata.action = Action(pre_msg, demo=demo, question=question)
@@ -303,36 +304,39 @@ class FormatAction(Node):
                     print("Formatiing action, got score and performance")
                     print("ACTION, self.score = " + str(self.score))
                     print("ACTION, self.target = " + str(self.target))
-                    if self.stat == "racketPreparation" or self.stat == "approachTiming":
+                    if config.stat == "racketPreparation" or config.stat == "approachTiming":
                         stat_measure = "%"
-                        if self.stat == "racketPreparation":
+                        if config.stat == "racketPreparation":
                             stat_explanation = "The % relates to how high your racket gets before you hit the ball."
                         else:
                             stat_explanation = "The % relates to how well you have timed your swing to the ball."
-                    elif self.stat == "impactCutAngle" or self.stat == "followThroughRoll":
+                    elif config.stat == "impactCutAngle" or config.stat == "followThroughRoll":
                         stat_measure = " degrees"
-                        if self.stat == "impactCutAngle":
+                        if config.stat == "impactCutAngle":
                             stat_explanation = "This is the angle of your racket face at contact."
                         else:
                             stat_explanation = "This relates to how much you roll your wrist over after hitting the ball."
-                    elif self.stat == "impactSpeed":
+                    elif config.stat == "impactSpeed":
                         stat_measure = ""
                         stat_explanation = "This is the velocity of your racket as your strike the ball."
                     else:  # followThroughTime
                         stat_measure = " seconds"
                         stat_explanation = "This is a measure of how long it takes between hitting the ball and your swing stopping."
-
-                    if config.given_stat_explanation:
+                    if self.goal_level == config.EXERCISE_GOAL:
                         nodedata.action = Action(pre_msg, self.score, self.target, demo=demo, question=question,
-                                                 goal=self.goal_level, stat_measure=stat_measure)
-                        '''has_score_been_provided=config.has_score_been_provided,'''
-
+                                                 goal=self.goal_level, stat_measure=stat_measure, shot=config.shot, hand=config.hand)
                     else:
-                        nodedata.action = Action(pre_msg, self.score, self.target, demo=demo, question=question,
-                                                 goal=self.goal_level, stat_measure=stat_measure, stat_explanation=stat_explanation)
-                        '''has_score_been_provided=config.has_score_been_provided,'''
+                        if config.given_stat_explanation:
+                            nodedata.action = Action(pre_msg, self.score, self.target, demo=demo, question=question,
+                                                     goal=self.goal_level, stat_measure=stat_measure)
+                            '''has_score_been_provided=config.has_score_been_provided,'''
 
-                        # config.given_stat_explanation = True
+                        else:
+                            nodedata.action = Action(pre_msg, self.score, self.target, demo=demo, question=question,
+                                                     goal=self.goal_level, stat_measure=stat_measure, stat_explanation=stat_explanation)
+                            '''has_score_been_provided=config.has_score_been_provided,'''
+
+                            # config.given_stat_explanation = True
 
                     # config.has_score_been_provided = True
 
@@ -803,9 +807,9 @@ class EndSubgoal(Node):
                     if self.goal_level == config.EXERCISE_GOAL:
                         config.session_time += 1
                         config.shot = None
-                    if self.goal_level == config.STAT_GOAL:
-                        config.stat = None
+                        config.hand = None
                         config.used_stats = []
+                        config.shot_goal_created = False
 
                 print("Ended subgoal {old_goal}. New goal level = {new_goal}.".format(old_goal=self.goal_level, new_goal=nodedata.new_goal))
                 logging.info("Ended subgoal {old_goal}. New goal level = {new_goal}.".format(old_goal=self.goal_level, new_goal=nodedata.new_goal))
@@ -990,7 +994,7 @@ class TimestepCue(Node):
                     return NodeStatus(NodeStatus.ACTIVE, "Waiting for person goal data from guide.")
 
             elif self.goal_level == config.SESSION_GOAL:  # For session goal should have performance from previous session.
-                logging.debug("TimestepCue, config.goal_level = " + str(config.goal_level))
+                print("TimestepCue, config.goal_level = " + str(config.goal_level))
                 if config.goal_level == config.SESSION_GOAL:
                     if config.phase == config.PHASE_END:  # Feedback sequence
                         nodedata.phase = config.PHASE_END
@@ -1013,7 +1017,7 @@ class TimestepCue(Node):
 
                         logging.info(
                             "Feedback for session, performance = {performance}".format(performance=nodedata.get_data("performance")))
-                        logging.debug("Returning SUCCESS from TimestepCue session goal (end), stats = " + str(nodedata))
+                        print("Returning SUCCESS from TimestepCue session goal (end), stats = " + str(nodedata))
                         return NodeStatus(NodeStatus.SUCCESS, "Data for stat goal obtained from guide:" + str(nodedata))
                     else:
                         if config.sessions > 1:  # If this is not the first session, get previous performance from file.
@@ -1025,11 +1029,11 @@ class TimestepCue(Node):
                         nodedata.performance = config.performance
                         nodedata.phase = config.PHASE_START
                         config.completed = config.COMPLETED_STATUS_FALSE
-                        logging.debug("Returning SUCCESS from TimestepCue session goal, stats = " + str(nodedata))
+                        print("Returning SUCCESS from TimestepCue session goal, nodedata = " + str(nodedata))
                         return NodeStatus(NodeStatus.SUCCESS, "Data for session goal obtained from guide:" + str(nodedata))
                 else:
                     # config.goal_level = config.SESSION_GOAL
-                    logging.debug("Returning ACTIVE from TimestepCue session goal")
+                    print("Returning ACTIVE from TimestepCue session goal")
                     return NodeStatus(NodeStatus.ACTIVE, "Waiting for session goal data from guide.")
 
             elif self.goal_level == config.EXERCISE_GOAL:  # For shot goal should have performance from last time this shot was practiced.
@@ -1041,7 +1045,7 @@ class TimestepCue(Node):
                             nodedata.phase = config.PHASE_END
                             nodedata.score = config.metric_score_list
 
-                            f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + str(self.shot) + "/Baseline.txt", "r")
+                            f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + config.hand + str(config.shot) + "/Baseline.txt", "r")
                             file_contents = f.readlines()
                             f.close()
 
@@ -1053,7 +1057,7 @@ class TimestepCue(Node):
                                 file_contents[index] = str(score) + ", " + str(config.stat_list[stat_name]) + ", \n"
                                 index += 2
 
-                            f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + str(self.shot) + "/Baseline.txt", "w")
+                            f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + config.hand + str(config.shot) + "/Baseline.txt", "w")
                             f.writelines(file_contents)
                             f.close()
 
@@ -1069,16 +1073,16 @@ class TimestepCue(Node):
                                 config.session_score_list.append(nodedata.score)
 
                                 # Write performance data about the exercise just completed to file.
-                                f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + str(self.shot) + "/Aggregator.txt", "r")
+                                f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + config.hand + str(config.shot) + "/Aggregator.txt", "r")
                                 aggregator_contents = f.readlines()
                                 f.close()
                                 print("File contents = " + str(aggregator_contents))
 
-                                f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + str(self.shot) + "/" + str(config.sessions) + ".txt", "r")
+                                f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + config.hand + str(config.shot) + "/" + str(config.sessions) + ".txt", "r")
                                 this_session_contents = f.readlines()
                                 f.close()
 
-                                f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + str(self.shot) + "/Baseline.txt", "r")
+                                f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + config.hand + str(config.shot) + "/Baseline.txt", "r")
                                 baseline_contents = f.readlines()
                                 f.close()
 
@@ -1086,36 +1090,41 @@ class TimestepCue(Node):
                                 this_session_contents.insert(1, str(nodedata.performance) + "\n")
 
                                 aggregator_contents[0] = str(nodedata.score) + "\n"
-                                aggregator_contents[1] = str(nodedata.performance) + "\n"
+                                if len(aggregator_contents) > 1:
+                                    aggregator_contents[1] = str(nodedata.performance) + "\n"
+                                else:
+                                    aggregator_contents.append(str(nodedata.performance) + "\n")
 
                                 this_session_line_no = 2
                                 while len(this_session_contents) > this_session_line_no:
-                                    stat = this_session_contents[this_session_line_no] + "\n"
+                                    stat = this_session_contents[this_session_line_no]
                                     this_session_line_no += 1
                                     if not (stat in aggregator_contents):
                                         aggregator_contents.append(stat)
-                                        aggregator_contents.append(this_session_contents[this_session_line_no] + "\n")
+                                        aggregator_contents.append(this_session_contents[this_session_line_no])
                                     else:
                                         index = aggregator_contents.index(stat)
-                                        aggregator_contents[index+1] = this_session_contents[this_session_line_no] + "\n"
+                                        aggregator_contents[index+1] = this_session_contents[this_session_line_no]
 
                                     # Update baseline file
                                     index = baseline_contents.index(stat)
-                                    baseline_contents[index + 1] = this_session_contents[this_session_line_no] + "\n"
+                                    baseline_contents[index + 1] = this_session_contents[this_session_line_no]
 
                                     this_session_line_no += 1
+                                    lines_to_add = int(this_session_contents[this_session_line_no]) + 1
+                                    this_session_line_no += lines_to_add
 
                                 print("File contents = " + str(aggregator_contents))
 
-                                f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + str(self.shot) + "/Aggregator.txt", "w")
+                                f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + config.hand + str(config.shot) + "/Aggregator.txt", "w")
                                 f.writelines(aggregator_contents)
                                 f.close()
 
-                                f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + str(self.shot) + "/" + str(config.sessions) + ".txt", "w")
+                                f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + config.hand + str(config.shot) + "/" + str(config.sessions) + ".txt", "w")
                                 f.writelines(this_session_contents)
                                 f.close()
 
-                                f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + str(self.shot) + "/Baseline.txt", "w")
+                                f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + config.hand + str(config.shot) + "/Baseline.txt", "w")
                                 f.writelines(baseline_contents)
                                 f.close()
 
@@ -1138,7 +1147,7 @@ class TimestepCue(Node):
                         # Get performance data of previous time user did this exercise from file.
                         try:
                             print("Trying to open aggregator")
-                            f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + str(self.shot) + "/Aggregator.txt", "r")
+                            f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + config.hand + str(config.shot) + "/Aggregator.txt", "r")
                             print("Opened aggregator")
                             file_contents = f.readlines()
                             f.close()
@@ -1149,7 +1158,7 @@ class TimestepCue(Node):
                                 print("Trying to open baseline")
                                 # Create sorted stat list. Stat with the lowest score will come first. If this shot hasn't
                                 # been performed before, this will be done at the end of the baseline goal.
-                                f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + str(self.shot) + "/Baseline.txt", "r")
+                                f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + config.hand + str(config.shot) + "/Baseline.txt", "r")
                                 print("Opened baseline")
                                 file_contents = f.readlines()
                                 f.close()
@@ -1174,10 +1183,10 @@ class TimestepCue(Node):
 
                         except:  # If file doesn't exist, create it.
                             print(config.participantNo)
-                            print(self.hand)
-                            print(self.shot)
-                            os.mkdir("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + str(self.shot))
-                            f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + str(self.shot) + "/Aggregator.txt", "a")
+                            print(config.hand)
+                            print(config.shot)
+                            os.mkdir("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + config.hand + str(config.shot))
+                            f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + config.hand + str(config.shot) + "/Aggregator.txt", "a")
                             file_contents = "0"
                             file_contents = "0"
                             f.write(file_contents)
@@ -1209,16 +1218,16 @@ class TimestepCue(Node):
                             nodedata.score = config.score
                             nodedata.target = config.target
 
-                            f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + str(self.shot) + "/" + str(config.sessions) + ".txt", "r")
+                            f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + config.hand + str(config.shot) + "/" + str(config.sessions) + ".txt", "r")
                             file_contents = f.readlines()
                             f.close()
 
                             print("file contents of session_no.txt = " + str(file_contents))
-                            stat_name = str(self.stat) + "\n"
+                            stat_name = str(config.stat) + "\n"
                             index = file_contents.index(stat_name)
                             file_contents.insert(index+1, str(nodedata.score) + ", " + str(nodedata.performance) + ", \n")
 
-                            f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + str(self.shot) + "/" + str(config.sessions) + ".txt", "w")
+                            f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + config.hand + str(config.shot) + "/" + str(config.sessions) + ".txt", "w")
                             f.writelines(file_contents)
                             f.close()
 
@@ -1238,11 +1247,11 @@ class TimestepCue(Node):
                         # Get performance data of previous time user did this stat for this exercise from file.
                         stat_name = None
                         try:
-                            f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + str(self.shot) + "/Aggregator.txt", "r")
+                            f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + config.hand + str(config.shot) + "/Aggregator.txt", "r")
                             file_contents = f.readlines()
                             f.close()
 
-                            stat_name = str(self.stat) + "\n"
+                            stat_name = str(config.stat) + "\n"
                             if stat_name in file_contents:
                                 index = file_contents.index(stat_name)
                                 split = file_contents[index+1].split(", ")
@@ -1255,16 +1264,16 @@ class TimestepCue(Node):
                             print("File error")
 
                         try:
-                            f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + str(self.shot) + "/" + str(config.sessions) + ".txt", "r")
+                            f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + config.hand + str(config.shot) + "/" + str(config.sessions) + ".txt", "r")
                             file_contents = f.readlines()
                             f.close()
                         except:
-                            f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + str(self.shot) + "/" + str(config.sessions) + ".txt", "a")
+                            f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + config.hand + str(config.shot) + "/" + str(config.sessions) + ".txt", "a")
                             file_contents = []
                             f.close()
 
                         file_contents.append(stat_name)
-                        f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + str(self.shot) + "/" + str(config.sessions) + ".txt", "w")
+                        f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + config.hand + str(config.shot) + "/" + str(config.sessions) + ".txt", "w")
                         f.writelines(file_contents)
                         f.close()
 
@@ -1296,12 +1305,12 @@ class TimestepCue(Node):
                             config.stat_score_list.append(nodedata.score)
 
                             # Write to file
-                            f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + str(self.shot) + "/" + str(config.sessions) + ".txt", "r")
+                            f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + config.hand + str(config.shot) + "/" + str(config.sessions) + ".txt", "r")
                             file_contents = f.readlines()
                             f.close()
 
                             file_contents.append(str(nodedata.score) + ", " + str(nodedata.performance) + ", \n")
-                            f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + str(self.shot) + "/" + str(config.sessions) + ".txt", "w")
+                            f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + config.hand + str(config.shot) + "/" + str(config.sessions) + ".txt", "w")
                             f.writelines(file_contents)
                             f.close()
 
@@ -1319,26 +1328,29 @@ class TimestepCue(Node):
                         print("Set goal phase start")
                         nodedata.phase = config.PHASE_START
 
-                        f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + str(self.shot) + "/" + str(config.sessions) + ".txt", "r")
+                        f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + config.hand + str(config.shot) + "/" + str(config.sessions) + ".txt", "r")
                         file_contents = f.readlines()
                         f.close()
-                        stat_name = str(self.stat) + "\n"
+                        stat_name = str(config.stat) + "\n"
 
                         if len(config.stat_performance_list) > 0:
                             nodedata.performance = config.stat_performance_list[len(config.set_performance_list) - 1]  # Get last entry of stat performance list.
                             nodedata.score = config.stat_score_list[len(config.stat_score_list) - 1]
 
                             index = file_contents.index(stat_name)
-                            file_contents.insert(index+1, str(config.set_count) + "\n")
-                            f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + str(self.shot) + "/" + str(config.sessions) + ".txt", "w")
+                            if len(file_contents) > index:
+                                file_contents[index+1] = str(config.set_count + 1) + "\n"
+                            else:
+                                file_contents.append(str(config.set_count + 1) + "\n")
+                            f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + config.hand + str(config.shot) + "/" + str(config.sessions) + ".txt", "w")
                             f.writelines(file_contents)
                             f.close()
                         else:
                             nodedata.performance = None
                             nodedata.score = None
 
-                            file_contents.append(str(config.set_count) + "\n")
-                            f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + str(self.shot) + "/" + str(config.sessions) + ".txt", "w")
+                            file_contents.append(str(config.set_count + 1) + "\n")
+                            f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + config.hand + str(config.shot) + "/" + str(config.sessions) + ".txt", "w")
                             f.writelines(file_contents)
                             f.close()
 
@@ -1383,7 +1395,7 @@ class TimestepCue(Node):
                     config.completed = config.COMPLETED_STATUS_FALSE
 
                     # Create file for baseline goal.
-                    f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + str(self.shot) + "/Baseline.txt", "a")
+                    f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + config.hand + str(config.shot) + "/Baseline.txt", "a")
                     file_contents = ["racketPreparation\n",
                                      "0\n",
                                      "approachTiming\n",
@@ -1553,6 +1565,7 @@ class GetChoice(Node):
                     return NodeStatus(NodeStatus.SUCCESS,"Returning SUCCESS from GetUserChoice, shot = " + str(nodedata.hand) + " " + str(nodedata.shot))
                 else:  # STAT_CHOICE
                     stat = min(config.stat_list, key=config.stat_list.get)
+                    print("stat choice = " + str(stat) + ", used_stats = " + str(config.used_stats))
                     tempStatList = config.stat_list
                     while stat in config.used_stats:
                         tempStatList.pop(stat)
@@ -1564,6 +1577,7 @@ class GetChoice(Node):
 
                     nodedata.stat = stat
                     config.stat = stat
+                    print("get choice, setting stat to " + str(config.stat))
                     config.set_count = 0  # Reset the set count for this session to 0.
                     logging.debug("Returning SUCCESS from GetUserChoice, stat = " + str(nodedata.stat))
                     return NodeStatus(NodeStatus.SUCCESS,"Returning SUCCESS from GetUserChoice, stat = " + str(nodedata.stat))
@@ -1587,6 +1601,7 @@ class GetChoice(Node):
 
                     nodedata.stat = config.stat
                     config.used_stats.append(config.stat)
+                    print("get choice, setting stat to " + str(config.stat))
                     #config.performance = None
                     #config.score = -1
                     logging.debug("Returning SUCCESS from GetUserChoice, stat = " + str(nodedata.stat))
@@ -1906,7 +1921,7 @@ class CheckDoneBefore(Node):
 
         if not config.stop_set and not config.stop_session:
             try:
-                f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + self.hand + str(self.shot) + "/Aggregator.txt", "r")
+                f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + config.hand + str(config.shot) + "/Aggregator.txt", "r")
                 f_contents = f.readlines()
                 f.close()
                 if len(f_contents) > 1:
