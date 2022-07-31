@@ -887,7 +887,7 @@ def main():
 
     # Write final policy to file
     f = open(filename, "w")
-    f.writelines(config.policy_matrix.get_matrix())
+    f.writelines(str(config.policy_matrix.get_matrix()))
     f.close()
 
 def api_start():

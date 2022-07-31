@@ -10,6 +10,9 @@ COMPLETED_STATUS_UNDEFINED = -1
 COMPLETED_STATUS_FALSE = 0
 COMPLETED_STATUS_TRUE = 1
 
+Q_RESPONSE_POSITIVE = 1
+Q_RESPONSE_NEGATIVE = 0
+
 # Goal Levels
 PERSON_GOAL = 0
 SESSION_GOAL = 1
@@ -165,6 +168,10 @@ overriden = False  # Indicates whether an override has already occured at this g
 overridePreInstructionOption = False  # Will be set to True when user is being given the option to override a pre-instruction
 overrideQuestioningOption = False     # so that the correct screen can be displayed.
 getBehaviourGoalLevel = -1  # To keep track of which level the controller is in when getting a new behaviour from the policy.
+reset_action_score = False
+question_response = None
+feedback_question = False
+action_score_given = False
 
 # Initial values which will be updated when the API gets called by the guide.
 expecting_action_goal = False
@@ -178,9 +185,9 @@ motivation = 8
 # 1 = DRIVE, 5 = LOB, 0 = DROP
 shot = 1
 # "FH" or "BH"
-hand = "FH"
+hand = "BH"
 # "racketPreparation" = RACKET_PREP, "impactCutAngle" = IMPACT_CUT_ANGLE, "followThroughTime" = FOLLOW_THROUGH_TIME
-stat = "racketPreparation"
+stat = "followThroughTime"
 policy = -1
 leftHand = False
 

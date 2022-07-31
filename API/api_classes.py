@@ -55,6 +55,7 @@ class TimestepCue(Resource):
                     config.goal_level = config.SESSION_GOAL
                     config.phase = config.PHASE_END
                     config.completed = config.COMPLETED_STATUS_UNDEFINED
+                    config.question_response = config.Q_RESPONSE_POSITIVE if content['question'] == "True" else config.Q_RESPONSE_NEGATIVE
 
                     while config.completed == config.COMPLETED_STATUS_UNDEFINED:
                         pass
@@ -70,6 +71,7 @@ class TimestepCue(Resource):
                     config.goal_level = config.SESSION_GOAL
                     config.phase = config.PHASE_START
                     config.performance = None
+                    config.question_response = config.Q_RESPONSE_POSITIVE if content['question'] == "True" else config.Q_RESPONSE_NEGATIVE
                     # config.performance = content['performance']
 
                     while config.completed == config.COMPLETED_STATUS_UNDEFINED:
@@ -100,6 +102,7 @@ class TimestepCue(Resource):
                     config.goal_level = config.EXERCISE_GOAL
                     config.phase = config.PHASE_END
                     config.completed = config.COMPLETED_STATUS_FALSE
+                    config.question_response = config.Q_RESPONSE_POSITIVE if content['question'] == "True" else config.Q_RESPONSE_NEGATIVE
 
                     while config.completed == config.COMPLETED_STATUS_FALSE:
                         pass
@@ -116,6 +119,7 @@ class TimestepCue(Resource):
                     config.phase = config.PHASE_START
                     config.score = None
                     config.performance = None
+                    config.question_response = config.Q_RESPONSE_POSITIVE if content['question'] == "True" else config.Q_RESPONSE_NEGATIVE
 
                     if config.shot == -1:
                         config.shot = content['shotType']
@@ -153,6 +157,7 @@ class TimestepCue(Resource):
                     config.goal_level = config.STAT_GOAL
                     config.phase = config.PHASE_END
                     config.completed = config.COMPLETED_STATUS_UNDEFINED
+                    config.question_response = config.Q_RESPONSE_POSITIVE if content['question'] == "True" else config.Q_RESPONSE_NEGATIVE
 
                     while config.completed == config.COMPLETED_STATUS_UNDEFINED:
                         pass
@@ -175,6 +180,7 @@ class TimestepCue(Resource):
                     else:
                         config.performance = int(config.performance)'''
                     config.performance = None
+                    config.question_response = config.Q_RESPONSE_POSITIVE if content['question'] == "True" else config.Q_RESPONSE_NEGATIVE
 
                     while config.completed != config.COMPLETED_STATUS_FALSE:
                         pass
@@ -207,6 +213,7 @@ class TimestepCue(Resource):
                     elif targetString[-1] == "s":
                         targetString = content['tgtValue'][:-5]
                     config.avg_score = float(scoreString)
+                    config.action_score_given = False
                     config.set_score_list.append(float(scoreString))
                     config.target = float(targetString)
                     if not content['performance'] == "":
@@ -220,6 +227,8 @@ class TimestepCue(Resource):
                         config.goal_level = config.EXERCISE_GOAL
                         config.phase = config.PHASE_END
                         config.completed = config.COMPLETED_STATUS_TRUE
+
+                    config.question_response = config.Q_RESPONSE_POSITIVE if content['question'] == "True" else config.Q_RESPONSE_NEGATIVE
 
                     while not config.completed == config.COMPLETED_STATUS_FALSE:
                         pass
@@ -236,6 +245,7 @@ class TimestepCue(Resource):
                     config.goal_level = config.SET_GOAL
                     config.phase = config.PHASE_START
                     config.completed = config.COMPLETED_STATUS_UNDEFINED
+                    config.question_response = config.Q_RESPONSE_POSITIVE if content['question'] == "True" else config.Q_RESPONSE_NEGATIVE
 
                     while config.completed != config.COMPLETED_STATUS_FALSE:
                         pass
@@ -252,6 +262,7 @@ class TimestepCue(Resource):
                 #if expecting_action_goal:
                 logging.debug('action goal setting controller values')
                 config.action_score = float(content['score'])
+                config.action_score_given = True
                 performanceValue = config.MET
                 if content['performance'] == 'Very Low':
                     performanceValue = config.MUCH_REGRESSED
@@ -268,7 +279,14 @@ class TimestepCue(Resource):
                 elif content['performance'] == 'Good!':
                     performanceValue = config.MUCH_IMPROVED
                 else:
-                    logging.debug('no performanceValue found')
+                    performanceValue = int(content['performance'])
+                targetString = content['tgtValue']
+                if targetString[-1] == "%":
+                    targetString = content['tgtValue'][:-1]
+                elif targetString[-1] == "s":
+                    targetString = content['tgtValue'][:-5]
+                config.target = float(targetString)
+                config.performance = performanceValue
                 if config.performance == self.previous_shot_performance:  # We haven't received the set goal feedback so can safely update config.performance
                     config.performance = performanceValue            # Not perfect because we might have the same performance for set and action.
                 config.goal_level = config.ACTION_GOAL
@@ -277,8 +295,9 @@ class TimestepCue(Resource):
 
                 self.previous_shot_performance = performanceValue
 
-                while config.done_baseline_goal and (expecting_action_goal is False or not config.completed == config.COMPLETED_STATUS_TRUE):
+                while (config.done_baseline_goal and expecting_action_goal is False) or (config.done_baseline_goal and not config.completed == config.COMPLETED_STATUS_TRUE):
                     pass
+                print("past while")
 
                 new_data = {
                     'goal_level': 5,
@@ -301,7 +320,7 @@ class TimestepCue(Resource):
                         'shotSet': 1,
                         'shotSetComplete': 0
                     }'''
-
+                print("returning data")
                 return new_data, 200
 
         else:

@@ -107,15 +107,17 @@ class CoachingEnvironment(gym.Env, ABC):
             logging.debug(result)
 
         observation = self.policy.get_observation(state, action)
-        reward = self._calculate_reward(action, observation, config.score, config.target, config.performance)
+        print("about to calculate reward, score = " + str(config.action_score))
+        reward = self._calculate_reward(action, observation, config.action_score, config.target, config.performance, config.question_response)
 
         if action == config.A_END and config.goal_level == config.PERSON_GOAL:
             done = True
 
         return observation, reward, done, result
 
-    def _calculate_reward(self, action, observation, score, target, performance):
-        if score is None:
+    def _calculate_reward(self, action, observation, score, target, performance, question_feedback):
+        print("calculating reward, score = " + str(score))
+        '''if score is None or score == -1:
             return 0
         else:
             # Calculate reward based on how close score is to target
@@ -126,45 +128,59 @@ class CoachingEnvironment(gym.Env, ABC):
             elif score > target:
                 return 0.5
             else:
-                return -0.5
+                return -0.5'''
 
         # Option 1
-        '''
-        if score is None:
-            if action == config.A_QUESTIONING and config.question_type = config.FEEDBACK_QUESTION:
-                if config.question_feedback = 1:
-                    return 0.2
+        '''if score is None or score == -1:
+            if action == config.A_QUESTIONING and config.feedback_question:
+                if question_feedback == config.Q_RESPONSE_POSITIVE:
+                    returnValue = 0.2
                 else:
-                    return -0.2
-            elif action == config.A_QUESTIONING or action == config.A_PRE-INSTRUCTION:
+                    returnValue = -0.2
+                config.feedback_question = False
+                config.question_response = None
+                return returnValue
+            elif action == config.A_QUESTIONING or action == config.A_PREINSTRUCTION:
                 if config.overriden:
                     return -1  # If policy's decision to select shots for user or have user select shots, is overriden, receive a large negative reward.
             else:
                 return None  # No actions from user so reward is None and policy does not change.
         else:
-            if score == target:
-                return 1
-            # Each shot and stat has a different target score so reward will have to be calculated individually.
-            # This is just an example for racket face angle.
+            if config.action_score_given:
+                if score == target:
+                    return 1
+                # Each shot and stat has a different target score so reward will have to be calculated individually.
+                # This is just an example for racket face angle.
+                else:
+                    if config.stat == "impactCutAngle":
+                        difference = abs(target - score)
+                        # For every degree away from target, reward decreases by 0.1 down to a maximum of -1.
+                        reward = 1 - (difference * 0.1)
+                        return -1 if reward < -1 else reward
+                    elif config.stat == "followThroughTime":
+                        difference = target - score
+                        # For every 0.01 secs away from target, reward decreases by 0.1 down to a maximum of -1.
+                        reward = abs(1 - difference * 10)
+                        return -1 if reward < -1 else reward
+                    else:
+                        difference = abs(target - score)
+                        # For every 2% away from target, reward decreases by 0.1 down to a maximum of -1.
+                        reward = 1 - (difference / 2 * 0.1)
+                        return -1 if reward < -1 else reward
             else:
-                if stat == "impactCutAngle":
-                    difference = abs(target - score)
-                    # For every degree away from target, reward decreases by 0.1 down to a maximum of -1.
-                    reward = 1 - (difference * 0.1)
-                    return -1 if reward < -1 else reward
-                elif stat == "followThroughTime":
-                    etc
-        '''
+                return None'''
 
         # Option 2
-        '''
         if score is None:
-            if action == config.A_QUESTIONING and config.question_type = config.FEEDBACK_QUESTION:
-                if config.question_feedback = 1:
-                    return 0.2
+            if action == config.A_QUESTIONING and config.feedback_question:
+                if question_feedback == config.Q_RESPONSE_POSITIVE:
+                    returnValue = 0.2
                 else:
-                    return -0.2
-            elif action == config.A_QUESTIONING or action == config.A_PRE-INSTRUCTION:
+                    returnValue = -0.2
+                config.feedback_question = False
+                config.question_response = None
+                return returnValue
+            elif action == config.A_QUESTIONING or action == config.A_PREINSTRUCTION:
                 if config.overriden:
                     return -1  # If policy's decision to select shots for user or have user select shots, is overriden, receive a large negative reward.
             else:
@@ -179,7 +195,7 @@ class CoachingEnvironment(gym.Env, ABC):
             else:
                 reward = -1 + (decimal*2)  # return a reward between -1 and 1.
             return reward
-        '''
+
 
         # Option 3
         '''
