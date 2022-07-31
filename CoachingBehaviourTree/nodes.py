@@ -1474,7 +1474,11 @@ class DurationCheck(Node):
             # TODO update once getting actual time from user
             # Will return FAIL when when duration has not been reached. SUCCESS when it has.
             # self.current_time += 1
-            if self.session_duration > self.current_time:
+            self.current_time = datetime.now()
+            self.session_duration = self.current_time - self.start_time
+
+            session_duration_delta = self.session_duration.total_seconds()
+            if session_duration_delta > config.MAX_SESSION_TIME:
                 print("Session time limit NOT reached, current duration = {a}, session limit = {limit}.".format(
                     a=self.current_time, limit=self.session_duration))
                 logging.info("Session time limit NOT reached, current duration = {a}, session limit = {limit}.".format(a=self.current_time - self.start_time, limit=self.session_duration))
@@ -1745,7 +1749,7 @@ class InitialiseBlackboard(Node):
         nodedata.performance = -1
         nodedata.phase = config.PHASE_START
         nodedata.bl = BehaviourLibraryFunctions("SquashDict", squash_behaviour_library)
-        nodedata.start_time = 0  # TODO: update with actual time.
+        nodedata.start_time = datetime.now()  # TODO: update with actual time.
 
         # Create file for this participant if it is their first session.
         try:
