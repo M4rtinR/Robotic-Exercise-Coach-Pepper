@@ -56,10 +56,11 @@ import requests
 # post_address = 'http://192.168.1.174:4999/output'
 
 # Robot through ITT Pepper router:
-# post_address = "http://192.168.1.207:4999/output"
+post_address = "http://192.168.1.207:4999/output"
+screen_post_address = "http://192.168.1.207:8000/"
 
 # Robot through hotspot:
-post_address = "http://192.168.43.19:4999/output"
+# post_address = "http://192.168.43.19:4999/output"
 
 
 class GetBehaviour(Node):
@@ -127,31 +128,34 @@ class GetBehaviour(Node):
             for accesses by other nodes.
         :return: NodeStatus.SUCCESS when a behaviour and observation has been obtained from the policy wrapper.
         """
-        print('GetBehaviour, self.goal_level = ' + str(self.goal_level) + ', nodedata.goal = ' + str(nodedata.goal))
-        policy = PolicyWrapper(self.belief)  # TODO: generate this at start of interaction and store on blackboard.
-        #, nodedata.obs_behaviour
-        nodedata.behaviour = policy.get_behaviour(self.state, self.goal_level, self.performance, self.phase)
-        logging.debug('Got behaviour: ' + str(nodedata.behaviour))
+        if not controller.stop_set and not controller.stop_session:
+            print('GetBehaviour, self.goal_level = ' + str(self.goal_level) + ', nodedata.goal = ' + str(nodedata.goal))
+            policy = PolicyWrapper(self.belief)  # TODO: generate this at start of interaction and store on blackboard.
+            #, nodedata.obs_behaviour
+            nodedata.behaviour = policy.get_behaviour(self.state, self.goal_level, self.performance, self.phase)
+            logging.debug('Got behaviour: ' + str(nodedata.behaviour))
 
-        # If behaviour occurs twice, just skip to pre-instruction.
-        if nodedata.behaviour in controller.used_behaviours and (self.goal_level == PolicyWrapper.SESSION_GOAL or self.goal_level == PolicyWrapper.EXERCISE_GOAL or self.goal_level == PolicyWrapper.SET_GOAL):
-            nodedata.behaviour = Policy.A_PREINSTRUCTION
-            logging.debug('Got new behaviour: 1')
-            # controller.matching_behav = 0
+            # If behaviour occurs twice, just skip to pre-instruction.
+            if nodedata.behaviour in controller.used_behaviours and (self.goal_level == PolicyWrapper.SESSION_GOAL or self.goal_level == PolicyWrapper.EXERCISE_GOAL or self.goal_level == PolicyWrapper.SET_GOAL):
+                nodedata.behaviour = Policy.A_PREINSTRUCTION
+                logging.debug('Got new behaviour: 1')
+                # controller.matching_behav = 0
+            else:
+                controller.used_behaviours.append(nodedata.behaviour)
+
+            controller.prev_behav = nodedata.behaviour
+
+            controller.observation = policy.get_observation(self.state, nodedata.behaviour)
+            print("self.need_score = " + str(self.need_score) + ", controller.scores_provided = " + str(controller.scores_provided) + ", controller.has_score_been_provided = " + str(controller.has_score_been_provided))
+            if self.need_score and controller.scores_provided < 1:
+                controller.has_score_been_provided = False
+                print("set has_score_been_provided to False")
+            # logging.debug('Got observation: ' + str(nodedata.behaviour))
+            print("Returning SUCCESS from GetBehaviour, nodedata = " + str(nodedata))
+            logging.debug("Returning SUCCESS from GetBehaviour, nodedata = " + str(nodedata))
+            return NodeStatus(NodeStatus.SUCCESS, "Obtained behaviour " + str(nodedata.behaviour))
         else:
-            controller.used_behaviours.append(nodedata.behaviour)
-
-        controller.prev_behav = nodedata.behaviour
-
-        controller.observation = policy.get_observation(self.state, nodedata.behaviour)
-        print("self.need_score = " + str(self.need_score) + ", controller.scores_provided = " + str(controller.scores_provided) + ", controller.has_score_been_provided = " + str(controller.has_score_been_provided))
-        if self.need_score and controller.scores_provided < 1:
-            controller.has_score_been_provided = False
-            print("set has_score_been_provided to False")
-        # logging.debug('Got observation: ' + str(nodedata.behaviour))
-        print("Returning SUCCESS from GetBehaviour, nodedata = " + str(nodedata))
-        logging.debug("Returning SUCCESS from GetBehaviour, nodedata = " + str(nodedata))
-        return NodeStatus(NodeStatus.SUCCESS, "Obtained behaviour " + str(nodedata.behaviour))
+            return NodeStatus(NodeStatus.SUCCESS, "Stop set get behaviour")
 
     def cleanup(self, nodedata):
         """
@@ -225,71 +229,74 @@ class FormatAction(Node):
             nodes.
         :return: NodeStatus.SUCCESS when an action has been created.
         """
-        print("Formatting action: behaviour = {behaviour}, goal_level = {goal_level}, performance = {performance}, name = {name}, exercise = {exercise}".format(behaviour=self.behaviour, goal_level=self.goal_level, performance=self.performance, name=self.name, exercise=self.exercise))
-        logging.info("Formatting action: behaviour = {behaviour}, goal_level = {goal_level}, performance = {performance}, name = {name}, exercise = {exercise}".format(behaviour=self.behaviour, goal_level=self.goal_level, performance=self.performance, name=self.name, exercise=self.exercise))
-        if not(self.behaviour == Policy.A_SILENCE):
-            demo = None
-            if self.behaviour in [Policy.A_POSITIVEMODELING, Policy.A_NEGATIVEMODELING,
-                                  Policy.A_PREINSTRUCTION_POSITIVEMODELING, Policy.A_PREINSTRUCTION_NEGATIVEMODELING,
-                                  Policy.A_POSTINSTRUCTIONPOSITIVE_POSITIVE_MODELING,
-                                  Policy.A_POSTINSTRUCTIONPOSITIVE_NEGATIVE_MODELING,
-                                  Policy.A_POSTINSTRUCTIONNEGATIVE_POSITIVEMODELING,
-                                  Policy.A_POSTINSTRUCTIONNEGATIVE_NEGATIVEMODELING,
-                                  Policy.A_QUESTIONING_NEGATIVEMODELING,
-                                  Policy.A_POSITIVEMODELING_POSTINSTRUCTIONPOSITIVE,
-                                  Policy.A_NEGATIVEMODELING_POSTINSTRUCTIONNEGATIVE,
-                                  Policy.A_POSITIVEMODELING_PREINSTRUCTION, Policy.A_SCOLD_POSITIVEMODELING,
-                                  Policy.A_CONCURRENTINSTRUCTIONPOSITIVE_POSITIVEMODELING,
-                                  Policy.A_CONCURRENTINSTRUCTIONNEGATIVE_NEGATIVEMODELING,
-                                  Policy.A_MANUALMANIPULATION_POSITIVEMODELING, Policy.A_QUESTIONING_POSITIVEMODELING,
-                                  Policy.A_POSITIVEMODELING_CONCURRENTINSTRUCTIONPOSITIVE,
-                                  Policy.A_POSITIVEMODELING_QUESTIONING, Policy.A_POSITIVEMODELING_HUSTLE,
-                                  Policy.A_POSITIVEMODELING_PRAISE]:
-                demo = self.behaviour_lib.get_demo_string(self.behaviour, self.exercise, self.goal_level)
-            question = None
-            if self.behaviour in [Policy.A_QUESTIONING, Policy.A_QUESTIONING_FIRSTNAME,
-                                  Policy.A_QUESTIONING_POSITIVEMODELING,
-                                  Policy.A_POSITIVEMODELING_QUESTIONING, Policy.A_QUESTIONING_NEGATIVEMODELING]:
-                if self.goal_level == PolicyWrapper.ACTION_GOAL:
-                    question = "Concurrent"
-                else:
-                    if self.performance is None:
-                        question = "FirstTime"
+        if not controller.stop_set and not controller.stop_session:
+            print("Formatting action: behaviour = {behaviour}, goal_level = {goal_level}, performance = {performance}, name = {name}, exercise = {exercise}".format(behaviour=self.behaviour, goal_level=self.goal_level, performance=self.performance, name=self.name, exercise=self.exercise))
+            logging.info("Formatting action: behaviour = {behaviour}, goal_level = {goal_level}, performance = {performance}, name = {name}, exercise = {exercise}".format(behaviour=self.behaviour, goal_level=self.goal_level, performance=self.performance, name=self.name, exercise=self.exercise))
+            if not(self.behaviour == Policy.A_SILENCE):
+                demo = None
+                if self.behaviour in [Policy.A_POSITIVEMODELING, Policy.A_NEGATIVEMODELING,
+                                      Policy.A_PREINSTRUCTION_POSITIVEMODELING, Policy.A_PREINSTRUCTION_NEGATIVEMODELING,
+                                      Policy.A_POSTINSTRUCTIONPOSITIVE_POSITIVE_MODELING,
+                                      Policy.A_POSTINSTRUCTIONPOSITIVE_NEGATIVE_MODELING,
+                                      Policy.A_POSTINSTRUCTIONNEGATIVE_POSITIVEMODELING,
+                                      Policy.A_POSTINSTRUCTIONNEGATIVE_NEGATIVEMODELING,
+                                      Policy.A_QUESTIONING_NEGATIVEMODELING,
+                                      Policy.A_POSITIVEMODELING_POSTINSTRUCTIONPOSITIVE,
+                                      Policy.A_NEGATIVEMODELING_POSTINSTRUCTIONNEGATIVE,
+                                      Policy.A_POSITIVEMODELING_PREINSTRUCTION, Policy.A_SCOLD_POSITIVEMODELING,
+                                      Policy.A_CONCURRENTINSTRUCTIONPOSITIVE_POSITIVEMODELING,
+                                      Policy.A_CONCURRENTINSTRUCTIONNEGATIVE_NEGATIVEMODELING,
+                                      Policy.A_MANUALMANIPULATION_POSITIVEMODELING, Policy.A_QUESTIONING_POSITIVEMODELING,
+                                      Policy.A_POSITIVEMODELING_CONCURRENTINSTRUCTIONPOSITIVE,
+                                      Policy.A_POSITIVEMODELING_QUESTIONING, Policy.A_POSITIVEMODELING_HUSTLE,
+                                      Policy.A_POSITIVEMODELING_PRAISE]:
+                    demo = self.behaviour_lib.get_demo_string(self.behaviour, self.exercise, self.goal_level)
+                question = None
+                if self.behaviour in [Policy.A_QUESTIONING, Policy.A_QUESTIONING_FIRSTNAME,
+                                      Policy.A_QUESTIONING_POSITIVEMODELING,
+                                      Policy.A_POSITIVEMODELING_QUESTIONING, Policy.A_QUESTIONING_NEGATIVEMODELING]:
+                    if self.goal_level == PolicyWrapper.ACTION_GOAL:
+                        question = "Concurrent"
                     else:
-                        question = "GoodBad"
+                        if self.performance is None:
+                            question = "FirstTime"
+                        else:
+                            question = "GoodBad"
 
-            # If this is the start of a new exercise set, we need to reset the counter on Pepper's screen.
-            if self.behaviour in [Policy.A_PREINSTRUCTION_POSITIVEMODELING, Policy.A_PREINSTRUCTION,
-                                  Policy.A_POSITIVEMODELING_PREINSTRUCTION, Policy.A_PREINSTRUCTION_PRAISE,
-                                  Policy.A_PREINSTRUCTION_NEGATIVEMODELING,
-                                  Policy.A_PREINSTRUCTION_QUESTIONING,
-                                  Policy.A_PREINSTRUCTION_MANUALMANIPULATION,
-                                  Policy.A_PREINSTRUCTION_FIRSTNAME,
-                                  Policy.A_MANUALMANIPULATION_PREINSTRUCTION]:
-                r = requests.post("http://192.168.43.19:8000/0/newRep")
+                # If this is the start of a new exercise set, we need to reset the counter on Pepper's screen.
+                if self.behaviour in [Policy.A_PREINSTRUCTION_POSITIVEMODELING, Policy.A_PREINSTRUCTION,
+                                      Policy.A_POSITIVEMODELING_PREINSTRUCTION, Policy.A_PREINSTRUCTION_PRAISE,
+                                      Policy.A_PREINSTRUCTION_NEGATIVEMODELING,
+                                      Policy.A_PREINSTRUCTION_QUESTIONING,
+                                      Policy.A_PREINSTRUCTION_MANUALMANIPULATION,
+                                      Policy.A_PREINSTRUCTION_FIRSTNAME,
+                                      Policy.A_MANUALMANIPULATION_PREINSTRUCTION]:
+                    r = requests.post(screen_post_address + "0/newRep")
 
-            pre_msg = self.behaviour_lib.get_pre_msg(self.behaviour, self.goal_level, self.performance, self.phase, self.name, self.exercise, controller.exercise_count == 3 and controller.set_count == 1, controller.set_count == 1)
-            if (self.score is None and self.performance is None):  # or controller.given_score >= 2:
-                nodedata.action = Action(pre_msg, demo=demo, question=question)
+                pre_msg = self.behaviour_lib.get_pre_msg(self.behaviour, self.goal_level, self.performance, self.phase, self.name, self.exercise, controller.exercise_count == 3 and controller.set_count == 1, controller.set_count == 1)
+                if (self.score is None and self.performance is None):  # or controller.given_score >= 2:
+                    nodedata.action = Action(pre_msg, demo=demo, question=question)
+                else:
+                    nodedata.action = Action(pre_msg, self.score, self.target, demo=demo, question=question, goal=self.goal_level)
+                    #if self.goal_level == PolicyWrapper.EXERCISE_GOAL or self.goal_level == PolicyWrapper.SESSION_GOAL or self.goal_level == PolicyWrapper.PERSON_GOAL:
+                    #    controller.given_score += 1
             else:
-                nodedata.action = Action(pre_msg, self.score, self.target, demo=demo, question=question, goal=self.goal_level)
-                #if self.goal_level == PolicyWrapper.EXERCISE_GOAL or self.goal_level == PolicyWrapper.SESSION_GOAL or self.goal_level == PolicyWrapper.PERSON_GOAL:
-                #    controller.given_score += 1
+                # If silence, we still need to update the screen display on Pepper because a rep may have been done.
+                output = {
+                    "silence": "True"
+                }
+                # Send post request to Pepper
+                r = requests.post(post_address, json=output)
+
+                print("Returning FAIL from FormatAction, behaviour = " + str(self.behaviour))
+                logging.debug("Returning FAIL from FormatAction, behaviour = " + str(self.behaviour))
+                return NodeStatus(NodeStatus.FAIL, "Behaviour == A_SILENCE")
+
+            print("Returning SUCCESS from FormatAction, action = " + str(nodedata.action))
+            logging.debug("Returning SUCCESS from FormatAction, action = " + str(nodedata.action))
+            return NodeStatus(NodeStatus.SUCCESS, "Created action from given behaviour.")
         else:
-            # If silence, we still need to update the screen display on Pepper because a rep may have been done.
-            output = {
-                "silence": "True"
-            }
-            # Send post request to Pepper
-            r = requests.post(post_address, json=output)
-
-            print("Returning FAIL from FormatAction, behaviour = " + str(self.behaviour))
-            logging.debug("Returning FAIL from FormatAction, behaviour = " + str(self.behaviour))
-            return NodeStatus(NodeStatus.FAIL, "Behaviour == A_SILENCE")
-
-        print("Returning SUCCESS from FormatAction, action = " + str(nodedata.action))
-        logging.debug("Returning SUCCESS from FormatAction, action = " + str(nodedata.action))
-        return NodeStatus(NodeStatus.SUCCESS, "Created action from given behaviour.")
+            return NodeStatus(NodeStatus.SUCCESS, "Stop set/session format action")
 
 
 class CheckForBehaviour(Node):
@@ -341,16 +348,19 @@ class CheckForBehaviour(Node):
         categories are A_PREINSTRUCTION, A_POSTINSTRUCTIONPOSITIVE and A_POSTINSTRUCTIONNEGATIVE.
         :return: NodeStatus.SUCCESS if the behaviour is a member of the given category, NodeStatus.FAIL otherwise.
         """
-        # TODO: Update for variants of check_behaviour.
-        # SUCCESS if next behaviour is given behaviour, else FAIL
-        if self._is_example_of_behaviour(self.behaviour, self.check_behaviour):
-            controller.used_behaviours = []
-            logging.debug("Returning SUCCESS from CheckForBehaviour, behaviour found = " + str(self.behaviour))
-            # controller.completed = controller.COMPLETED_STATUS_FALSE
-            return NodeStatus(NodeStatus.SUCCESS, "Behaviour " + str(self.check_behaviour) + " found in the form " + str(self.behaviour))
+        if not controller.stop_set and not controller.stop_session:
+            # TODO: Update for variants of check_behaviour.
+            # SUCCESS if next behaviour is given behaviour, else FAIL
+            if self._is_example_of_behaviour(self.behaviour, self.check_behaviour):
+                controller.used_behaviours = []
+                logging.debug("Returning SUCCESS from CheckForBehaviour, behaviour found = " + str(self.behaviour))
+                # controller.completed = controller.COMPLETED_STATUS_FALSE
+                return NodeStatus(NodeStatus.SUCCESS, "Behaviour " + str(self.check_behaviour) + " found in the form " + str(self.behaviour))
+            else:
+                logging.debug("Returning FAIL from CheckForBehaviour, behaviour not found = " + str(self.check_behaviour) + ", input behaviour = " + str(self.behaviour))
+                return NodeStatus(NodeStatus.FAIL, "Behaviour " + str(self.check_behaviour) + " not found.")
         else:
-            logging.debug("Returning FAIL from CheckForBehaviour, behaviour not found = " + str(self.check_behaviour) + ", input behaviour = " + str(self.behaviour))
-            return NodeStatus(NodeStatus.FAIL, "Behaviour " + str(self.check_behaviour) + " not found.")
+            return NodeStatus(NodeStatus.SUCCESS, "Stop set/session check behaviour")
 
     def _is_example_of_behaviour(self, behaviour, check_behaviour):
         if check_behaviour == Policy.A_PREINSTRUCTION:
@@ -428,7 +438,7 @@ class DisplayBehaviour(Node):
         else:
             phase = "non-exercise"
         #utteranceURL = "http://192.168.43.19:8000/Test Utterance/non-exercise/newUtterance".replace(' ', '%20')
-        utteranceURL = "http://192.168.43.19:8000/" + str(self.action).replace(' ', '%20') + "/" + phase + "/newUtterance"
+        utteranceURL = "http://192.168.1.207:8000/" + str(self.action).replace(' ', '%20') + "/" + phase + "/newUtterance"
         r = requests.post(utteranceURL)
         # Send post request to Pepper
         r = requests.post(post_address, json=output)
@@ -610,9 +620,9 @@ class CreateSubgoal(Node):
                     exerciseString = "CaneRotations"
                 else:
                     exerciseString = "ShoulderOpeners"
-                utteranceURL = "http://192.168.43.19:8000/" + exerciseString + "/newPicture"
+                utteranceURL = "http://192.168.1.207:8000/" + exerciseString + "/newPicture"
                 r = requests.post(utteranceURL)
-                r = requests.post("http://192.168.43.19:8000/0/newRep")
+                r = requests.post("http://192.168.1.207:8000/0/newRep")
             controller.phase = PolicyWrapper.PHASE_START  # Start of goal will always be before something happens.
             print("Created subgoal, new goal level = {}".format(nodedata.new_goal))
             logging.info("Created subgoal, new goal level = {}".format(nodedata.new_goal))
@@ -1326,7 +1336,7 @@ class OperatorInput(Node):
         nodedata.score = rep_time_delta
         controller.exercise_count += 1
         # Send exercise count to Pepper's tablet screen
-        r = requests.post("http://192.168.43.19:8000/" + str(controller.exercise_count) + "/newRep")
+        r = requests.post("http://192.168.1.207:8000/" + str(controller.exercise_count) + "/newRep")
 
         # Controller start_time will be reset when the action goal is created.
 
