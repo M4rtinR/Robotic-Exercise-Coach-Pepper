@@ -29,6 +29,7 @@ EndSetEvent(Node)
     Check if the user has chosen to end the set.
 """
 import logging
+import os
 from statistics import mean, mode
 import time
 from datetime import datetime, timedelta
@@ -46,6 +47,7 @@ from Policy.policy_wrapper import PolicyWrapper
 import numpy as np
 import random
 import requests
+import operator
 
 '''# Robot through Peppernet router:
 # post_address = 'http://192.168.1.237:4999/output'
@@ -134,7 +136,7 @@ class GetBehaviour(Node):
             # policy = PolicyWrapper(self.belief)  # TODO: generate this at start of interaction and store on blackboard.
             #, nodedata.obs_behaviour
             # nodedata.behaviour = policy.get_behaviour(self.state, self.goal_level, self.performance, self.phase)
-            if config.behaviour_displayed:  # If we need a new behaviour, return active so that control as passed back to controller to generate new behaviour from policy.
+            if config.behaviour_displayed or ((config.behaviour == config.A_HUSTLE or config.behaviour == config.A_SILENCE) and not self.goal_level == config.ACTION_GOAL):  # If we need a new behaviour, return active so that control as passed back to controller to generate new behaviour from policy.
                 config.need_new_behaviour = True
                 logging.debug("Returning ACTIVE from GetBehaviour, nodedata = " + str(nodedata))
                 return NodeStatus(NodeStatus.ACTIVE, "Need new behaviour")
@@ -154,16 +156,16 @@ class GetBehaviour(Node):
                 config.prev_behav = nodedata.behaviour
         
                 config.observation = policy.get_observation(self.state, nodedata.behaviour)"""
-                print("self.need_score = " + str(self.need_score) + ", config.scores_provided = " + str(config.scores_provided) + ", config.has_score_been_provided = " + str(config.has_score_been_provided))
-                if self.need_score and config.scores_provided < 1:
+                ''' print("self.need_score = " + str(self.need_score) + ", config.scores_provided = " + str(config.scores_provided) + ", config.has_score_been_provided = " + str(config.has_score_been_provided))
+                if self.need_score and not config.scores_provided < 1:
                     config.has_score_been_provided = False
-                    print("set has_score_been_provided to False")
+                    print("set has_score_been_provided to False")'''
                 # logging.debug('Got observation: ' + str(nodedata.behaviour))
                 print("Returning SUCCESS from GetBehaviour, nodedata = " + str(nodedata))
                 logging.debug("Returning SUCCESS from GetBehaviour, nodedata = " + str(nodedata))
                 return NodeStatus(NodeStatus.SUCCESS, "Obtained behaviour " + str(nodedata.behaviour))
         else:
-            return NodeStatus(NodeStatus.SUCCESS, "Stop set get behaviour")
+            return NodeStatus(NodeStatus.SUCCESS, "Stop set/session get behaviour")
 
     def cleanup(self, nodedata):
         """
@@ -221,7 +223,7 @@ class FormatAction(Node):
         print("Configuring FormatAction: " + self._name + ". PHASE = " + str(nodedata.get_data('phase')) + ". performance = " + str(nodedata.get_data('performance')) + ". config.performance = " + str(config.performance))
         # logging.debug("FormatAction nodedata: " + str(nodedata))
         self.goal_level = nodedata.get_data('goal')          # Which level of goal we are currently in (e.g. SET_GOAL)
-        self.performance = nodedata.get_data('performance', 0)  # Which level of performance the player achieved (e.g. MET)
+        self.performance = nodedata.get_data('performance', None)  # Which level of performance the player achieved (e.g. MET)
         self.phase = nodedata.get_data('phase')              # PHASE_START or PHASE_END
         self.score = nodedata.get_data('score')              # Numerical score from sensor relating to the exercise (can be None)
         self.target = nodedata.get_data('target')            # Numerical target score for the exercise (can be None)
@@ -263,11 +265,17 @@ class FormatAction(Node):
                 if self.behaviour in [config.A_QUESTIONING, config.A_QUESTIONING_FIRSTNAME,
                                       config.A_QUESTIONING_POSITIVEMODELING,
                                       config.A_POSITIVEMODELING_QUESTIONING, config.A_QUESTIONING_NEGATIVEMODELING]:
-                    if self.goal_level == config.ACTION_GOAL:
-                        question = "Concurrent"
+                    if not (self.goal_level == config.SESSION_GOAL or self.goal_level == config.EXERCISE_GOAL):
+                        if self.goal_level == config.ACTION_GOAL:
+                            question = "Concurrent"
+                        else:
+                            if self.performance is None or self.performance == -1:
+                                question = "FirstTime"
+                            else:
+                                question = "GoodBad"
                     else:
-                        if self.performance is None:
-                            question = "FirstTime"
+                        if self.phase == config.PHASE_START:
+                            question = "Concurrent"
                         else:
                             question = "GoodBad"
 
@@ -372,6 +380,7 @@ class CheckForBehaviour(Node):
                         config.repetitions = 5
                 logging.debug("Returning SUCCESS from CheckForBehaviour, behaviour found = " + str(self.behaviour))
                 # config.completed = config.COMPLETED_STATUS_FALSE
+                config.behaviour_displayed = True  # Set to true so that we get a new behaviour for the new goal level.
                 return NodeStatus(NodeStatus.SUCCESS, "Behaviour " + str(self.check_behaviour) + " found in the form " + str(self.behaviour))
             else:
                 logging.debug("Returning FAIL from CheckForBehaviour, behaviour not found = " + str(self.check_behaviour) + ", input behaviour = " + str(self.behaviour))
@@ -467,12 +476,13 @@ class DisplayBehaviour(Node):
 
             config.behaviour_displayed = True
             #config.need_new_behaviour = True
-            if self.score is not None and config.has_score_been_provided is False:
+            if self.score is not None:  # and config.has_score_been_provided is False:
                 config.has_score_been_provided = True
-                config.scores_provided += 1
+                # config.scores_provided += 1
                 print("Setting has_score_been_provided to True")
             if self.set_start:
-                api_classes.expecting_action_goal = True
+                config.expecting_action_goal = True
+                config.dont_send_action_response = False
             logging.debug("Returning SUCCESS from DisplayBehaviour")
             return NodeStatus(NodeStatus.SUCCESS, "Printed action message to output.")
         else:
@@ -592,7 +602,6 @@ class CreateSubgoal(Node):
     run(nodedata)
         Send request to the API for the guide to create a subgoal.
     """
-    # TODO: Dummy class which will eventually communicate with guide via API
     def __init__(self, name, *args, **kwargs):
         super(CreateSubgoal, self).__init__(
             name,
@@ -627,9 +636,11 @@ class CreateSubgoal(Node):
                 return NodeStatus(NodeStatus.FAIL, "Cannot create subgoal of ACTION_GOAL.")
             else:
                 nodedata.new_goal = self.previous_goal_level + 1
-                if nodedata.new_goal == config.ACTION_GOAL:
+                config.goal_level = self.previous_goal_level + 1
+                config.getBehaviourGoalLevel = self.previous_goal_level + 1
+                # if nodedata.new_goal == config.ACTION_GOAL:
                     # Reset config.start_time to monitor speed of exercise execution.
-                    config.start_time = datetime.now()
+                    # config.start_time = datetime.now()
                 # Select which exercise to perform.
                 if nodedata.new_goal == config.EXERCISE_GOAL:
                     # When we create an exercise goal, pick a new exercise and reset all the stats from the previous exercise.
@@ -684,7 +695,6 @@ class EndSubgoal(Node):
     run(nodedata)
         Send request to the API for the guide to complete the goal.
     """
-    # TODO: Dummy class which will eventually communicate with guide via API
     def __init__(self, name, *args, **kwargs):
         super(EndSubgoal, self).__init__(
             name,
@@ -723,6 +733,7 @@ class EndSubgoal(Node):
                 else:
                     config.phase = config.PHASE_START
                 nodedata.new_goal = self.goal_level - 1
+                config.getBehaviourGoalLevel = self.goal_level - 1
                 nodedata.phase = config.PHASE_START  # All behaviours have happened so its start of new goal.
                 config.completed = config.COMPLETED_STATUS_TRUE
                 config.scores_provided = 0  # At new goal level we will need to provide the average score again.
@@ -799,7 +810,9 @@ class TimestepCue(Node):
         :return: NodeStatus.ACTIVE when waiting for data from the guide, NodeStatus.SUCCESS when data has been received
             and added to the blackboard, NodeStatus.FAIL otherwise.
         """
-        if not config.stop_set and (not config.stop_session and config.phase == config.PHASE_START):  # If the session is stopped, we still need to go into timestep cue to write the appropriate data up to now to the file.
+        if not config.stop_set and (not config.stop_session or (
+                config.stop_session and config.phase == config.PHASE_END)):  # If the session is stopped, we still need to go into timestep cue to write the appropriate data up to now to the file.
+            # print("checking goal level: " + str(self.goal_level))
             # Will be ACTIVE when waiting for data and SUCCESS when got data and added to blackboard, FAIL when connection error.
             if self.goal_level == -1:  # Person goal created after receiving info from guide.
                 print("Timestep Cue, self.goal_level = " + str(self.goal_level))

@@ -1064,11 +1064,13 @@ def get_feedback_loop(name, behav, blackboard, goal_node, initialise_node, previ
     # return Negate(name=negate_name, child=feedback_loop_while), feedback_behaviour, end_goal
     return overall_feedback_sequence, feedback_behaviour, end_goal
 
+
 def update(state, state2, reward, action, action2):
     print("Updating policy, state: " + str(state) + ", action: " + str(action))
     predict = config.policy_matrix.get_matrix()[state][action]
     target = reward + config.gamma * config.policy_matrix.get_matrix()[state2][action2]
     config.policy_matrix.update_matrix(state, action, 0.0 if config.policy_matrix.get_matrix()[state][action] + config.alpha * (target - predict) < 0.0 else config.policy_matrix.get_matrix()[state][action] + config.alpha * (target - predict))
+    reward = None
     return config.policy
 
 
@@ -1102,10 +1104,12 @@ def main():
         # print('Behaviour = ' + str(config.behaviour))
         print("controller getting new behaviour")
         action2 = config.policy_matrix.get_behaviour(state2, config.goal_level, config.performance, config.phase)
+        config.need_new_behaviour = False
+        config.behaviour_displayed = False
 
         # If behaviour occurs twice, just skip to pre-instruction.
         if action2 in config.used_behaviours and (
-                config.goal_level == config.SESSION_GOAL or config.goal_level == config.EXERCISE_GOAL or config.goal_level == config.SET_GOAL):
+                config.getBehaviourGoalLevel == config.SESSION_GOAL or config.goal_level == config.EXERCISE_GOAL or config.goal_level == config.STAT_GOAL or config.goal_level == config.SET_GOAL):
             action2 = config.A_PREINSTRUCTION
             logging.debug('Got new behaviour: 1')
             # config.matching_behav = 0
@@ -1115,21 +1119,18 @@ def main():
         # Learning the Q-value
         if reward is not None:
             update(state1, state2, reward, action1, action2)
-
-        if config.behaviour_displayed:  # If the behaviour hasn't been displayed, we might still have a new reward but we don't need to update any of the other variables.
-            config.behaviour = action2
-            config.need_new_behaviour = False
-            config.behaviour_displayed = False
-            config.prev_behav = action2
-            state1 = state2
-            action1 = action2
+#
+        config.behaviour = action2
+        config.prev_behav = action2
+        state1 = state2
+        action1 = action2
 
         logging.debug(result)
         time.sleep(1)
 
     # Write final policy to file
     f = open(filename, "w")
-    f.writelines(config.policy_matrix.get_matrix)
+    f.writelines(config.policy_matrix.get_matrix())
     f.close()
 
 def api_start():
