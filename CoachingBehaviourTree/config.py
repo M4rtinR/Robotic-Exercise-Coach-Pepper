@@ -96,6 +96,7 @@ exercise_list_master = ["Table top circles", "Towel slide", "External rotation w
 
 # Initial values which will be updated when the API gets called by the guide.
 goal_level = 0
+getBehaviourGoalLevel = 0
 sessions = -1
 score = -1
 target = -1
@@ -118,16 +119,17 @@ session_score_list = []  # 1 entry for each exercise performed
 set_count = 0
 given_score = 0
 exercise_list_session = ["Table top circles", "Towel slide", "External rotation with cane", "Shoulder openers"]  # Delete from this list once the exercise has been completed in the session.
-exercise_target_times = [2.0, 2.0, 1.0, 1.0]
+exercise_target_times = [6.0, 5.0, 3.5, 3.0]
 used_exercises = []
 start_time = None
 observation = -1
-has_score_been_provided = True  # True if Pepper has already said e.g. "Your average score was 3.02 and your were aiming for 2.0" and False otherwise.
+has_score_been_provided = False  # True if Pepper has already said e.g. "Your average score was 3.02 and your were aiming for 2.0" and False otherwise.
 scores_provided = 0  # Add 1 each time a score is given in feedback. Reset to 0 at the completion of each goal.
 behaviour_displayed = False  # Set to true in DisplayBehaviour node to indicate to the environment that a new action is needed from the policy.
 repetitions = -1
 stop_session = False
 stop_set = False
+expecting_action_goal = False
 
 # Initial values to be changed at the beginning of each session:
 name = "Martin"

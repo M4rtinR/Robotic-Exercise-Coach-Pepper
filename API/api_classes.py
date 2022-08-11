@@ -11,7 +11,6 @@ from Policy.policy_wrapper import PolicyWrapper
 
 app = Flask('policy_guide_api')
 api = Api(app)
-expecting_action_goal = False
 
 class TimestepCue(Resource):
     previous_shot_performance = None
@@ -35,36 +34,43 @@ class TimestepCue(Resource):
                 print("API returning")
                 return new_data, 200
             elif 'rep' in content:  # Called when a new rep is indicated by the operator.
-                print('got rep')
-                data_score = float(content['score'])
-                config.score = data_score
-                print('set score, config.target = ' + str(config.target))
+                if config.expecting_action_goal:
+                    print('got rep')
+                    data_score = float(content['score'])
+                    config.action_score = data_score
+                    print('set score, config.target = ' + str(config.target))
 
-                diff_from_target = config.target - data_score
-                performance = config.GOOD
-                if 0.5 < diff_from_target:
-                    performance = config.FAST
-                elif diff_from_target < -0.5:
-                    performance = config.SLOW
-                config.performance = float(performance)
-                new_data = {
-                    'performance': performance,
-                    'set': config.set_count
-                }
-                print('calculated performance = ' + str(performance))
+                    diff_from_target = config.target - data_score
+                    performance = config.GOOD
+                    if 0.5 < diff_from_target:
+                        performance = config.FAST
+                    elif diff_from_target < -0.5:
+                        performance = config.SLOW
+                    config.performance = float(performance)
+                    new_data = {
+                        'performance': performance,
+                        'set': config.set_count
+                    }
+                    print('calculated performance = ' + str(performance))
 
-                config.exercise_count = int(content['rep'])
-                print('set exercise count')
+                    config.exercise_count = int(content['rep'])
+                    print('set exercise count')
 
-                config.completed = config.COMPLETED_STATUS_UNDEFINED
-                config.repetitions = -1  # Reset repetitions to -1 so that we delay the next input after this set is finished.
-                config.goal_level = config.ACTION_GOAL
-                print('set goal_level = ACTION GOAL')
+                    config.completed = config.COMPLETED_STATUS_UNDEFINED
+                    config.repetitions = -1  # Reset repetitions to -1 so that we delay the next input after this set is finished.
+                    config.goal_level = config.ACTION_GOAL
+                    config.getBehaviourGoalLevel = config.ACTION_GOAL
+                    print('set goal_level = ACTION GOAL')
 
-                # Send data to the Pepper's screen for update.
-                requestURL = config.screen_post_address + str(content['rep']) + "/newRep"
-                print('sending request, url = ' + requestURL)
-                r = requests.post(requestURL)
+                    # Send data to the Pepper's screen for update.
+                    requestURL = config.screen_post_address + str(content['rep']) + "/newRep"
+                    print('sending request, url = ' + requestURL)
+                    r = requests.post(requestURL)
+                else:
+                    new_data = {
+                        'performance': 0,
+                        'set': config.set_count
+                    }
 
                 return new_data, 200
             else:
@@ -111,6 +117,7 @@ class TimestepCue(Resource):
                         config.phase = config.PHASE_END
                         config.set_count += 1
                         config.completed = config.COMPLETED_STATUS_TRUE
+                        config.session_time = config.MAX_SESSION_TIME
 
                         new_data = {
                             'goal_level': 1,
@@ -140,7 +147,8 @@ class TimestepCue(Resource):
 
                         return new_data, 200
                     else:
-                        config.stop_set = True  # High level global variable which will be checked at each node until set goal feedback loop is reached.
+                        if config.expecting_action_goal:
+                            config.stop_set = True  # High level global variable which will be checked at each node until set goal feedback loop is reached.
 
                         new_data = {
                             'goal_level': 2,
@@ -251,11 +259,11 @@ class TimestepCue(Resource):
                         return new_data, 200
 
                 elif int(content['goal_level']) == config.ACTION_GOAL:
-                    if expecting_action_goal:
+                    if config.expecting_action_goal:
                         logging.debug('action goal setting controller values')
                         config.action_score = float(content['score'])
-                        performanceValue = config.MET
-                        if content['performance'] == 'Very Low':
+                        performanceValue = int(content['performance'])
+                        '''if content['performance'] == 'Very Low':
                             performanceValue = config.MUCH_REGRESSED
                         elif content['performance'] == 'Very High':
                             performanceValue = config.REGRESSED_SWAP
@@ -270,10 +278,11 @@ class TimestepCue(Resource):
                         elif content['performance'] == 'Good!':
                             performanceValue = config.MUCH_IMPROVED
                         else:
-                            logging.debug('no performanceValue found')
+                            logging.debug('no performanceValue found')'''
                         if config.performance == self.previous_shot_performance:  # We haven't received the set goal feedback so can safely update config.performance
                             config.performance = performanceValue            # Not perfect because we might have the same performance for set and action.
                         config.goal_level = config.ACTION_GOAL
+                        config.getBehaviourGoalLevel = config.ACTION_GOAL
                         config.exercise_count += 1
 
                         self.previous_shot_performance = performanceValue
@@ -284,9 +293,9 @@ class TimestepCue(Resource):
                             'shotSet': 1
                         }
 
-                        if config.exercise_count == 29:
+                        if (config.exercise_count == 9 and len(config.exercise_performance_list) == 0) or (config.exercise_count == 4 and len(config.exercise_performance_list) > 0):
                             new_data['shotSetComplete'] = 1
-                            new_data['stat'] = config.stat
+                            # new_data['stat'] = config.stat
                         else:
                             new_data['shotSetComplete'] = 0
 
@@ -373,11 +382,6 @@ class TimestepCue(Resource):
             'skill': args['skill'],
             'sessions': args['sessions']
         }'''
-
-        # TODO: Might have to use userID instead of push to retrieve the user info in the controller.
-        # new_post_ref = ref.push(new_data)
-
-        # return {new_post_ref.key: new_data}, 200
 
 '''class Users(Resource):
     def get(self):

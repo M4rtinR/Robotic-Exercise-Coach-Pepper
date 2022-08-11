@@ -13295,6 +13295,8 @@ class BehaviourLibraryFunctions:
                             if behaviour == config.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING:
                                 optional_question = "weren't they?"
                             if performance_insert == "":
+                                if behaviour == config.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING:
+                                    optional_question = "isn't it?"
                                 utterance = "I think this is the first time we've worked on your " + goal_level_insert + " together " + optional_question + name
                             else:
                                 utterance = utterance + " your " + goal_level_insert + " " + performance_insert + " " + optional_question + " " + name + " " + performance_reaction
@@ -13303,6 +13305,8 @@ class BehaviourLibraryFunctions:
                             if behaviour == config.A_POSTINSTRUCTIONNEGATIVE_QUESTIONING:
                                 optional_question = "did you?"
                             if performance_insert == "":
+                                if behaviour == config.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING:
+                                    optional_question = "isn't it?"
                                 utterance = "I think this is the first time we've worked on your " + goal_level_insert + " together " + optional_question + name
                             else:
                                 utterance = utterance + " you didn't do well with your " + goal_level_insert + optional_question
@@ -13346,13 +13350,13 @@ class BehaviourLibraryFunctions:
                                     optional_question = "Does that sound good?"
                                 utterance = utterance + "Today " + name + ", we're going to " + goal_level_insert + ". " + optional_question
                             elif goal_level == config.EXERCISE_GOAL:
-                                exercise_description = "Lace your fingers together and wrap both hands around a water bottle. Try to engage both sides of your body. With your fingers laced around the bottle, begin to make large circular movements. You can use your non-affected arm to guide your affected arm through this exercise."  # For exercise 0: table top circles
+                                exercise_description = ["lace your fingers together and wrap both hands around a water bottle. Try to engage both sides of your body.", "With your fingers laced around the bottle, begin to make large circular movements. You can use your non-affected arm to guide your affected arm through this exercise."]  # For exercise 0: table top circles
                                 if exercise == 1:  # towel slides
-                                    exercise_description = "Fold or spread the towel, and make sure it's on the table immediately in front of you. Now, place your affected hand on the towel and put your unaffected hand directly on top of it. Apply enough pressure to keep your hands together, then use your hand to slide the towel away from you, toward the middle of the table. As your hands move forward, your shoulders will also stretch forward, with the towel reducing friction and allowing your shoulder muscles to stretch and strengthen."
+                                    exercise_description = ["fold or spread the towel, and make sure it's on the table immediately in front of you.", "Now, place your affected hand on the towel and put your unaffected hand directly on top of it. Apply enough pressure to keep your hands together, then use your hand to slide the towel away from you, toward the middle of the table.", "As your hands move forward, your shoulders will also stretch forward, with the towel reducing friction and allowing your shoulder muscles to stretch and strengthen."]
                                 elif exercise == 2:  # external rotations
-                                    exercise_description = "Hold the cane with both hands in front of your body with your arms bent at a 90-degree angle at your sides. Next, push the cane outward to your left and right without dropping your arms, so that the 90-degree angle remains consistent. This exercise will improve your ability to perform external rotations with your shoulders, which are required for a significant number of everyday tasks."
+                                    exercise_description = ["hold the cane with both hands in front of your body with your arms bent at a 90-degree angle at your sides.", "Next, push the cane outward to your left and right without dropping your arms, so that the 90-degree angle remains consistent. This exercise will improve your ability to perform external rotations with your shoulders, which are required for a significant number of everyday tasks."]
                                 elif exercise == 3:  # shoulder openers
-                                    exercise_description = "Grasping a water bottle in each hand (make fists with your fingers facing inwards), hold your arms at your sides, and bend your elbows 90 degrees. With slow controlled movements, move your fists outwards while keeping your arms in position at your sides (like you are opening a door). Bring your arms back to your starting stance."
+                                    exercise_description = ["grasping a water bottle in each hand (make fists with your fingers facing inwards), hold your arms at your sides, and bend your elbows 90 degrees.", "With slow controlled movements, move your fists outwards while keeping your arms in position at your sides (like you are opening a door). Bring your arms back to your starting stance."]
 
                                 goal_level_insert = "focus on your " + exercise_utterance
 
@@ -13360,7 +13364,15 @@ class BehaviourLibraryFunctions:
                                 if behaviour == config.A_PREINSTRUCTION_QUESTIONING:
                                     optional_question = "Does that sound good?"
 
-                                utterance = utterance + "Now " + name + ", we're going to " + goal_level_insert + ". To do these, " + exercise_description + optional_question
+                                utterance = [
+                                    utterance + "Now " + name + ", we're going to " + goal_level_insert + ". To do these, " +
+                                    exercise_description[0]]
+                                exercise_description.pop(0)
+                                while len(exercise_description) > 0:
+                                    utterance.append(exercise_description[0])
+                                    exercise_description.pop(0)
+                                utterance[len(utterance) - 1] = utterance[len(
+                                    utterance) - 1] + optional_question
 
                     elif behaviour == config.A_PREINSTRUCTION_NEGATIVEMODELING:
                         exercise_advice = "just engage one side of your body."
@@ -13380,21 +13392,34 @@ class BehaviourLibraryFunctions:
                                     utterance = utterance + "Do a set of 10 " + exercise_utterance + " please " + name + ". Remember, don't " + exercise_advice
 
                         else:
-                            exercise_description = "Lace your fingers together and wrap both hands around a water bottle. Try not to only engage one side of your body. With your fingers laced around the bottle, begin to make large circular movements. You can use your non-affected arm to guide your affected arm through this exercise."  # For exercise 0: table top circles
+                            exercise_description = ["lace your fingers together and wrap both hands around a water bottle. Try not to only engage one side of your body.", "With your fingers laced around the bottle, begin to make large circular movements. You can use your non-affected arm to guide your affected arm through this exercise."]  # For exercise 0: table top circles
                             exercise_advice = "compensating for your weaker arm using other movements."
                             if exercise == 1:  # towel slides
-                                exercise_description = "don't lean forward with your body unless you feel comfortable doing so. Begin by folding or spreading the towel, and making sure it's on the table immediately in front of you. Now, place your affected hand on the towel and put your unaffected hand directly on top of it. Apply enough pressure to keep your hands together, then use your hand to slide the towel away from you, toward the middle of the table. As your hands move forward, your shoulders will also stretch forward, with the towel reducing friction and allowing your shoulder muscles to stretch and strengthen."
+                                exercise_description = ["don't lean forward with your body unless you feel comfortable doing so.", "Begin by folding or spreading the towel, and making sure it's on the table immediately in front of you. Now, place your affected hand on the towel and put your unaffected hand directly on top of it. Apply enough pressure to keep your hands together, then use your hand to slide the towel away from you, toward the middle of the table.", "As your hands move forward, your shoulders will also stretch forward, with the towel reducing friction and allowing your shoulder muscles to stretch and strengthen."]
                             elif exercise == 2:  # external rotations
-                                exercise_description = "Hold the cane with both hands in front of your body with your arms bent at a 90-degree angle at your sides. Don't let your arms come away from your sides during this exercise. Next, push the cane outward to your left and right without dropping your arms, so that the 90-degree angle remains consistent. This exercise will improve your ability to perform external rotations with your shoulders, which are required for a significant number of everyday tasks."
+                                exercise_description = ["hold the cane with both hands in front of your body with your arms bent at a 90-degree angle at your sides.", "Don't let your arms come away from your sides during this exercise. Next, push the cane outward to your left and right without dropping your arms, so that the 90-degree angle remains consistent. This exercise will improve your ability to perform external rotations with your shoulders, which are required for a significant number of everyday tasks."]
                             elif exercise == 3:  # shoulder openers
-                                exercise_description = "Grasping a water bottle in each hand (make fists with your fingers facing inwards), hold your arms at your sides, and bend your elbows 90 degrees. Don't let your arms come away from your sides during this exercise. With slow controlled movements, move your fists outwards while keeping your arms in position at your sides (like you are opening a door). Bring your arms back to your starting stance."
+                                exercise_description = ["grasping a water bottle in each hand (make fists with your fingers facing inwards), hold your arms at your sides, and bend your elbows 90 degrees.", "Don't let your arms come away from your sides during this exercise. With slow controlled movements, move your fists outwards while keeping your arms in position at your sides (like you are opening a door). Bring your arms back to your starting stance."]
 
                             if goal_level == config.SESSION_GOAL:
                                 goal_level_insert = "do a solo practice session and I'm going to coach you. We'll work on not " + exercise_advice
                             elif goal_level == config.EXERCISE_GOAL:
-                                goal_level_insert = "focus on " + exercise_utterance + ". To do these, " + exercise_description
+                                goal_level_insert = [
+                                    "focus on " + exercise_utterance + ". To do these, " +
+                                    exercise_description[0]]
+                                exercise_description.pop(0)
+                                while len(exercise_description) > 0:
+                                    goal_level_insert.append(exercise_description[0])
+                                    exercise_description.pop(0)
 
-                            utterance = utterance + "Today " + name + ", we're going to " + goal_level_insert
+                            if isinstance(goal_level_insert, str):
+                                utterance = utterance + "Today " + name + ", we're going to " + goal_level_insert
+                            else:
+                                utterance = [utterance + "Today " + name + ", we're going to " + goal_level_insert[0]]
+                                goal_level_insert.pop(0)
+                                while len(goal_level_insert) > 0:
+                                    utterance.append(goal_level_insert[0])
+                                    goal_level_insert.pop(0)
 
                     elif behaviour in [config.A_PRAISE, config.A_PRAISE_FIRSTNAME, config.A_POSITIVEMODELING_PRAISE,
                                        config.A_CONSOLE, config.A_CONSOLE_FIRSTNAME]:
@@ -13617,7 +13642,7 @@ class BehaviourLibraryFunctions:
                             performance_insert = "were a bit slow"
                             performance_reaction = "but that's OK!"
                         elif performance == config.GOOD:
-                            performance_insert = "just right"
+                            performance_insert = "were just right"
                             performance_reaction = "which was great!"
                         if behaviour in [config.A_POSTINSTRUCTIONPOSITIVE, config.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING,
                                          config.A_POSTINSTRUCTIONPOSITIVE_FIRSTNAME,
@@ -13628,7 +13653,8 @@ class BehaviourLibraryFunctions:
                             if behaviour == config.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING:
                                 optional_question = "weren't they? "
                             if performance_insert == "":
-                                optional_question = "have we? "
+                                if behaviour == config.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING:
+                                    optional_question = "have we? "
                                 utterance = "I don't believe we've worked on your " + goal_level_insert + " together before " + optional_question + name
                             else:
                                 utterance = utterance + " your " + goal_level_insert + " the last time, they " + performance_insert + " " + optional_question + " " + name + " " + performance_reaction
@@ -13637,7 +13663,8 @@ class BehaviourLibraryFunctions:
                             if behaviour == config.A_POSTINSTRUCTIONNEGATIVE_QUESTIONING:
                                 optional_question = "did you? "
                             if performance_insert == "":
-                                optional_question = "have we? "
+                                if behaviour == config.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING:
+                                    optional_question = "have we? "
                                 utterance = "I don't believe we've worked on your " + goal_level_insert + " together before " + optional_question + name
                             else:
                                 utterance = utterance + " your " + goal_level_insert + " the last time, you didn't do very well with them " + optional_question
@@ -13681,13 +13708,13 @@ class BehaviourLibraryFunctions:
                                     optional_question = "Does that sound good?"
                                 utterance = utterance + "Today " + name + ", we're going to " + goal_level_insert + ". " + optional_question
                             elif goal_level == config.EXERCISE_GOAL:
-                                exercise_description = "place a water bottle on the table in front of you and wrap both of your hands around it with your fingers laced together. Slide the bottle around the table in large circular movements. You should try to engage both sides of your body as you do this and can use your non-affected arm to guide your affected arm through this exercise."  # For exercise 0: table top circles
+                                exercise_description = ["place a water bottle on the table in front of you and wrap both of your hands around it with your fingers laced together.", "Slide the bottle around the table in large circular movements. You should try to engage both sides of your body as you do this and can use your non-affected arm to guide your affected arm through this exercise."]  # For exercise 0: table top circles
                                 if exercise == 1:  # towel slides
-                                    exercise_description = "place a towel on the table in front of you and put your affected hand on top of it. Now, put your other hand directly on top of your affected hand so that both hands are on top of the towel. Press down slightly to keep your hands together, then slide the towel towards the far side of the table. Don't worry if you can't get all the way. This exercise will stretch and strengthen your shoulder muscles as you move your hands forward and back."
+                                    exercise_description = ["place a towel on the table in front of you and put your affected hand on top of it.", "Now, put your other hand directly on top of your affected hand so that both hands are on top of the towel. Press down slightly to keep your hands together, then slide the towel towards the far side of the table. Don't worry if you can't get all the way.", "This exercise will stretch and strengthen your shoulder muscles as you move your hands forward and back."]
                                 elif exercise == 2:  # external rotations
-                                    exercise_description = "grasp the can with both hands in front of you and bend your arms at 90 degrees at your sides. The aim of this exercise is to improve your ability to perform external rotations with your shoulders This is required for many everyday tasks so will help you in your daily life. So from your starting position, try to push the cane outward to your left and right without dropping your arms. As you do this, your upper body will rotate slightly, but just focus on keeping your arms at a 90 degree angle."
+                                    exercise_description = ["grasp the can with both hands in front of you and bend your arms at 90 degrees at your sides.", "The aim of this exercise is to improve your ability to perform external rotations with your shoulders. This is required for many everyday tasks so will help you in your daily life. So from your starting position, try to push the cane outward to your left and right without dropping your arms.", "As you do this, your upper body will rotate slightly, but just focus on keeping your arms at a 90 degree angle."]
                                 elif exercise == 3:  # shoulder openers
-                                    exercise_description = "grasp a water bottle in each hand with your palms facing inwards. Then, holding your arms at your sides, bend your elbows 90 degrees. Frome here, slowly move your fists outwards while keeping your arms in position at your sides. Then bring your arms back to their starting position. It can be helpful in this exercise to imagine your arms as a door opening and then closing again."
+                                    exercise_description = ["grasp a water bottle in each hand with your palms facing inwards.", "Then, holding your arms at your sides, bend your elbows 90 degrees. Frome here, slowly move your fists outwards while keeping your arms in position at your sides. Then bring your arms back to their starting position. It can be helpful in this exercise to imagine your arms as a door opening and then closing again."]
 
                                 goal_level_insert = "do an exercise called " + exercise_utterance
 
@@ -13695,7 +13722,15 @@ class BehaviourLibraryFunctions:
                                 if behaviour == config.A_PREINSTRUCTION_QUESTIONING:
                                     optional_question = "Does that sound good?"
 
-                                utterance = utterance + "Now " + name + ", we're going to " + goal_level_insert + ". I'll give you some instructions on how to perform this exercise first. So, to do these, " + exercise_description + optional_question
+                                utterance = [
+                                    utterance + "Now " + name + ", we're going to " + goal_level_insert + ". I'll give you some instructions on how to perform this exercise first. So, to do these, " +
+                                    exercise_description[0]]
+                                exercise_description.pop(0)
+                                while len(exercise_description) > 0:
+                                    utterance.append(exercise_description[0])
+                                    exercise_description.pop(0)
+                                utterance[len(utterance) - 1] = utterance[len(
+                                    utterance) - 1] + optional_question
 
                     elif behaviour == config.A_PREINSTRUCTION_NEGATIVEMODELING:
                         exercise_advice = "over exert yourself by making the circles too big."
@@ -13715,21 +13750,34 @@ class BehaviourLibraryFunctions:
                                 utterance = utterance + "Let's go for a set of 10 " + exercise_utterance + " please " + name + ". Remember, don't " + exercise_advice + " You can start now."
 
                         else:
-                            exercise_description = "place a water bottle on the table in front of you and wrap both of your hands around it with your fingers laced together. Slide the bottle around the table in large circular movements. You should try not to only engage one side of your body as you do this because it should be a bilateral movement. You can use your non-affected arm to guide your affected arm through this exercise."  # For exercise 0: table top circles
+                            exercise_description = ["place a water bottle on the table in front of you and wrap both of your hands around it with your fingers laced together.", "Slide the bottle around the table in large circular movements. You should try not to only engage one side of your body as you do this because it should be a bilateral movement. You can use your non-affected arm to guide your affected arm through this exercise."] # For exercise 0: table top circles
                             exercise_advice = "allowing your technique to stray too far from what we want in order to make the exercise the most beneficial."
                             if exercise == 1:  # towel slides
-                                exercise_description = "place a towel on the table in front of you and put your affected hand on top of it. Now, put your other hand directly on top of your affected hand so that both hands are on top of the towel. Press down slightly to keep your hands together, then slide the towel towards the far side of the table. Don't over extend yourself by leaning forward with your body unless you feel comfortable doing so. This exercise will stretch and strengthen your shoulder muscles as you move your hands forward and back."
+                                exercise_description = ["place a towel on the table in front of you and put your affected hand on top of it.", "Now, put your other hand directly on top of your affected hand so that both hands are on top of the towel. Press down slightly to keep your hands together, then slide the towel towards the far side of the table. Don't over extend yourself by leaning forward with your body unless you feel comfortable doing so.", "This exercise will stretch and strengthen your shoulder muscles as you move your hands forward and back."]
                             elif exercise == 2:  # external rotations
-                                exercise_description = "grasp the can with both hands in front of you and bend your arms at 90 degrees at your sides. The aim of this exercise is to improve your ability to perform external rotations with your shoulders This is required for many everyday tasks so will help you in your daily life. So from your starting position, try to push the cane outward to your left and right without dropping your arms. As you do this, your upper body will rotate slightly, but just focus on not letting your arms straighten past 90 degrees."
+                                exercise_description = ["grasp the can with both hands in front of you and bend your arms at 90 degrees at your sides.", "The aim of this exercise is to improve your ability to perform external rotations with your shoulders. This is required for many everyday tasks so will help you in your daily life. So from your starting position, try to push the cane outward to your left and right without dropping your arms.", "As you do this, your upper body will rotate slightly, but just focus on not letting your arms straighten past 90 degrees."]
                             elif exercise == 3:  # shoulder openers
-                                exercise_description = "grasp a water bottle in each hand with your palms facing inwards. Then, holding your arms at your sides, bend your elbows 90 degrees. Frome here, slowly move your fists outwards while keeping your arms in position at your sides. Then bring your arms back to their starting position. The key thing here is to not allow your arms to straighten past 90 degrees if you can avoid it."
+                                exercise_description = ["grasp a water bottle in each hand with your palms facing inwards.", "Then, holding your arms at your sides, bend your elbows 90 degrees. Frome here, slowly move your fists outwards while keeping your arms in position at your sides. Then bring your arms back to their starting position. The key thing here is to not allow your arms to straighten past 90 degrees if you can avoid it."]
 
                             if goal_level == config.SESSION_GOAL:
                                 goal_level_insert = "perform some rehabilitation exercises and I'm going to guide you through them. We'll focus on not " + exercise_advice
                             elif goal_level == config.EXERCISE_GOAL:
-                                goal_level_insert = "do an exercise called " + exercise_utterance + ". I'll give you some instructions on how to perform this exercise first. So, to do these, " + exercise_description
+                                goal_level_insert = [
+                                    "do an exercise called " + exercise_utterance + ". I'll give you some instructions on how to perform this exercise first. So, to do these, " +
+                                    exercise_description[0]]
+                                exercise_description.pop(0)
+                                while len(exercise_description) > 0:
+                                    goal_level_insert.append(exercise_description[0])
+                                    exercise_description.pop(0)
 
-                            utterance = utterance + "Today " + name + ", we're going to " + goal_level_insert
+                            if isinstance(goal_level_insert, str):
+                                utterance = utterance + "Today " + name + ", we're going to " + goal_level_insert
+                            else:
+                                utterance = [utterance + "Today " + name + ", we're going to " + goal_level_insert[0]]
+                                goal_level_insert.pop(0)
+                                while len(goal_level_insert) > 0:
+                                    utterance.append(goal_level_insert[0])
+                                    goal_level_insert.pop(0)
 
                     elif behaviour in [config.A_PRAISE, config.A_PRAISE_FIRSTNAME, config.A_POSITIVEMODELING_PRAISE,
                                        config.A_CONSOLE, config.A_CONSOLE_FIRSTNAME]:
@@ -13823,7 +13871,7 @@ class BehaviourLibraryFunctions:
                             goal_level_insert = "session"
                         elif goal_level == config.EXERCISE_GOAL or goal_level == config.SET_GOAL:
                             goal_level_insert = exercise_utterance
-                        utterance = utterance + "How did that " + goal_level_insert + " feel to you " + name + "? Touch the back of my hand if it felt good or the top of my head if you think more work is needed."
+                        utterance = utterance + "How did the " + goal_level_insert + " feel to you " + name + "? Touch the back of my hand if it felt good or the top of my head if you think more work is needed."
 
                     elif behaviour in [config.A_PRAISE, config.A_PRAISE_FIRSTNAME, config.A_POSITIVEMODELING_PRAISE,
                                        config.A_CONSOLE, config.A_CONSOLE_FIRSTNAME]:
@@ -13964,7 +14012,8 @@ class BehaviourLibraryFunctions:
                             if behaviour == config.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING:
                                 optional_question = "didn't you?"
                             if performance_insert == "":
-                                optional_question = "Aren't you?"
+                                if behaviour == config.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING:
+                                    optional_question = "Aren't you?"
                                 utterance = "I'm looking forward to working on your " + goal_level_insert + " for the first time together today. " + optional_question + name
                             else:
                                 utterance = utterance + " you did your " + goal_level_insert + " " + performance_insert + " " + optional_question + " " + name + " " + performance_reaction
@@ -13973,7 +14022,8 @@ class BehaviourLibraryFunctions:
                             if behaviour == config.A_POSTINSTRUCTIONNEGATIVE_QUESTIONING:
                                 optional_question = "did you?"
                             if performance_insert == "":
-                                optional_question = ". Aren't you?"
+                                if behaviour == config.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING:
+                                    optional_question = ". Aren't you?"
                                 utterance = "I'm looking forward to working on your " + goal_level_insert + " for the first time together today. " + optional_question + name
                             else:
                                 utterance = utterance + " you didn't do your " + goal_level_insert + " very well " + optional_question + ". You performed them " + performance_insert
@@ -13992,7 +14042,7 @@ class BehaviourLibraryFunctions:
                     elif behaviour in [config.A_PREINSTRUCTION, config.A_PREINSTRUCTION_QUESTIONING,
                                        config.A_PREINSTRUCTION_FIRSTNAME, config.A_PREINSTRUCTION_POSITIVEMODELING,
                                        config.A_POSITIVEMODELING_PREINSTRUCTION]:
-                        exercise_advice = "to stimulate both sides of the crain, try to engage both sides of your body. This will make the exercise a bilateral movement which should help your recovery."
+                        exercise_advice = "to stimulate both sides of the brain, try to engage both sides of your body. This will make the exercise a bilateral movement which should help your recovery."
                         if exercise == 1:  # towel slides
                             exercise_advice = "if this exercise feels comfortable for you, and you want an even greater stretch for your shoulders, you can lean forward with your upper body to push the towel further away from you."
                         elif exercise == 2:  # external rotations
@@ -14017,13 +14067,13 @@ class BehaviourLibraryFunctions:
                                     optional_question = "Ready to have some fun?"
                                 utterance = utterance + "Today " + name + ", I think we'll " + goal_level_insert + ". " + optional_question
                             elif goal_level == config.EXERCISE_GOAL:
-                                exercise_description = "grasp a water bottle with both hands and hold it on the table in front of you. While engaging both sides of your body, begin slide the bottle around the table in large circular movements. If you are struggling, you can use your non-affected arm to guide your affected arm through the movements."  # For exercise 0: table top circles
+                                exercise_description = ["grasp a water bottle with both hands and hold it on the table in front of you.", "While engaging both sides of your body, begin sliding the bottle around the table in large circular movements. If you are struggling, you can use your non-affected arm to guide your affected arm through the movements."]  # For exercise 0: table top circles
                                 if exercise == 1:  # towel slides
-                                    exercise_description = "take your towel and place it, folded, on the table in front of you. With both hands on top of the towel, your stroke-affected hand beneath your non-affected hand, slide the towel away from you towards the middle of the table. Make sure you apply enough pressure to keep your hands together. Once you have gone as far as you can, slide the towel back to its starting position. This exercise will allow your shoulder muscles to stretch and strengthen."
+                                    exercise_description = ["take your towel and place it, folded, on the table in front of you.", "With both hands on top of the towel, your stroke-affected hand beneath your non-affected hand, slide the towel away from you towards the middle of the table. Make sure you apply enough pressure to keep your hands together.", "Once you have gone as far as you can, slide the towel back to its starting position. This exercise will allow your shoulder muscles to stretch and strengthen."]
                                 elif exercise == 2:  # external rotations
-                                    exercise_description = "hold the cane in front of your body with both hands and bend your arms at a 90-degree angle. With your arms at your sides, push the cane outward to your left and right while keeping your arms bent at 90-degrees. Many everyday tasks require you to perform external rotations with your shoulders and this exercise should help you improve this movement."
+                                    exercise_description = ["hold the cane in front of your body with both hands and bend your arms at a 90-degree angle.", "With your arms at your sides, push the cane outward to your left and right while keeping your arms bent at 90-degrees. Many everyday tasks require you to perform external rotations with your shoulders and this exercise should help you improve this movement."]
                                 elif exercise == 3:  # shoulder openers
-                                    exercise_description = "imagine you are opening and closing a door with your arms. So, holding a water bottle in each hand, make fists with your fingers facing inwards and your arms bent at a 90 degree angle at your sides. Then, nice and slowly, rotate your hands outwards away from the middle of your body while keeping your elbows at your sides. Finally, bring your arms back to your starting stance."
+                                    exercise_description = ["imagine you are opening and closing a door with your arms.", "So, holding a water bottle in each hand, make fists with your fingers facing inwards and your arms bent at a 90 degree angle at your sides. Then, nice and slowly, rotate your hands outwards away from the middle of your body while keeping your elbows at your sides. Finally, bring your arms back to your starting stance."]
 
                                 goal_level_insert = "work on your " + exercise_utterance
 
@@ -14031,7 +14081,15 @@ class BehaviourLibraryFunctions:
                                 if behaviour == config.A_PREINSTRUCTION_QUESTIONING:
                                     optional_question = "Are you ready?"
 
-                                utterance = utterance + " " + name + " we're now going to " + goal_level_insert + ". For this exercise, " + exercise_description + optional_question
+                                utterance = [
+                                    utterance + "Now " + name + ", we're going to " + goal_level_insert + ". For this exercise, " +
+                                    exercise_description[0]]
+                                exercise_description.pop(0)
+                                while len(exercise_description) > 0:
+                                    utterance.append(exercise_description[0])
+                                    exercise_description.pop(0)
+                                utterance[len(utterance) - 1] = utterance[len(
+                                    utterance) - 1] + optional_question
 
                     elif behaviour == config.A_PREINSTRUCTION_NEGATIVEMODELING:
                         exercise_advice = "make this exercise a unilateral movement by only engaging one side of your body."
@@ -14051,21 +14109,32 @@ class BehaviourLibraryFunctions:
                                 utterance = utterance + "Let's do a set of 10 " + exercise_utterance + " please " + name + ". Remember, don't " + exercise_advice + ". Please start when you are ready."
 
                         else:
-                            exercise_description = "grasp a water bottle with both hands and hold it on the table in front of you. Don't engage just one side of your body, but begin slide the bottle around the table in large circular movements. If you are struggling, you can use your non-affected arm to guide your affected arm through the movements."  # For exercise 0: table top circles
+                            exercise_description = ["grasp a water bottle with both hands and hold it on the table in front of you.", "Don't engage just one side of your body, but begin sliding the bottle around the table in large circular movements. If you are struggling, you can use your non-affected arm to guide your affected arm through the movements."]  # For exercise 0: table top circles
                             exercise_advice = "performing any compensatory movements to make the exercises feel easier. If you can't complete any of them, don't worry, we can stop at any time."
                             if exercise == 1:  # towel slides
-                                exercise_description = "take your towel and place it, folded, on the table in front of you. With both hands on top of the towel, your stroke-affected hand beneath your non-affected hand, slide the towel away from you towards the middle of the table. Make sure you apply enough pressure to keep your hands together. Don't go further than you feel comfortable. When you've reached your limit, slide the towel back to its starting position. This exercise will allow your shoulder muscles to stretch and strengthen."
+                                exercise_description = ["take your towel and place it, folded, on the table in front of you. With both hands on top of the towel, your stroke-affected hand beneath your non-affected hand, slide the towel away from you towards the middle of the table.", "Make sure you apply enough pressure to keep your hands together. Don't go further than you feel comfortable. When you've reached your limit, slide the towel back to its starting position.", "This exercise will allow your shoulder muscles to stretch and strengthen."]
                             elif exercise == 2:  # external rotations
-                                exercise_description = "hold the cane in front of your body with both hands and bend your arms at a 90-degree angle. While not letting your arms come away from your sides, push the cane outward to your left and right while keeping your arms bent at 90-degrees. Many everyday tasks require you to perform external rotations with your shoulders and this exercise should help you improve this movement."
+                                exercise_description = ["hold the cane in front of your body with both hands and bend your arms at a 90-degree angle.", "While not letting your arms come away from your sides, push the cane outward to your left and right while keeping your arms bent at 90-degrees. Many everyday tasks require you to perform external rotations with your shoulders and this exercise should help you improve this movement."]
                             elif exercise == 3:  # shoulder openers
-                                exercise_description = "imagine you are opening and closing a door with your arms. So, holding a water bottle in each hand, make fists with your fingers facing inwards and your arms bent at a 90 degree angle at your sides. Then, nice and slowly, rotate your hands outwards away from the middle of your body while not letting your elbows leave your sides. Finally, bring your arms back to your starting stance."
+                                exercise_description = ["imagine you are opening and closing a door with your arms. So, holding a water bottle in each hand, make fists with your fingers facing inwards and your arms bent at a 90 degree angle at your sides.", "Then, nice and slowly, rotate your hands outwards away from the middle of your body while not letting your elbows leave your sides. Finally, bring your arms back to your starting stance."]
 
                         if goal_level == config.SESSION_GOAL:
                             goal_level_insert = "have some fun together. I'm going to coach you through some upper-body rehabilitation exercises. We'll focus particularly on not " + exercise_advice
                         elif goal_level == config.EXERCISE_GOAL:
-                            goal_level_insert = "work on your " + exercise_utterance + ". For this exercise, " + exercise_description
+                            goal_level_insert = ["work on your " + exercise_utterance + ". For this exercise, " + exercise_description[0]]
+                            exercise_description.pop(0)
+                            while len(exercise_description) > 0:
+                                goal_level_insert.append(exercise_description[0])
+                                exercise_description.pop(0)
 
-                        utterance = utterance + "Today " + name + ", I think we'll " + goal_level_insert
+                        if isinstance(goal_level_insert, str):
+                            utterance = utterance + "Today " + name + ", I think we'll " + goal_level_insert
+                        else:
+                            utterance = [utterance + "Today " + name + ", I think we'll " + goal_level_insert[0]]
+                            goal_level_insert.pop(0)
+                            while len(goal_level_insert) > 0:
+                                utterance.append(goal_level_insert[0])
+                                goal_level_insert.pop(0)
 
                     elif behaviour in [config.A_PRAISE, config.A_PRAISE_FIRSTNAME, config.A_POSITIVEMODELING_PRAISE,
                                        config.A_CONSOLE, config.A_CONSOLE_FIRSTNAME]:
@@ -14299,6 +14368,8 @@ class BehaviourLibraryFunctions:
                             if behaviour == config.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING:
                                 optional_question = "weren't they?"
                             if performance_insert == "":
+                                if behaviour == config.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING:
+                                    optional_question = "isn't it?"
                                 utterance = "If my memory serves me correctly, this is the first time we've done your " + goal_level_insert + " together " + optional_question + name
                             else:
                                 utterance = utterance + " your " + goal_level_insert + " " + performance_insert + " " + optional_question + " " + name + " " + performance_reaction
@@ -14307,7 +14378,8 @@ class BehaviourLibraryFunctions:
                             if behaviour == config.A_POSTINSTRUCTIONNEGATIVE_QUESTIONING:
                                 optional_question = "did you?"
                             if performance_insert == "":
-                                optional_question = "isn't it?"
+                                if behaviour == config.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING:
+                                    optional_question = "isn't it?"
                                 utterance = "If my memory serves me correctly, this is the first time we've done your " + goal_level_insert + " together " + optional_question + name
                             else:
                                 utterance = utterance + " your " + goal_level_insert + " " + performance_insert + " " + optional_question
@@ -14351,13 +14423,13 @@ class BehaviourLibraryFunctions:
                                     optional_question = "Does that sound like a good plan?"
                                 utterance = utterance + "Today " + name + ", I'm going to " + goal_level_insert + ". " + optional_question
                             elif goal_level == config.EXERCISE_GOAL:
-                                exercise_description = "holding a water bottle on the table in front of you with both hands. Engaging both sides of your body and with your fingers laced together around the bottle, begin to make big circular movements. Your non-affected arm can guide your affected arm through this exercise. Once you've completed one large circle, go back the other way."  # For exercise 0: table top circles
+                                exercise_description = ["holding a water bottle on the table in front of you with both hands.", "Engaging both sides of your body and with your fingers laced together around the bottle, begin to make big circular movements. Your non-affected arm can guide your affected arm through this exercise. Once you've completed one large circle, go back the other way."]  # For exercise 0: table top circles
                                 if exercise == 1:  # towel slides
-                                    exercise_description = "folding or spreading the towel on the table immediately in front of you, placing your affected hand on top of it and putting your unaffected hand directly on top of that. Use enough pressure throughout this exercise to keep your hands together. Then use your hands to slide the towel away from you, toward the middle of the table. Your shoulders will also stretch forward, and if you feel comfortable doing so you can also lean forward with your upper body. This will allow your shoulder muscles to stretch and strengthen even more."
+                                    exercise_description = ["folding or spreading the towel on the table immediately in front of you, placing your affected hand on top of it and putting your unaffected hand directly on top of that.", "Use enough pressure throughout this exercise to keep your hands together. Then use your hands to slide the towel away from you, toward the middle of the table. Your shoulders will also stretch forward, and if you feel comfortable doing so you can also lean forward with your upper body.", "This will allow your shoulder muscles to stretch and strengthen even more."]
                                 elif exercise == 2:  # external rotations
-                                    exercise_description = "holding the cane with both hands in front of your body, and getting into the starting position by bending your elbows at a 90-degree angle at your sides. Now, push the cane outward to your left and then your right while maintaining the 90-degree angle of your elbows. This exercise will improve your ability to perform external rotations with your shoulders, which are required for a significant number of everyday tasks."
+                                    exercise_description = ["holding the cane with both hands in front of your body, and getting into the starting position by bending your elbows at a 90-degree angle at your sides.", "Now, push the cane outward to your left and then your right while maintaining the 90-degree angle of your elbows. This exercise will improve your ability to perform external rotations with your shoulders, which are required for a significant number of everyday tasks."]
                                 elif exercise == 3:  # shoulder openers
-                                    exercise_description = "holding a water bottle in each hand with your fingers facing inwards, getting into the starting position by holding your arms at your sides, and bending your elbows 90 degrees. Next, move your fists outwards while keeping your arms in position at your sides (like you are opening a door). Then, with slow, controlled movements, bring your arms back to your starting stance."
+                                    exercise_description = ["holding a water bottle in each hand with your fingers facing inwards, getting into the starting position by holding your arms at your sides, and bending your elbows 90 degrees.", "Next, move your fists outwards while keeping your arms in position at your sides (like you are opening a door). Then, with slow, controlled movements, bring your arms back to your starting stance."]
 
                                 goal_level_insert = "perform some " + exercise_utterance
 
@@ -14365,7 +14437,12 @@ class BehaviourLibraryFunctions:
                                 if behaviour == config.A_PREINSTRUCTION_QUESTIONING:
                                     optional_question = "Does that sound good?"
 
-                                utterance = utterance + "Now " + name + ", we're going to " + goal_level_insert + ". This exercise starts by " + exercise_description + optional_question
+                                utterance = [utterance + "Now " + name + ", we're going to " + goal_level_insert + ". This exercise starts by " + exercise_description[0]]
+                                exercise_description.pop(0)
+                                while len(exercise_description) > 0:
+                                    utterance.append(exercise_description[0])
+                                    exercise_description.pop(0)
+                                utterance[len(utterance) - 1] = utterance[len(utterance) - 1] + optional_question
 
                     elif behaviour == config.A_PREINSTRUCTION_NEGATIVEMODELING:
                         exercise_advice = "make your movements too fast or rushed. This is when you're most likely to start compensating with other muscles so you won't get as much out of your rehabilitation."
@@ -14385,21 +14462,32 @@ class BehaviourLibraryFunctions:
                                 utterance = utterance + "Please perform a set of 10 " + exercise_utterance + " " + name + ". Remember, try not to " + exercise_advice + ". Start when you're ready."
 
                         else:
-                            exercise_description = "holding a water bottle on the table in front of you with both hands. Don't just engage one side of your body and with your fingers laced together around the bottle, begin to make big circular movements. Your non-affected arm can guide your affected arm through this exercise. Once you've completed one large circle, go back the other way."  # For exercise 0: table top circles
+                            exercise_description = ["holding a water bottle on the table in front of you with both hands.", "Don't just engage one side of your body and with your fingers laced together around the bottle, begin to make big circular movements. Your non-affected arm can guide your affected arm through this exercise. Once you've completed one large circle, go back the other way."]  # For exercise 0: table top circles
                             exercise_advice = "allowing your movements to become too fast or rushed. This is when you're most likely to start compensating with other muscles so you won't get as much out of your rehabilitation."
                             if exercise == 1:  # towel slides
-                                exercise_description = "folding or spreading the towel on the table immediately in front of you, placing your affected hand on top of it and putting your unaffected hand directly on top of that. Use enough pressure throughout this exercise to keep your hands together. Then use your hands to slide the towel away from you, toward the middle of the table. Your shoulders will also stretch forward, but if you don't feel comfortable doing so don't lean forward with your upper body."
+                                exercise_description = ["folding or spreading the towel on the table immediately in front of you, placing your affected hand on top of it and putting your unaffected hand directly on top of that.", "Use enough pressure throughout this exercise to keep your hands together. Then use your hands to slide the towel away from you, toward the middle of the table. Your shoulders will also stretch forward, but if you don't feel comfortable doing so don't lean forward with your upper body."]
                             elif exercise == 2:  # external rotations
-                                exercise_description = "holding the cane with both hands in front of your body, and getting into the starting position by bending your elbows at a 90-degree angle at your sides. Now, push the cane outward to your left and then your right while not letting your elbows straighten past 90 degrees. This exercise will improve your ability to perform external rotations with your shoulders, which are required for a significant number of everyday tasks."
+                                exercise_description = ["holding the cane with both hands in front of your body, and getting into the starting position by bending your elbows at a 90-degree angle at your sides.", "Now, push the cane outward to your left and then your right while not letting your elbows straighten past 90 degrees. This exercise will improve your ability to perform external rotations with your shoulders, which are required for a significant number of everyday tasks."]
                             elif exercise == 3:  # shoulder openers
-                                exercise_description = "holding a water bottle in each hand with your fingers facing inwards, getting into the starting position by holding your arms at your sides, and bending your elbows 90 degrees. Next, move your fists outwards while keeping your arms in position at your sides (like you are opening a door). Then, don't rush, but bring your arms back to your starting stance."
+                                exercise_description = ["holding a water bottle in each hand with your fingers facing inwards, getting into the starting position by holding your arms at your sides, and bending your elbows 90 degrees.", "Next, move your fists outwards while keeping your arms in position at your sides (like you are opening a door). Then, don't rush, but bring your arms back to your starting stance."]
 
                         if goal_level == config.SESSION_GOAL:
                             goal_level_insert = "guide you through a rehabilitation session. We'll pay particular attention to not " + exercise_advice
                         elif goal_level == config.EXERCISE_GOAL:
-                            goal_level_insert = "perform some " + exercise_utterance + ". This exercise starts by " + exercise_description
+                            goal_level_insert = ["perform some " + exercise_utterance + ". This exercise starts by " + exercise_description[0]]
+                            exercise_description.pop(0)
+                            while len(exercise_description) > 0:
+                                goal_level_insert.append(exercise_description[0])
+                                exercise_description.pop(0)
 
-                        utterance = utterance + "Now " + name + ", we're going to " + goal_level_insert
+                        if isinstance(goal_level_insert, str):
+                            utterance = utterance + "Now " + name + ", we're going to " + goal_level_insert
+                        else:
+                            utterance = [utterance + "Now " + name + ", we're going to " + goal_level_insert[0]]
+                            goal_level_insert.pop(0)
+                            while len(goal_level_insert) > 0:
+                                utterance.append(goal_level_insert[0])
+                                goal_level_insert.pop(0)
 
                     elif behaviour in [config.A_PRAISE, config.A_PRAISE_FIRSTNAME, config.A_POSITIVEMODELING_PRAISE,
                                        config.A_CONSOLE, config.A_CONSOLE_FIRSTNAME]:
@@ -14562,9 +14650,6 @@ class BehaviourLibraryFunctions:
         :param phase :type int: whether we are in the intro (PHASE_START = 0) or feedback (PHASE_END = 1) phase
         :return: msg :type str: random utterance corresponding to the given parameters
         """
-
-        # TODO: Expand with full list of behaviours etc.
-        # TODO: May need to create random in constructor to avoid the same order of selections all the time.
 
         if behaviour > 68 or behaviour < 1 or goal_level > 6 or goal_level < 0 or performance > 7 or performance < -1 or phase > 1 or phase < -1:
             return None

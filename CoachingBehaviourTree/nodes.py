@@ -265,17 +265,11 @@ class FormatAction(Node):
                 if self.behaviour in [config.A_QUESTIONING, config.A_QUESTIONING_FIRSTNAME,
                                       config.A_QUESTIONING_POSITIVEMODELING,
                                       config.A_POSITIVEMODELING_QUESTIONING, config.A_QUESTIONING_NEGATIVEMODELING]:
-                    if not (self.goal_level == config.SESSION_GOAL or self.goal_level == config.EXERCISE_GOAL):
-                        if self.goal_level == config.ACTION_GOAL:
-                            question = "Concurrent"
-                        else:
-                            if self.performance is None or self.performance == -1:
-                                question = "FirstTime"
-                            else:
-                                question = "GoodBad"
+                    if self.goal_level == config.ACTION_GOAL:
+                        question = "Concurrent"
                     else:
-                        if self.phase == config.PHASE_START:
-                            question = "Concurrent"
+                        if self.performance is None or self.performance == -1:
+                            question = "FirstTime"
                         else:
                             question = "GoodBad"
 
@@ -290,10 +284,25 @@ class FormatAction(Node):
                     r = requests.post(config.screen_post_address + "0/newRep")
 
                 pre_msg = self.behaviour_lib.get_pre_msg(self.behaviour, self.goal_level, self.performance, self.phase, self.name, self.exercise, config.exercise_count == 3 and config.set_count == 1, config.set_count == 1)
+                print("Formatting action, score = " + str(self.score) + ", performance = " + str(self.performance))
+                print("pre_msg = " + str(pre_msg) + ", type = " + str(type(pre_msg)))
                 if (self.score is None and self.performance is None):  # or config.given_score >= 2:
-                    nodedata.action = Action(pre_msg, demo=demo, question=question)
+                    if isinstance(pre_msg, str):
+                        nodedata.action = Action(pre_msg, demo=demo, question=question)
+                    else:
+                        nodedata.action = []
+                        while len(pre_msg) > 0:
+                            nodedata.action.append(Action(pre_msg[0], demo=demo, question=question))
+                            pre_msg.pop(0)
                 else:
-                    nodedata.action = Action(pre_msg, self.score, self.target, demo=demo, question=question, goal=self.goal_level)
+                    if isinstance(pre_msg, str):
+                        nodedata.action = Action(pre_msg, self.score, self.target, demo=demo, question=question, goal=self.goal_level)
+                    else:
+                        nodedata.action = []
+                        while len(pre_msg > 1):
+                            nodedata.action.append(Action(pre_msg[0], demo=demo, question=question))
+                            pre_msg.pop(0)
+                        nodedata.action.append(Action(pre_msg[0], self.score, self.target, demo=demo, question=question, goal=self.goal_level))
                     #if self.goal_level == config.EXERCISE_GOAL or self.goal_level == config.SESSION_GOAL or self.goal_level == config.PERSON_GOAL:
                     #    config.given_score += 1
             else:
@@ -449,33 +458,64 @@ class DisplayBehaviour(Node):
         :return: NodeStatus.SUCCESS if action sent successfully to robot, NodeStatus.FAIL otherwise.
         """
         if not config.stop_set and not config.stop_session:
-            print(str(self.action))
-            logging.debug(str(self.action))
-            logging.info("Displaying action {}".format(str(self.action)))
-            output = {
-                "utterance": str(self.action)
-            }
-            if self.action.demo is not None:
-                output['demo'] = self.action.demo
-            if self.action.question is not None:
-                output['question'] = self.action.question
-            # Send post request to tablet output API
-            if config.goal_level > 1:
-                phase = "exercise"
-            else:
-                phase = "non-exercise"
-            #utteranceURL = "http://192.168.43.19:8000/Test Utterance/non-exercise/newUtterance".replace(' ', '%20')
-            utteranceURL = config.screen_post_address + str(self.action).replace(' ', '%20') + "/" + phase + "/newUtterance"
-            r = requests.post(utteranceURL)
-            # Send post request to Pepper
-            r = requests.post(config.post_address, json=output)
+            if isinstance(self.action, Action):
+                print(str(self.action))
+                logging.debug(str(self.action))
+                logging.info("Displaying action {}".format(str(self.action)))
+                output = {
+                    "utterance": str(self.action)
+                }
+                if self.action.demo is not None:
+                    output['demo'] = self.action.demo
+                if self.action.question is not None:
+                    output['question'] = self.action.question
+                # Send post request to tablet output API
+                if config.goal_level > 1:
+                    phase = "exercise"
+                else:
+                    phase = "non-exercise"
+                #utteranceURL = "http://192.168.43.19:8000/Test Utterance/non-exercise/newUtterance".replace(' ', '%20')
+                utteranceURL = config.screen_post_address + str(self.action).replace(' ', '%20') + "/" + phase + "/newUtterance"
+                r = requests.post(utteranceURL)
+                # Send post request to Pepper
+                r = requests.post(config.post_address, json=output)
 
-            # Wait for response before continuing because the session might be paused.
-            while not (r.status_code == 200):
-                time.sleep(0.2)
+                # Wait for response before continuing because the session might be paused.
+                while not (r.status_code == 200):
+                    time.sleep(0.2)
+
+            else:
+                print("multiple line action: " + str(self.action))
+                logging.debug(str(self.action))
+                while len(self.action) > 0:
+                    logging.info("Displaying action {}".format(str(self.action[0])))
+                    output = {
+                        "utterance": str(self.action[0])
+                    }
+                    if self.action[0].demo is not None:
+                        output['demo'] = self.action[0].demo
+                    if self.action[0].question is not None:
+                        output['question'] = self.action[0].question
+                    # Send post request to tablet output API
+                    if config.goal_level > 1:
+                        phase = "exercise"
+                    else:
+                        phase = "non-exercise"
+                    # utteranceURL = "http://192.168.43.19:8000/Test Utterance/non-exercise/newUtterance".replace(' ', '%20')
+                    utteranceURL = config.screen_post_address + str(self.action[0]).replace(' ',
+                                                                                         '%20') + "/" + phase + "/newUtterance"
+                    r = requests.post(utteranceURL)
+                    # Send post request to Pepper
+                    r = requests.post(config.post_address, json=output)
+
+                    # Wait for response before continuing because the session might be paused.
+                    while not (r.status_code == 200):
+                        time.sleep(0.2)
+
+                    self.action.pop(0)
 
             config.behaviour_displayed = True
-            #config.need_new_behaviour = True
+            # config.need_new_behaviour = True
             if self.score is not None:  # and config.has_score_been_provided is False:
                 config.has_score_been_provided = True
                 # config.scores_provided += 1
@@ -502,7 +542,6 @@ class GetStats(Node):
     run(nodedata)
         Set the player's motivation, ability and no. of sessions on the blackboard.
     """
-    # TODO: Dummy class which will eventually get user stats from user and API
     def __init__(self, name, *args, **kwargs):
         super(GetStats, self).__init__(
             name,
@@ -636,7 +675,7 @@ class CreateSubgoal(Node):
                 return NodeStatus(NodeStatus.FAIL, "Cannot create subgoal of ACTION_GOAL.")
             else:
                 nodedata.new_goal = self.previous_goal_level + 1
-                config.goal_level = self.previous_goal_level + 1
+                # config.goal_level = self.previous_goal_level + 1
                 config.getBehaviourGoalLevel = self.previous_goal_level + 1
                 # if nodedata.new_goal == config.ACTION_GOAL:
                     # Reset config.start_time to monitor speed of exercise execution.
@@ -739,7 +778,9 @@ class EndSubgoal(Node):
                 config.scores_provided = 0  # At new goal level we will need to provide the average score again.
                 if self.goal_level == config.EXERCISE_GOAL:
                     config.session_time += 1
-
+                if self.goal_level == config.ACTION_GOAL:
+                    config.used_behaviours = []
+                config.has_score_been_provided = False
                 print("Ended subgoal {old_goal}. New goal level = {new_goal}.".format(old_goal=self.goal_level, new_goal=nodedata.new_goal))
                 logging.info("Ended subgoal {old_goal}. New goal level = {new_goal}.".format(old_goal=self.goal_level, new_goal=nodedata.new_goal))
                 logging.debug("Returning SUCCESS from EndSubgoal, new subgoal level = " + str(nodedata.new_goal))
@@ -1001,7 +1042,9 @@ class TimestepCue(Node):
                             print("performance list = " + str(config.set_performance_list) + ", mode = " + str(mode(config.set_performance_list)))
                             nodedata.performance = mode(config.set_performance_list)
                             print("Average performance = " + str(nodedata.performance))
+                            print("score list = " + str(config.set_score_list) + ", mean = " + str(mean(config.set_score_list)))
                             nodedata.score = mean(config.set_score_list)
+                            print("Average score = " + str(nodedata.score))
                             # Update score in controller
                             config.exercise_performance_list.append(nodedata.performance)
                             config.exercise_score_list.append(nodedata.score)
@@ -1037,7 +1080,7 @@ class TimestepCue(Node):
                     nodedata.phase = config.PHASE_END
                     nodedata.performance = config.performance
                     config.set_performance_list.append(nodedata.performance)
-                    nodedata.score = config.score
+                    nodedata.score = config.action_score
                     config.set_score_list.append(nodedata.score)
                     nodedata.target = config.target
                     print("Returning SUCCESS from TimestepCue action goal")
@@ -1102,7 +1145,7 @@ class DurationCheck(Node):
         Compare the requested session duration to the amount of time the session has been running.
         :return: NodeStatus.FAIL when session duration has not been reached, NodeStatus.SUCCESS otherwise.
         """
-        if not config.stop_set and not config.stop_session:
+        if not config.stop_set:
             # TODO update once getting actual time from user
             # Will return FAIL when when duration has not been reached. SUCCESS when it has.
             # self.current_time += 1
@@ -1113,6 +1156,9 @@ class DurationCheck(Node):
                 logging.debug("Returning FAIL from DurationCheck - time limit not yet reached, current time = " + str(self.current_time))
                 return NodeStatus(NodeStatus.FAIL, "Time limit not yet reached.")
             else:
+                config.stop_set = False
+                config.stop_session = False
+                config.getBehaviourGoalLevel = 1
                 print("Session time limit reached, current duration = {a}, session limit = {limit}.".format(
                     a=self.current_time, limit=self.session_duration))
                 logging.info("Session time limit reached, current duration = {a}, session limit = {limit}.".format(
@@ -1200,17 +1246,15 @@ class EndSetEvent(Node):
         Check if at least 30 shots have been played and if so, check if the user has pressed the button.
         :return: NodeStatus.SUCCESS once the end set button has been pressed by the user, NodeStatus.FAIL otherwise.
         """
-        # TODO Update once getting actual choice from user. Will probably need two nodes, one for displaying button,
-        #   one for waiting for user selection so that the tree doesn't grind to a halt.
-        # self.shotcount += 1  # TODO Set this to 0 when set starts.
 
         if (self.firstTime and self.exercisecount >= 10) or (self.firstTime is False and self.exercisecount >= 5) or config.stop_set or config.stop_session:
-            api_classes.expecting_action_goal = False
+            config.expecting_action_goal = False
             config.completed = config.COMPLETED_STATUS_TRUE
             config.set_count += 1
             config.phase = config.PHASE_END  # When a set is completed, feedback should be given, so phase becomes end.
             # config.repetitions = -1
             config.stop_set = False  # Ending set so reset this variable so the session can continue.
+            config.getBehaviourGoalLevel = config.SET_GOAL
 
             output = {
                 "stop": str(1)

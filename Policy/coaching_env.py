@@ -59,8 +59,16 @@ class CoachingEnvironment(gym.Env, ABC):
             observation = 0
             self.policy = PolicyWrapper(policy=matrix)
         else:
-            # TODO: check this is the correct measure for choosing the initial policy.
-            belief_distribution = [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0] if config.impairment < 4 else [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0]
+            belief_distribution = []
+            if config.policy == -1:
+                # TODO: check this is the correct measure for choosing the initial policy.
+                belief_distribution = [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0] if config.impairment < 4 else [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0]
+            else:
+                for i in range(12):
+                    if config.policy == i:
+                        belief_distribution.append(1)
+                    else:
+                        belief_distribution.append(0)
             observation = 0
             self.policy = PolicyWrapper(belief=belief_distribution)
 

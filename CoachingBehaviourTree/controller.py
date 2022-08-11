@@ -888,6 +888,8 @@ def get_intro_loop(name, blackboard, prev_goal_node, initialise_node, person_nod
     # Share action between session_goal_intro_action and session_goal_intro_output.
     blackboard.add_remapping(new_goal_intro_pre_instr_action._id, 'action', new_goal_intro_pre_instr_output._id,
                     'action')
+    if name == "set_goal_intro_loop":
+        blackboard.save('set_start', True, new_goal_intro_pre_instr_output._id)
     new_goal_intro_pre_instr_negate_name = name + "_pre_instr_negate"
     new_goal_intro_pre_instr_negate = Negate(name=new_goal_intro_pre_instr_negate_name,
                                              child=new_goal_intro_pre_instr_sequence)
@@ -1108,8 +1110,9 @@ def main():
         config.behaviour_displayed = False
 
         # If behaviour occurs twice, just skip to pre-instruction.
+        print("used behaviours = " + str(config.used_behaviours) + ", goal_level = " + str(config.getBehaviourGoalLevel))
         if action2 in config.used_behaviours and (
-                config.getBehaviourGoalLevel == config.SESSION_GOAL or config.goal_level == config.EXERCISE_GOAL or config.goal_level == config.STAT_GOAL or config.goal_level == config.SET_GOAL):
+                config.getBehaviourGoalLevel == config.SESSION_GOAL or config.getBehaviourGoalLevel == config.EXERCISE_GOAL or config.getBehaviourGoalLevel == config.SET_GOAL):
             action2 = config.A_PREINSTRUCTION
             logging.debug('Got new behaviour: 1')
             # config.matching_behav = 0
@@ -1117,8 +1120,8 @@ def main():
             config.used_behaviours.append(action2)
 
         # Learning the Q-value
-        if reward is not None:
-            update(state1, state2, reward, action1, action2)
+        # if reward is not None:
+        #     update(state1, state2, reward, action1, action2)
 #
         config.behaviour = action2
         config.prev_behav = action2
@@ -1130,7 +1133,7 @@ def main():
 
     # Write final policy to file
     f = open(filename, "w")
-    f.writelines(config.policy_matrix.get_matrix())
+    f.writelines(str(config.policy_matrix.get_matrix()))
     f.close()
 
 def api_start():

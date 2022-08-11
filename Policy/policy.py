@@ -43,7 +43,6 @@ class Policy:
     _get_prob_matrix_from_reward(style)
         Helper function for generating transition matrix which generates the matrix for a single given style.
     """
-    # TODO: Change from using IRL rewards to just clustered policies.
     def __init__(self, belief=None, policy=None):
         if belief is not None:
             self.belief_distribution = belief

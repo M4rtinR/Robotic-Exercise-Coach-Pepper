@@ -84,7 +84,6 @@ class PolicyWrapper:
                     behaviour = self.policy.sample_action(state)
                 else:
                     logging.debug("PolicyWrapper > 10")
-                    # TODO: Remove this if else and figure out what's going on with centroids.
                     if behaviour == config.A_MANUALMANIPULATION_QUESTIONING:
                         behaviour = config.A_QUESTIONING
                     elif behaviour == config.A_MANUALMANIPULATION_PREINSTRUCTION \
