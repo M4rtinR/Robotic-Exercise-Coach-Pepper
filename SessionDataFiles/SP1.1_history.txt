@@ -1,0 +1,17 @@
+SP1.1
+0
+
+1.00
+
+Shoulder openers
+1
+2.0,6.4313571666666665
+Table top circles
+1
+1.0,4.3285065
+Towel slide
+1
+0.0,5.534451562499999
+External rotation with cane
+1
+1.0,2.4756415
