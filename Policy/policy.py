@@ -279,10 +279,10 @@ class Policy:
         logging.debug(self.transition_matrix[style - 1][self._get_action(state)])"""
 
         # TODO: make it an epsilon-greedy policy.
-        print("transition matrix = " + str(self.transition_matrix))
-        print("state = " + str(state) + ", matrix = " + str(self.transition_matrix[state]))
+        logging.debug("transition matrix = " + str(self.transition_matrix))
+        logging.debug("state = " + str(state) + ", matrix = " + str(self.transition_matrix[state]))
         choicess = choices(range(68), self.transition_matrix[state])
-        print("choices = " + str(choicess))
+        logging.debug("choices = " + str(choicess))
         action = choicess[0]
         logging.debug("action: " + str(action))
         count = 1

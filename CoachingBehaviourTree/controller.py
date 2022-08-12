@@ -831,7 +831,7 @@ def get_intro_loop(name, blackboard, prev_goal_node, initialise_node, person_nod
     overall_intro_sequence.add_child(new_goal_start_until)
     blackboard.add_remapping(new_goal._id, 'new_goal', new_goal_start._id, 'goal')
     if name == "exercise_goal_intro_loop":
-        print("Goal = exercise_goal_intro_loop")
+        logging.debug("Goal = exercise_goal_intro_loop")
         blackboard.add_remapping(new_goal._id, 'new_exercise', new_goal_start._id, 'exercise')
     else:
         blackboard.add_remapping(prev_goal_node, 'new_exercise', new_goal_start._id, 'exercise')
@@ -1068,7 +1068,7 @@ def get_feedback_loop(name, behav, blackboard, goal_node, initialise_node, previ
 
 
 def update(state, state2, reward, action, action2):
-    print("Updating policy, state: " + str(state) + ", action: " + str(action))
+    logging.debug("Updating policy, state: " + str(state) + ", action: " + str(action))
     predict = config.policy_matrix.get_matrix()[state][action]
     target = reward + config.gamma * config.policy_matrix.get_matrix()[state2][action2]
     config.policy_matrix.update_matrix(state, action, 0.0 if config.policy_matrix.get_matrix()[state][action] + config.alpha * (target - predict) < 0.0 else config.policy_matrix.get_matrix()[state][action] + config.alpha * (target - predict))
@@ -1085,7 +1085,7 @@ def main():
     else:
         print("The file does not exist")
     loggingFilename = "" + config.participantNo + ".log"
-    logging.basicConfig(format='%(levelname)s:%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.DEBUG, filename=loggingFilename)
+    logging.basicConfig(format='%(levelname)s:%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.INFO, filename=loggingFilename)
     logging.info("Logging started")
 
     # Create the environment
@@ -1100,17 +1100,17 @@ def main():
     # print('Got behaviour: ' + str(config.behaviour))
 
     while not done:
-        print("controller stepping")
+        logging.debug("controller stepping")
         state2, reward, done, result = env.step(action1, state1)
 
-        # print('Behaviour = ' + str(config.behaviour))
-        print("controller getting new behaviour")
+        # logging.debug('Behaviour = ' + str(config.behaviour))
+        logging.debug("controller getting new behaviour")
         action2 = config.policy_matrix.get_behaviour(state2, config.goal_level, config.performance, config.phase)
         config.need_new_behaviour = False
         config.behaviour_displayed = False
 
         # If behaviour occurs twice, just skip to pre-instruction.
-        print("used behaviours = " + str(config.used_behaviours) + ", goal_level = " + str(config.getBehaviourGoalLevel))
+        logging.debug("used behaviours = " + str(config.used_behaviours) + ", goal_level = " + str(config.getBehaviourGoalLevel))
         if action2 in config.used_behaviours and (
                 config.getBehaviourGoalLevel == config.SESSION_GOAL or config.getBehaviourGoalLevel == config.EXERCISE_GOAL or config.getBehaviourGoalLevel == config.SET_GOAL):
             action2 = config.A_PREINSTRUCTION
@@ -1123,6 +1123,7 @@ def main():
         # if reward is not None:
         #     update(state1, state2, reward, action1, action2)
 #
+        logging.info("New behaviour: " + str(action2))
         config.behaviour = action2
         config.prev_behav = action2
         state1 = state2

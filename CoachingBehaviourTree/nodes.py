@@ -109,7 +109,7 @@ class GetBehaviour(Node):
             state information.
         :return: None
         """
-        print("Configuring GetBehaviour: " + self._name)
+        logging.debug("Configuring GetBehaviour: " + self._name)
         logging.debug("Configuring GetBehaviour: " + self._name)
         # logging.debug(str(nodedata))
         self.belief = nodedata.get_data('belief')            # Belief distribution over policies.
@@ -132,7 +132,7 @@ class GetBehaviour(Node):
         :return: NodeStatus.SUCCESS when a behaviour and observation has been obtained from the policy wrapper.
         """
         if not config.stop_set and not config.stop_session:
-            # print('GetBehaviour, self.goal_level = ' + str(self.goal_level) + ', nodedata.goal = ' + str(nodedata.goal))
+            # logging.debug('GetBehaviour, self.goal_level = ' + str(self.goal_level) + ', nodedata.goal = ' + str(nodedata.goal))
             # policy = PolicyWrapper(self.belief)  # TODO: generate this at start of interaction and store on blackboard.
             #, nodedata.obs_behaviour
             # nodedata.behaviour = policy.get_behaviour(self.state, self.goal_level, self.performance, self.phase)
@@ -143,7 +143,7 @@ class GetBehaviour(Node):
             else:
                 # config.need_new_behaviour = True
                 nodedata.behaviour = config.behaviour
-                print('GetBehaviour Got behaviour: ' + str(config.behaviour))
+                logging.debug('GetBehaviour Got behaviour: ' + str(config.behaviour))
 
                 # If behaviour occurs twice, just skip to pre-instruction.
                 """if nodedata.behaviour in config.used_behaviours and (self.goal_level == config.SESSION_GOAL or self.goal_level == config.EXERCISE_GOAL or self.goal_level == config.SET_GOAL):
@@ -156,12 +156,12 @@ class GetBehaviour(Node):
                 config.prev_behav = nodedata.behaviour
         
                 config.observation = policy.get_observation(self.state, nodedata.behaviour)"""
-                ''' print("self.need_score = " + str(self.need_score) + ", config.scores_provided = " + str(config.scores_provided) + ", config.has_score_been_provided = " + str(config.has_score_been_provided))
+                ''' logging.debug("self.need_score = " + str(self.need_score) + ", config.scores_provided = " + str(config.scores_provided) + ", config.has_score_been_provided = " + str(config.has_score_been_provided))
                 if self.need_score and not config.scores_provided < 1:
                     config.has_score_been_provided = False
-                    print("set has_score_been_provided to False")'''
+                    logging.debug("set has_score_been_provided to False")'''
                 # logging.debug('Got observation: ' + str(nodedata.behaviour))
-                print("Returning SUCCESS from GetBehaviour, nodedata = " + str(nodedata))
+                logging.debug("Returning SUCCESS from GetBehaviour, nodedata = " + str(nodedata))
                 logging.debug("Returning SUCCESS from GetBehaviour, nodedata = " + str(nodedata))
                 return NodeStatus(NodeStatus.SUCCESS, "Obtained behaviour " + str(nodedata.behaviour))
         else:
@@ -220,7 +220,7 @@ class FormatAction(Node):
             state and behaviour information.
         :return: None
         """
-        print("Configuring FormatAction: " + self._name + ". PHASE = " + str(nodedata.get_data('phase')) + ". performance = " + str(nodedata.get_data('performance')) + ". config.performance = " + str(config.performance))
+        logging.debug("Configuring FormatAction: " + self._name + ". PHASE = " + str(nodedata.get_data('phase')) + ". performance = " + str(nodedata.get_data('performance')) + ". config.performance = " + str(config.performance))
         # logging.debug("FormatAction nodedata: " + str(nodedata))
         self.goal_level = nodedata.get_data('goal')          # Which level of goal we are currently in (e.g. SET_GOAL)
         self.performance = nodedata.get_data('performance', None)  # Which level of performance the player achieved (e.g. MET)
@@ -240,7 +240,7 @@ class FormatAction(Node):
         :return: NodeStatus.SUCCESS when an action has been created.
         """
         if not config.stop_set and not config.stop_session:
-            print("Formatting action: behaviour = {behaviour}, goal_level = {goal_level}, performance = {performance}, name = {name}, exercise = {exercise}".format(behaviour=self.behaviour, goal_level=self.goal_level, performance=self.performance, name=self.name, exercise=self.exercise))
+            logging.debug("Formatting action: behaviour = {behaviour}, goal_level = {goal_level}, performance = {performance}, name = {name}, exercise = {exercise}".format(behaviour=self.behaviour, goal_level=self.goal_level, performance=self.performance, name=self.name, exercise=self.exercise))
             logging.info("Formatting action: behaviour = {behaviour}, goal_level = {goal_level}, performance = {performance}, name = {name}, exercise = {exercise}".format(behaviour=self.behaviour, goal_level=self.goal_level, performance=self.performance, name=self.name, exercise=self.exercise))
             if not(self.behaviour == config.A_SILENCE):
                 demo = None
@@ -284,8 +284,8 @@ class FormatAction(Node):
                     r = requests.post(config.screen_post_address + "0/newRep")
 
                 pre_msg = self.behaviour_lib.get_pre_msg(self.behaviour, self.goal_level, self.performance, self.phase, self.name, self.exercise, config.exercise_count == 3 and config.set_count == 1, config.set_count == 1)
-                print("Formatting action, score = " + str(self.score) + ", performance = " + str(self.performance))
-                print("pre_msg = " + str(pre_msg) + ", type = " + str(type(pre_msg)))
+                logging.debug("Formatting action, score = " + str(self.score) + ", performance = " + str(self.performance))
+                logging.debug("pre_msg = " + str(pre_msg) + ", type = " + str(type(pre_msg)))
                 if (self.score is None and self.performance is None):  # or config.given_score >= 2:
                     if isinstance(pre_msg, str):
                         nodedata.action = Action(pre_msg, demo=demo, question=question)
@@ -313,11 +313,11 @@ class FormatAction(Node):
                 # Send post request to Pepper
                 r = requests.post(config.post_address, json=output)
 
-                print("Returning FAIL from FormatAction, behaviour = " + str(self.behaviour))
+                logging.debug("Returning FAIL from FormatAction, behaviour = " + str(self.behaviour))
                 logging.debug("Returning FAIL from FormatAction, behaviour = " + str(self.behaviour))
                 return NodeStatus(NodeStatus.FAIL, "Behaviour == A_SILENCE")
 
-            print("Returning SUCCESS from FormatAction, action = " + str(nodedata.action))
+            logging.debug("Returning SUCCESS from FormatAction, action = " + str(nodedata.action))
             logging.debug("Returning SUCCESS from FormatAction, action = " + str(nodedata.action))
             return NodeStatus(NodeStatus.SUCCESS, "Created action from given behaviour.")
         else:
@@ -360,7 +360,7 @@ class CheckForBehaviour(Node):
             behaviour information.
         :return: None
         """
-        print("Configuring CheckForBehaviour: " + self._name + ", goal_level = " + str(config.goal_level))
+        logging.debug("Configuring CheckForBehaviour: " + self._name + ", goal_level = " + str(config.goal_level))
         self.behaviour = nodedata.get_data('behaviour')              # The behaviour selected from the policy
         self.check_behaviour = nodedata.get_data('check_behaviour')  # The behaviour to check against
         self.goal_level = nodedata.get_data('goal', config.goal_level)
@@ -382,10 +382,10 @@ class CheckForBehaviour(Node):
                 config.used_behaviours = []
                 if self.check_behaviour == config.A_PREINSTRUCTION and self.goal_level == config.SET_GOAL and config.phase == config.PHASE_START:
                     if self.first_set:
-                        print("setting config reps to 10")
+                        logging.debug("setting config reps to 10")
                         config.repetitions = 10
                     else:
-                        print("setting config reps to 5")
+                        logging.debug("setting config reps to 5")
                         config.repetitions = 5
                 logging.debug("Returning SUCCESS from CheckForBehaviour, behaviour found = " + str(self.behaviour))
                 # config.completed = config.COMPLETED_STATUS_FALSE
@@ -446,7 +446,7 @@ class DisplayBehaviour(Node):
             be performed.
         :return: None
         """
-        print("Configuring DisplayBehaviour: " + self._name)
+        logging.debug("Configuring DisplayBehaviour: " + self._name)
         logging.debug("Configuring DisplayBehaviour: " + self._name)
         self.action = nodedata.get_data('action')
         self.set_start = nodedata.get_data('set_start', False)
@@ -459,7 +459,7 @@ class DisplayBehaviour(Node):
         """
         if not config.stop_set and not config.stop_session:
             if isinstance(self.action, Action):
-                print(str(self.action))
+                logging.debug(str(self.action))
                 logging.debug(str(self.action))
                 logging.info("Displaying action {}".format(str(self.action)))
                 output = {
@@ -485,7 +485,7 @@ class DisplayBehaviour(Node):
                     time.sleep(0.2)
 
             else:
-                print("multiple line action: " + str(self.action))
+                logging.debug("multiple line action: " + str(self.action))
                 logging.debug(str(self.action))
                 while len(self.action) > 0:
                     logging.info("Displaying action {}".format(str(self.action[0])))
@@ -519,7 +519,7 @@ class DisplayBehaviour(Node):
             if self.score is not None:  # and config.has_score_been_provided is False:
                 config.has_score_been_provided = True
                 # config.scores_provided += 1
-                print("Setting has_score_been_provided to True")
+                logging.debug("Setting has_score_been_provided to True")
             if self.set_start:
                 config.expecting_action_goal = True
                 config.dont_send_action_response = False
@@ -603,7 +603,7 @@ class GetDuration(Node):
         :param nodedata :type Blackboard: the blackboard associated with this Behaviour Tree containing the goal level.
         :return: None
         """
-        print("Configuring GetDuration: " + self._name)
+        logging.debug("Configuring GetDuration: " + self._name)
         self.session_duration = nodedata.get_data('session_duration', 1)
         self.start_time = nodedata.get_data('start_time', 0)
 
@@ -654,8 +654,8 @@ class CreateSubgoal(Node):
         :param nodedata :type Blackboard: the blackboard associated with this Behaviour Tree containing the goal level.
         :return: None
         """
-        print("Configuring CreateSubgoal: " + self._name)
-        print(("createSubgoal nodedata = " + str(nodedata)))
+        logging.debug("Configuring CreateSubgoal: " + self._name)
+        logging.debug(("createSubgoal nodedata = " + str(nodedata)))
         logging.debug("Configuring CreateSubgoal: " + self._name)
         logging.debug("createSubgoal nodedata = " + str(nodedata))
         self.previous_goal_level = nodedata.get_data('goal', -1)
@@ -688,7 +688,7 @@ class CreateSubgoal(Node):
                     nodedata.new_exercise = random.randint(0, len(config.exercise_list_session)-1)
                     while config.exercise_list_session[nodedata.get_data("new_exercise")] in config.used_exercises:
                         nodedata.new_exercise = random.randint(0, len(config.exercise_list_session) - 1)
-                    print("In CreateSubgoal, setting exercise. Exercise = " + str(nodedata.get_data("new_exercise")))
+                    logging.debug("In CreateSubgoal, setting exercise. Exercise = " + str(nodedata.get_data("new_exercise")))
                     config.target = config.exercise_target_times[nodedata.get_data("new_exercise")]
                     config.used_exercises.append(config.exercise_list_session[nodedata.get_data("new_exercise")])
                     config.set_count = 0  # Reset the set count for this session to 0.
@@ -708,7 +708,7 @@ class CreateSubgoal(Node):
                     r = requests.post(utteranceURL)
                     r = requests.post(config.screen_post_address + "0/newRep")
                 config.phase = config.PHASE_START  # Start of goal will always be before something happens.
-                print("Created subgoal, new goal level = {}".format(nodedata.new_goal))
+                logging.debug("Created subgoal, new goal level = {}".format(nodedata.new_goal))
                 logging.info("Created subgoal, new goal level = {}".format(nodedata.new_goal))
                 logging.debug("Returning SUCCESS from CreateSubGoal, new goal level = " + str(nodedata.new_goal))
                 return NodeStatus(NodeStatus.SUCCESS, "Created subgoal: " + str(self.previous_goal_level + 1))
@@ -747,7 +747,7 @@ class EndSubgoal(Node):
         :param nodedata :type Blackboard: the blackboard associated with this Behaviour Tree containing the goal level.
         :return: None
         """
-        print("Configuring EndSubgoal: " + self._name)
+        logging.debug("Configuring EndSubgoal: " + self._name)
         logging.debug("Configuring EndSubgoal: " + self._name)
         self.goal_level = nodedata.get_data('goal', -1)
         self.skipped_create = nodedata.get_data('skipped_create', False)
@@ -762,7 +762,7 @@ class EndSubgoal(Node):
         if not config.stop_set or self.skipped_create:
             # Will return SUCCESS once request sent to API, FAIL if called on goal > 6 or connection error.
             if self.goal_level > 4 or self.goal_level < 0:
-                print("Returning FAIL from EndSubgoal, goal_level = " + str(self.goal_level))
+                logging.debug("Returning FAIL from EndSubgoal, goal_level = " + str(self.goal_level))
                 logging.debug("Returning FAIL from EndSubgoal, goal_level = " + str(self.goal_level))
                 return NodeStatus(NodeStatus.FAIL, "Cannot create subgoal of " + str(self.goal_level))
             else:
@@ -781,7 +781,7 @@ class EndSubgoal(Node):
                 if self.goal_level == config.ACTION_GOAL:
                     config.used_behaviours = []
                 config.has_score_been_provided = False
-                print("Ended subgoal {old_goal}. New goal level = {new_goal}.".format(old_goal=self.goal_level, new_goal=nodedata.new_goal))
+                logging.debug("Ended subgoal {old_goal}. New goal level = {new_goal}.".format(old_goal=self.goal_level, new_goal=nodedata.new_goal))
                 logging.info("Ended subgoal {old_goal}. New goal level = {new_goal}.".format(old_goal=self.goal_level, new_goal=nodedata.new_goal))
                 logging.debug("Returning SUCCESS from EndSubgoal, new subgoal level = " + str(nodedata.new_goal))
                 return NodeStatus(NodeStatus.SUCCESS, "Completed subgoal: " + str(self.goal_level - 1))
@@ -813,7 +813,7 @@ class TimestepCue(Node):
             *args, **kwargs)
 
     def configure(self, nodedata):
-        print("Configureing TimestepCue: " + self._name + ", nodedata: " + str(nodedata))
+        logging.debug("Configureing TimestepCue: " + self._name + ", nodedata: " + str(nodedata))
         logging.debug("Configuring TimestepCue: " + self._name)
         self.goal_level = nodedata.get_data('goal')
         self.phase = nodedata.get_data('phase')
@@ -853,10 +853,10 @@ class TimestepCue(Node):
         """
         if not config.stop_set and (not config.stop_session or (
                 config.stop_session and config.phase == config.PHASE_END)):  # If the session is stopped, we still need to go into timestep cue to write the appropriate data up to now to the file.
-            # print("checking goal level: " + str(self.goal_level))
+            # logging.debug("checking goal level: " + str(self.goal_level))
             # Will be ACTIVE when waiting for data and SUCCESS when got data and added to blackboard, FAIL when connection error.
             if self.goal_level == -1:  # Person goal created after receiving info from guide.
-                print("Timestep Cue, self.goal_level = " + str(self.goal_level))
+                logging.debug("Timestep Cue, self.goal_level = " + str(self.goal_level))
                 if config.goal_level == config.PERSON_GOAL:  # For person goal should have name, impairment and no. of sessions.
                     if config.phase == config.PHASE_END:  # Feedback sequence
                         nodedata.phase = config.PHASE_END
@@ -874,7 +874,7 @@ class TimestepCue(Node):
 
                         nodedata.phase = config.PHASE_END
                         logging.info(
-                            "Feedback for session, performance = {performance}".format(performance=nodedata.performance))
+                            "Feedback for person, performance = {performance}".format(performance=nodedata.performance))
                         logging.debug("Returning SUCCESS from TimestepCue person goal (end), stats = " + str(nodedata))
                         return NodeStatus(NodeStatus.SUCCESS, "Data for stat goal obtained from guide:" + str(nodedata))
                     else:
@@ -958,7 +958,7 @@ class TimestepCue(Node):
                             f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participant_filename, "r")
                             file_contents = f.readlines()
                             f.close()
-                            print("File contents = " + str(file_contents))
+                            logging.debug("File contents = " + str(file_contents))
                             counter = 0
                             exercise_found = False
                             for content_line in file_contents:
@@ -968,13 +968,13 @@ class TimestepCue(Node):
                                 counter += 1
 
                             if exercise_found:
-                                print("Exercise found")
+                                logging.debug("Exercise found")
                                 exercise_times = int(
                                     file_contents[counter]) + 1  # The number of sessions the user has done this exercise in
                                 file_contents[counter] = str(exercise_times)
                                 file_contents.insert(counter+exercise_times-1, "\n" + str(nodedata.performance) + "," + str(nodedata.score))
                             else:
-                                print("Exercise not found")
+                                logging.debug("Exercise not found")
                                 sessions = int(file_contents[1])
                                 if len(file_contents) < 3:  # if no exercises performed yet, add another \n to get layout right
                                     file_contents[1] = str(sessions) + "\n"
@@ -982,7 +982,7 @@ class TimestepCue(Node):
                                 file_contents.insert(sessions + 3, "\n1")
                                 file_contents.insert(sessions + 4, "\n" + str(nodedata.performance) + "," + str(nodedata.score))
 
-                            print("File contents = " + str(file_contents))
+                            logging.debug("File contents = " + str(file_contents))
 
                             f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participant_filename, "w")
                             f.writelines(file_contents)
@@ -1002,7 +1002,7 @@ class TimestepCue(Node):
                     else:
                         nodedata.performance = config.performance
                         nodedata.target = config.target
-                        print("Set target for exercise")
+                        logging.debug("Set target for exercise")
                         nodedata.phase = config.PHASE_START
                         config.goal_level = config.SET_GOAL
                         logging.debug("Returning SUCCESS from TimestepCue exercise goal, stats = " + str(nodedata))
@@ -1026,7 +1026,7 @@ class TimestepCue(Node):
                         config.performance = int(performance[0])
                         config.score = int(performance[1])
 
-                    print("got data from file.")
+                    logging.debug("got data from file.")
 
                     config.goal_level = config.EXERCISE_GOAL
                     logging.debug("Returning ACTIVE from TimestepCue exercise goal, config.goal_level != 2")
@@ -1035,16 +1035,16 @@ class TimestepCue(Node):
             elif self.goal_level == config.SET_GOAL:
 
                 if config.goal_level == config.SET_GOAL:
-                    print("config.goal_level == config.SET_GOAL")
+                    logging.debug("config.goal_level == config.SET_GOAL")
                     if config.phase == config.PHASE_END:  # Just finished previous goal level so into feedback sequence.
                         nodedata.phase = config.PHASE_END
                         if not (len(config.set_performance_list) == 0):
-                            print("performance list = " + str(config.set_performance_list) + ", mode = " + str(mode(config.set_performance_list)))
+                            logging.debug("performance list = " + str(config.set_performance_list) + ", mode = " + str(mode(config.set_performance_list)))
                             nodedata.performance = mode(config.set_performance_list)
-                            print("Average performance = " + str(nodedata.performance))
-                            print("score list = " + str(config.set_score_list) + ", mean = " + str(mean(config.set_score_list)))
+                            logging.debug("Average performance = " + str(nodedata.performance))
+                            logging.debug("score list = " + str(config.set_score_list) + ", mean = " + str(mean(config.set_score_list)))
                             nodedata.score = mean(config.set_score_list)
-                            print("Average score = " + str(nodedata.score))
+                            logging.debug("Average score = " + str(nodedata.score))
                             # Update score in controller
                             config.exercise_performance_list.append(nodedata.performance)
                             config.exercise_score_list.append(nodedata.score)
@@ -1069,12 +1069,12 @@ class TimestepCue(Node):
                     # Don't need to get performance data of set from file because it will be stored in the config file.
                     config.goal_level = config.SET_GOAL
                     # config.phase = config.PHASE_END
-                    print("Returning ACTIVE from TimestepCue set goal")
+                    logging.debug("Returning ACTIVE from TimestepCue set goal")
                     logging.debug("Returning ACTIVE from TimestepCue set goal")
                     return NodeStatus(NodeStatus.ACTIVE, "Waiting for set goal data from guide.")
 
             elif self.goal_level == config.ACTION_GOAL and not config.stop_session:
-                print("Timestep cue action goal")
+                logging.debug("Timestep cue action goal")
                 if config.goal_level == config.ACTION_GOAL:
                     config.goal_level = config.SET_GOAL
                     nodedata.phase = config.PHASE_END
@@ -1083,12 +1083,12 @@ class TimestepCue(Node):
                     nodedata.score = config.action_score
                     config.set_score_list.append(nodedata.score)
                     nodedata.target = config.target
-                    print("Returning SUCCESS from TimestepCue action goal")
+                    logging.debug("Returning SUCCESS from TimestepCue action goal")
                     logging.debug("Returning SUCCESS from TimestepCue action goal, stats = " + str(nodedata))
                     return NodeStatus(NodeStatus.SUCCESS, "Data for action goal obtained from guide:" + str(nodedata))
                 else:
                     # config.goal_level = config.ACTION_GOAL
-                    print("Returning ACTIVE from TimestepCue action goal")
+                    logging.debug("Returning ACTIVE from TimestepCue action goal")
                     logging.debug("Returning ACTIVE from TimestepCue action goal")
                     return NodeStatus(NodeStatus.ACTIVE, "Waiting for action goal input from operator.")
 
@@ -1133,7 +1133,7 @@ class DurationCheck(Node):
         :param nodedata :type Blackboard: the blackboard associated with this Behaviour Tree containing the time data.
         :return: None
         """
-        print("Configuring DurationCheck: " + self._name)
+        logging.debug("Configuring DurationCheck: " + self._name)
         logging.debug("Configuring DurationCheck: " + self._name)
         self.start_time = nodedata.get_data('start_time')
         self.session_duration = nodedata.get_data('session_duration')
@@ -1150,16 +1150,16 @@ class DurationCheck(Node):
             # Will return FAIL when when duration has not been reached. SUCCESS when it has.
             # self.current_time += 1
             if self.session_duration > self.current_time:
-                print("Session time limit NOT reached, current duration = {a}, session limit = {limit}.".format(
+                logging.debug("Session time limit NOT reached, current duration = {a}, session limit = {limit}.".format(
                     a=self.current_time, limit=self.session_duration))
-                logging.info("Session time limit NOT reached, current duration = {a}, session limit = {limit}.".format(a=self.current_time - self.start_time, limit=self.session_duration))
+                # logging.info("Session time limit NOT reached, current duration = {a}, session limit = {limit}.".format(a=self.current_time - self.start_time, limit=self.session_duration))
                 logging.debug("Returning FAIL from DurationCheck - time limit not yet reached, current time = " + str(self.current_time))
                 return NodeStatus(NodeStatus.FAIL, "Time limit not yet reached.")
             else:
                 config.stop_set = False
                 config.stop_session = False
                 config.getBehaviourGoalLevel = 1
-                print("Session time limit reached, current duration = {a}, session limit = {limit}.".format(
+                logging.debug("Session time limit reached, current duration = {a}, session limit = {limit}.".format(
                     a=self.current_time, limit=self.session_duration))
                 logging.info("Session time limit reached, current duration = {a}, session limit = {limit}.".format(
                     a=self.current_time - self.start_time, limit=self.session_duration))
@@ -1236,7 +1236,7 @@ class EndSetEvent(Node):
             *args, **kwargs)
 
     def configure(self, nodedata):
-        print("Configuring EndSetEvent: " + self._name + ", setting exercisecount to " + str(config.exercise_count))
+        logging.debug("Configuring EndSetEvent: " + self._name + ", setting exercisecount to " + str(config.exercise_count))
         logging.debug("Configuring EndSetEvent: " + self._name + ", setting exercisecount to " + str(config.exercise_count))
         self.exercisecount = config.exercise_count
         self.firstTime = config.set_count == 0
@@ -1259,10 +1259,10 @@ class EndSetEvent(Node):
             output = {
                 "stop": str(1)
             }
-            logging.info("Stopping set: That's 10, you can stop there.")
+            logging.info("Stopping set: OK, you can stop there.")
             r = requests.post(config.post_address, json=output)
 
-            print("Exercise set completed.")
+            logging.debug("Exercise set completed.")
             logging.debug("Returning SUCCESS from EndSetEvent, exercise count = " + str(self.exercisecount))
             return NodeStatus(NodeStatus.SUCCESS, "Shot set ended.")
         else:
@@ -1308,10 +1308,10 @@ class InitialiseBlackboard(Node):
         self.name = nodedata.get_data('name')
         self.motivation = nodedata.get_data('motivation')
         self.impairment = nodedata.get_data('user_impairment')
-        if self.impairment < 4:
-            self.experience = "low"
+        if self.motivation < 6:
+            self.motivation = "low"
         else:
-            self.experience = "high"
+            self.motivation = "high"
         pass
 
     def run(self, nodedata):
@@ -1327,7 +1327,7 @@ class InitialiseBlackboard(Node):
         belief_distribution = []
         # TODO: Set proper belief distribution based on interview data.
         if config.policy == -1:
-            belief_distribution = [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0] if self.experience == "high" else [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0]
+            belief_distribution = [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0] if self.motivation == "high" else [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0]
         else:
             for i in range(12):
                 if config.policy == i:
@@ -1427,7 +1427,7 @@ class OperatorInput(Node):
             state information.
         :return: None
         """
-        print("Configuring OperatorInput: " + self._name)
+        logging.debug("Configuring OperatorInput: " + self._name)
         self.target_time = nodedata.get_data('target')
 
     def run(self, nodedata):
@@ -1463,7 +1463,7 @@ class OperatorInput(Node):
         # Controller start_time will be reset when the action goal is created.
 
         config.goal_level = config.ACTION_GOAL
-        print("Rep time = " + str(rep_time_delta) + ", diff_from_target = " + str(diff_from_target) + ", performance = " + str(performance))
+        logging.debug("Rep time = " + str(rep_time_delta) + ", diff_from_target = " + str(diff_from_target) + ", performance = " + str(performance))
         logging.info("Rep time = " + str(rep_time))
         logging.debug("Returning SUCCESS from OperatorInput")
         return NodeStatus(NodeStatus.SUCCESS, "Time = " + str(rep_time))

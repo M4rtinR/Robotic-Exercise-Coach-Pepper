@@ -13712,9 +13712,9 @@ class BehaviourLibraryFunctions:
                                 if exercise == 1:  # towel slides
                                     exercise_description = ["place a towel on the table in front of you and put your affected hand on top of it.", "Now, put your other hand directly on top of your affected hand so that both hands are on top of the towel. Press down slightly to keep your hands together, then slide the towel towards the far side of the table. Don't worry if you can't get all the way.", "This exercise will stretch and strengthen your shoulder muscles as you move your hands forward and back."]
                                 elif exercise == 2:  # external rotations
-                                    exercise_description = ["grasp the can with both hands in front of you and bend your arms at 90 degrees at your sides.", "The aim of this exercise is to improve your ability to perform external rotations with your shoulders. This is required for many everyday tasks so will help you in your daily life. So from your starting position, try to push the cane outward to your left and right without dropping your arms.", "As you do this, your upper body will rotate slightly, but just focus on keeping your arms at a 90 degree angle."]
+                                    exercise_description = ["grasp the cane with both hands in front of you and bend your arms at 90 degrees at your sides.", "The aim of this exercise is to improve your ability to perform external rotations with your shoulders. This is required for many everyday tasks so will help you in your daily life. So from your starting position, try to push the cane outward to your left and right without dropping your arms.", "As you do this, your upper body will rotate slightly, but just focus on keeping your arms at a 90 degree angle."]
                                 elif exercise == 3:  # shoulder openers
-                                    exercise_description = ["grasp a water bottle in each hand with your palms facing inwards.", "Then, holding your arms at your sides, bend your elbows 90 degrees. Frome here, slowly move your fists outwards while keeping your arms in position at your sides. Then bring your arms back to their starting position. It can be helpful in this exercise to imagine your arms as a door opening and then closing again."]
+                                    exercise_description = ["grasp a water bottle in each hand with your palms facing inwards.", "Then, holding your arms at your sides, bend your elbows 90 degrees. Frome here, slowly move your fists outwards while keeping your arms in position at your sides. Then bring your arms back to their starting position.", "It can be helpful in this exercise to imagine your arms as a door opening and then closing again."]
 
                                 goal_level_insert = "do an exercise called " + exercise_utterance
 
@@ -13755,7 +13755,7 @@ class BehaviourLibraryFunctions:
                             if exercise == 1:  # towel slides
                                 exercise_description = ["place a towel on the table in front of you and put your affected hand on top of it.", "Now, put your other hand directly on top of your affected hand so that both hands are on top of the towel. Press down slightly to keep your hands together, then slide the towel towards the far side of the table. Don't over extend yourself by leaning forward with your body unless you feel comfortable doing so.", "This exercise will stretch and strengthen your shoulder muscles as you move your hands forward and back."]
                             elif exercise == 2:  # external rotations
-                                exercise_description = ["grasp the can with both hands in front of you and bend your arms at 90 degrees at your sides.", "The aim of this exercise is to improve your ability to perform external rotations with your shoulders. This is required for many everyday tasks so will help you in your daily life. So from your starting position, try to push the cane outward to your left and right without dropping your arms.", "As you do this, your upper body will rotate slightly, but just focus on not letting your arms straighten past 90 degrees."]
+                                exercise_description = ["grasp the cane with both hands in front of you and bend your arms at 90 degrees at your sides.", "The aim of this exercise is to improve your ability to perform external rotations with your shoulders. This is required for many everyday tasks so will help you in your daily life. So from your starting position, try to push the cane outward to your left and right without dropping your arms.", "As you do this, your upper body will rotate slightly, but just focus on not letting your arms straighten past 90 degrees."]
                             elif exercise == 3:  # shoulder openers
                                 exercise_description = ["grasp a water bottle in each hand with your palms facing inwards.", "Then, holding your arms at your sides, bend your elbows 90 degrees. Frome here, slowly move your fists outwards while keeping your arms in position at your sides. Then bring your arms back to their starting position. The key thing here is to not allow your arms to straighten past 90 degrees if you can avoid it."]
 
@@ -14073,7 +14073,7 @@ class BehaviourLibraryFunctions:
                                 elif exercise == 2:  # external rotations
                                     exercise_description = ["hold the cane in front of your body with both hands and bend your arms at a 90-degree angle.", "With your arms at your sides, push the cane outward to your left and right while keeping your arms bent at 90-degrees. Many everyday tasks require you to perform external rotations with your shoulders and this exercise should help you improve this movement."]
                                 elif exercise == 3:  # shoulder openers
-                                    exercise_description = ["imagine you are opening and closing a door with your arms.", "So, holding a water bottle in each hand, make fists with your fingers facing inwards and your arms bent at a 90 degree angle at your sides. Then, nice and slowly, rotate your hands outwards away from the middle of your body while keeping your elbows at your sides. Finally, bring your arms back to your starting stance."]
+                                    exercise_description = ["imagine you are opening and closing a door with your arms.", "So, holding a water bottle in each hand, make fists with your fingers facing inwards and your arms bent at a 90 degree angle at your sides. Then, nice and slowly, rotate your hands outwards away from the middle of your body while keeping your elbows at your sides.", "Finally, bring your arms back to your starting stance."]
 
                                 goal_level_insert = "work on your " + exercise_utterance
 
@@ -14116,7 +14116,7 @@ class BehaviourLibraryFunctions:
                             elif exercise == 2:  # external rotations
                                 exercise_description = ["hold the cane in front of your body with both hands and bend your arms at a 90-degree angle.", "While not letting your arms come away from your sides, push the cane outward to your left and right while keeping your arms bent at 90-degrees. Many everyday tasks require you to perform external rotations with your shoulders and this exercise should help you improve this movement."]
                             elif exercise == 3:  # shoulder openers
-                                exercise_description = ["imagine you are opening and closing a door with your arms. So, holding a water bottle in each hand, make fists with your fingers facing inwards and your arms bent at a 90 degree angle at your sides.", "Then, nice and slowly, rotate your hands outwards away from the middle of your body while not letting your elbows leave your sides. Finally, bring your arms back to your starting stance."]
+                                exercise_description = ["imagine you are opening and closing a door with your arms. So, holding a water bottle in each hand, make fists with your fingers facing inwards and your arms bent at a 90 degree angle at your sides.", "Then, nice and slowly, rotate your hands outwards away from the middle of your body while not letting your elbows leave your sides.", "Finally, bring your arms back to your starting stance."]
 
                         if goal_level == config.SESSION_GOAL:
                             goal_level_insert = "have some fun together. I'm going to coach you through some upper-body rehabilitation exercises. We'll focus particularly on not " + exercise_advice
@@ -14932,11 +14932,11 @@ class BehaviourLibraryFunctions:
             if r == 1:
                 vid = "_vid"'''
         demoName = ""
-        exName = "table_top_circles"
+        exName = "tabletop_circles"
         if exercise == 1:
             exName = "towel_slide"
         elif exercise == 2:
-            exName = "external_rotation_with_cane"
+            exName = "external_rotations_with_cane"
         elif exercise == 3:
             exName = "shoulder_openers"
         demoName = exName + posNeg

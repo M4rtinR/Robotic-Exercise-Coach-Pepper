@@ -16,14 +16,15 @@ class TimestepCue(Resource):
     previous_shot_performance = None
     def post(self):
         if request.is_json:
-            print("request is json")
+            logging.debug("request is json")
             logging.debug("request is json")
             content = request.get_json()
-            print(content)
-            logging.info("Received data from app: {}".format(content))
+            logging.debug(content)
+            logging.info("Received data in api: {}".format(content))
             if 'start' in content:  # Called when the operator is ready to indicate a new rep. Send response when we've told the user to do an exercise.
-                print("API in start")
-                print("config.repetitions = " + str(config.repetitions))
+                logging.debug("API in start")
+                logging.debug("config.repetitions = " + str(config.repetitions))
+                logging.info("Start signal from operator.")
                 while config.repetitions == -1:
                     time.sleep(0.2)
 
@@ -31,14 +32,14 @@ class TimestepCue(Resource):
                     'reps': config.repetitions,
                     'set': config.set_count
                 }
-                print("API returning")
+                logging.debug("API returning")
                 return new_data, 200
             elif 'rep' in content:  # Called when a new rep is indicated by the operator.
                 if config.expecting_action_goal:
-                    print('got rep')
+                    logging.debug('got rep')
                     data_score = float(content['score'])
                     config.action_score = data_score
-                    print('set score, config.target = ' + str(config.target))
+                    logging.debug('set score, config.target = ' + str(config.target))
 
                     diff_from_target = config.target - data_score
                     performance = config.GOOD
@@ -51,22 +52,25 @@ class TimestepCue(Resource):
                         'performance': performance,
                         'set': config.set_count
                     }
-                    print('calculated performance = ' + str(performance))
+                    logging.debug('calculated performance = ' + str(performance))
 
                     config.exercise_count = int(content['rep'])
-                    print('set exercise count')
+                    logging.debug('set exercise count')
 
                     config.completed = config.COMPLETED_STATUS_UNDEFINED
                     config.repetitions = -1  # Reset repetitions to -1 so that we delay the next input after this set is finished.
                     config.goal_level = config.ACTION_GOAL
                     config.getBehaviourGoalLevel = config.ACTION_GOAL
-                    print('set goal_level = ACTION GOAL')
+                    logging.debug('set goal_level = ACTION GOAL')
+
+                    logging.info("Repetition: score = " + str(data_score) + ", target = " + str(config.target) + ", difference from target = " + str(diff_from_target) + ", performance = " + str(performance) + ", repetition count = " + str(content["rep"]))
 
                     # Send data to the Pepper's screen for update.
                     requestURL = config.screen_post_address + str(content['rep']) + "/newRep"
-                    print('sending request, url = ' + requestURL)
+                    logging.debug('sending request, url = ' + requestURL)
                     r = requests.post(requestURL)
                 else:
+                    logging.info("Not expecting action goal.")
                     new_data = {
                         'performance': 0,
                         'set': config.set_count
@@ -111,7 +115,8 @@ class TimestepCue(Resource):
 
                         return new_data, 200
                     else:
-                        print("stop session")
+                        logging.debug("stop session")
+                        logging.info("STOP SESSION request received.")
                         config.stop_session = True  # High level global variable which will be checked at each node until session goal feedback is reached.
                         config.goal_level = config.SESSION_GOAL
                         config.phase = config.PHASE_END
@@ -147,6 +152,7 @@ class TimestepCue(Resource):
 
                         return new_data, 200
                     else:
+                        logging.info("STOP SET request received.")
                         if config.expecting_action_goal:
                             config.stop_set = True  # High level global variable which will be checked at each node until set goal feedback loop is reached.
 

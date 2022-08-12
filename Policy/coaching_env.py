@@ -61,8 +61,7 @@ class CoachingEnvironment(gym.Env, ABC):
         else:
             belief_distribution = []
             if config.policy == -1:
-                # TODO: check this is the correct measure for choosing the initial policy.
-                belief_distribution = [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0] if config.impairment < 4 else [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0]
+                belief_distribution = [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0] if config.motivation > 5 else [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0]
             else:
                 for i in range(12):
                     if config.policy == i:
@@ -70,7 +69,9 @@ class CoachingEnvironment(gym.Env, ABC):
                     else:
                         belief_distribution.append(0)
             observation = 0
+            logging.info("Belief distribution = " + str(belief_distribution))
             self.policy = PolicyWrapper(belief=belief_distribution)
+            logging.info("Policy = " + str(self.policy))
 
         return observation, self.policy
 
@@ -107,13 +108,13 @@ class CoachingEnvironment(gym.Env, ABC):
         config.behaviour_displayed = False
         # config.behaviour = 1
 
-        # print("config.behaviour = " + str(config.behaviour))
+        # logging.debug("config.behaviour = " + str(config.behaviour))
         while not config.behaviour_displayed:  # Keep ticking the tree until a behaviour is given by the robot. This is the point the controller can select a new action and learn.
             result = self.coaching_tree.tick()
             if config.behaviour_displayed:
-                print("Tree ticked, not returning: " + str(result))
+                logging.debug("Tree ticked, not returning: " + str(result))
             else:
-                print("Tree ticked, returning: " + str(result))
+                logging.debug("Tree ticked, returning: " + str(result))
             logging.debug(result)
 
         observation = self.policy.get_observation(state, action)

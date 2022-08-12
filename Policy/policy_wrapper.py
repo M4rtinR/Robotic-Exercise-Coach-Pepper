@@ -71,12 +71,12 @@ class PolicyWrapper:
         count = 0
         #if goal_level == config.ACTION_GOAL:
         debugString = "behaviour = ", behaviour, ". valid_behaviours: %s", valid_behaviours
-        print(debugString)
+        logging.debug(debugString)
 
         while not(behaviour in valid_behaviours):
             logging.debug("Not valid behaviour")
             if goal_level == config.ACTION_GOAL:     # If between shots, silence is an appropriate action so each time a
-                print("behaviour == SILENCE")
+                logging.debug("behaviour == SILENCE")
                 behaviour = config.A_SILENCE  # non-valid action is proposed, just use silence.
             else:
                 if count <= 10:  # Only try this 10 times and if still no valid behaviour, try the next behaviour in the action sequence.
@@ -119,7 +119,7 @@ class PolicyWrapper:
                         count = 0
                 count += 1
                 debugString = "behaviour = ", behaviour, ". valid_behaviours: %s", valid_behaviours
-                print(debugString)
+                logging.debug(debugString)
 
         return behaviour  #, obs_behaviour
 
