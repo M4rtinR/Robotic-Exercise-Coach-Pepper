@@ -242,70 +242,70 @@ class FormatAction(Node):
         if not config.stop_set and not config.stop_session:
             logging.debug("Formatting action: behaviour = {behaviour}, goal_level = {goal_level}, performance = {performance}, name = {name}, exercise = {exercise}".format(behaviour=self.behaviour, goal_level=self.goal_level, performance=self.performance, name=self.name, exercise=self.exercise))
             logging.info("Formatting action: behaviour = {behaviour}, goal_level = {goal_level}, performance = {performance}, name = {name}, exercise = {exercise}".format(behaviour=self.behaviour, goal_level=self.goal_level, performance=self.performance, name=self.name, exercise=self.exercise))
-            if not(self.behaviour == config.A_SILENCE):
-                demo = None
-                if self.behaviour in [config.A_POSITIVEMODELING, config.A_NEGATIVEMODELING,
-                                      config.A_PREINSTRUCTION_POSITIVEMODELING, config.A_PREINSTRUCTION_NEGATIVEMODELING,
-                                      config.A_POSTINSTRUCTIONPOSITIVE_POSITIVE_MODELING,
-                                      config.A_POSTINSTRUCTIONPOSITIVE_NEGATIVE_MODELING,
-                                      config.A_POSTINSTRUCTIONNEGATIVE_POSITIVEMODELING,
-                                      config.A_POSTINSTRUCTIONNEGATIVE_NEGATIVEMODELING,
-                                      config.A_QUESTIONING_NEGATIVEMODELING,
-                                      config.A_POSITIVEMODELING_POSTINSTRUCTIONPOSITIVE,
-                                      config.A_NEGATIVEMODELING_POSTINSTRUCTIONNEGATIVE,
-                                      config.A_POSITIVEMODELING_PREINSTRUCTION, config.A_SCOLD_POSITIVEMODELING,
-                                      config.A_CONCURRENTINSTRUCTIONPOSITIVE_POSITIVEMODELING,
-                                      config.A_CONCURRENTINSTRUCTIONNEGATIVE_NEGATIVEMODELING,
-                                      config.A_MANUALMANIPULATION_POSITIVEMODELING, config.A_QUESTIONING_POSITIVEMODELING,
-                                      config.A_POSITIVEMODELING_CONCURRENTINSTRUCTIONPOSITIVE,
-                                      config.A_POSITIVEMODELING_QUESTIONING, config.A_POSITIVEMODELING_HUSTLE,
-                                      config.A_POSITIVEMODELING_PRAISE]:
-                    demo = self.behaviour_lib.get_demo_string(self.behaviour, self.exercise, self.goal_level)
-                question = None
-                if self.behaviour in [config.A_QUESTIONING, config.A_QUESTIONING_FIRSTNAME,
-                                      config.A_QUESTIONING_POSITIVEMODELING,
-                                      config.A_POSITIVEMODELING_QUESTIONING, config.A_QUESTIONING_NEGATIVEMODELING]:
-                    if self.goal_level == config.ACTION_GOAL:
-                        question = "Concurrent"
-                    else:
-                        if self.performance is None or self.performance == -1:
-                            question = "FirstTime"
-                        else:
-                            question = "GoodBad"
-
-                # If this is the start of a new exercise set, we need to reset the counter on Pepper's screen.
-                if self.behaviour in [config.A_PREINSTRUCTION_POSITIVEMODELING, config.A_PREINSTRUCTION,
-                                      config.A_POSITIVEMODELING_PREINSTRUCTION, config.A_PREINSTRUCTION_PRAISE,
-                                      config.A_PREINSTRUCTION_NEGATIVEMODELING,
-                                      config.A_PREINSTRUCTION_QUESTIONING,
-                                      config.A_PREINSTRUCTION_MANUALMANIPULATION,
-                                      config.A_PREINSTRUCTION_FIRSTNAME,
-                                      config.A_MANUALMANIPULATION_PREINSTRUCTION] and self.goal_level == config.SET_GOAL:
-                    r = requests.post(config.screen_post_address + "0/newRep")
-
-                pre_msg = self.behaviour_lib.get_pre_msg(self.behaviour, self.goal_level, self.performance, self.phase, self.name, self.exercise, config.exercise_count == 3 and config.set_count == 1, config.set_count == 1)
-                logging.debug("Formatting action, score = " + str(self.score) + ", performance = " + str(self.performance))
-                logging.debug("pre_msg = " + str(pre_msg) + ", type = " + str(type(pre_msg)))
-                if (self.score is None and self.performance is None):  # or config.given_score >= 2:
-                    if isinstance(pre_msg, str):
-                        nodedata.action = Action(pre_msg, demo=demo, question=question)
-                    else:
-                        nodedata.action = []
-                        while len(pre_msg) > 0:
-                            nodedata.action.append(Action(pre_msg[0], demo=demo, question=question))
-                            pre_msg.pop(0)
+            # if not(self.behaviour == config.A_SILENCE):
+            demo = None
+            '''if self.behaviour in [config.A_POSITIVEMODELING, config.A_NEGATIVEMODELING,
+                                  config.A_PREINSTRUCTION_POSITIVEMODELING, config.A_PREINSTRUCTION_NEGATIVEMODELING,
+                                  config.A_POSTINSTRUCTIONPOSITIVE_POSITIVE_MODELING,
+                                  config.A_POSTINSTRUCTIONPOSITIVE_NEGATIVE_MODELING,
+                                  config.A_POSTINSTRUCTIONNEGATIVE_POSITIVEMODELING,
+                                  config.A_POSTINSTRUCTIONNEGATIVE_NEGATIVEMODELING,
+                                  config.A_QUESTIONING_NEGATIVEMODELING,
+                                  config.A_POSITIVEMODELING_POSTINSTRUCTIONPOSITIVE,
+                                  config.A_NEGATIVEMODELING_POSTINSTRUCTIONNEGATIVE,
+                                  config.A_POSITIVEMODELING_PREINSTRUCTION, config.A_SCOLD_POSITIVEMODELING,
+                                  config.A_CONCURRENTINSTRUCTIONPOSITIVE_POSITIVEMODELING,
+                                  config.A_CONCURRENTINSTRUCTIONNEGATIVE_NEGATIVEMODELING,
+                                  config.A_MANUALMANIPULATION_POSITIVEMODELING, config.A_QUESTIONING_POSITIVEMODELING,
+                                  config.A_POSITIVEMODELING_CONCURRENTINSTRUCTIONPOSITIVE,
+                                  config.A_POSITIVEMODELING_QUESTIONING, config.A_POSITIVEMODELING_HUSTLE,
+                                  config.A_POSITIVEMODELING_PRAISE]:
+                demo = self.behaviour_lib.get_demo_string(self.behaviour, self.exercise, self.goal_level)'''
+            question = None
+            '''if self.behaviour in [config.A_QUESTIONING, config.A_QUESTIONING_FIRSTNAME,
+                                  config.A_QUESTIONING_POSITIVEMODELING,
+                                  config.A_POSITIVEMODELING_QUESTIONING, config.A_QUESTIONING_NEGATIVEMODELING]:
+                if self.goal_level == config.ACTION_GOAL:
+                    question = "Concurrent"
                 else:
-                    if isinstance(pre_msg, str):
-                        nodedata.action = Action(pre_msg, self.score, self.target, demo=demo, question=question, goal=self.goal_level)
+                    if self.performance is None or self.performance == -1:
+                        question = "FirstTime"
                     else:
-                        nodedata.action = []
-                        while len(pre_msg > 1):
-                            nodedata.action.append(Action(pre_msg[0], demo=demo, question=question))
-                            pre_msg.pop(0)
-                        nodedata.action.append(Action(pre_msg[0], self.score, self.target, demo=demo, question=question, goal=self.goal_level))
-                    #if self.goal_level == config.EXERCISE_GOAL or self.goal_level == config.SESSION_GOAL or self.goal_level == config.PERSON_GOAL:
-                    #    config.given_score += 1
+                        question = "GoodBad"'''
+
+            # If this is the start of a new exercise set, we need to reset the counter on Pepper's screen.
+            if self.behaviour in [config.A_PREINSTRUCTION_POSITIVEMODELING, config.A_PREINSTRUCTION,
+                                  config.A_POSITIVEMODELING_PREINSTRUCTION, config.A_PREINSTRUCTION_PRAISE,
+                                  config.A_PREINSTRUCTION_NEGATIVEMODELING,
+                                  config.A_PREINSTRUCTION_QUESTIONING,
+                                  config.A_PREINSTRUCTION_MANUALMANIPULATION,
+                                  config.A_PREINSTRUCTION_FIRSTNAME,
+                                  config.A_MANUALMANIPULATION_PREINSTRUCTION] and self.goal_level == config.SET_GOAL:
+                r = requests.post(config.screen_post_address + "0/newRep")
+
+            pre_msg = self.behaviour_lib.get_pre_msg(self.behaviour, self.goal_level, self.performance, self.phase, self.name, self.exercise, config.exercise_count == 3 and config.set_count == 1, config.set_count == 1)
+            logging.debug("Formatting action, score = " + str(self.score) + ", performance = " + str(self.performance))
+            logging.debug("pre_msg = " + str(pre_msg) + ", type = " + str(type(pre_msg)))
+            # if (self.score is None and self.performance is None):  # or config.given_score >= 2:
+            if isinstance(pre_msg, str):
+                nodedata.action = Action(pre_msg, demo=demo, question=question)
             else:
+                nodedata.action = []
+                while len(pre_msg) > 0:
+                    nodedata.action.append(Action(pre_msg[0], demo=demo, question=question))
+                    pre_msg.pop(0)
+            '''else:
+                if isinstance(pre_msg, str):
+                    nodedata.action = Action(pre_msg, self.score, self.target, demo=demo, question=question, goal=self.goal_level)
+                else:
+                    nodedata.action = []
+                    while len(pre_msg > 1):
+                        nodedata.action.append(Action(pre_msg[0], demo=demo, question=question))
+                        pre_msg.pop(0)
+                    nodedata.action.append(Action(pre_msg[0], self.score, self.target, demo=demo, question=question, goal=self.goal_level))'''
+                #if self.goal_level == config.EXERCISE_GOAL or self.goal_level == config.SESSION_GOAL or self.goal_level == config.PERSON_GOAL:
+                #    config.given_score += 1
+            '''else:
                 # If silence, we still need to update the screen display on Pepper because a rep may have been done.
                 output = {
                     "silence": "True"
@@ -315,7 +315,7 @@ class FormatAction(Node):
 
                 logging.debug("Returning FAIL from FormatAction, behaviour = " + str(self.behaviour))
                 logging.debug("Returning FAIL from FormatAction, behaviour = " + str(self.behaviour))
-                return NodeStatus(NodeStatus.FAIL, "Behaviour == A_SILENCE")
+                return NodeStatus(NodeStatus.FAIL, "Behaviour == A_SILENCE")'''
 
             logging.debug("Returning SUCCESS from FormatAction, action = " + str(nodedata.action))
             logging.debug("Returning SUCCESS from FormatAction, action = " + str(nodedata.action))
@@ -465,10 +465,10 @@ class DisplayBehaviour(Node):
                 output = {
                     "utterance": str(self.action)
                 }
-                if self.action.demo is not None:
+                '''if self.action.demo is not None:
                     output['demo'] = self.action.demo
                 if self.action.question is not None:
-                    output['question'] = self.action.question
+                    output['question'] = self.action.question'''
                 # Send post request to tablet output API
                 if config.goal_level > 1:
                     phase = "exercise"
@@ -492,10 +492,10 @@ class DisplayBehaviour(Node):
                     output = {
                         "utterance": str(self.action[0])
                     }
-                    if self.action[0].demo is not None:
+                    '''if self.action[0].demo is not None:
                         output['demo'] = self.action[0].demo
                     if self.action[0].question is not None:
-                        output['question'] = self.action[0].question
+                        output['question'] = self.action[0].question'''
                     # Send post request to tablet output API
                     if config.goal_level > 1:
                         phase = "exercise"
@@ -654,7 +654,7 @@ class CreateSubgoal(Node):
         :param nodedata :type Blackboard: the blackboard associated with this Behaviour Tree containing the goal level.
         :return: None
         """
-        logging.debug("Configuring CreateSubgoal: " + self._name)
+        print("Configuring CreateSubgoal: " + self._name)
         logging.debug(("createSubgoal nodedata = " + str(nodedata)))
         logging.debug("Configuring CreateSubgoal: " + self._name)
         logging.debug("createSubgoal nodedata = " + str(nodedata))
@@ -747,7 +747,7 @@ class EndSubgoal(Node):
         :param nodedata :type Blackboard: the blackboard associated with this Behaviour Tree containing the goal level.
         :return: None
         """
-        logging.debug("Configuring EndSubgoal: " + self._name)
+        print("Configuring EndSubgoal: " + self._name)
         logging.debug("Configuring EndSubgoal: " + self._name)
         self.goal_level = nodedata.get_data('goal', -1)
         self.skipped_create = nodedata.get_data('skipped_create', False)

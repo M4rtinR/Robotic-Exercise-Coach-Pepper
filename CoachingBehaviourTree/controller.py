@@ -682,7 +682,7 @@ def create_coaching_tree():
     b.add_remapping(exercise_goal._id, 'new_exercise', set_goal_individual_action._id, 'exercise')
     # Display individual action caoching behaviour
     set_goal_individual_action_output = DisplayBehaviour(name="set_goal_individual_action_output", blackboard=b)
-    set_goal_individual_action_behav_sequence.add_child(set_goal_individual_action_output)
+    # set_goal_individual_action_behav_sequence.add_child(set_goal_individual_action_output)
     # Share action between set_goal_pre_instr_intro_action and set_goal_pre_instr_intro_output.
     b.add_remapping(set_goal_individual_action._id, 'action', set_goal_individual_action_output._id, 'action')
     set_goal_individual_action_behav_succeed = Succeed(name="set_goal_individual_action_behav_succeed", child=set_goal_individual_action_behav_sequence)
@@ -939,7 +939,7 @@ def get_intro_loop(name, blackboard, prev_goal_node, initialise_node, person_nod
     # Display selected behaviour if not pre-instruction or questioning
     new_goal_intro_output_name = name + "_output"
     new_goal_intro_output = DisplayBehaviour(name=new_goal_intro_output_name, blackboard=blackboard)
-    new_goal_intro_sequence.add_child(new_goal_intro_output)
+    # new_goal_intro_sequence.add_child(new_goal_intro_output)
     # Share action between new_goal_intro_action and new_goal_intro_output.
     blackboard.add_remapping(new_goal_intro_action._id, 'action', new_goal_intro_output._id, 'action')
 
@@ -1044,7 +1044,7 @@ def get_feedback_loop(name, behav, blackboard, goal_node, initialise_node, previ
     # Display behaviour if not given behaviour
     output_name = name + "_output"
     feedback_loop_output = DisplayBehaviour(name=output_name, blackboard=blackboard)
-    feedback_loop_sequence.add_child(feedback_loop_output)
+    # feedback_loop_sequence.add_child(feedback_loop_output)
     # Share action between feedback_loop_end_action and feedback_loop_display_end_output.
     blackboard.add_remapping(feedback_loop_action._id, 'action', feedback_loop_output._id, 'action')
     blackboard.add_remapping(timestep_cue_node, 'score', feedback_loop_output._id, 'score')

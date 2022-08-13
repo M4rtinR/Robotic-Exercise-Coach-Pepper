@@ -69,6 +69,16 @@ class TimestepCue(Resource):
                     requestURL = config.screen_post_address + str(content['rep']) + "/newRep"
                     logging.debug('sending request, url = ' + requestURL)
                     r = requests.post(requestURL)
+
+                    while r.status_code != 200:
+                        pass
+
+                    output = {
+                        "silence": "True"
+                    }
+
+                    # Send post request to Pepper to update screen
+                    r = requests.post(config.post_address, json=output)
                 else:
                     logging.info("Not expecting action goal.")
                     new_data = {

@@ -13337,11 +13337,11 @@ class BehaviourLibraryFunctions:
                             question = "OK?"
                         if goal_level == config.SET_GOAL:
                             if final_set:
-                                utterance = utterance + "Do a final set of 5 " + exercise_utterance + " please " + name + ". Remember, " + exercise_advice + question + "You can start whenever you're ready."
+                                utterance = utterance + "Do a final set of 5 " + exercise_utterance + " please " + name + ". You can start whenever you're ready."
                             elif second_set:
-                                utterance = utterance + "Do another set of 5 " + exercise_utterance + " please " + name + ". Remember, " + exercise_advice + question + "You can start whenever you're ready."
+                                utterance = utterance + "Do another set of 5 " + exercise_utterance + " please " + name + ". You can start whenever you're ready."
                             else:
-                                utterance = utterance + "Do a set of 10 " + exercise_utterance + " please " + name + ". Remember, " + exercise_advice + question + "You can start whenever you're ready."
+                                utterance = utterance + "Do a set of 10 " + exercise_utterance + " please " + name + ". You can start whenever you're ready."
                         else:
                             if goal_level == config.SESSION_GOAL:
                                 goal_level_insert = "do a rehabilitation session and I'm going to coach you through it. We'll work on your upper body, particularly your stroke-affected limb."
@@ -13385,11 +13385,11 @@ class BehaviourLibraryFunctions:
 
                         if goal_level == config.SET_GOAL:
                             if final_set:
-                                utterance = utterance + "Do a final set of 5 " + exercise_utterance + " please " + name + ". Remember, don't " + exercise_advice
+                                utterance = utterance + "Do a final set of 5 " + exercise_utterance + " please " + name + "."
                             elif second_set:
-                                    utterance = utterance + "Do another set of 5 " + exercise_utterance + " please " + name + ". Remember, don't" + exercise_advice
+                                    utterance = utterance + "Do another set of 5 " + exercise_utterance + " please " + name + "."
                             else:
-                                    utterance = utterance + "Do a set of 10 " + exercise_utterance + " please " + name + ". Remember, don't " + exercise_advice
+                                    utterance = utterance + "Do a set of 10 " + exercise_utterance + " please " + name + "."
 
                         else:
                             exercise_description = ["lace your fingers together and wrap both hands around a water bottle. Try not to only engage one side of your body.", "With your fingers laced around the bottle, begin to make large circular movements. You can use your non-affected arm to guide your affected arm through this exercise."]  # For exercise 0: table top circles
@@ -13695,11 +13695,11 @@ class BehaviourLibraryFunctions:
                             question = "OK?"
                         if goal_level == config.SET_GOAL:
                             if final_set:
-                                utterance = utterance + "Let's go for a final set of 5 " + exercise_utterance + " please " + name + ". Remember, " + exercise_advice + question + " You can start now."
+                                utterance = utterance + "Let's go for a final set of 5 " + exercise_utterance + " please " + name + ". You can start now."
                             elif second_set:
-                                utterance = utterance + "Let's go for another set of 5 " + exercise_utterance + " please " + name + ". Remember, " + exercise_advice + question + " You can start now."
+                                utterance = utterance + "Let's go for another set of 5 " + exercise_utterance + " please " + name + ". You can start now."
                             else:
-                                utterance = utterance + "Let's go for a set of 10 " + exercise_utterance + " please " + name + ". Remember, " + exercise_advice + question + " You can start now."
+                                utterance = utterance + "Let's go for a set of 10 " + exercise_utterance + " please " + name + ". You can start now."
                         else:
                             if goal_level == config.SESSION_GOAL:
                                 goal_level_insert = "perform some rehabilitation exercises and I'm going to guide you through them. We'll focus particularly on your upper body and stroke-affected limb. Performing exercises like this regularly can help you maintain and regain functional ability over the long term."
@@ -13743,11 +13743,11 @@ class BehaviourLibraryFunctions:
 
                         if goal_level == config.SET_GOAL:
                             if final_set:
-                                utterance = utterance + "Let's go for a final set of 5 " + exercise_utterance + " please " + name + ". Remember, don't " + exercise_advice + " You can start now."
+                                utterance = utterance + "Let's go for a final set of 5 " + exercise_utterance + " please " + name + ". You can start now."
                             elif second_set:
-                                utterance = utterance + "Let's go for another set of 5 " + exercise_utterance + " please " + name + ". Remember, don't" + exercise_advice + " You can start now."
+                                utterance = utterance + "Let's go for another set of 5 " + exercise_utterance + " please " + name + ". You can start now."
                             else:
-                                utterance = utterance + "Let's go for a set of 10 " + exercise_utterance + " please " + name + ". Remember, don't " + exercise_advice + " You can start now."
+                                utterance = utterance + "Let's go for a set of 10 " + exercise_utterance + " please " + name + ". You can start now."
 
                         else:
                             exercise_description = ["place a water bottle on the table in front of you and wrap both of your hands around it with your fingers laced together.", "Slide the bottle around the table in large circular movements. You should try not to only engage one side of your body as you do this because it should be a bilateral movement. You can use your non-affected arm to guide your affected arm through this exercise."] # For exercise 0: table top circles
@@ -14054,11 +14054,11 @@ class BehaviourLibraryFunctions:
                             question = "OK?"
                         if goal_level == config.SET_GOAL:
                             if final_set:
-                                utterance = utterance + "Let's do one final set of 5 " + exercise_utterance + " please " + name + ". Remember, " + exercise_advice + question + ". Please start when you are ready."
+                                utterance = utterance + "Let's do one final set of 5 " + exercise_utterance + " please " + name + ". Please start when you are ready."
                             elif second_set:
-                                utterance = utterance + "Let's do another set of 5 " + exercise_utterance + " please " + name + ". Remember, " + exercise_advice + question + ". Please start when you are ready."
+                                utterance = utterance + "Let's do another set of 5 " + exercise_utterance + " please " + name + ". Please start when you are ready."
                             else:
-                                utterance = utterance + "Let's do a set of 10 " + exercise_utterance + " please " + name + ". Remember, " + exercise_advice + question + ". Please start when you are ready."
+                                utterance = utterance + "Let's do a set of 10 " + exercise_utterance + " please " + name + ". Please start when you are ready."
                         else:
                             if goal_level == config.SESSION_GOAL:
                                 goal_level_insert = "have some fun together. I'm going to coach you through some upper-body rehabilitation exercises. We'll focus particularly on your stroke-affected limb."
@@ -14102,11 +14102,11 @@ class BehaviourLibraryFunctions:
 
                         if goal_level == config.SET_GOAL:
                             if final_set:
-                                utterance = utterance + "Let's do a final set of 5 " + exercise_utterance + " please " + name + ". Remember, don't " + exercise_advice + ". Please start when you are ready."
+                                utterance = utterance + "Let's do a final set of 5 " + exercise_utterance + " please " + name + ". Please start when you are ready."
                             elif second_set:
-                                utterance = utterance + "Let's do another set of 5 " + exercise_utterance + " please " + name + ". Remember, don't" + exercise_advice + ". Please start when you are ready."
+                                utterance = utterance + "Let's do another set of 5 " + exercise_utterance + " please " + name + ". Please start when you are ready."
                             else:
-                                utterance = utterance + "Let's do a set of 10 " + exercise_utterance + " please " + name + ". Remember, don't " + exercise_advice + ". Please start when you are ready."
+                                utterance = utterance + "Let's do a set of 10 " + exercise_utterance + " please " + name + ". Please start when you are ready."
 
                         else:
                             exercise_description = ["grasp a water bottle with both hands and hold it on the table in front of you.", "Don't engage just one side of your body, but begin sliding the bottle around the table in large circular movements. If you are struggling, you can use your non-affected arm to guide your affected arm through the movements."]  # For exercise 0: table top circles
@@ -14410,11 +14410,11 @@ class BehaviourLibraryFunctions:
                             question = "OK?"
                         if goal_level == config.SET_GOAL:
                             if final_set:
-                                utterance = utterance + "Please perform a final set of 5 " + exercise_utterance + " " + name + ". Remember, " + exercise_advice + question + ". Start when you're ready."
+                                utterance = utterance + "Please perform a final set of 5 " + exercise_utterance + " " + name + ". Start when you're ready."
                             elif second_set:
-                                utterance = utterance + "Please perform another set of 5 " + exercise_utterance + " " + name + ". Remember, " + exercise_advice + question + ". Start when you're ready."
+                                utterance = utterance + "Please perform another set of 5 " + exercise_utterance + " " + name + ". Start when you're ready."
                             else:
-                                utterance = utterance + "Please perform a set of 10 " + exercise_utterance + " " + name + ". Remember, " + exercise_advice + question + ". Start when you're ready."
+                                utterance = utterance + "Please perform a set of 10 " + exercise_utterance + " " + name + ". Start when you're ready."
                         else:
                             if goal_level == config.SESSION_GOAL:
                                 goal_level_insert = "guide you through a rehabilitation session. We'll pay particular attention to your upper body and your stroke-affected limb."
@@ -14455,11 +14455,11 @@ class BehaviourLibraryFunctions:
 
                         if goal_level == config.SET_GOAL:
                             if final_set:
-                                utterance = utterance + "Please perform a final set of 5 " + exercise_utterance + " " + name + ". Remember, try not to " + exercise_advice + ". Start when you're ready."
+                                utterance = utterance + "Please perform a final set of 5 " + exercise_utterance + " " + name + ". Start when you're ready."
                             elif second_set:
-                                utterance = utterance + "Please perform another set of 5 " + exercise_utterance + " " + name + ". Remember, try not to" + exercise_advice + ". Start when you're ready."
+                                utterance = utterance + "Please perform another set of 5 " + exercise_utterance + " " + name + ". Start when you're ready."
                             else:
-                                utterance = utterance + "Please perform a set of 10 " + exercise_utterance + " " + name + ". Remember, try not to " + exercise_advice + ". Start when you're ready."
+                                utterance = utterance + "Please perform a set of 10 " + exercise_utterance + " " + name + ". Start when you're ready."
 
                         else:
                             exercise_description = ["holding a water bottle on the table in front of you with both hands.", "Don't just engage one side of your body and with your fingers laced together around the bottle, begin to make big circular movements. Your non-affected arm can guide your affected arm through this exercise. Once you've completed one large circle, go back the other way."]  # For exercise 0: table top circles

@@ -1,5 +1,5 @@
 SHOT_CHOICE = 0
-MAX_SESSION_TIME = 4
+MAX_SESSION_TIME = 1
 
 COMPLETED_STATUS_UNDEFINED = -1
 COMPLETED_STATUS_FALSE = 0
@@ -133,7 +133,7 @@ expecting_action_goal = False
 
 # Initial values to be changed at the beginning of each session:
 name = "Ronnie"
-participantNo = "SP1.1"
+participantNo = "BaselineTest"
 participant_filename = participantNo + "_history.txt"
 impairment = 9
 motivation = 9
