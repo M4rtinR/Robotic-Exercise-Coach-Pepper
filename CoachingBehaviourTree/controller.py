@@ -1132,6 +1132,33 @@ def main():
         logging.debug(result)
         time.sleep(1)
 
+    # Perform final step.
+    logging.debug("controller stepping")
+    state2, reward, done, result = env.step(action1, state1)
+
+    # logging.debug('Behaviour = ' + str(config.behaviour))
+    logging.debug("controller getting new behaviour")
+    action2 = config.policy_matrix.get_behaviour(state2, config.goal_level, config.performance, config.phase)
+    config.need_new_behaviour = False
+    config.behaviour_displayed = False
+
+    # If behaviour occurs twice, just skip to pre-instruction.
+    logging.debug(
+        "used behaviours = " + str(config.used_behaviours) + ", goal_level = " + str(config.getBehaviourGoalLevel))
+    if action2 in config.used_behaviours and (
+            config.getBehaviourGoalLevel == config.SESSION_GOAL or config.getBehaviourGoalLevel == config.EXERCISE_GOAL or config.getBehaviourGoalLevel == config.SET_GOAL):
+        action2 = config.A_PREINSTRUCTION
+        logging.debug('Got new behaviour: 1')
+        # config.matching_behav = 0
+    else:
+        config.used_behaviours.append(action2)
+
+    # Learning the Q-value
+    # if reward is not None:
+    #     update(state1, state2, reward, action1, action2)
+    #
+    logging.info("New behaviour: " + str(action2))
+
     # Write final policy to file
     f = open(filename, "w")
     f.writelines(str(config.policy_matrix.get_matrix()))

@@ -110,7 +110,7 @@ class GetBehaviour(Node):
         :return: None
         """
         logging.debug("Configuring GetBehaviour: " + self._name)
-        logging.debug("Configuring GetBehaviour: " + self._name)
+        print("Configuring GetBehaviour: " + self._name)
         # logging.debug(str(nodedata))
         self.belief = nodedata.get_data('belief')            # Belief distribution over policies.
         self.goal_level = nodedata.get_data('goal')          # Which level of goal we are currently in (e.g. SET_GOAL)
@@ -138,7 +138,7 @@ class GetBehaviour(Node):
             # nodedata.behaviour = policy.get_behaviour(self.state, self.goal_level, self.performance, self.phase)
             if config.behaviour_displayed or ((config.behaviour == config.A_HUSTLE or config.behaviour == config.A_SILENCE) and not self.goal_level == config.ACTION_GOAL):  # If we need a new behaviour, return active so that control as passed back to controller to generate new behaviour from policy.
                 config.need_new_behaviour = True
-                logging.debug("Returning ACTIVE from GetBehaviour, nodedata = " + str(nodedata))
+                print("Returning ACTIVE from GetBehaviour, nodedata = " + str(nodedata))
                 return NodeStatus(NodeStatus.ACTIVE, "Need new behaviour")
             else:
                 # config.need_new_behaviour = True
@@ -162,7 +162,7 @@ class GetBehaviour(Node):
                     logging.debug("set has_score_been_provided to False")'''
                 # logging.debug('Got observation: ' + str(nodedata.behaviour))
                 logging.debug("Returning SUCCESS from GetBehaviour, nodedata = " + str(nodedata))
-                logging.debug("Returning SUCCESS from GetBehaviour, nodedata = " + str(nodedata))
+                print("Returning SUCCESS from GetBehaviour, nodedata = " + str(nodedata))
                 return NodeStatus(NodeStatus.SUCCESS, "Obtained behaviour " + str(nodedata.behaviour))
         else:
             return NodeStatus(NodeStatus.SUCCESS, "Stop set/session get behaviour")
@@ -221,7 +221,7 @@ class FormatAction(Node):
         :return: None
         """
         logging.debug("Configuring FormatAction: " + self._name + ". PHASE = " + str(nodedata.get_data('phase')) + ". performance = " + str(nodedata.get_data('performance')) + ". config.performance = " + str(config.performance))
-        # logging.debug("FormatAction nodedata: " + str(nodedata))
+        print("configuring FormatAction: " + str(self._name))
         self.goal_level = nodedata.get_data('goal')          # Which level of goal we are currently in (e.g. SET_GOAL)
         self.performance = nodedata.get_data('performance', None)  # Which level of performance the player achieved (e.g. MET)
         self.phase = nodedata.get_data('phase')              # PHASE_START or PHASE_END
@@ -317,7 +317,7 @@ class FormatAction(Node):
                 logging.debug("Returning FAIL from FormatAction, behaviour = " + str(self.behaviour))
                 return NodeStatus(NodeStatus.FAIL, "Behaviour == A_SILENCE")'''
 
-            logging.debug("Returning SUCCESS from FormatAction, action = " + str(nodedata.action))
+            print("Returning SUCCESS from FormatAction, action = " + str(nodedata.action))
             logging.debug("Returning SUCCESS from FormatAction, action = " + str(nodedata.action))
             return NodeStatus(NodeStatus.SUCCESS, "Created action from given behaviour.")
         else:
@@ -360,7 +360,7 @@ class CheckForBehaviour(Node):
             behaviour information.
         :return: None
         """
-        logging.debug("Configuring CheckForBehaviour: " + self._name + ", goal_level = " + str(config.goal_level))
+        print("Configuring CheckForBehaviour: " + self._name)
         self.behaviour = nodedata.get_data('behaviour')              # The behaviour selected from the policy
         self.check_behaviour = nodedata.get_data('check_behaviour')  # The behaviour to check against
         self.goal_level = nodedata.get_data('goal', config.goal_level)
@@ -378,6 +378,7 @@ class CheckForBehaviour(Node):
         if not config.stop_set and not config.stop_session:
             # TODO: Update for variants of check_behaviour.
             # SUCCESS if next behaviour is given behaviour, else FAIL
+            print("Behaviour = " + str(self.behaviour) + ", check_behaviour = " + str(self.check_behaviour))
             if self._is_example_of_behaviour(self.behaviour, self.check_behaviour):
                 config.used_behaviours = []
                 if self.check_behaviour == config.A_PREINSTRUCTION and self.goal_level == config.SET_GOAL and config.phase == config.PHASE_START:
@@ -389,7 +390,8 @@ class CheckForBehaviour(Node):
                         config.repetitions = 5
                 logging.debug("Returning SUCCESS from CheckForBehaviour, behaviour found = " + str(self.behaviour))
                 # config.completed = config.COMPLETED_STATUS_FALSE
-                config.behaviour_displayed = True  # Set to true so that we get a new behaviour for the new goal level.
+                if self.check_behaviour == config.A_PREINSTRUCTION:
+                    config.behaviour_displayed = True  # Set to true so that we get a new behaviour for the new goal level.
                 return NodeStatus(NodeStatus.SUCCESS, "Behaviour " + str(self.check_behaviour) + " found in the form " + str(self.behaviour))
             else:
                 logging.debug("Returning FAIL from CheckForBehaviour, behaviour not found = " + str(self.check_behaviour) + ", input behaviour = " + str(self.behaviour))
@@ -403,12 +405,14 @@ class CheckForBehaviour(Node):
                           config.A_PREINSTRUCTION_POSITIVEMODELING, config.A_POSITIVEMODELING_PREINSTRUCTION,
                           config.A_PREINSTRUCTION_FIRSTNAME, config.A_PREINSTRUCTION_MANUALMANIPULATION,
                           config.A_PREINSTRUCTION_NEGATIVEMODELING, config.A_MANUALMANIPULATION_PREINSTRUCTION]
-        else:
+        elif check_behaviour == config.A_QUESTIONING:
             check_list = [config.A_QUESTIONING, config. A_PREINSTRUCTION_QUESTIONING, config.A_QUESTIONING_FIRSTNAME,
                           config.A_QUESTIONING_POSITIVEMODELING, config.A_POSITIVEMODELING_QUESTIONING,
                           config.A_CONCURRENTINSTRUCTIONPOSITIVE_QUESTIONING, config.A_MANUALMANIPULATION_QUESTIONING,
                           config.A_POSTINSTRUCTIONNEGATIVE_QUESTIONING, config.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING,
                           config.A_QUESTIONING_NEGATIVEMODELING]
+        else:
+            check_list = [config.A_END]
 
         return True if behaviour in check_list else False
 
@@ -446,7 +450,7 @@ class DisplayBehaviour(Node):
             be performed.
         :return: None
         """
-        logging.debug("Configuring DisplayBehaviour: " + self._name)
+        print("Configuring DisplayBehaviour: " + self._name)
         logging.debug("Configuring DisplayBehaviour: " + self._name)
         self.action = nodedata.get_data('action')
         self.set_start = nodedata.get_data('set_start', False)
@@ -855,20 +859,20 @@ class TimestepCue(Node):
                 config.stop_session and config.phase == config.PHASE_END)):  # If the session is stopped, we still need to go into timestep cue to write the appropriate data up to now to the file.
             # logging.debug("checking goal level: " + str(self.goal_level))
             # Will be ACTIVE when waiting for data and SUCCESS when got data and added to blackboard, FAIL when connection error.
-            if self.goal_level == -1:  # Person goal created after receiving info from guide.
+            if self.goal_level == -1 or self.goal_level == config.PERSON_GOAL:  # Person goal created after receiving info from guide.
                 logging.debug("Timestep Cue, self.goal_level = " + str(self.goal_level))
                 if config.goal_level == config.PERSON_GOAL:  # For person goal should have name, impairment and no. of sessions.
                     if config.phase == config.PHASE_END:  # Feedback sequence
                         nodedata.phase = config.PHASE_END
                         nodedata.performance = mode(config.session_performance_list)
                         # Write updated no. of sessions to file.
-                        f = open("~/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participant_filename, "r")
+                        f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participant_filename, "r")
                         file_contents = f.readlines()
                         f.close()
                         sessions = int(file_contents[1])
                         sessions += 1
-                        file_contents[1] = sessions
-                        f = open("~/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participant_filename, "w")
+                        file_contents[1] = str(sessions)
+                        f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participant_filename, "w")
                         f.writelines(file_contents)
                         f.close()
 
@@ -880,7 +884,7 @@ class TimestepCue(Node):
                     else:
                         # Get no. of sessions from file.
                         try:
-                            f = open("~/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participant_filename, "r")
+                            f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participant_filename, "r")
                             file_contents = f.readlines()
                             f.close()
                             config.sessions = int(file_contents[1])
