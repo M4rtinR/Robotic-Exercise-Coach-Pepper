@@ -432,12 +432,14 @@ class CheckForBehaviour(Node):
                           config.A_PREINSTRUCTION_POSITIVEMODELING, config.A_POSITIVEMODELING_PREINSTRUCTION,
                           config.A_PREINSTRUCTION_FIRSTNAME, config.A_PREINSTRUCTION_MANUALMANIPULATION,
                           config.A_PREINSTRUCTION_NEGATIVEMODELING, config.A_MANUALMANIPULATION_PREINSTRUCTION]
-        else:
+        elif check_behaviour == config.A_QUESTIONING:
             check_list = [config.A_QUESTIONING, config. A_PREINSTRUCTION_QUESTIONING, config.A_QUESTIONING_FIRSTNAME,
                           config.A_QUESTIONING_POSITIVEMODELING, config.A_POSITIVEMODELING_QUESTIONING,
                           config.A_CONCURRENTINSTRUCTIONPOSITIVE_QUESTIONING, config.A_MANUALMANIPULATION_QUESTIONING,
                           config.A_POSTINSTRUCTIONNEGATIVE_QUESTIONING, config.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING,
                           config.A_QUESTIONING_NEGATIVEMODELING]
+        else:
+            check_list = [config.A_END]
 
         return True if behaviour in check_list else False
 
@@ -721,6 +723,7 @@ class CreateSubgoal(Node):
                         config.set_count = 0
                         config.stat_count += 1
                 config.phase = config.PHASE_START  # Start of goal will always be before something happens.
+                nodedata.phase = config.PHASE_START
                 print("Created subgoal, new goal level = {}".format(nodedata.new_goal))
                 logging.info("Created subgoal, new goal level = {}".format(nodedata.new_goal))
                 logging.debug("Returning SUCCESS from CreateSubGoal, new goal level = " + str(nodedata.new_goal))
@@ -810,7 +813,8 @@ class EndSubgoal(Node):
                         config.hand = None
                         config.used_stats = []
                         config.shot_goal_created = False
-
+                    if self.goal_level == config.ACTION_GOAL:
+                        config.used_behaviours = []
                 print("Ended subgoal {old_goal}. New goal level = {new_goal}.".format(old_goal=self.goal_level, new_goal=nodedata.new_goal))
                 logging.info("Ended subgoal {old_goal}. New goal level = {new_goal}.".format(old_goal=self.goal_level, new_goal=nodedata.new_goal))
                 logging.debug("Returning SUCCESS from EndSubgoal, new subgoal level = " + str(nodedata.new_goal))
@@ -1471,22 +1475,21 @@ class DurationCheck(Node):
         :return: NodeStatus.FAIL when session duration has not been reached, NodeStatus.SUCCESS otherwise.
         """
         if not config.stop_set and not config.stop_session:
-            # TODO update once getting actual time from user
             # Will return FAIL when when duration has not been reached. SUCCESS when it has.
             # self.current_time += 1
             self.current_time = datetime.now()
             self.session_duration = self.current_time - self.start_time
 
             session_duration_delta = self.session_duration.total_seconds()
-            if session_duration_delta > config.MAX_SESSION_TIME:
+            if session_duration_delta < config.MAX_SESSION_TIME:
                 print("Session time limit NOT reached, current duration = {a}, session limit = {limit}.".format(
-                    a=self.current_time, limit=self.session_duration))
+                    a=session_duration_delta, limit=config.MAX_SESSION_TIME))
                 logging.info("Session time limit NOT reached, current duration = {a}, session limit = {limit}.".format(a=self.current_time - self.start_time, limit=self.session_duration))
                 logging.debug("Returning FAIL from DurationCheck - time limit not yet reached, current time = " + str(self.current_time))
                 return NodeStatus(NodeStatus.FAIL, "Time limit not yet reached.")
             else:
                 print("Session time limit reached, current duration = {a}, session limit = {limit}.".format(
-                    a=self.current_time, limit=self.session_duration))
+                    a=session_duration_delta, limit=config.MAX_SESSION_TIME))
                 logging.info("Session time limit reached, current duration = {a}, session limit = {limit}.".format(
                     a=self.current_time - self.start_time, limit=self.session_duration))
                 logging.debug("Returning SUCCESS from DurationCheck - Time limit reached, current time = " + str(self.current_time))
@@ -1925,10 +1928,10 @@ class CheckDoneBefore(Node):
 
         if not config.stop_set and not config.stop_session:
             try:
-                f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + config.hand + str(config.shot) + "/Aggregator.txt", "r")
+                f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + config.hand + str(config.shot) + "/Baseline.txt", "r")
                 f_contents = f.readlines()
                 f.close()
-                if len(f_contents) > 1:
+                if len(f_contents) > 1 and f_contents[1] != "0\n":
                     print("Returning SUCCESS from CheckDoneBefore")
                     return NodeStatus(NodeStatus.SUCCESS, "Found file containing this exercise.")
                 else:

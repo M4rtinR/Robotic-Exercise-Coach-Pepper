@@ -342,7 +342,7 @@ class TimestepCue(Resource):
                         elif targetString[-1] == "s":
                             targetString = content['tgtValue'][:-5]
                         config.target = float(targetString)
-                        config.score = -1
+                        # config.score = -1
                         '''if content['performance'] == "":
                             config.performance = None
                         else:

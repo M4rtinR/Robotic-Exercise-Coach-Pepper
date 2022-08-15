@@ -840,20 +840,9 @@ def get_intro_loop(name, blackboard, prev_goal_node, initialise_node, person_nod
         new_goal_not_created_sequence = Progressor(name=new_goal_not_created_sequence_name)
         new_goal_name = "create_" + name + "_goal"
         new_goal = CreateSubgoal(name=new_goal_name, blackboard=blackboard)
-        new_goal_not_created_sequence.add_child(new_goal)
+        # new_goal_not_created_sequence.add_child(new_goal)
 
-        #
-        #
-        # Wait for timestep cue (i.e. the new goal has been created by guide and we are ready for intro.
-        #
-        #
-        new_goal_start_name = name + "_timestep"
-        new_goal_start = TimestepCue(name=new_goal_start_name, blackboard=blackboard)
-        new_goal_start_until_name = new_goal_start_name + "_until"
-        new_goal_start_until = Until(name=new_goal_start_until_name, child=new_goal_start)
-        new_goal_not_created_sequence.add_child(new_goal_start_until)
-
-        new_goal_check_created_selector.add_child(new_goal_not_created_sequence)
+        new_goal_check_created_selector.add_child(new_goal)
 
         overall_intro_sequence.add_child(new_goal_check_created_selector)
     else:
@@ -861,16 +850,16 @@ def get_intro_loop(name, blackboard, prev_goal_node, initialise_node, person_nod
         new_goal = CreateSubgoal(name=new_goal_name, blackboard=blackboard)
         overall_intro_sequence.add_child(new_goal)
 
-        #
-        #
-        # Wait for timestep cue (i.e. the new goal has been created by guide and we are ready for intro.
-        #
-        #
-        new_goal_start_name = name + "_timestep"
-        new_goal_start = TimestepCue(name=new_goal_start_name, blackboard=blackboard)
-        new_goal_start_until_name = new_goal_start_name + "_until"
-        new_goal_start_until = Until(name=new_goal_start_until_name, child=new_goal_start)
-        overall_intro_sequence.add_child(new_goal_start_until)
+    #
+    #
+    # Wait for timestep cue (i.e. the new goal has been created by guide and we are ready for intro.
+    #
+    #
+    new_goal_start_name = name + "_timestep"
+    new_goal_start = TimestepCue(name=new_goal_start_name, blackboard=blackboard)
+    new_goal_start_until_name = new_goal_start_name + "_until"
+    new_goal_start_until = Until(name=new_goal_start_until_name, child=new_goal_start)
+    overall_intro_sequence.add_child(new_goal_start_until)
 
     # Share data between previous goal and new goal.
     blackboard.add_remapping(prev_goal_node, 'new_goal', new_goal._id, 'goal')
@@ -1428,7 +1417,7 @@ def main():
     else:
         print("The file does not exist")
     loggingFilename = "" + config.participantNo + ".log"
-    logging.basicConfig(format='%(levelname)s:%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.DEBUG, filename=loggingFilename)
+    logging.basicConfig(format='%(levelname)s:%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.INFO, filename=loggingFilename)
     logging.info("Logging started")
 
     # Create the environment
@@ -1474,9 +1463,36 @@ def main():
         logging.debug(result)
         time.sleep(1)
 
+    # Perform final step.
+    logging.debug("controller stepping")
+    state2, reward, done, result = env.step(action1, state1)
+
+    # logging.debug('Behaviour = ' + str(config.behaviour))
+    logging.debug("controller getting new behaviour")
+    action2 = config.policy_matrix.get_behaviour(state2, config.goal_level, config.performance, config.phase)
+    config.need_new_behaviour = False
+    config.behaviour_displayed = False
+
+    # If behaviour occurs twice, just skip to pre-instruction.
+    logging.debug(
+        "used behaviours = " + str(config.used_behaviours) + ", goal_level = " + str(config.getBehaviourGoalLevel))
+    if action2 in config.used_behaviours and (
+            config.getBehaviourGoalLevel == config.SESSION_GOAL or config.getBehaviourGoalLevel == config.EXERCISE_GOAL or config.getBehaviourGoalLevel == config.SET_GOAL):
+        action2 = config.A_PREINSTRUCTION
+        logging.debug('Got new behaviour: 1')
+        # config.matching_behav = 0
+    else:
+        config.used_behaviours.append(action2)
+
+    # Learning the Q-value
+    # if reward is not None:
+    #     update(state1, state2, reward, action1, action2)
+    #
+    logging.info("New behaviour: " + str(action2))
+
     # Write final policy to file
     f = open(filename, "w")
-    f.writelines(config.policy_matrix.get_matrix())
+    f.writelines(str(config.policy_matrix.get_matrix()))
     f.close()
 
 def api_start():
