@@ -1024,19 +1024,22 @@ class TimestepCue(Node):
                         print("Returning SUCCESS from TimestepCue session goal (end), stats = " + str(nodedata))
                         return NodeStatus(NodeStatus.SUCCESS, "Data for stat goal obtained from guide:" + str(nodedata))
                     else:
-                        if config.sessions > 1:  # If this is not the first session, get previous performance from file.
-                            f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/Sessions.txt", "r")
-                            file_contents = f.readlines()
-                            f.close()
+                        if config.shot_count == 0:
+                            if config.sessions > 1:  # If this is not the first session, get previous performance from file.
+                                f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/Sessions.txt", "r")
+                                file_contents = f.readlines()
+                                f.close()
 
-                            config.performance = int(file_contents[config.sessions])
+                                config.performance = int(file_contents[config.sessions])
                         nodedata.performance = config.performance
                         nodedata.phase = config.PHASE_START
                         config.completed = config.COMPLETED_STATUS_FALSE
                         print("Returning SUCCESS from TimestepCue session goal, nodedata = " + str(nodedata))
                         return NodeStatus(NodeStatus.SUCCESS, "Data for session goal obtained from guide:" + str(nodedata))
                 else:
-                    # config.goal_level = config.SESSION_GOAL
+                    if config.shot_count > 0:
+                        config.goal_level = config.SESSION_GOAL
+                        config.phase = config.PHASE_START
                     print("Returning ACTIVE from TimestepCue session goal")
                     return NodeStatus(NodeStatus.ACTIVE, "Waiting for session goal data from guide.")
 
@@ -1136,7 +1139,7 @@ class TimestepCue(Node):
                             config.shot_performance_list = []
                             config.shot_score_list = []
                             nodedata.target = config.target
-                            config.completed = config.COMPLETED_STATUS_TRUE
+                            # config.completed = config.COMPLETED_STATUS_TRUE
 
                             nodedata.phase = config.PHASE_END
                             print(
@@ -1148,57 +1151,58 @@ class TimestepCue(Node):
                             logging.debug("Returning FAIL from TimestepCue shot goal, config.completed = COMPLETED_STATUS_UNDEFINED")
                             return NodeStatus(NodeStatus.FAIL, "Waiting for shot goal data from guide.")  # return FAIL to reset config variables.
                     else:
-                        # Get performance data of previous time user did this exercise from file.
-                        try:
-                            print("Trying to open aggregator")
-                            f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + config.hand + str(config.shot) + "/Aggregator.txt", "r")
-                            print("Opened aggregator")
-                            file_contents = f.readlines()
-                            f.close()
-                            config.performance = file_contents[1]
-                            config.score = file_contents[0]
-
+                        if config.stat_count == 0:  # Not already worked on this shot during this session.
+                            # Get performance data of previous time user did this exercise from file.
                             try:
-                                print("Trying to open baseline")
-                                # Create sorted stat list. Stat with the lowest score will come first. If this shot hasn't
-                                # been performed before, this will be done at the end of the baseline goal.
-                                f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + config.hand + str(config.shot) + "/Baseline.txt", "r")
-                                print("Opened baseline")
+                                print("Trying to open aggregator")
+                                f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + config.hand + str(config.shot) + "/Aggregator.txt", "r")
+                                print("Opened aggregator")
                                 file_contents = f.readlines()
                                 f.close()
+                                config.performance = file_contents[1]
+                                config.score = file_contents[0]
 
-                                stat_set = {}
-                                max = len(file_contents)
-                                index = 0
-                                while index < max:
-                                    stat_name = file_contents[index].replace("\n", "")
-                                    stat_set[stat_name] = float(file_contents[index+1].split(", ")[0].replace("\n", ""))
-                                    index += 2
+                                try:
+                                    print("Trying to open baseline")
+                                    # Create sorted stat list. Stat with the lowest score will come first. If this shot hasn't
+                                    # been performed before, this will be done at the end of the baseline goal.
+                                    f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + config.hand + str(config.shot) + "/Baseline.txt", "r")
+                                    print("Opened baseline")
+                                    file_contents = f.readlines()
+                                    f.close()
 
-                                #sorted_stat_set = sorted(stat_set.items(), key=operator.itemgetter(1))
-                                #sorted_stat_list = []
-                                #for i in sorted_stat_set:
-                                #    sorted_stat_list.append(i[0])
-                                #sorted_stat_list.reverse()  # Reverse to get most important shot first.
+                                    stat_set = {}
+                                    max = len(file_contents)
+                                    index = 0
+                                    while index < max:
+                                        stat_name = file_contents[index].replace("\n", "")
+                                        stat_set[stat_name] = float(file_contents[index+1].split(", ")[0].replace("\n", ""))
+                                        index += 2
 
-                                config.sorted_stat = stat_set
-                            except:
-                                print("Aggregator text file found but baseline text file not found, in start of exercise goal.")
+                                    #sorted_stat_set = sorted(stat_set.items(), key=operator.itemgetter(1))
+                                    #sorted_stat_list = []
+                                    #for i in sorted_stat_set:
+                                    #    sorted_stat_list.append(i[0])
+                                    #sorted_stat_list.reverse()  # Reverse to get most important shot first.
 
-                        except:  # If file doesn't exist, create it.
-                            print(config.participantNo)
-                            print(config.hand)
-                            print(config.shot)
-                            os.mkdir("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + config.hand + str(config.shot))
-                            f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + config.hand + str(config.shot) + "/Aggregator.txt", "a")
-                            file_contents = "0"
-                            file_contents = "0"
-                            f.write(file_contents)
-                            f.close()
-                            config.performance = None
-                            config.score = None
+                                    config.sorted_stat = stat_set
+                                except:
+                                    print("Aggregator text file found but baseline text file not found, in start of exercise goal.")
 
-                        print("got data from file.")
+                            except:  # If file doesn't exist, create it.
+                                print(config.participantNo)
+                                print(config.hand)
+                                print(config.shot)
+                                os.mkdir("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + config.hand + str(config.shot))
+                                f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + config.hand + str(config.shot) + "/Aggregator.txt", "a")
+                                file_contents = "0"
+                                file_contents = "0"
+                                f.write(file_contents)
+                                f.close()
+                                config.performance = None
+                                config.score = None
+
+                            print("got data from file.")
                         nodedata.performance = config.performance
                         nodedata.score = config.score
                         nodedata.target = config.target
@@ -1209,6 +1213,9 @@ class TimestepCue(Node):
                         logging.debug("Returning SUCCESS from TimestepCue exercise goal, stats = " + str(nodedata))
                         return NodeStatus(NodeStatus.SUCCESS, "Data for exercise goal obtained from guide:" + str(nodedata))
                 else:
+                    if config.stat_count > 0:
+                        config.goal_level = config.EXERCISE_GOAL
+                        config.phase = config.PHASE_START
                     print("Returning FAIL from TimestepCue exercise goal, config.goal_level != 2")
                     return NodeStatus(NodeStatus.FAIL, "Waiting for exercise goal data from guide.")  # returning FAIL so it configures again.
 

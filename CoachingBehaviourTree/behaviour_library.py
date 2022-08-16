@@ -13352,7 +13352,7 @@ class BehaviourLibraryFunctions:
                             if performance_insert == "":
                                 utterance = "Am I right in thinking this is the first time we've worked on your " + goal_level_insert + " together " + name + "? Touch the back of my hand for yes or the top of my head for no."
                             else:
-                                utterance = utterance + "How did your " + goal_level_insert + " feel last time" + name + "? Touch the back of my hand if it fet good or the top of my head if you think it still needs work."
+                                utterance = utterance + "How did your " + goal_level_insert + " feel last time" + name + "? Touch the back of my hand if it felt good or the top of my head if you think it still needs work."
                         else:
                             if goal_level == config.SESSION_GOAL:
                                 goal_level_insert = "shot"
@@ -13367,7 +13367,7 @@ class BehaviourLibraryFunctions:
                         question = ""
                         if behaviour == config.A_PREINSTRUCTION_QUESTIONING:
                             question = "OK?"
-                        if score is None or target is None:
+                        if score is None or not isinstance(score, float) or target is None:
                             stat_advice = "get your racket up early "
                             if stat == "approachTiming":
                                 stat_advice = "time your swing so you hit the ball in the middle of your stance "
@@ -13428,7 +13428,7 @@ class BehaviourLibraryFunctions:
                             utterance = utterance + "Today " + name + ", we're going to " + goal_level_insert + ". " + optional_question
 
                     elif behaviour == config.A_PREINSTRUCTION_NEGATIVEMODELING:
-                        if score is None or target is None:
+                        if score is None or not isinstance(score, float) or target is None:
                             stat_advice = "let your racket preparation drop "
                             if stat == "approachTiming":
                                 stat_advice = "start the downswing too late "
@@ -13575,13 +13575,13 @@ class BehaviourLibraryFunctions:
                             optional_question = ""
                             if behaviour == config.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING:
                                 optional_question = "didn't it?"
-                            utterance = utterance + "Your " + goal_level_insert + " " + performance_insert + "there " + optional_question + " " + name + " " + performance_reaction
+                            utterance = utterance + "Your " + goal_level_insert + " " + performance_insert + " there " + optional_question + " " + name + " " + performance_reaction
                         else:
                             optional_question = ""
                             if performance == config.MET or performance == config.STEADY or performance == config.MUCH_IMPROVED or performance == config.IMPROVED or performance == config.IMPROVED_SWAP:
                                 if behaviour == config.A_POSTINSTRUCTIONNEGATIVE_QUESTIONING:
                                     optional_question = ". OK?"
-                                if score is None or target is None:
+                                if score is None or not isinstance(score, float) or target is None:
                                     stat_advice = "let your racket preparation drop "
                                     if stat == "approachTiming":
                                         stat_advice = "start the downswing too late "
@@ -13633,7 +13633,7 @@ class BehaviourLibraryFunctions:
                             goal_level_insert = hand_utterance + " " + shot_utterance
                         elif goal_level == config.STAT_GOAL or goal_level == config.SET_GOAL:
                             goal_level_insert = stat_utterance
-                        utterance = utterance + "How did your " + goal_level_insert + " feel there " + name + "? Touch the back of my hand if it fet good or the top of my head if you think it still needs work."
+                        utterance = utterance + "How did your " + goal_level_insert + " feel there " + name + "? Touch the back of my hand if it felt good or the top of my head if you think it still needs work."
 
                     elif behaviour in [config.A_PRAISE, config.A_PRAISE_FIRSTNAME, config.A_POSITIVEMODELING_PRAISE,
                                        config.A_CONSOLE, config.A_CONSOLE_FIRSTNAME]:
@@ -13654,7 +13654,7 @@ class BehaviourLibraryFunctions:
                                  config.A_CONCURRENTINSTRUCTIONPOSITIVE_POSITIVEMODELING,
                                  config.A_POSITIVEMODELING_CONCURRENTINSTRUCTIONPOSITIVE]:
                     stat_insert = ""
-                    if score is None or target is None:
+                    if score is None or not isinstance(score, float) or target is None:
                         stat_insert = "Racket up"
                         if stat == "approachTiming":
                             stat_insert = "Pay attention to your timing "
@@ -13720,7 +13720,7 @@ class BehaviourLibraryFunctions:
                                    config.A_POSITIVEMODELING_PRAISE]:
                     stat_insert = ""
                     if behaviour == config.A_CONCURRENTINSTRUCTIONPOSITIVE_PRAISE:
-                        if score is None or target is None:
+                        if score is None or not isinstance(score, float) or target is None:
                             stat_insert = "Racket up"
                             if stat == "approachTiming":
                                 stat_insert = "Pay attention to your timing "
@@ -13763,7 +13763,7 @@ class BehaviourLibraryFunctions:
                                    config.A_CONCURRENTINSTRUCTIONNEGATIVE_NEGATIVEMODELING,
                                    config.A_CONCURRENTINSTRUCTIONNEGATIVE_FIRSTNAME]:
                     stat_insert = ""
-                    if score is None or target is None:
+                    if score is None or not isinstance(score, float) or target is None:
                         stat_insert = "Don't let the racket drop"
                         if stat == "approachTiming":
                             stat_insert = "Don't wait too long "
@@ -13926,7 +13926,7 @@ class BehaviourLibraryFunctions:
                         question = ""
                         if behaviour == config.A_PREINSTRUCTION_QUESTIONING:
                             question = "OK?"
-                        if score is None or target is None:
+                        if score is None or not isinstance(score, float) or target is None:
                             stat_advice = "the first thing that happens is your racket goes up "
                             if stat == "approachTiming":
                                 stat_advice = "you start the downswing so that you can hit the ball in the appropriate position "
@@ -13991,7 +13991,7 @@ class BehaviourLibraryFunctions:
                             utterance = utterance + "Today " + name + ", " + goal_level_insert + ". " + optional_question
 
                     elif behaviour == config.A_PREINSTRUCTION_NEGATIVEMODELING:
-                        if score is None or target is None:
+                        if score is None or not isinstance(score, float) or target is None:
                             stat_advice = "your racket does not start down by your side "
                             if stat == "approachTiming":
                                 stat_advice = "you don't wait too long before starting the down swing "
@@ -14141,7 +14141,7 @@ class BehaviourLibraryFunctions:
                             utterance = utterance + "Your " + goal_level_insert + " " + performance_insert + " in that practice " + optional_question + " " + name + " " + performance_reaction
                         else:
                             optional_question = ""
-                            if score is None or target is None:
+                            if score is None or not isinstance(score, float) or target is None:
                                 stat_advice = "your racket does not start down by your side "
                                 if stat == "approachTiming":
                                     stat_advice = "you don't wait too long before starting the down swing "
@@ -14219,7 +14219,7 @@ class BehaviourLibraryFunctions:
                                  config.A_CONCURRENTINSTRUCTIONPOSITIVE_POSITIVEMODELING,
                                  config.A_POSITIVEMODELING_CONCURRENTINSTRUCTIONPOSITIVE]:
                     stat_insert = ""
-                    if score is None or target is None:
+                    if score is None or not isinstance(score, float) or target is None:
                         stat_insert = "Get the racket high early "
                         if stat == "approachTiming":
                             stat_insert = "Watch your timing "
@@ -14300,7 +14300,7 @@ class BehaviourLibraryFunctions:
                 elif behaviour in [config.A_CONCURRENTINSTRUCTIONNEGATIVE,
                                    config.A_CONCURRENTINSTRUCTIONNEGATIVE_NEGATIVEMODELING,
                                    config.A_CONCURRENTINSTRUCTIONNEGATIVE_FIRSTNAME]:
-                    if score is None or target is None:
+                    if score is None or not isinstance(score, float) or target is None:
                         stat_insert = "Your racket's not high enough "
                         if stat == "approachTiming":
                             stat_insert = "Your timing is off "
@@ -14362,7 +14362,7 @@ class BehaviourLibraryFunctions:
             # Baseline Goal
             elif goal_level == config.BASELINE_GOAL:
                 if phase == config.PHASE_START:
-                    utterance = utterance + "The first thing we're going to do is some " + hand_utterance + " " + shot_utterance + "s Please play a set of 30 " + hand_utterance + " " + shot_utterance + "s and I'll see if I can spot anything in your technique"
+                    utterance = utterance + "The first thing we're going to do is some " + hand_utterance + " " + shot_utterance + "s. Please play a set of 30 " + hand_utterance + " " + shot_utterance + "s and I'll see if I can spot anything in your technique"
                     if behaviour == config.A_PREINSTRUCTION_QUESTIONING:
                         utterance = utterance + ". OK?"
                     if behaviour == config.A_PREINSTRUCTION_FIRSTNAME:
@@ -14464,7 +14464,7 @@ class BehaviourLibraryFunctions:
                     elif behaviour in [config.A_PREINSTRUCTION, config.A_PREINSTRUCTION_QUESTIONING,
                                        config.A_PREINSTRUCTION_FIRSTNAME, config.A_PREINSTRUCTION_POSITIVEMODELING,
                                        config.A_POSITIVEMODELING_PREINSTRUCTION]:
-                        if score is None or target is None:
+                        if score is None or not isinstance(score, float) or target is None:
                             stat_advice = "lift your racket high and early "
                             if stat == "approachTiming":
                                 stat_advice = "think about where you're hitting the ball in your stance "
@@ -14530,7 +14530,7 @@ class BehaviourLibraryFunctions:
                             utterance = "Today let's " + goal_level_insert + " " + name + ". " + optional_question
 
                     elif behaviour == config.A_PREINSTRUCTION_NEGATIVEMODELING:
-                        if score is None or target is None:
+                        if score is None or not isinstance(score, float) or target is None:
                             stat_advice = "lift your racket too late "
                             if stat == "approachTiming":
                                 stat_advice = "hit the shot too early or too late "
@@ -14679,7 +14679,7 @@ class BehaviourLibraryFunctions:
                             if performance == config.MET or performance == config.STEADY or performance == config.MUCH_IMPROVED or performance == config.IMPROVED or performance == config.IMPROVED_SWAP:
                                 if behaviour == config.A_POSTINSTRUCTIONNEGATIVE_QUESTIONING:
                                     optional_question = ". OK?"
-                                if score is None or target is None:
+                                if score is None or not isinstance(score, float) or target is None:
                                     stat_advice = "lift your racket too late "
                                     if stat == "approachTiming":
                                         stat_advice = "hit the shot too early or too late "
@@ -14748,7 +14748,7 @@ class BehaviourLibraryFunctions:
                                  config.A_CONCURRENTINSTRUCTIONPOSITIVE_FIRSTNAME,
                                  config.A_CONCURRENTINSTRUCTIONPOSITIVE_POSITIVEMODELING,
                                  config.A_POSITIVEMODELING_CONCURRENTINSTRUCTIONPOSITIVE]:
-                    if score is None or target is None:
+                    if score is None or not isinstance(score, float) or target is None:
                         stat_insert = "Lift the racket high "
                         if stat == "approachTiming":
                             stat_insert = "Time the swing "
@@ -14812,7 +14812,7 @@ class BehaviourLibraryFunctions:
                 elif behaviour in [config.A_PRAISE, config.A_PRAISE_FIRSTNAME,
                                    config.A_CONCURRENTINSTRUCTIONPOSITIVE_PRAISE,
                                    config.A_POSITIVEMODELING_PRAISE]:
-                    if score is None or target is None:
+                    if score is None or not isinstance(score, float) or target is None:
                         stat_insert = "Lift the racket high "
                         if stat == "approachTiming":
                             stat_insert = "Time the swing "
@@ -14854,7 +14854,7 @@ class BehaviourLibraryFunctions:
                 elif behaviour in [config.A_CONCURRENTINSTRUCTIONNEGATIVE,
                                    config.A_CONCURRENTINSTRUCTIONNEGATIVE_NEGATIVEMODELING,
                                    config.A_CONCURRENTINSTRUCTIONNEGATIVE_FIRSTNAME]:
-                    if score is None or target is None:
+                    if score is None or not isinstance(score, float) or target is None:
                         stat_insert = "Don't start the swing too low "
                         if stat == "approachTiming":
                             stat_insert = "Don't forget about the timing "
@@ -15019,7 +15019,7 @@ class BehaviourLibraryFunctions:
                     elif behaviour in [config.A_PREINSTRUCTION, config.A_PREINSTRUCTION_QUESTIONING,
                                        config.A_PREINSTRUCTION_FIRSTNAME, config.A_PREINSTRUCTION_POSITIVEMODELING,
                                        config.A_POSITIVEMODELING_PREINSTRUCTION]:
-                        if score is None or target is None:
+                        if score is None or not isinstance(score, float) or target is None:
                             stat_advice = "start the swing with your racket above the ball."
                             if stat == "approachTiming":
                                 if shot == "drive" or shot == "two wall boast":
@@ -15100,7 +15100,7 @@ class BehaviourLibraryFunctions:
                             utterance = "In this session " + name + ", we're going to " + goal_level_insert + ". " + optional_question
 
                     elif behaviour == config.A_PREINSTRUCTION_NEGATIVEMODELING:
-                        if score is None or target is None:
+                        if score is None or not isinstance(score, float) or target is None:
                             stat_advice = "not start the swing with your racket below the ball."
                             if stat == "approachTiming":
                                 if shot == "drive" or shot == "two wall boast":
@@ -15303,7 +15303,7 @@ class BehaviourLibraryFunctions:
                                  config.A_CONCURRENTINSTRUCTIONPOSITIVE_FIRSTNAME,
                                  config.A_CONCURRENTINSTRUCTIONPOSITIVE_POSITIVEMODELING,
                                  config.A_POSITIVEMODELING_CONCURRENTINSTRUCTIONPOSITIVE]:
-                    if score is None or target is None:
+                    if score is None or not isinstance(score, float) or target is None:
                         stat_insert = "Racket above the ball"
                         if stat == "approachTiming":
                             if shot == "drive" or shot == "two wall boast":
@@ -15359,7 +15359,7 @@ class BehaviourLibraryFunctions:
                     utterance = utterance + stat_insert + " " + name + " " + optional_question
 
                 elif behaviour in [config.A_QUESTIONING, config.A_QUESTIONING_FIRSTNAME]:
-                    if score is None or target is None:
+                    if score is None or not isinstance(score, float) or target is None:
                         stat_insert = "Was the racket above the ball?"
                         if stat == "approachTiming":
                             if shot == "drive" or shot == "two wall boast":
@@ -15417,7 +15417,7 @@ class BehaviourLibraryFunctions:
                 elif behaviour in [config.A_PRAISE, config.A_PRAISE_FIRSTNAME,
                                    config.A_CONCURRENTINSTRUCTIONPOSITIVE_PRAISE,
                                    config.A_POSITIVEMODELING_PRAISE]:
-                    if score is None or target is None:
+                    if score is None or not isinstance(score, float) or target is None:
                         stat_insert = "Racket above the ball"
                         if stat == "approachTiming":
                             if shot == "drive" or shot == "two wall boast":
@@ -15472,7 +15472,7 @@ class BehaviourLibraryFunctions:
                 elif behaviour in [config.A_CONCURRENTINSTRUCTIONNEGATIVE,
                                    config.A_CONCURRENTINSTRUCTIONNEGATIVE_NEGATIVEMODELING,
                                    config.A_CONCURRENTINSTRUCTIONNEGATIVE_FIRSTNAME]:
-                    if score is None or target is None:
+                    if score is None or not isinstance(score, float) or target is None:
                         stat_insert = "Don't start the swing below the ball"
                         if stat == "approachTiming":
                             if shot == "drive" or shot == "two wall boast":

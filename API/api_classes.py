@@ -123,7 +123,7 @@ class TimestepCue(Resource):
                         }
 
                         if config.session_time < config.MAX_SESSION_TIME:
-                            new_data['shot'] = config.shot
+                            new_data['shotType'] = config.shot
                             new_data['hand'] = config.hand
                         else:
                             new_data['final'] = "1"

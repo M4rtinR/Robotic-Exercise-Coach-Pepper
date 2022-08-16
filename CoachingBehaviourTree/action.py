@@ -43,7 +43,7 @@ class Action:
         Format the output of the data stored in this instance of Action.
         :return:type str: the complete formatted utterance.
         """
-        if self.score is not None and not self.goal == config.ACTION_GOAL:
+        if self.score is not None and isinstance(self.score, float) and not self.goal == config.ACTION_GOAL:
             if self.goal > config.EXERCISE_GOAL:
                 if self.stat_explanation is not None:
                     return f'{self.pre_msg}. You got an average score of {round(self.score, 2)}' + self.stat_measure + f' and were aiming for {round(self.target, 2)}' + self.stat_measure + '. ' + self.stat_explanation
