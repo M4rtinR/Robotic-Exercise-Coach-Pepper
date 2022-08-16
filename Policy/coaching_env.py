@@ -1,3 +1,4 @@
+import ast
 import logging
 import os
 from abc import ABC
@@ -52,13 +53,22 @@ class CoachingEnvironment(gym.Env, ABC):
         filename = "/home/martin/PycharmProjects/coachingPolicies/AdaptedPolicies/" + config.participant_filename
         if os.path.exists(filename):
             f = open(filename, "r")
-            matrix = f.readlines()
+            contents = f.readlines()
             f.close()
+            matrix = ast.literal_eval(contents[0][:-1])
+            sessions = int(contents[1]) + 1
+            if sessions == 1:
+                config.epsilon = 0.3
+            elif sessions == 2 or sessions == 3:
+                config.epsilon = 0.2
+            else:
+                config.epsilon = 0.1
             observation = 0
             self.policy = PolicyWrapper(policy=matrix)
         else:
             # TODO: check this is the correct measure for choosing the initial policy.
             belief_distribution = [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0] if config.ability < 4 else [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0]
+            config.epsilon = 0.3
             observation = 0
             self.policy = PolicyWrapper(belief=belief_distribution)
 

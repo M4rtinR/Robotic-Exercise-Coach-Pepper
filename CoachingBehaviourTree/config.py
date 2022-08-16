@@ -194,6 +194,7 @@ leftHand = False
 # Values for RL
 alpha = 0.85
 gamma = 0.95
+epsilon = -1
 policy_matrix = None
 
 done_baseline_goal = False

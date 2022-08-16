@@ -1,4 +1,5 @@
 import logging
+import random
 
 from Policy.policy import Policy
 from CoachingBehaviourTree import config
@@ -51,58 +52,62 @@ class PolicyWrapper:
             behaviour = config.A_END
         else:
             behaviour = self.policy.sample_action(state)
-        # obs_behaviour = behaviour
-        count = 0
-        #if goal_level == config.ACTION_GOAL:
-        debugString = "behaviour = ", behaviour, ". valid_behaviours: %s", valid_behaviours
-        # print(debugString)
 
-        while not(behaviour in valid_behaviours):
-            logging.debug("Not valid behaviour")
-            if goal_level == config.ACTION_GOAL:     # If between shots, silence is an appropriate action so each time a
-                # print("behaviour == SILENCE")
-                behaviour = config.A_SILENCE  # non-valid action is proposed, just use silence.
-            else:
-                if count <= 10:  # Only try this 10 times and if still no valid behaviour, try the next behaviour in the action sequence.
-                    logging.debug("PolicyWrapper <= 10")
-                    behaviour = self.policy.sample_action(state)
+        if behaviour == -1:
+            behaviour = random.choice(valid_behaviours)
+        else:
+            # obs_behaviour = behaviour
+            count = 0
+            #if goal_level == config.ACTION_GOAL:
+            debugString = "behaviour = ", behaviour, ". valid_behaviours: %s", valid_behaviours
+            # print(debugString)
+
+            while not(behaviour in valid_behaviours):
+                logging.debug("Not valid behaviour")
+                if goal_level == config.ACTION_GOAL:     # If between shots, silence is an appropriate action so each time a
+                    # print("behaviour == SILENCE")
+                    behaviour = config.A_SILENCE  # non-valid action is proposed, just use silence.
                 else:
-                    logging.debug("PolicyWrapper > 10")
-                    # TODO: Remove this if else and figure out what's going on with centroids.
-                    if behaviour == config.A_MANUALMANIPULATION_QUESTIONING:
-                        behaviour = config.A_QUESTIONING
-                    elif behaviour == config.A_MANUALMANIPULATION_PREINSTRUCTION \
-                            or behaviour == config.A_PREINSTRUCTION_MANUALMANIPULATION:
-                        behaviour = config.A_PREINSTRUCTION
-                    elif behaviour == config.A_MANUALMANIPULATION_POSITIVEMODELING:
-                        behaviour = config.A_POSITIVEMODELING
-                    elif behaviour == config.A_MANUALMANIPULATION_CONCURRENTINSTRUCTIONNEGATIVE \
-                            or behaviour == config.A_CONCURRENTINSTRUCTIONNEGATIVE_MANUALMANIPULATION:
-                        behaviour = config.A_CONCURRENTINSTRUCTIONNEGATIVE
-                    elif behaviour == config.A_MANUALMANIPULATION_CONCURRENTINSTRUCTIONPOSITIVE \
-                            or behaviour == config.A_CONCURRENTINSTRUCTIONPOSITIVE_MANUALMANIPULATION:
-                        behaviour = config.A_CONCURRENTINSTRUCTIONPOSITIVE
-                    elif behaviour == config.A_MANUALMANIPULATION_CONSOLE:
-                        behaviour = config.A_CONSOLE
-                    elif behaviour == config.A_MANUALMANIPULATION_FIRSTNAME:
-                        behaviour = config.A_FIRSTNAME
-                    elif behaviour == config.A_MANUALMANIPULATION_HUSTLE:
-                        behaviour = config.A_HUSTLE
-                    elif behaviour == config.A_MANUALMANIPULATION_POSTINSTRUCTIONNEGATIVE \
-                            or behaviour == config.A_POSTINSTRUCTIONNEGATIVE_MANUALMANIPULATION:
-                        behaviour = config.A_POSTINSTRUCTIONNEGATIVE
-                    elif behaviour == config.A_MANUALMANIPULATION_POSTINSTRUCTIONPOSITIVE \
-                            or behaviour == config.A_POSTINSTRUCTIONPOSITIVE_MANUALMANIPULATION:
-                        behaviour = config.A_POSTINSTRUCTIONPOSITIVE
-                    elif behaviour == config.A_MANUALMANIPULATION_PRAISE:
-                        behaviour = config.A_PRAISE
-                    else:
-                        if behaviour == config.A_END:  # If behaviour == end then start from start again.
-                            behaviour = config.A_START
-                        state = self.policy.sample_observation(action=behaviour, state=state)
+                    if count <= 10:  # Only try this 10 times and if still no valid behaviour, try the next behaviour in the action sequence.
+                        logging.debug("PolicyWrapper <= 10")
                         behaviour = self.policy.sample_action(state)
-                        count = 0
-                count += 1
+                    else:
+                        logging.debug("PolicyWrapper > 10")
+                        # TODO: Remove this if else and figure out what's going on with centroids.
+                        if behaviour == config.A_MANUALMANIPULATION_QUESTIONING:
+                            behaviour = config.A_QUESTIONING
+                        elif behaviour == config.A_MANUALMANIPULATION_PREINSTRUCTION \
+                                or behaviour == config.A_PREINSTRUCTION_MANUALMANIPULATION:
+                            behaviour = config.A_PREINSTRUCTION
+                        elif behaviour == config.A_MANUALMANIPULATION_POSITIVEMODELING:
+                            behaviour = config.A_POSITIVEMODELING
+                        elif behaviour == config.A_MANUALMANIPULATION_CONCURRENTINSTRUCTIONNEGATIVE \
+                                or behaviour == config.A_CONCURRENTINSTRUCTIONNEGATIVE_MANUALMANIPULATION:
+                            behaviour = config.A_CONCURRENTINSTRUCTIONNEGATIVE
+                        elif behaviour == config.A_MANUALMANIPULATION_CONCURRENTINSTRUCTIONPOSITIVE \
+                                or behaviour == config.A_CONCURRENTINSTRUCTIONPOSITIVE_MANUALMANIPULATION:
+                            behaviour = config.A_CONCURRENTINSTRUCTIONPOSITIVE
+                        elif behaviour == config.A_MANUALMANIPULATION_CONSOLE:
+                            behaviour = config.A_CONSOLE
+                        elif behaviour == config.A_MANUALMANIPULATION_FIRSTNAME:
+                            behaviour = config.A_FIRSTNAME
+                        elif behaviour == config.A_MANUALMANIPULATION_HUSTLE:
+                            behaviour = config.A_HUSTLE
+                        elif behaviour == config.A_MANUALMANIPULATION_POSTINSTRUCTIONNEGATIVE \
+                                or behaviour == config.A_POSTINSTRUCTIONNEGATIVE_MANUALMANIPULATION:
+                            behaviour = config.A_POSTINSTRUCTIONNEGATIVE
+                        elif behaviour == config.A_MANUALMANIPULATION_POSTINSTRUCTIONPOSITIVE \
+                                or behaviour == config.A_POSTINSTRUCTIONPOSITIVE_MANUALMANIPULATION:
+                            behaviour = config.A_POSTINSTRUCTIONPOSITIVE
+                        elif behaviour == config.A_MANUALMANIPULATION_PRAISE:
+                            behaviour = config.A_PRAISE
+                        else:
+                            if behaviour == config.A_END:  # If behaviour == end then start from start again.
+                                behaviour = config.A_START
+                            state = self.policy.sample_observation(action=behaviour, state=state)
+                            behaviour = self.policy.sample_action(state)
+                            count = 0
+                    count += 1
 
         return behaviour  #, obs_behaviour
 

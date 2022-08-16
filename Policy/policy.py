@@ -209,27 +209,37 @@ class Policy:
         logging.debug(self.transition_matrix[style - 1][self._get_action(state)])"""
 
         # TODO: make it an epsilon-greedy policy.
-        # print("transition matrix = " + str(self.transition_matrix))
-        # print("state = " + str(state))
-        # print("matrix = " + str(self.transition_matrix[state]))
-        choicess = choices(range(69), self.transition_matrix[state])
-        # print("choices = " + str(choicess))
-        action = choicess[0]
-        logging.debug("action: " + str(action))
-        count = 1
-        while action == config.A_MANUALMANIPULATION:
-            # Manual manipulation is not possible for the robot so if this is the case, get new behaviour
-            if count <= 10:  # Either from original state
-                logging.debug("count <= 10")
-                action = choices(range(69), self.transition_matrix[state])[0]
-            else:  # or from manual manipulation if this is the only behaviour following the original state.
-                logging.debug("count > 10")
-                action = choices(range(69), self.transition_matrix[state])[0]
-            count += 1
+        r = random.uniform(0, 1)
+        if r < config.epsilon:
+            print("exploring")
+            action = random.randint(1, 67)
+        else:
+            print("exploiting")
+            # print("transition matrix = " + str(self.transition_matrix))
+            # print("state = " + str(state))
+            # print("matrix = " + str(self.transition_matrix[state]))
+            if sum(self.transition_matrix[state]) > 0.0:
+                choicess = choices(range(69), self.transition_matrix[state])
+                # print("choices = " + str(choicess))
+                action = choicess[0]
+                logging.debug("action: " + str(action))
+                count = 1
+                while action == config.A_MANUALMANIPULATION:
+                    # Manual manipulation is not possible for the robot so if this is the case, get new behaviour
+                    if count <= 10:  # Either from original state
+                        logging.debug("count <= 10")
+                        action = choices(range(69), self.transition_matrix[state])[0]
+                    else:  # or from manual manipulation if this is the only behaviour following the original state.
+                        logging.debug("count > 10")
+                        action = choices(range(69), self.transition_matrix[state])[0]
+                    count += 1
 
-        # Special case when action == 44 (A_END) for coach styles.
-        """if style < 7 and action == 44:
-            action = config.A_END"""
+                # Special case when action == 44 (A_END) for coach styles.
+                """if style < 7 and action == 44:
+                    action = config.A_END"""
+            else:
+                print("exploring because no data in transition matrix")
+                action = -1
 
         return action  # choices(range(68), self.transition_matrix[style - 1][self._get_action(state)])[0]
 
