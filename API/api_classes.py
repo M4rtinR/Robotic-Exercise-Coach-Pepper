@@ -114,7 +114,7 @@ class TimestepCue(Resource):
                         config.phase = config.PHASE_END
                         config.completed = config.COMPLETED_STATUS_FALSE
 
-                        while config.completed == config.COMPLETED_STATUS_FALSE or (config.shot is None and config.session_time < config.MAX_SESSION_TIME):
+                        while config.completed == config.COMPLETED_STATUS_FALSE:  # or (config.shot is None and config.session_time < config.MAX_SESSION_TIME):
                             pass
 
                         new_data = {
@@ -123,7 +123,10 @@ class TimestepCue(Resource):
                         }
 
                         if config.session_time < config.MAX_SESSION_TIME:
-                            new_data['shotType'] = config.shot
+                            while not config.shot_confirmed or not len(config.shots_dealt_with) == 0:
+                                pass
+                            print("Sending shot type: " + str(config.hand) + str(config.shot))
+                            new_data['shotType'] = config.shot_list_master.get(config.shot)
                             new_data['hand'] = config.hand
                         else:
                             new_data['final'] = "1"
@@ -173,6 +176,7 @@ class TimestepCue(Resource):
                         else:
                             print('end of baseline set')
 
+                            config.metric_score_list = []  # Reset the metric score list from last time.
                             print("setting config.score = " + content['score'])
                             config.score = float(content['score'])
                             accList = {}
@@ -301,12 +305,16 @@ class TimestepCue(Resource):
                             scoreString = content['score'][:-1]
                         elif scoreString[-1] == "s":
                             scoreString = content['score'][:-5]
+                        elif scoreString[-1] == "c":
+                            scoreString = content['score'][:-10]
                         config.score = float(scoreString)
                         targetString = content['tgtValue']
                         if targetString[-1] == "%":
                             targetString = content['tgtValue'][:-1]
                         elif targetString[-1] == "s":
                             targetString = content['tgtValue'][:-5]
+                        elif targetString[-1] == "c":
+                            targetString = content['tgtValue'][:-10]
                         config.target = float(targetString)
                         config.performance = int(content['performance'])
                         config.goal_level = config.STAT_GOAL
@@ -377,11 +385,15 @@ class TimestepCue(Resource):
                             scoreString = content['score'][:-1]
                         elif scoreString[-1] == "s":
                             scoreString = content['score'][:-5]
+                        elif scoreString[-1] == "c":
+                            scoreString = content['score'][:-10]
                         targetString = content['tgtValue']
                         if targetString[-1] == "%":
                             targetString = content['tgtValue'][:-1]
                         elif targetString[-1] == "s":
                             targetString = content['tgtValue'][:-5]
+                        elif targetString[-1] == "c":
+                            targetString = content['tgtValue'][:-10]
 
                         print('got values from content')
                         config.avg_score = float(scoreString)
@@ -430,6 +442,7 @@ class TimestepCue(Resource):
                         return new_data, 200
 
                 elif int(content['goal_level']) == config.ACTION_GOAL:
+                    config.shots_dealt_with.append("1")
                     if config.expecting_action_goal:
                         print('action goal setting controller values')
                         config.action_score = float(content['score'])
@@ -482,6 +495,8 @@ class TimestepCue(Resource):
                             'shotSetComplete': 0
                         }
 
+                    config.shots_dealt_with.pop(0)
+                    print("sending shot response. Shots still to be dealt with: " + str(config.shots_dealt_with))
                     return new_data, 200
 
             elif 'override' in content:

@@ -4,7 +4,7 @@ STAT_CHOICE = 1
 CHOICE_BY_PERSON = 0
 CHOICE_BY_SYSTEM = 1
 
-MAX_SESSION_TIME = 1800  # 30 minutes
+MAX_SESSION_TIME = 1200  # 1800 seconds is 30 minutes
 
 COMPLETED_STATUS_UNDEFINED = -1
 COMPLETED_STATUS_FALSE = 0
@@ -105,7 +105,7 @@ A_END = 67
 A_SILENCE = 68
 
 SHOTS_PER_SET = 10
-SETS_PER_STAT = 2
+SETS_PER_STAT = 1
 
 shot_list_master = {"drop": 0,
                     "drive": 1,
@@ -115,13 +115,13 @@ shot_list_master = {"drop": 0,
                     "volley kill": 17,
                     "volley drop": 18}
 shot_list_importance = {
-    "drop": 0.8,
-    "drive": 0.75,
-    "cross court lob": 0.6,
-    "two wall boast": 0.5,
-    "straight kill": 0.4,
-    "volley kill": 0.4,
-    "volley drop": 0.35
+    "drop": 4.0,
+    "drive": 3.75,
+    "cross court lob": 3.0,
+    "two wall boast": 2.5,
+    "straight kill": 2.0,
+    "volley kill": 2.0,
+    "volley drop": 1.75
 }
 stat_list = {}
 
@@ -151,7 +151,7 @@ session_score_list = []  # 1 entry for each shot performed
 set_count = 0
 stat_count = 0
 given_score = 0
-shot_list_session = ["Forehand Drive", "Backhand Drive", "Forehand Drop"]  # Delete from this list once the exercise has been completed in the session.
+# shot_list_session = ["Forehand Drive", "Backhand Drive", "Forehand Drop"]  # Delete from this list once the exercise has been completed in the session.
 used_shots = []
 used_stats = []
 start_time = None
@@ -171,10 +171,12 @@ overrideQuestioningOption = False     # so that the correct screen can be displa
 getBehaviourGoalLevel = -1  # To keep track of which level the controller is in when getting a new behaviour from the policy.
 expecting_action_goal = False
 stat_confirmed = False  # Becomes true when stat goal is created with chosen stat, reset to false on end stat goal.
+shot_confirmed = False  # Becomes true when shot goal is created with chosen shot, reset to false on end shot goal.
 dont_send_action_response = False  # Whether or not to send the response to the action goal (i.e. if we have completed the set, do not send it).
 given_stat_explanation = False  # We don't want to keep giving an explanation of what the same stat means. This will prevent that.
 session_goal_created = False  # Used to keep track of whether or not we have already created the session/shot goal when we choose a new shot/stat
 shot_goal_created = False
+shots_dealt_with = []  # Add element to list every time a shot comes through from the app. Remove from the list when we send a response to the shot. Cannot send any other response to another goal level while this list has elements in it.
 
 # Initial values to be changed at the beginning of each session:
 name = "Martin"

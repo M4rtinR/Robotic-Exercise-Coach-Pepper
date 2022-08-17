@@ -708,6 +708,8 @@ class CreateSubgoal(Node):
                     # Select which exercise to perform.
                     if nodedata.new_goal == config.EXERCISE_GOAL:
                         config.stat_count = 0  # Reset the set count for this session to 0.
+                        print("Setting shot_confirmed to True")
+                        config.shot_confirmed = True
                         if not(self.previous_goal_level == config.BASELINE_GOAL):
                             config.performance = None
                             config.score = None
@@ -813,6 +815,7 @@ class EndSubgoal(Node):
                         config.hand = None
                         config.used_stats = []
                         config.shot_goal_created = False
+                        config.shot_confirmed = False
                     if self.goal_level == config.ACTION_GOAL:
                         config.used_behaviours = []
                 print("Ended subgoal {old_goal}. New goal level = {new_goal}.".format(old_goal=self.goal_level, new_goal=nodedata.new_goal))
@@ -1159,8 +1162,8 @@ class TimestepCue(Node):
                                 print("Opened aggregator")
                                 file_contents = f.readlines()
                                 f.close()
-                                config.performance = file_contents[1]
-                                config.score = file_contents[0]
+                                config.performance = int(file_contents[1].replace("\n", ""))
+                                config.score = float(file_contents[0].replace("\n", ""))
 
                                 try:
                                     print("Trying to open baseline")
@@ -1195,7 +1198,6 @@ class TimestepCue(Node):
                                 print(config.shot)
                                 os.mkdir("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + config.hand + str(config.shot))
                                 f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + config.hand + str(config.shot) + "/Aggregator.txt", "a")
-                                file_contents = "0"
                                 file_contents = "0"
                                 f.write(file_contents)
                                 f.close()
@@ -1547,11 +1549,15 @@ class GetChoice(Node):
                 if self.choice_type == config.SHOT_CHOICE:
                     s = 0
                     shot = self.sorted_shot_list[s]
+                    print("trying to select shot: " + str(shot))
+                    print("used shots = " + str(config.used_shots))
                     while shot in config.used_shots:
                         s += 1
                         shot = self.sorted_shot_list[s]
+                        print("trying to select shot:" + str(shot))
 
                     config.used_shots.append(shot)
+                    print("chosen shot: " + shot + ", used shots = " + str(config.used_shots))
                     #config.performance = None
                     #config.score = -1
 
@@ -1603,7 +1609,7 @@ class GetChoice(Node):
 
                     nodedata.shot = config.shot
                     nodedata.hand = config.hand
-                    config.used_shots.append(str(config.shot) + str(config.hand))
+                    config.used_shots.append(str(config.hand) + str(config.shot))
                     #config.performance = None
                     #config.score = -1
                     print("Returning SUCCESS from GetUserChoice, shot = " + str(nodedata.hand) + " " + str(nodedata.shot))
@@ -1781,11 +1787,11 @@ class InitialiseBlackboard(Node):
 
                     score = float(aggregator_contents[0])
                 except:
-                    score = 0.5
+                    score = 2.5
                 # Assign a score to each shot based on the importance of the shot (taken from racketware) and data
                 # about the previous user performance for each shot. Shots that the user has done really well on in the
                 # past will be selected after shots that the user has struggled with (improve their weaknesses).
-                shot_set[str(hand) + str(shot)] = (1 - score) + (config.shot_list_importance[shot] * 0.35)
+                shot_set[str(hand) + str(shot)] = (5 - score) + (config.shot_list_importance[shot] * 0.35)
 
         sorted_shot_set = sorted(shot_set.items(), key=operator.itemgetter(1))
         sorted_shot_list = []
