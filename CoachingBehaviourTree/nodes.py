@@ -317,8 +317,8 @@ class FormatAction(Node):
                         else:
                             stat_explanation = "This relates to how much you roll your wrist over after hitting the ball."
                     elif config.stat == "impactSpeed":
-                        stat_measure = ""
-                        stat_explanation = "This is the velocity of your racket as your strike the ball."
+                        stat_measure = " meters per second"
+                        stat_explanation = "This is the velocity of your racket as you strike the ball."
                     else:  # followThroughTime
                         stat_measure = " seconds"
                         stat_explanation = "This is a measure of how long it takes between hitting the ball and your swing stopping."
@@ -1483,7 +1483,7 @@ class DurationCheck(Node):
         Compare the requested session duration to the amount of time the session has been running.
         :return: NodeStatus.FAIL when session duration has not been reached, NodeStatus.SUCCESS otherwise.
         """
-        if not config.stop_set and not config.stop_session:
+        if not config.stop_set:  # and not config.stop_session:
             # Will return FAIL when when duration has not been reached. SUCCESS when it has.
             # self.current_time += 1
             self.current_time = datetime.now()
@@ -1491,20 +1491,49 @@ class DurationCheck(Node):
 
             session_duration_delta = self.session_duration.total_seconds()
             if session_duration_delta < config.MAX_SESSION_TIME:
+                config.tidied_up = False
                 print("Session time limit NOT reached, current duration = {a}, session limit = {limit}.".format(
                     a=session_duration_delta, limit=config.MAX_SESSION_TIME))
                 logging.info("Session time limit NOT reached, current duration = {a}, session limit = {limit}.".format(a=self.current_time - self.start_time, limit=self.session_duration))
                 logging.debug("Returning FAIL from DurationCheck - time limit not yet reached, current time = " + str(self.current_time))
                 return NodeStatus(NodeStatus.FAIL, "Time limit not yet reached.")
             else:
-                print("Session time limit reached, current duration = {a}, session limit = {limit}.".format(
-                    a=session_duration_delta, limit=config.MAX_SESSION_TIME))
-                logging.info("Session time limit reached, current duration = {a}, session limit = {limit}.".format(
-                    a=self.current_time - self.start_time, limit=self.session_duration))
-                logging.debug("Returning SUCCESS from DurationCheck - Time limit reached, current time = " + str(self.current_time))
-                return NodeStatus(NodeStatus.SUCCESS, "Session time limit reached.")
+                if not config.session_stop_utterance_given:
+                    utterance = "That's all we have time for today."
+                    output = {
+                        "utterance": "That's all we have time for today."
+                    }
+
+                    if config.goal_level > 1:
+                        phase = "exercise"
+                    else:
+                        phase = "non-exercise"
+
+                    utteranceURL = config.screen_post_address + utterance + "/" + phase + "/newUtterance"
+                    r = requests.post(utteranceURL)
+                    # Send post request to Pepper
+                    r = requests.post(config.post_address, json=output)
+
+                    # Wait for response before continuing because the session might be paused.
+                    while r.status_code is None:
+                        time.sleep(0.2)
+
+                if config.tidied_up:
+                    config.stop_set = False
+                    config.stop_session = False
+                    print("Session time limit reached, current duration = {a}, session limit = {limit}.".format(
+                        a=session_duration_delta, limit=config.MAX_SESSION_TIME))
+                    logging.info("Session time limit reached, current duration = {a}, session limit = {limit}.".format(
+                        a=self.current_time - self.start_time, limit=self.session_duration))
+                    logging.debug("Returning SUCCESS from DurationCheck - Time limit reached, current time = " + str(self.current_time))
+                    return NodeStatus(NodeStatus.SUCCESS, "Session time limit reached.")
+                else:
+                    config.stop_session = True
+                    print("Session time limit reached, tidying up, current duration = {a}, session limit = {limit}.".format(
+                        a=session_duration_delta, limit=config.MAX_SESSION_TIME))
+                    return NodeStatus(NodeStatus.FAIL, "Tidying up.")
         else:
-            return NodeStatus(NodeStatus.FAIL, "Stop set/session duration check")
+            return NodeStatus(NodeStatus.FAIL, "Stop set duration check")
 
 
 class GetChoice(Node):
@@ -1597,6 +1626,7 @@ class GetChoice(Node):
 
                     nodedata.stat = stat
                     config.stat = stat
+                    config.score = config.metric_score_list[stat]
                     print("get choice, setting stat to " + str(config.stat))
                     config.set_count = 0  # Reset the set count for this session to 0.
                     logging.debug("Returning SUCCESS from GetUserChoice, stat = " + str(nodedata.stat))
@@ -1621,6 +1651,7 @@ class GetChoice(Node):
 
                     nodedata.stat = config.stat
                     config.used_stats.append(config.stat)
+                    config.score = config.metric_score_list[config.stat]
                     print("get choice, setting stat to " + str(config.stat))
                     #config.performance = None
                     #config.score = -1

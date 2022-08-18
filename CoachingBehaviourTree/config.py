@@ -162,7 +162,7 @@ behaviour_displayed = False  # Set to true in DisplayBehaviour node to indicate 
 repetitions = -1
 stop_session = False
 stop_set = False
-metric_score_list = []  # The scores for each of the 6 stats we are measuring in the baseline set.
+metric_score_list = {}  # The scores for each of the 6 stats we are measuring in the baseline set.
 metric_performance_list = []  # The performances of the 6 stats we are measuring in the baseline set.
 override = None  # Will be True if user decides to override the policy's decision to choose/question about shot/stat options. False if they decide not to.
 overriden = False  # Indicates whether an override has already occured at this goal level (no point asking if the user wants to override again).
@@ -177,6 +177,8 @@ given_stat_explanation = False  # We don't want to keep giving an explanation of
 session_goal_created = False  # Used to keep track of whether or not we have already created the session/shot goal when we choose a new shot/stat
 shot_goal_created = False
 shots_dealt_with = []  # Add element to list every time a shot comes through from the app. Remove from the list when we send a response to the shot. Cannot send any other response to another goal level while this list has elements in it.
+tidied_up = False  # Variable to check whether we are ready to end the session (i.e. have given feedback for all completed sets/stats/shots and written all appropriate data to file.
+session_stop_utterance_given = False  # Used to track whether we have already told the user that's the end of the session.
 
 # Initial values to be changed at the beginning of each session:
 name = "Martin"
