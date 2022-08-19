@@ -60,7 +60,7 @@ class PolicyWrapper:
         """
 
         # Always return pre-instruction for baseline session.
-        if (goal_level == config.SESSION_GOAL or goal_level == config.PERSON_GOAL) and config.session_time == 1 and config.set_count == 2:
+        if (goal_level == config.SESSION_GOAL or goal_level == config.PERSON_GOAL) and config.session_time == config.MAX_SESSION_TIME and config.set_count == 2:
             print("returning A_END")
             return config.A_END
         else:

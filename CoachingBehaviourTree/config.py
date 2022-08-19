@@ -133,7 +133,7 @@ expecting_action_goal = False
 
 # Initial values to be changed at the beginning of each session:
 name = "Ronnie"
-participantNo = "BaselineTest"
+participantNo = "SP1.3"
 participant_filename = participantNo + "_history.txt"
 impairment = 9
 motivation = 9
