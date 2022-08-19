@@ -133,13 +133,13 @@ expecting_action_goal = False
 
 # Initial values to be changed at the beginning of each session:
 name = "Ronnie"
-participantNo = "SP1.1"
+participantNo = "SP1.2"
 participant_filename = participantNo + "_history.txt"
 impairment = 9
 motivation = 9
 leftHand = False
 exercise = -1
-policy = -1
+policy = 11
 
 # Values for RL
 alpha = 0.85

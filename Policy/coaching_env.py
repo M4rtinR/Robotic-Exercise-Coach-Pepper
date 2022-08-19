@@ -64,7 +64,7 @@ class CoachingEnvironment(gym.Env, ABC):
                 belief_distribution = [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0] if config.motivation > 5 else [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0]
             else:
                 for i in range(12):
-                    if config.policy == i:
+                    if config.policy - 1 == i:
                         belief_distribution.append(1)
                     else:
                         belief_distribution.append(0)

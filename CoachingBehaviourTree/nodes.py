@@ -1094,8 +1094,8 @@ class TimestepCue(Node):
 
             nodedata.performance = config.GOOD
             nodedata.phase = config.PHASE_START
-            nodedata.target = 0.80
-            nodedata.score = 0.79
+            nodedata.target = None
+            nodedata.score = None
             logging.debug("Returning SUCCESS from TimestepCue, stats = " + str(nodedata))
             return NodeStatus(NodeStatus.SUCCESS, "Set timestep cue values to dummy values GOOD, PHASE_START, 0.80, 0.79.")
         else:
