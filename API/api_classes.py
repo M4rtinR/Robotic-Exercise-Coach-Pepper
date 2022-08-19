@@ -230,7 +230,7 @@ class TimestepCue(Resource):
                             config.metric_score_list = scoreList
                             print('sorted stat list')
 
-                            print("populating lists with floats")
+                            '''print("populating lists with floats")
                             for i in range(len(racketPreparationStringList)):
                                 if i == 0:
                                     print("first list element")
@@ -285,7 +285,7 @@ class TimestepCue(Resource):
                             for list in [racketPreparationFloatList, approachTimingFloatList, impactCutAngleFloatList,
                                          impactSpeedFloatList, followThroughRollFloatList, followThroughTimeFloatList]:
                                 config.metric_score_list.append(sum(list) / len(list))
-                            print("list averages calculated")
+                            print("list averages calculated")'''
 
                             config.goal_level = config.EXERCISE_GOAL
                             config.phase = config.PHASE_END
@@ -505,6 +505,9 @@ class TimestepCue(Resource):
                             # new_data['stat'] = config.stat
                         else:
                             new_data['shotSetComplete'] = 0
+
+                        while len(config.shots_dealt_with) < 2:
+                            pass
 
                     else:
                         print("Action goal not expected, not using data.")
