@@ -178,6 +178,7 @@ session_goal_created = False  # Used to keep track of whether or not we have alr
 shot_goal_created = False
 shots_dealt_with = []  # Add element to list every time a shot comes through from the app. Remove from the list when we send a response to the shot. Cannot send any other response to another goal level while this list has elements in it.
 tidied_up = False  # Variable to check whether we are ready to end the session (i.e. have given feedback for all completed sets/stats/shots and written all appropriate data to file.
+tidying = False
 session_stop_utterance_given = False  # Used to track whether we have already told the user that's the end of the session.
 
 # Initial values to be changed at the beginning of each session:

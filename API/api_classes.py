@@ -64,12 +64,13 @@ class TimestepCue(Resource):
                         return new_data, 200
                     elif 'stop' in content:
                         print("stop session")
-                        config.stop_session = True  # High level global variable which will be checked at each node until session goal feedback is reached.
-                        config.goal_level = config.SESSION_GOAL
-                        config.phase = config.PHASE_END
-                        config.set_count += 1
-                        config.completed = config.COMPLETED_STATUS_TRUE
-                        config.session_time = config.MAX_SESSION_TIME
+                        config.stop_set = True  # High level global variable which will be checked at each node until session goal feedback is reached.
+                        config.goal_level = config.EXERCISE_GOAL
+                        # config.phase = config.PHASE_END
+                        # config.set_count += 1
+                        # config.completed = config.COMPLETED_STATUS_TRUE
+                        # config.session_time = config.MAX_SESSION_TIME
+                        config.MAX_SESSION_TIME = 1  # Session will stop because time is now > MAX_SESSION_TIME
 
                         new_data = {
                             'goal_level': 1,
@@ -123,7 +124,7 @@ class TimestepCue(Resource):
                             'completed': str(config.completed)
                         }
 
-                        if config.session_time < config.MAX_SESSION_TIME:
+                        if not config.tidying:
                             while not config.shot_confirmed or not len(config.shots_dealt_with) == 0:
                                 pass
                             print("Sending shot type: " + str(config.hand) + str(config.shot))
@@ -133,9 +134,10 @@ class TimestepCue(Resource):
                             new_data['final'] = "1"
 
                         return new_data, 200
-                    elif 'stop' in content:
+                    elif 'stop' in content:  # Stop current set.
                         if config.expecting_action_goal:
                             config.stop_set = True  # High level global variable which will be checked at each node until set goal feedback loop is reached.
+                            config.goal_level = config.EXERCISE_GOAL  # Set to exercise goal so that we wait for end of set feedback from app.
 
                         new_data = {
                             'goal_level': 2,
@@ -344,7 +346,7 @@ class TimestepCue(Resource):
                             'completed': config.completed
                         }
 
-                        if config.stat_count == 2:
+                        if config.stat_count == 2 or config.tidying:  # config.tidying indicates end of session
                             new_data["final"] = 1
                         else:
                             while config.stat_confirmed is False:
@@ -424,9 +426,9 @@ class TimestepCue(Resource):
                             config.performance = int(content['performance'])
                             config.set_performance_list.append(int(content['performance']))
                             # config.stat = content['stat']  # Let guide decide what stat to work on based on baseline set.
-                            config.goal_level = config.SET_GOAL
-                            config.phase = config.PHASE_END
-                            config.completed = config.COMPLETED_STATUS_UNDEFINED
+                        config.goal_level = config.SET_GOAL
+                        config.phase = config.PHASE_END
+                        config.completed = config.COMPLETED_STATUS_UNDEFINED
 
                         while config.completed == config.COMPLETED_STATUS_UNDEFINED:
                             pass
@@ -505,9 +507,6 @@ class TimestepCue(Resource):
                             # new_data['stat'] = config.stat
                         else:
                             new_data['shotSetComplete'] = 0
-
-                        while len(config.shots_dealt_with) < 2:
-                            pass
 
                     else:
                         print("Action goal not expected, not using data.")

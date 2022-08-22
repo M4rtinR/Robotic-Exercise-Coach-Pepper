@@ -1521,6 +1521,7 @@ class DurationCheck(Node):
                 if config.tidied_up:
                     config.stop_set = False
                     config.stop_session = False
+                    config.tidying = False
                     print("Session time limit reached, current duration = {a}, session limit = {limit}.".format(
                         a=session_duration_delta, limit=config.MAX_SESSION_TIME))
                     logging.info("Session time limit reached, current duration = {a}, session limit = {limit}.".format(
@@ -1528,7 +1529,8 @@ class DurationCheck(Node):
                     logging.debug("Returning SUCCESS from DurationCheck - Time limit reached, current time = " + str(self.current_time))
                     return NodeStatus(NodeStatus.SUCCESS, "Session time limit reached.")
                 else:
-                    config.stop_session = True
+                    config.tidying = True
+                    # config.stop_session = True
                     print("Session time limit reached, tidying up, current duration = {a}, session limit = {limit}.".format(
                         a=session_duration_delta, limit=config.MAX_SESSION_TIME))
                     return NodeStatus(NodeStatus.FAIL, "Tidying up.")
