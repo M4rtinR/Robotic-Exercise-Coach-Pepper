@@ -106,6 +106,7 @@ A_SILENCE = 68
 
 SHOTS_PER_SET = 10
 SETS_PER_STAT = 1
+STATS_PER_SHOT = 2
 
 shot_list_master = {"drop": 0,
                     "drive": 1,
@@ -180,6 +181,9 @@ shots_dealt_with = []  # Add element to list every time a shot comes through fro
 tidied_up = False  # Variable to check whether we are ready to end the session (i.e. have given feedback for all completed sets/stats/shots and written all appropriate data to file.
 tidying = False
 session_stop_utterance_given = False  # Used to track whether we have already told the user that's the end of the session.
+finished_stat = False  # Used to track whether we can safely end the session because the stat goal will have been finished.
+# TODO: ^ May need to do the same for sets ^
+pause_display = False  # Set to True when the user has selected to end the session early. At this point we will skip to session goal before displaying any more behaviours.
 
 # Initial values to be changed at the beginning of each session:
 name = "Martin"

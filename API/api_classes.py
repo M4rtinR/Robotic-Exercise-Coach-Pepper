@@ -65,6 +65,7 @@ class TimestepCue(Resource):
                     elif 'stop' in content:
                         print("stop session")
                         config.stop_set = True  # High level global variable which will be checked at each node until session goal feedback is reached.
+                        config.pause_display = True
                         config.goal_level = config.EXERCISE_GOAL
                         # config.phase = config.PHASE_END
                         # config.set_count += 1

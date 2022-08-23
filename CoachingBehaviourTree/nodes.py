@@ -296,7 +296,10 @@ class FormatAction(Node):
                     r = requests.post(config.screen_post_address + "0/newRep")
                 if self.performance is None:
                     self.performance = -1
-                pre_msg = self.behaviour_lib.get_pre_msg(self.behaviour, self.goal_level, self.performance, self.phase, self.name, config.shot, config.hand, config.stat, config.shot_count == 3 and config.set_count == config.SETS_PER_STAT, not config.set_count == 0 and not config.set_count == config.SETS_PER_STAT, self.score, self.target)
+                if self.behaviour is not None:
+                    pre_msg = self.behaviour_lib.get_pre_msg(self.behaviour, self.goal_level, self.performance, self.phase, self.name, config.shot, config.hand, config.stat, config.shot_count == 3 and config.set_count == config.SETS_PER_STAT, not config.set_count == 0 and not config.set_count == config.SETS_PER_STAT, self.score, self.target)
+                else:
+                    pre_msg = ""
                 if (self.score is None and self.performance is None) or config.has_score_been_provided:  # or config.given_score >= 2:
                     print("Formatting action, no score or performance")
                     nodedata.action = Action(pre_msg, demo=demo, question=question)
@@ -489,7 +492,7 @@ class DisplayBehaviour(Node):
         Execute the specified action.
         :return: NodeStatus.SUCCESS if action sent successfully to robot, NodeStatus.FAIL otherwise.
         """
-        if not config.stop_set and not config.stop_session:
+        if not config.stop_set and not config.stop_session and not config.pause_display:
             print(str(self.action))
             logging.debug(str(self.action))
             logging.info("Displaying action {}".format(str(self.action)))
@@ -540,6 +543,8 @@ class DisplayBehaviour(Node):
             logging.debug("Returning SUCCESS from DisplayBehaviour")
             return NodeStatus(NodeStatus.SUCCESS, "Printed action message to output.")
         else:
+            if config.pause_display:
+                config.behaviour_displayed = True
             return NodeStatus(NodeStatus.SUCCESS, "Stop set/session display behaviour")
 
     def sendBehaviour(self, child_conn):
@@ -691,6 +696,7 @@ class CreateSubgoal(Node):
             if self.previous_goal_level == config.BASELINE_GOAL:
                 nodedata.new_goal = config.STAT_GOAL
                 config.getBehaviourGoalLevel = config.STAT_GOAL
+                config.finished_stat = False
                 logging.info("Created subgoal, new goal level = {}".format(nodedata.new_goal))
                 logging.debug("Returning SUCCESS from CreateSubGoal, new goal level = " + str(nodedata.goal))
                 return NodeStatus(NodeStatus.SUCCESS, "Created subgoal: 3 from BASELINE_GOAL")
@@ -722,6 +728,7 @@ class CreateSubgoal(Node):
                     elif nodedata.new_goal == config.STAT_GOAL:
                         config.stat_confirmed = True
                         config.given_stat_explanation = False
+                        config.finished_stat = False
                         config.set_count = 0
                         config.stat_count += 1
                 config.phase = config.PHASE_START  # Start of goal will always be before something happens.
@@ -777,7 +784,7 @@ class EndSubgoal(Node):
         :return: NodeStatus.SUCCESS when request is sent to API, NodeStatus.FAIL if current goal level is ACTION_GOAL
             or cannot connect to API.
         """
-        if not config.stop_set or self.skipped_create:
+        if not config.stop_set and not self.skipped_create:
             # Will return SUCCESS once request sent to API, FAIL if called on goal > 6 or connection error.
             if self.goal_level > 6 or self.goal_level < 0:
                 print("Returning FAIL from EndSubgoal, goal_level = " + str(self.goal_level))
@@ -798,6 +805,7 @@ class EndSubgoal(Node):
                         if self.goal_level == config.STAT_GOAL:
                             config.stat_confirmed = False
                             config.stat = None
+                            config.finished_stat = True
                             config.target = -1
                             config.avg_score = -1
                     else:
@@ -810,12 +818,18 @@ class EndSubgoal(Node):
                     config.has_score_been_provided = False
                     # config.scores_provided = 0  # At new goal level we will need to provide the average score again.
                     if self.goal_level == config.EXERCISE_GOAL:
-                        config.session_time += 1
+                        # config.session_time += 1
                         config.shot = None
                         config.hand = None
+                        config.tidying = False
+                        config.pause_display = False
                         config.used_stats = []
                         config.shot_goal_created = False
                         config.shot_confirmed = False
+                        print("config.tidying = " + str(config.tidying))
+                        if config.tidying:
+                            print("setting config.tidied_up to True")
+                            config.tidied_up = True
                     if self.goal_level == config.ACTION_GOAL:
                         config.used_behaviours = []
                 print("Ended subgoal {old_goal}. New goal level = {new_goal}.".format(old_goal=self.goal_level, new_goal=nodedata.new_goal))
@@ -1012,7 +1026,7 @@ class TimestepCue(Node):
                             file_contents = f.readlines()
                             f.close()
 
-                            file_contents[config.sessions] = str(nodedata.performance) + "\n"
+                            file_contents[config.sessions - 1] = str(nodedata.performance) + "\n"
                             f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participant_filename, "w")
                             f.writelines(file_contents)
                             f.close()
@@ -1040,7 +1054,7 @@ class TimestepCue(Node):
                         print("Returning SUCCESS from TimestepCue session goal, nodedata = " + str(nodedata))
                         return NodeStatus(NodeStatus.SUCCESS, "Data for session goal obtained from guide:" + str(nodedata))
                 else:
-                    if config.shot_count > 0:
+                    if config.shot_count > 0 and not config.tidying and not config.tidied_up:
                         config.goal_level = config.SESSION_GOAL
                         config.phase = config.PHASE_START
                     print("Returning ACTIVE from TimestepCue session goal")
@@ -1142,7 +1156,7 @@ class TimestepCue(Node):
                             config.shot_performance_list = []
                             config.shot_score_list = []
                             nodedata.target = config.target
-                            # config.completed = config.COMPLETED_STATUS_TRUE
+                            config.completed = config.COMPLETED_STATUS_TRUE
 
                             nodedata.phase = config.PHASE_END
                             print(
@@ -1215,7 +1229,7 @@ class TimestepCue(Node):
                         logging.debug("Returning SUCCESS from TimestepCue exercise goal, stats = " + str(nodedata))
                         return NodeStatus(NodeStatus.SUCCESS, "Data for exercise goal obtained from guide:" + str(nodedata))
                 else:
-                    if config.stat_count > 0:
+                    if config.stat_count > 0 and not config.tidying and not config.tidied_up:
                         config.goal_level = config.EXERCISE_GOAL
                         config.phase = config.PHASE_START
                     print("Returning FAIL from TimestepCue exercise goal, config.goal_level != 2")
@@ -1518,6 +1532,8 @@ class DurationCheck(Node):
                     while r.status_code is None:
                         time.sleep(0.2)
 
+                    config.session_stop_utterance_given = True
+
                 if config.tidied_up:
                     config.stop_set = False
                     config.stop_session = False
@@ -1529,6 +1545,7 @@ class DurationCheck(Node):
                     logging.debug("Returning SUCCESS from DurationCheck - Time limit reached, current time = " + str(self.current_time))
                     return NodeStatus(NodeStatus.SUCCESS, "Session time limit reached.")
                 else:
+                    print("Setting config.tidying to True")
                     config.tidying = True
                     # config.stop_session = True
                     print("Session time limit reached, tidying up, current duration = {a}, session limit = {limit}.".format(
@@ -1703,6 +1720,7 @@ class EndSetEvent(Node):
             config.phase = config.PHASE_END  # When a set is completed, feedback should be given, so phase becomes end.
             # config.repetitions = -1
             config.stop_set = False  # Ending set so reset this variable so the session can continue.
+            config.getBehaviourGoalLevel = 4
 
             output = {
                 "stop": str(1)
@@ -2053,10 +2071,55 @@ class CheckCreated(Node):
         else:
             return NodeStatus(NodeStatus.FAIL, "Stop set/session override option")
 
+
+class StopCheck(Node):
+    """
+        Check if all feedback is given in a given subgoal.
+
+        ...
+        Methods
+        -------
+        run()
+            Check if the exercise has been done before.
+        """
+
+    def __init__(self, name, *args, **kwargs):
+        super(StopCheck, self).__init__(
+            name,
+            run_cb=self.run,
+            configure_cb=self.configure,
+            *args, **kwargs)
+
+    def configure(self, nodedata):
+        """
+        Set up the initial values needed to check if the user has done this exercies.
+        :param nodedata :type Blackboard: the blackboard associated with this Behaviour Tree containing all relevant
+            state information.
+        :return: None
+        """
+        print("Configuring StopCheck " + self._name)
+        self.start_time = nodedata.get_data('start_time')
+
+    def run(self, nodedata):
+        self.current_time = datetime.now()
+        self.session_duration = self.current_time - self.start_time
+
+        session_duration_delta = self.session_duration.total_seconds()
+        if session_duration_delta >= config.MAX_SESSION_TIME and config.finished_stat:
+            print("Returing FAIL from StopCheck, Session time limit reached and finished stat.")
+            return NodeStatus(NodeStatus.FAIL, "Session time limit reached and finished stat.")
+        else:
+            print("Returning SUCCESS from StopCheck, no stop required.")
+            return NodeStatus(NodeStatus.SUCCESS, "Session time limit not reached or not finished stat.")
+
 '''
 class OperatorInput(Node):
     """
-        Check if the operator has indicated that an exercise has been completed.
+        Check if the operatsuper(CheckCreated, self).__init__(
+            name,
+            run_cb=self.run,
+            configure_cb=self.configure,
+            *args, **kwargs)or has indicated that an exercise has been completed.
 
         This will eventually be replaced with the vision system using OpenPose.
         ...

@@ -27,7 +27,7 @@ from API import api_classes
 from CoachingBehaviourTree import nodes, config
 from CoachingBehaviourTree.nodes import FormatAction, DisplayBehaviour, CheckForBehaviour, GetBehaviour, GetStats, \
     GetDuration, CreateSubgoal, TimestepCue, DurationCheck, GetChoice, EndSetEvent, InitialiseBlackboard, \
-    EndSubgoal, OverrideOption, CheckDoneBefore, CheckCreated
+    EndSubgoal, OverrideOption, CheckDoneBefore, CheckCreated, StopCheck
 from Policy.coaching_env import CoachingEnvironment
 from Policy.policy import Policy
 from Policy.policy_wrapper import PolicyWrapper
@@ -743,9 +743,12 @@ def create_coaching_tree():
     b.add_remapping(stat_goal_feedback_behav, 'observation', stat_goal_intro_behav, 'feedback_state')
 
     stat_goal_sequence = Progressor(name="stat_goal_sequence")
+    stat_goal_stop_check = StopCheck(name="stat_goal_stop_check", blackboard=b)
+    b.add_remapping(initialise._id, "start_time", stat_goal_stop_check._id, "start_time")
+    stat_goal_sequence.add_child(stat_goal_stop_check)
     stat_goal_sequence.add_child(shot_goal_intro_sequence)
     stat_goal_sequence.add_child(gen_stat_goal)
-    stat_goal_until_count = UntilCount(name="stat_goal_until_count", max_count=2, child=stat_goal_sequence)
+    stat_goal_until_count = UntilCount(name="stat_goal_until_count", max_count=config.STATS_PER_SHOT, child=stat_goal_sequence)
     stat_goal_until_count_negate = Negate(name="stat_goal_until_count_negate", child=stat_goal_until_count)
     gen_shot_goal.add_child(stat_goal_until_count_negate)
 
@@ -1442,9 +1445,9 @@ def main():
         config.behaviour_displayed = False
 
         # If behaviour occurs twice, just skip to pre-instruction.
-        print("used behaviours = " + str(config.used_behaviours))
+        print("used behaviours = " + str(config.used_behaviours) + ", config.getBehaviourGoalLevel = " + str(config.getBehaviourGoalLevel))
         if action2 in config.used_behaviours and (
-                config.getBehaviourGoalLevel == config.SESSION_GOAL or config.goal_level == config.EXERCISE_GOAL or config.goal_level == config.STAT_GOAL or config.goal_level == config.SET_GOAL):
+                config.getBehaviourGoalLevel == config.SESSION_GOAL or config.getBehaviourGoalLevel == config.EXERCISE_GOAL or config.getBehaviourGoalLevel == config.STAT_GOAL or config.getBehaviourGoalLevel == config.SET_GOAL):
             action2 = config.A_PREINSTRUCTION
             print('Got new behaviour: 1')
             # config.matching_behav = 0
