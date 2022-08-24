@@ -1,0 +1,495 @@
+INFO:08/24/2022 10:03:15 AM Logging started
+INFO:08/24/2022 10:03:15 AM  * Running on http://0.0.0.0:5000/ (Press CTRL+C to quit)
+INFO:08/24/2022 10:03:15 AM Belief distribution = [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0]
+INFO:08/24/2022 10:03:15 AM Policy = <Policy.policy_wrapper.PolicyWrapper object at 0x7fd667ad28e0>
+INFO:08/24/2022 10:03:15 AM Stats set, motivation = 8, impairment = 5
+INFO:08/24/2022 10:03:15 AM Initialising blackboard.
+INFO:08/24/2022 10:03:15 AM Chosen policy = 3
+INFO:08/24/2022 10:03:15 AM Set session duration to: 4
+INFO:08/24/2022 10:03:15 AM Created subgoal, new goal level = 0
+INFO:08/24/2022 10:03:15 AM Formatting action: behaviour = 1, goal_level = 0, performance = None, name = Roy, exercise = None
+INFO:08/24/2022 10:03:15 AM Displaying action Hello , welcome to today's session.
+INFO:08/24/2022 10:03:16 AM Received data in api: {'start': True}
+INFO:08/24/2022 10:03:16 AM Start signal from operator.
+INFO:08/24/2022 10:03:19 AM Created subgoal, new goal level = 1
+INFO:08/24/2022 10:03:19 AM New behaviour: 1
+INFO:08/24/2022 10:03:20 AM Formatting action: behaviour = 1, goal_level = 1, performance = None, name = Roy, exercise = None
+INFO:08/24/2022 10:03:20 AM Displaying action Today , I'm going to guide you through a rehabilitation session. We'll pay particular attention to your upper body and your stroke-affected limb.. 
+INFO:08/24/2022 10:03:31 AM Created subgoal, new goal level = 2
+INFO:08/24/2022 10:03:31 AM New behaviour: 1
+INFO:08/24/2022 10:03:32 AM Formatting action: behaviour = 1, goal_level = 2, performance = None, name = Roy, exercise = 1
+INFO:08/24/2022 10:03:32 AM Displaying action Now , we're going to work on your towel slides. For this exercise, take your towel and place it, folded, on the table in front of you.
+INFO:08/24/2022 10:03:44 AM Displaying action With both hands on top of the towel, your stroke-affected hand beneath your non-affected hand, slide the towel away from you towards the middle of the table. Make sure you apply enough pressure to keep your hands together.
+INFO:08/24/2022 10:04:00 AM Displaying action Once you have gone as far as you can, slide the towel back to its starting position. This exercise will allow your shoulder muscles to stretch and strengthen.
+INFO:08/24/2022 10:04:12 AM Created subgoal, new goal level = 3
+INFO:08/24/2022 10:04:12 AM New behaviour: 1
+INFO:08/24/2022 10:04:13 AM Formatting action: behaviour = 1, goal_level = 3, performance = None, name = Roy, exercise = 1
+INFO:08/24/2022 10:04:13 AM 192.168.1.207 - - [24/Aug/2022 10:04:13] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:04:13 AM Displaying action Let's go for a set of 10 towel slides please . You can start now.
+INFO:08/24/2022 10:04:20 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:04:20 AM New behaviour: 1
+INFO:08/24/2022 10:04:21 AM Received data in api: {'rep': 1, 'score': 3.055855}
+INFO:08/24/2022 10:04:21 AM Repetition: score = 3.055855, target = 5.0, difference from target = 1.9441449999999998, performance = 1, repetition count = 1
+INFO:08/24/2022 10:04:21 AM Formatting action: behaviour = 1, goal_level = 4, performance = 1.0, name = Roy, exercise = 1
+INFO:08/24/2022 10:04:21 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 10:04:21 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:04:22 AM 192.168.1.207 - - [24/Aug/2022 10:04:22] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:04:26 AM Received data in api: {'rep': 2, 'score': 5.49185}
+INFO:08/24/2022 10:04:26 AM Repetition: score = 5.49185, target = 5.0, difference from target = -0.49185000000000034, performance = 0, repetition count = 2
+INFO:08/24/2022 10:04:26 AM Formatting action: behaviour = 1, goal_level = 4, performance = 0.0, name = Roy, exercise = 1
+INFO:08/24/2022 10:04:26 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 10:04:27 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:04:27 AM 192.168.1.207 - - [24/Aug/2022 10:04:27] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:04:31 AM Received data in api: {'rep': 3, 'score': 4.474156}
+INFO:08/24/2022 10:04:31 AM Repetition: score = 4.474156, target = 5.0, difference from target = 0.5258440000000002, performance = 1, repetition count = 3
+INFO:08/24/2022 10:04:31 AM Formatting action: behaviour = 1, goal_level = 4, performance = 1.0, name = Roy, exercise = 1
+INFO:08/24/2022 10:04:31 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 10:04:31 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:04:31 AM 192.168.1.207 - - [24/Aug/2022 10:04:31] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:04:35 AM Received data in api: {'rep': 4, 'score': 3.981293}
+INFO:08/24/2022 10:04:35 AM Repetition: score = 3.981293, target = 5.0, difference from target = 1.018707, performance = 1, repetition count = 4
+INFO:08/24/2022 10:04:35 AM Formatting action: behaviour = 1, goal_level = 4, performance = 1.0, name = Roy, exercise = 1
+INFO:08/24/2022 10:04:35 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 10:04:35 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:04:36 AM 192.168.1.207 - - [24/Aug/2022 10:04:36] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:04:39 AM Received data in api: {'rep': 5, 'score': 4.04635}
+INFO:08/24/2022 10:04:39 AM Repetition: score = 4.04635, target = 5.0, difference from target = 0.9536499999999997, performance = 1, repetition count = 5
+INFO:08/24/2022 10:04:39 AM Formatting action: behaviour = 1, goal_level = 4, performance = 1.0, name = Roy, exercise = 1
+INFO:08/24/2022 10:04:39 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 10:04:39 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:04:40 AM 192.168.1.207 - - [24/Aug/2022 10:04:40] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:04:43 AM Received data in api: {'rep': 6, 'score': 3.95473}
+INFO:08/24/2022 10:04:43 AM Repetition: score = 3.95473, target = 5.0, difference from target = 1.04527, performance = 1, repetition count = 6
+INFO:08/24/2022 10:04:43 AM Formatting action: behaviour = 1, goal_level = 4, performance = 1.0, name = Roy, exercise = 1
+INFO:08/24/2022 10:04:43 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 10:04:43 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:04:44 AM 192.168.1.207 - - [24/Aug/2022 10:04:44] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:04:47 AM Received data in api: {'rep': 7, 'score': 4.213395}
+INFO:08/24/2022 10:04:47 AM Repetition: score = 4.213395, target = 5.0, difference from target = 0.7866049999999998, performance = 1, repetition count = 7
+INFO:08/24/2022 10:04:47 AM Formatting action: behaviour = 1, goal_level = 4, performance = 1.0, name = Roy, exercise = 1
+INFO:08/24/2022 10:04:47 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 10:04:47 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:04:48 AM 192.168.1.207 - - [24/Aug/2022 10:04:48] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:04:51 AM Received data in api: {'rep': 8, 'score': 4.042403}
+INFO:08/24/2022 10:04:51 AM Repetition: score = 4.042403, target = 5.0, difference from target = 0.9575969999999998, performance = 1, repetition count = 8
+INFO:08/24/2022 10:04:51 AM Formatting action: behaviour = 1, goal_level = 4, performance = 1.0, name = Roy, exercise = 1
+INFO:08/24/2022 10:04:51 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 10:04:51 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:04:52 AM 192.168.1.207 - - [24/Aug/2022 10:04:52] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:04:56 AM Received data in api: {'rep': 9, 'score': 4.704653}
+INFO:08/24/2022 10:04:56 AM Repetition: score = 4.704653, target = 5.0, difference from target = 0.2953469999999996, performance = 0, repetition count = 9
+INFO:08/24/2022 10:04:56 AM Formatting action: behaviour = 1, goal_level = 4, performance = 0.0, name = Roy, exercise = 1
+INFO:08/24/2022 10:04:56 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 10:04:56 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:04:57 AM 192.168.1.207 - - [24/Aug/2022 10:04:57] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:05:00 AM Received data in api: {'rep': 10, 'score': 4.52331}
+INFO:08/24/2022 10:05:00 AM Repetition: score = 4.52331, target = 5.0, difference from target = 0.4766899999999996, performance = 0, repetition count = 10
+INFO:08/24/2022 10:05:00 AM Stopping set: OK, you can stop there.
+INFO:08/24/2022 10:05:01 AM 192.168.1.207 - - [24/Aug/2022 10:05:01] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:05:01 AM Received data in api: {'start': True}
+INFO:08/24/2022 10:05:01 AM Start signal from operator.
+INFO:08/24/2022 10:05:03 AM Feedback for exercise set, score = 4.218298333333333, target = 5.0, performance = 1.0
+INFO:08/24/2022 10:05:03 AM Ended subgoal 3. New goal level = 2.
+INFO:08/24/2022 10:05:03 AM New behaviour: 1
+INFO:08/24/2022 10:05:04 AM Created subgoal, new goal level = 3
+INFO:08/24/2022 10:05:04 AM 192.168.1.207 - - [24/Aug/2022 10:05:04] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:05:04 AM Formatting action: behaviour = 1, goal_level = 3, performance = 1.0, name = Roy, exercise = 1
+INFO:08/24/2022 10:05:05 AM Displaying action Please perform another set of 5 towel slides . Start when you're ready.
+INFO:08/24/2022 10:05:11 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:05:11 AM New behaviour: 1
+INFO:08/24/2022 10:05:14 AM Received data in api: {'rep': 1, 'score': 2.996182}
+INFO:08/24/2022 10:05:14 AM Repetition: score = 2.996182, target = 5.0, difference from target = 2.003818, performance = 1, repetition count = 1
+INFO:08/24/2022 10:05:14 AM Formatting action: behaviour = 1, goal_level = 4, performance = 1.0, name = Roy, exercise = 1
+INFO:08/24/2022 10:05:14 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 10:05:15 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:05:15 AM 192.168.1.207 - - [24/Aug/2022 10:05:15] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:05:18 AM Received data in api: {'rep': 2, 'score': 3.538085}
+INFO:08/24/2022 10:05:18 AM Repetition: score = 3.538085, target = 5.0, difference from target = 1.4619149999999999, performance = 1, repetition count = 2
+INFO:08/24/2022 10:05:18 AM Formatting action: behaviour = 1, goal_level = 4, performance = 1.0, name = Roy, exercise = 1
+INFO:08/24/2022 10:05:18 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 10:05:18 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:05:19 AM 192.168.1.207 - - [24/Aug/2022 10:05:19] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:05:22 AM Received data in api: {'rep': 3, 'score': 4.144308}
+INFO:08/24/2022 10:05:22 AM Repetition: score = 4.144308, target = 5.0, difference from target = 0.8556920000000003, performance = 1, repetition count = 3
+INFO:08/24/2022 10:05:22 AM Formatting action: behaviour = 1, goal_level = 4, performance = 1.0, name = Roy, exercise = 1
+INFO:08/24/2022 10:05:22 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 10:05:22 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:05:23 AM 192.168.1.207 - - [24/Aug/2022 10:05:23] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:05:26 AM Received data in api: {'rep': 4, 'score': 3.99233}
+INFO:08/24/2022 10:05:26 AM Repetition: score = 3.99233, target = 5.0, difference from target = 1.00767, performance = 1, repetition count = 4
+INFO:08/24/2022 10:05:26 AM Formatting action: behaviour = 1, goal_level = 4, performance = 1.0, name = Roy, exercise = 1
+INFO:08/24/2022 10:05:26 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 10:05:26 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:05:27 AM 192.168.1.207 - - [24/Aug/2022 10:05:27] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:05:30 AM Received data in api: {'rep': 5, 'score': 3.839062}
+INFO:08/24/2022 10:05:30 AM Repetition: score = 3.839062, target = 5.0, difference from target = 1.1609379999999998, performance = 1, repetition count = 5
+INFO:08/24/2022 10:05:30 AM Stopping set: OK, you can stop there.
+INFO:08/24/2022 10:05:30 AM 192.168.1.207 - - [24/Aug/2022 10:05:30] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:05:30 AM Received data in api: {'start': True}
+INFO:08/24/2022 10:05:30 AM Start signal from operator.
+INFO:08/24/2022 10:05:33 AM Feedback for exercise set, score = 3.66772625, target = 5.0, performance = 1.0
+INFO:08/24/2022 10:05:33 AM Ended subgoal 3. New goal level = 2.
+INFO:08/24/2022 10:05:33 AM Feedback for exercise, score = 3.9430122916666663, target = 5.0, performance = 1.0
+INFO:08/24/2022 10:05:33 AM New behaviour: 1
+INFO:08/24/2022 10:05:34 AM Ended subgoal 2. New goal level = 1.
+INFO:08/24/2022 10:05:34 AM New behaviour: 1
+INFO:08/24/2022 10:05:35 AM Created subgoal, new goal level = 2
+INFO:08/24/2022 10:05:35 AM Formatting action: behaviour = 1, goal_level = 2, performance = None, name = Roy, exercise = 3
+INFO:08/24/2022 10:05:35 AM Displaying action Now , we're going to perform some shoulder openers. This exercise starts by holding a water bottle in each hand with your fingers facing inwards, getting into the starting position by holding your arms at your sides, and bending your elbows 90 degrees.
+INFO:08/24/2022 10:05:55 AM Displaying action Next, move your fists outwards while keeping your arms in position at your sides (like you are opening a door). Then, with slow, controlled movements, bring your arms back to your starting stance.
+INFO:08/24/2022 10:06:12 AM Created subgoal, new goal level = 3
+INFO:08/24/2022 10:06:12 AM New behaviour: 1
+INFO:08/24/2022 10:06:13 AM Formatting action: behaviour = 1, goal_level = 3, performance = None, name = Roy, exercise = 3
+INFO:08/24/2022 10:06:13 AM 192.168.1.207 - - [24/Aug/2022 10:06:13] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:06:13 AM Displaying action Do a set of 10 shoulder openers please . You can start whenever you're ready.
+INFO:08/24/2022 10:06:20 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:06:20 AM New behaviour: 1
+INFO:08/24/2022 10:06:21 AM Received data in api: {'rep': 1, 'score': 2.983683}
+INFO:08/24/2022 10:06:21 AM Repetition: score = 2.983683, target = 3.0, difference from target = 0.016316999999999915, performance = 0, repetition count = 1
+INFO:08/24/2022 10:06:21 AM Formatting action: behaviour = 1, goal_level = 4, performance = 0.0, name = Roy, exercise = 3
+INFO:08/24/2022 10:06:21 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 10:06:21 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:06:22 AM 192.168.1.207 - - [24/Aug/2022 10:06:22] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:06:25 AM Received data in api: {'rep': 2, 'score': 4.09698}
+INFO:08/24/2022 10:06:25 AM Repetition: score = 4.09698, target = 3.0, difference from target = -1.0969800000000003, performance = 2, repetition count = 2
+INFO:08/24/2022 10:06:25 AM Formatting action: behaviour = 1, goal_level = 4, performance = 2.0, name = Roy, exercise = 3
+INFO:08/24/2022 10:06:25 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 10:06:25 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:06:26 AM 192.168.1.207 - - [24/Aug/2022 10:06:26] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:06:29 AM Received data in api: {'rep': 3, 'score': 4.033817}
+INFO:08/24/2022 10:06:29 AM Repetition: score = 4.033817, target = 3.0, difference from target = -1.033817, performance = 2, repetition count = 3
+INFO:08/24/2022 10:06:29 AM Formatting action: behaviour = 1, goal_level = 4, performance = 2.0, name = Roy, exercise = 3
+INFO:08/24/2022 10:06:29 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 10:06:29 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:06:30 AM 192.168.1.207 - - [24/Aug/2022 10:06:30] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:06:33 AM Received data in api: {'rep': 4, 'score': 4.054796}
+INFO:08/24/2022 10:06:33 AM Repetition: score = 4.054796, target = 3.0, difference from target = -1.0547959999999996, performance = 2, repetition count = 4
+INFO:08/24/2022 10:06:34 AM Formatting action: behaviour = 1, goal_level = 4, performance = 2.0, name = Roy, exercise = 3
+INFO:08/24/2022 10:06:34 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 10:06:34 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:06:34 AM 192.168.1.207 - - [24/Aug/2022 10:06:34] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:06:37 AM Received data in api: {'rep': 5, 'score': 3.312234}
+INFO:08/24/2022 10:06:37 AM Repetition: score = 3.312234, target = 3.0, difference from target = -0.3122340000000001, performance = 0, repetition count = 5
+INFO:08/24/2022 10:06:37 AM Formatting action: behaviour = 1, goal_level = 4, performance = 0.0, name = Roy, exercise = 3
+INFO:08/24/2022 10:06:37 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 10:06:37 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:06:38 AM 192.168.1.207 - - [24/Aug/2022 10:06:38] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:06:41 AM Received data in api: {'rep': 6, 'score': 4.047734}
+INFO:08/24/2022 10:06:41 AM Repetition: score = 4.047734, target = 3.0, difference from target = -1.0477340000000002, performance = 2, repetition count = 6
+INFO:08/24/2022 10:06:41 AM Formatting action: behaviour = 1, goal_level = 4, performance = 2.0, name = Roy, exercise = 3
+INFO:08/24/2022 10:06:41 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 10:06:41 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:06:41 AM 192.168.1.207 - - [24/Aug/2022 10:06:41] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:06:45 AM Received data in api: {'rep': 7, 'score': 4.751436}
+INFO:08/24/2022 10:06:45 AM Repetition: score = 4.751436, target = 3.0, difference from target = -1.751436, performance = 2, repetition count = 7
+INFO:08/24/2022 10:06:46 AM Formatting action: behaviour = 1, goal_level = 4, performance = 2.0, name = Roy, exercise = 3
+INFO:08/24/2022 10:06:46 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 10:06:46 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:06:46 AM 192.168.1.207 - - [24/Aug/2022 10:06:46] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:06:49 AM Received data in api: {'rep': 8, 'score': 3.593828}
+INFO:08/24/2022 10:06:49 AM Repetition: score = 3.593828, target = 3.0, difference from target = -0.5938279999999998, performance = 2, repetition count = 8
+INFO:08/24/2022 10:06:49 AM Formatting action: behaviour = 1, goal_level = 4, performance = 2.0, name = Roy, exercise = 3
+INFO:08/24/2022 10:06:49 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 10:06:49 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:06:50 AM 192.168.1.207 - - [24/Aug/2022 10:06:50] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:06:53 AM Received data in api: {'rep': 9, 'score': 3.786685}
+INFO:08/24/2022 10:06:53 AM Repetition: score = 3.786685, target = 3.0, difference from target = -0.7866849999999999, performance = 2, repetition count = 9
+INFO:08/24/2022 10:06:53 AM Formatting action: behaviour = 1, goal_level = 4, performance = 2.0, name = Roy, exercise = 3
+INFO:08/24/2022 10:06:53 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 10:06:53 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:06:54 AM 192.168.1.207 - - [24/Aug/2022 10:06:54] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:06:56 AM Received data in api: {'rep': 10, 'score': 3.122922}
+INFO:08/24/2022 10:06:56 AM Repetition: score = 3.122922, target = 3.0, difference from target = -0.12292199999999998, performance = 0, repetition count = 10
+INFO:08/24/2022 10:06:56 AM Stopping set: OK, you can stop there.
+INFO:08/24/2022 10:06:56 AM 192.168.1.207 - - [24/Aug/2022 10:06:56] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:06:56 AM Received data in api: {'start': True}
+INFO:08/24/2022 10:06:56 AM Start signal from operator.
+INFO:08/24/2022 10:06:59 AM Feedback for exercise set, score = 3.8512436666666665, target = 3.0, performance = 2.0
+INFO:08/24/2022 10:06:59 AM Ended subgoal 3. New goal level = 2.
+INFO:08/24/2022 10:06:59 AM New behaviour: 1
+INFO:08/24/2022 10:07:00 AM Created subgoal, new goal level = 3
+INFO:08/24/2022 10:07:00 AM Formatting action: behaviour = 1, goal_level = 3, performance = 2.0, name = Roy, exercise = 3
+INFO:08/24/2022 10:07:00 AM 192.168.1.207 - - [24/Aug/2022 10:07:00] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:07:00 AM Displaying action Let's go for another set of 5 shoulder openers please . You can start now.
+INFO:08/24/2022 10:07:07 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:07:07 AM New behaviour: 1
+INFO:08/24/2022 10:07:09 AM Received data in api: {'rep': 1, 'score': 1.966266}
+INFO:08/24/2022 10:07:09 AM Repetition: score = 1.966266, target = 3.0, difference from target = 1.033734, performance = 1, repetition count = 1
+INFO:08/24/2022 10:07:09 AM Formatting action: behaviour = 1, goal_level = 4, performance = 1.0, name = Roy, exercise = 3
+INFO:08/24/2022 10:07:09 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 10:07:09 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:07:10 AM 192.168.1.207 - - [24/Aug/2022 10:07:10] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:07:13 AM Received data in api: {'rep': 2, 'score': 4.304628}
+INFO:08/24/2022 10:07:13 AM Repetition: score = 4.304628, target = 3.0, difference from target = -1.3046280000000001, performance = 2, repetition count = 2
+INFO:08/24/2022 10:07:13 AM Formatting action: behaviour = 1, goal_level = 4, performance = 2.0, name = Roy, exercise = 3
+INFO:08/24/2022 10:07:13 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 10:07:13 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:07:14 AM 192.168.1.207 - - [24/Aug/2022 10:07:14] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:07:17 AM Received data in api: {'rep': 3, 'score': 4.310979}
+INFO:08/24/2022 10:07:17 AM Repetition: score = 4.310979, target = 3.0, difference from target = -1.3109789999999997, performance = 2, repetition count = 3
+INFO:08/24/2022 10:07:17 AM Formatting action: behaviour = 1, goal_level = 4, performance = 2.0, name = Roy, exercise = 3
+INFO:08/24/2022 10:07:17 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 10:07:18 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:07:18 AM 192.168.1.207 - - [24/Aug/2022 10:07:18] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:07:20 AM Received data in api: {'rep': 4, 'score': 2.945976}
+INFO:08/24/2022 10:07:20 AM Repetition: score = 2.945976, target = 3.0, difference from target = 0.05402400000000007, performance = 0, repetition count = 4
+INFO:08/24/2022 10:07:20 AM Formatting action: behaviour = 1, goal_level = 4, performance = 0.0, name = Roy, exercise = 3
+INFO:08/24/2022 10:07:20 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 10:07:20 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:07:21 AM 192.168.1.207 - - [24/Aug/2022 10:07:21] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:07:24 AM Received data in api: {'rep': 5, 'score': 4.066815}
+INFO:08/24/2022 10:07:24 AM Repetition: score = 4.066815, target = 3.0, difference from target = -1.066815, performance = 2, repetition count = 5
+INFO:08/24/2022 10:07:24 AM Stopping set: OK, you can stop there.
+INFO:08/24/2022 10:07:25 AM 192.168.1.207 - - [24/Aug/2022 10:07:25] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:07:25 AM Received data in api: {'start': True}
+INFO:08/24/2022 10:07:25 AM Start signal from operator.
+INFO:08/24/2022 10:07:27 AM Feedback for exercise set, score = 3.38196225, target = 3.0, performance = 2.0
+INFO:08/24/2022 10:07:27 AM Ended subgoal 3. New goal level = 2.
+INFO:08/24/2022 10:07:27 AM Feedback for exercise, score = 3.616602958333333, target = 3.0, performance = 2.0
+INFO:08/24/2022 10:07:27 AM New behaviour: 1
+INFO:08/24/2022 10:07:28 AM Ended subgoal 2. New goal level = 1.
+INFO:08/24/2022 10:07:28 AM New behaviour: 1
+INFO:08/24/2022 10:07:30 AM Created subgoal, new goal level = 2
+INFO:08/24/2022 10:07:30 AM Formatting action: behaviour = 1, goal_level = 2, performance = None, name = Roy, exercise = 2
+INFO:08/24/2022 10:07:30 AM Displaying action Now , we're going to do an exercise called external rotations with the cane. I'll give you some instructions on how to perform this exercise first. So, to do these, grasp the cane with both hands in front of you and bend your arms at 90 degrees at your sides.
+INFO:08/24/2022 10:07:50 AM Displaying action The aim of this exercise is to improve your ability to perform external rotations with your shoulders. This is required for many everyday tasks so will help you in your daily life. So from your starting position, try to push the cane outward to your left and right without dropping your arms.
+INFO:08/24/2022 10:08:12 AM Displaying action As you do this, your upper body will rotate slightly, but just focus on keeping your arms at a 90 degree angle.
+INFO:08/24/2022 10:08:21 AM Created subgoal, new goal level = 3
+INFO:08/24/2022 10:08:21 AM New behaviour: 1
+INFO:08/24/2022 10:08:22 AM Formatting action: behaviour = 1, goal_level = 3, performance = None, name = Roy, exercise = 2
+INFO:08/24/2022 10:08:22 AM 192.168.1.207 - - [24/Aug/2022 10:08:22] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:08:22 AM Displaying action Please perform a set of 10 external rotations with the cane . Start when you're ready.
+INFO:08/24/2022 10:08:30 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:08:30 AM New behaviour: 1
+INFO:08/24/2022 10:08:34 AM Received data in api: {'rep': 1, 'score': 5.02339}
+INFO:08/24/2022 10:08:34 AM Repetition: score = 5.02339, target = 3.5, difference from target = -1.52339, performance = 2, repetition count = 1
+INFO:08/24/2022 10:08:34 AM Formatting action: behaviour = 1, goal_level = 4, performance = 2.0, name = Roy, exercise = 2
+INFO:08/24/2022 10:08:34 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 10:08:34 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:08:35 AM 192.168.1.207 - - [24/Aug/2022 10:08:35] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:08:37 AM Received data in api: {'rep': 2, 'score': 3.593311}
+INFO:08/24/2022 10:08:37 AM Repetition: score = 3.593311, target = 3.5, difference from target = -0.09331099999999992, performance = 0, repetition count = 2
+INFO:08/24/2022 10:08:38 AM Formatting action: behaviour = 1, goal_level = 4, performance = 0.0, name = Roy, exercise = 2
+INFO:08/24/2022 10:08:38 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 10:08:38 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:08:39 AM 192.168.1.207 - - [24/Aug/2022 10:08:39] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:08:41 AM Received data in api: {'rep': 3, 'score': 3.378963}
+INFO:08/24/2022 10:08:41 AM Repetition: score = 3.378963, target = 3.5, difference from target = 0.12103699999999984, performance = 0, repetition count = 3
+INFO:08/24/2022 10:08:41 AM Formatting action: behaviour = 1, goal_level = 4, performance = 0.0, name = Roy, exercise = 2
+INFO:08/24/2022 10:08:41 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 10:08:41 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:08:42 AM 192.168.1.207 - - [24/Aug/2022 10:08:42] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:08:45 AM Received data in api: {'rep': 4, 'score': 4.067595}
+INFO:08/24/2022 10:08:45 AM Repetition: score = 4.067595, target = 3.5, difference from target = -0.5675949999999998, performance = 2, repetition count = 4
+INFO:08/24/2022 10:08:45 AM Formatting action: behaviour = 1, goal_level = 4, performance = 2.0, name = Roy, exercise = 2
+INFO:08/24/2022 10:08:45 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 10:08:45 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:08:46 AM 192.168.1.207 - - [24/Aug/2022 10:08:46] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:08:48 AM Received data in api: {'rep': 5, 'score': 3.009251}
+INFO:08/24/2022 10:08:48 AM Repetition: score = 3.009251, target = 3.5, difference from target = 0.4907490000000001, performance = 0, repetition count = 5
+INFO:08/24/2022 10:08:48 AM Formatting action: behaviour = 1, goal_level = 4, performance = 0.0, name = Roy, exercise = 2
+INFO:08/24/2022 10:08:48 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 10:08:48 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:08:49 AM 192.168.1.207 - - [24/Aug/2022 10:08:49] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:08:51 AM Received data in api: {'rep': 6, 'score': 2.932536}
+INFO:08/24/2022 10:08:51 AM Repetition: score = 2.932536, target = 3.5, difference from target = 0.5674640000000002, performance = 1, repetition count = 6
+INFO:08/24/2022 10:08:51 AM Formatting action: behaviour = 1, goal_level = 4, performance = 1.0, name = Roy, exercise = 2
+INFO:08/24/2022 10:08:51 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 10:08:51 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:08:52 AM 192.168.1.207 - - [24/Aug/2022 10:08:52] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:08:53 AM Received data in api: {'rep': 7, 'score': 2.666296}
+INFO:08/24/2022 10:08:53 AM Repetition: score = 2.666296, target = 3.5, difference from target = 0.833704, performance = 1, repetition count = 7
+INFO:08/24/2022 10:08:54 AM Formatting action: behaviour = 1, goal_level = 4, performance = 1.0, name = Roy, exercise = 2
+INFO:08/24/2022 10:08:54 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 10:08:54 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:08:55 AM 192.168.1.207 - - [24/Aug/2022 10:08:55] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:08:57 AM Received data in api: {'rep': 8, 'score': 3.466914}
+INFO:08/24/2022 10:08:57 AM Repetition: score = 3.466914, target = 3.5, difference from target = 0.03308599999999995, performance = 0, repetition count = 8
+INFO:08/24/2022 10:08:57 AM Formatting action: behaviour = 1, goal_level = 4, performance = 0.0, name = Roy, exercise = 2
+INFO:08/24/2022 10:08:57 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 10:08:57 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:08:58 AM 192.168.1.207 - - [24/Aug/2022 10:08:58] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:09:00 AM Received data in api: {'rep': 9, 'score': 3.533968}
+INFO:08/24/2022 10:09:00 AM Repetition: score = 3.533968, target = 3.5, difference from target = -0.03396800000000022, performance = 0, repetition count = 9
+INFO:08/24/2022 10:09:01 AM Formatting action: behaviour = 1, goal_level = 4, performance = 0.0, name = Roy, exercise = 2
+INFO:08/24/2022 10:09:01 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 10:09:01 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:09:02 AM 192.168.1.207 - - [24/Aug/2022 10:09:02] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:09:05 AM Received data in api: {'rep': 10, 'score': 4.573706}
+INFO:08/24/2022 10:09:05 AM Repetition: score = 4.573706, target = 3.5, difference from target = -1.0737059999999996, performance = 2, repetition count = 10
+INFO:08/24/2022 10:09:05 AM Stopping set: OK, you can stop there.
+INFO:08/24/2022 10:09:05 AM 192.168.1.207 - - [24/Aug/2022 10:09:05] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:09:05 AM Received data in api: {'start': True}
+INFO:08/24/2022 10:09:05 AM Start signal from operator.
+INFO:08/24/2022 10:09:08 AM Feedback for exercise set, score = 3.519136, target = 3.5, performance = 0.0
+INFO:08/24/2022 10:09:08 AM Ended subgoal 3. New goal level = 2.
+INFO:08/24/2022 10:09:08 AM New behaviour: 1
+INFO:08/24/2022 10:09:09 AM Created subgoal, new goal level = 3
+INFO:08/24/2022 10:09:09 AM Formatting action: behaviour = 1, goal_level = 3, performance = 0.0, name = Roy, exercise = 2
+INFO:08/24/2022 10:09:09 AM 192.168.1.207 - - [24/Aug/2022 10:09:09] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:09:09 AM Displaying action Let's go for another set of 5 external rotations with the cane please . You can start now.
+INFO:08/24/2022 10:09:17 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:09:17 AM New behaviour: 1
+INFO:08/24/2022 10:09:19 AM Received data in api: {'rep': 1, 'score': 2.575537}
+INFO:08/24/2022 10:09:19 AM Repetition: score = 2.575537, target = 3.5, difference from target = 0.9244629999999998, performance = 1, repetition count = 1
+INFO:08/24/2022 10:09:19 AM Formatting action: behaviour = 1, goal_level = 4, performance = 1.0, name = Roy, exercise = 2
+INFO:08/24/2022 10:09:19 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 10:09:19 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:09:20 AM 192.168.1.207 - - [24/Aug/2022 10:09:20] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:09:23 AM Received data in api: {'rep': 2, 'score': 4.088719}
+INFO:08/24/2022 10:09:23 AM Repetition: score = 4.088719, target = 3.5, difference from target = -0.5887190000000002, performance = 2, repetition count = 2
+INFO:08/24/2022 10:09:23 AM Formatting action: behaviour = 1, goal_level = 4, performance = 2.0, name = Roy, exercise = 2
+INFO:08/24/2022 10:09:23 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 10:09:23 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:09:24 AM 192.168.1.207 - - [24/Aug/2022 10:09:24] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:09:29 AM Received data in api: {'rep': 3, 'score': 5.562875}
+INFO:08/24/2022 10:09:29 AM Repetition: score = 5.562875, target = 3.5, difference from target = -2.062875, performance = 2, repetition count = 3
+INFO:08/24/2022 10:09:29 AM Formatting action: behaviour = 1, goal_level = 4, performance = 2.0, name = Roy, exercise = 2
+INFO:08/24/2022 10:09:29 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 10:09:29 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:09:30 AM 192.168.1.207 - - [24/Aug/2022 10:09:30] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:09:33 AM Received data in api: {'rep': 4, 'score': 4.248897}
+INFO:08/24/2022 10:09:33 AM Repetition: score = 4.248897, target = 3.5, difference from target = -0.7488970000000004, performance = 2, repetition count = 4
+INFO:08/24/2022 10:09:33 AM Formatting action: behaviour = 1, goal_level = 4, performance = 2.0, name = Roy, exercise = 2
+INFO:08/24/2022 10:09:33 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 10:09:33 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:09:34 AM 192.168.1.207 - - [24/Aug/2022 10:09:34] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:09:37 AM Received data in api: {'rep': 5, 'score': 3.479667}
+INFO:08/24/2022 10:09:37 AM Repetition: score = 3.479667, target = 3.5, difference from target = 0.020332999999999934, performance = 0, repetition count = 5
+INFO:08/24/2022 10:09:37 AM Stopping set: OK, you can stop there.
+INFO:08/24/2022 10:09:37 AM 192.168.1.207 - - [24/Aug/2022 10:09:37] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:09:37 AM Received data in api: {'start': True}
+INFO:08/24/2022 10:09:37 AM Start signal from operator.
+INFO:08/24/2022 10:09:39 AM Feedback for exercise set, score = 4.119007, target = 3.5, performance = 2.0
+INFO:08/24/2022 10:09:39 AM Ended subgoal 3. New goal level = 2.
+INFO:08/24/2022 10:09:39 AM Feedback for exercise, score = 3.8190714999999997, target = 3.5, performance = 0.0
+INFO:08/24/2022 10:09:39 AM New behaviour: 1
+INFO:08/24/2022 10:09:40 AM Ended subgoal 2. New goal level = 1.
+INFO:08/24/2022 10:09:40 AM New behaviour: 1
+INFO:08/24/2022 10:09:42 AM Created subgoal, new goal level = 2
+INFO:08/24/2022 10:09:42 AM Formatting action: behaviour = 1, goal_level = 2, performance = None, name = Roy, exercise = 0
+INFO:08/24/2022 10:09:42 AM Displaying action Now , we're going to perform some table top circles. This exercise starts by holding a water bottle on the table in front of you with both hands.
+INFO:08/24/2022 10:09:54 AM Displaying action Engaging both sides of your body and with your fingers laced together around the bottle, begin to make big circular movements. Your non-affected arm can guide your affected arm through this exercise. Once you've completed one large circle, go back the other way.
+INFO:08/24/2022 10:10:13 AM Created subgoal, new goal level = 3
+INFO:08/24/2022 10:10:13 AM New behaviour: 1
+INFO:08/24/2022 10:10:15 AM Formatting action: behaviour = 1, goal_level = 3, performance = None, name = Roy, exercise = 0
+INFO:08/24/2022 10:10:15 AM 192.168.1.207 - - [24/Aug/2022 10:10:15] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:10:15 AM Displaying action Let's go for a set of 10 table top circles please . You can start now.
+INFO:08/24/2022 10:10:21 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:10:21 AM New behaviour: 1
+INFO:08/24/2022 10:10:26 AM Received data in api: {'rep': 1, 'score': 3.041659}
+INFO:08/24/2022 10:10:26 AM Repetition: score = 3.041659, target = 6.0, difference from target = 2.958341, performance = 1, repetition count = 1
+INFO:08/24/2022 10:10:27 AM Formatting action: behaviour = 1, goal_level = 4, performance = 1.0, name = Roy, exercise = 0
+INFO:08/24/2022 10:10:27 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 10:10:27 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:10:27 AM 192.168.1.207 - - [24/Aug/2022 10:10:27] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:10:31 AM Received data in api: {'rep': 2, 'score': 4.373737}
+INFO:08/24/2022 10:10:31 AM Repetition: score = 4.373737, target = 6.0, difference from target = 1.6262629999999998, performance = 1, repetition count = 2
+INFO:08/24/2022 10:10:31 AM Formatting action: behaviour = 1, goal_level = 4, performance = 1.0, name = Roy, exercise = 0
+INFO:08/24/2022 10:10:31 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 10:10:31 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:10:32 AM 192.168.1.207 - - [24/Aug/2022 10:10:32] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:10:35 AM Received data in api: {'rep': 3, 'score': 4.657096}
+INFO:08/24/2022 10:10:35 AM Repetition: score = 4.657096, target = 6.0, difference from target = 1.3429039999999999, performance = 1, repetition count = 3
+INFO:08/24/2022 10:10:36 AM Formatting action: behaviour = 1, goal_level = 4, performance = 1.0, name = Roy, exercise = 0
+INFO:08/24/2022 10:10:36 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 10:10:36 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:10:37 AM 192.168.1.207 - - [24/Aug/2022 10:10:37] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:10:39 AM Received data in api: {'rep': 4, 'score': 3.771387}
+INFO:08/24/2022 10:10:39 AM Repetition: score = 3.771387, target = 6.0, difference from target = 2.228613, performance = 1, repetition count = 4
+INFO:08/24/2022 10:10:39 AM Formatting action: behaviour = 1, goal_level = 4, performance = 1.0, name = Roy, exercise = 0
+INFO:08/24/2022 10:10:39 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 10:10:39 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:10:40 AM 192.168.1.207 - - [24/Aug/2022 10:10:40] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:10:43 AM Received data in api: {'rep': 5, 'score': 4.084352}
+INFO:08/24/2022 10:10:43 AM Repetition: score = 4.084352, target = 6.0, difference from target = 1.915648, performance = 1, repetition count = 5
+INFO:08/24/2022 10:10:43 AM Formatting action: behaviour = 1, goal_level = 4, performance = 1.0, name = Roy, exercise = 0
+INFO:08/24/2022 10:10:43 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 10:10:44 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:10:44 AM 192.168.1.207 - - [24/Aug/2022 10:10:44] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:10:47 AM Received data in api: {'rep': 6, 'score': 3.628841}
+INFO:08/24/2022 10:10:47 AM Repetition: score = 3.628841, target = 6.0, difference from target = 2.371159, performance = 1, repetition count = 6
+INFO:08/24/2022 10:10:47 AM Formatting action: behaviour = 1, goal_level = 4, performance = 1.0, name = Roy, exercise = 0
+INFO:08/24/2022 10:10:47 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 10:10:47 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:10:48 AM 192.168.1.207 - - [24/Aug/2022 10:10:48] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:10:51 AM Received data in api: {'rep': 7, 'score': 4.015658}
+INFO:08/24/2022 10:10:51 AM Repetition: score = 4.015658, target = 6.0, difference from target = 1.9843419999999998, performance = 1, repetition count = 7
+INFO:08/24/2022 10:10:51 AM Formatting action: behaviour = 1, goal_level = 4, performance = 1.0, name = Roy, exercise = 0
+INFO:08/24/2022 10:10:51 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 10:10:51 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:10:52 AM 192.168.1.207 - - [24/Aug/2022 10:10:52] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:10:55 AM Received data in api: {'rep': 8, 'score': 3.570104}
+INFO:08/24/2022 10:10:55 AM Repetition: score = 3.570104, target = 6.0, difference from target = 2.429896, performance = 1, repetition count = 8
+INFO:08/24/2022 10:10:55 AM Formatting action: behaviour = 1, goal_level = 4, performance = 1.0, name = Roy, exercise = 0
+INFO:08/24/2022 10:10:55 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 10:10:55 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:10:56 AM 192.168.1.207 - - [24/Aug/2022 10:10:56] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:10:59 AM Received data in api: {'rep': 9, 'score': 4.165831}
+INFO:08/24/2022 10:10:59 AM Repetition: score = 4.165831, target = 6.0, difference from target = 1.8341690000000002, performance = 1, repetition count = 9
+INFO:08/24/2022 10:10:59 AM Formatting action: behaviour = 1, goal_level = 4, performance = 1.0, name = Roy, exercise = 0
+INFO:08/24/2022 10:10:59 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 10:10:59 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:11:00 AM 192.168.1.207 - - [24/Aug/2022 10:11:00] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:11:03 AM Received data in api: {'rep': 10, 'score': 3.903749}
+INFO:08/24/2022 10:11:03 AM Repetition: score = 3.903749, target = 6.0, difference from target = 2.096251, performance = 1, repetition count = 10
+INFO:08/24/2022 10:11:03 AM Stopping set: OK, you can stop there.
+INFO:08/24/2022 10:11:03 AM 192.168.1.207 - - [24/Aug/2022 10:11:03] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:11:03 AM Received data in api: {'start': True}
+INFO:08/24/2022 10:11:03 AM Start signal from operator.
+INFO:08/24/2022 10:11:05 AM Feedback for exercise set, score = 3.923185, target = 6.0, performance = 1.0
+INFO:08/24/2022 10:11:05 AM Ended subgoal 3. New goal level = 2.
+INFO:08/24/2022 10:11:05 AM New behaviour: 1
+INFO:08/24/2022 10:11:06 AM Created subgoal, new goal level = 3
+INFO:08/24/2022 10:11:07 AM 192.168.1.207 - - [24/Aug/2022 10:11:07] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:11:07 AM Formatting action: behaviour = 1, goal_level = 3, performance = 1.0, name = Roy, exercise = 0
+INFO:08/24/2022 10:11:07 AM Displaying action Let's go for another set of 5 table top circles please . You can start now.
+INFO:08/24/2022 10:11:14 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:11:14 AM New behaviour: 1
+INFO:08/24/2022 10:11:18 AM Received data in api: {'rep': 1, 'score': 3.497448}
+INFO:08/24/2022 10:11:18 AM Repetition: score = 3.497448, target = 6.0, difference from target = 2.502552, performance = 1, repetition count = 1
+INFO:08/24/2022 10:11:18 AM Formatting action: behaviour = 1, goal_level = 4, performance = 1.0, name = Roy, exercise = 0
+INFO:08/24/2022 10:11:18 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 10:11:18 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:11:19 AM 192.168.1.207 - - [24/Aug/2022 10:11:19] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:11:21 AM Received data in api: {'rep': 2, 'score': 3.889927}
+INFO:08/24/2022 10:11:21 AM Repetition: score = 3.889927, target = 6.0, difference from target = 2.110073, performance = 1, repetition count = 2
+INFO:08/24/2022 10:11:22 AM Formatting action: behaviour = 1, goal_level = 4, performance = 1.0, name = Roy, exercise = 0
+INFO:08/24/2022 10:11:22 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 10:11:22 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:11:22 AM 192.168.1.207 - - [24/Aug/2022 10:11:22] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:11:26 AM Received data in api: {'rep': 3, 'score': 4.111034}
+INFO:08/24/2022 10:11:26 AM Repetition: score = 4.111034, target = 6.0, difference from target = 1.888966, performance = 1, repetition count = 3
+INFO:08/24/2022 10:11:26 AM Formatting action: behaviour = 1, goal_level = 4, performance = 1.0, name = Roy, exercise = 0
+INFO:08/24/2022 10:11:26 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 10:11:26 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:11:27 AM 192.168.1.207 - - [24/Aug/2022 10:11:27] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:11:30 AM Received data in api: {'rep': 4, 'score': 4.048355}
+INFO:08/24/2022 10:11:30 AM Repetition: score = 4.048355, target = 6.0, difference from target = 1.951645, performance = 1, repetition count = 4
+INFO:08/24/2022 10:11:30 AM Formatting action: behaviour = 1, goal_level = 4, performance = 1.0, name = Roy, exercise = 0
+INFO:08/24/2022 10:11:30 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 10:11:30 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:11:31 AM 192.168.1.207 - - [24/Aug/2022 10:11:31] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:11:33 AM Received data in api: {'rep': 5, 'score': 3.325187}
+INFO:08/24/2022 10:11:33 AM Repetition: score = 3.325187, target = 6.0, difference from target = 2.674813, performance = 1, repetition count = 5
+INFO:08/24/2022 10:11:33 AM Stopping set: OK, you can stop there.
+INFO:08/24/2022 10:11:33 AM 192.168.1.207 - - [24/Aug/2022 10:11:33] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:11:33 AM Received data in api: {'start': True}
+INFO:08/24/2022 10:11:33 AM Start signal from operator.
+INFO:08/24/2022 10:11:36 AM Feedback for exercise set, score = 3.886691, target = 6.0, performance = 1.0
+INFO:08/24/2022 10:11:36 AM Ended subgoal 3. New goal level = 2.
+INFO:08/24/2022 10:11:36 AM Feedback for exercise, score = 3.904938, target = 6.0, performance = 1.0
+INFO:08/24/2022 10:11:36 AM New behaviour: 1
+INFO:08/24/2022 10:11:37 AM Ended subgoal 2. New goal level = 1.
+INFO:08/24/2022 10:11:37 AM New behaviour: 67
+INFO:08/24/2022 10:11:38 AM Session time limit reached, current duration = 4, session limit = 4.
+INFO:08/24/2022 10:11:38 AM Feedback for session, performance = 1.0
+INFO:08/24/2022 10:11:38 AM Formatting action: behaviour = 67, goal_level = 1, performance = 1.0, name = Roy, exercise = None
+INFO:08/24/2022 10:11:38 AM Displaying action Thank you for taking the time to work on your rehabilitation with me!
+INFO:08/24/2022 10:11:43 AM Ended subgoal 1. New goal level = 0.
+INFO:08/24/2022 10:11:43 AM Feedback for person, performance = 1.0
+INFO:08/24/2022 10:11:43 AM New behaviour: 67
+INFO:08/24/2022 10:11:44 AM Formatting action: behaviour = 67, goal_level = 0, performance = 1.0, name = Roy, exercise = None
+INFO:08/24/2022 10:11:44 AM Displaying action Bye for now
+INFO:08/24/2022 10:11:46 AM Ended subgoal 0. New goal level = -1.
+INFO:08/24/2022 10:11:46 AM New behaviour: 1

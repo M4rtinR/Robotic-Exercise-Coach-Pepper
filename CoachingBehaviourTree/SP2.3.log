@@ -1,0 +1,647 @@
+INFO:08/24/2022 10:53:11 AM Logging started
+INFO:08/24/2022 10:53:11 AM  * Running on http://0.0.0.0:5000/ (Press CTRL+C to quit)
+INFO:08/24/2022 10:53:11 AM Belief distribution = [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0]
+INFO:08/24/2022 10:53:11 AM Policy = <Policy.policy_wrapper.PolicyWrapper object at 0x7ff31b292df0>
+INFO:08/24/2022 10:53:11 AM Stats set, motivation = 8, impairment = 5
+INFO:08/24/2022 10:53:11 AM Initialising blackboard.
+INFO:08/24/2022 10:53:11 AM Chosen policy = 3
+INFO:08/24/2022 10:53:11 AM Set session duration to: 4
+INFO:08/24/2022 10:53:11 AM Created subgoal, new goal level = 0
+INFO:08/24/2022 10:53:11 AM Formatting action: behaviour = 1, goal_level = 0, performance = None, name = Roy, exercise = None
+INFO:08/24/2022 10:53:11 AM Displaying action Hello , welcome to today's session.
+INFO:08/24/2022 10:53:12 AM Received data in api: {'start': True}
+INFO:08/24/2022 10:53:12 AM Start signal from operator.
+INFO:08/24/2022 10:53:15 AM Created subgoal, new goal level = 1
+INFO:08/24/2022 10:53:15 AM New behaviour: 17
+INFO:08/24/2022 10:53:16 AM Formatting action: behaviour = 17, goal_level = 1, performance = None, name = Roy, exercise = None
+INFO:08/24/2022 10:53:16 AM Displaying action Today , we're going to perform some rehabilitation exercises and I'm going to guide you through them. We'll focus particularly on your upper body and stroke-affected limb. Performing exercises like this regularly can help you maintain and regain functional ability over the long term.. 
+INFO:08/24/2022 10:53:22 AM Created subgoal, new goal level = 2
+INFO:08/24/2022 10:53:22 AM New behaviour: 7
+INFO:08/24/2022 10:53:24 AM Formatting action: behaviour = 7, goal_level = 2, performance = None, name = Roy, exercise = 2
+INFO:08/24/2022 10:53:24 AM Displaying action This is the first time we've done your external rotations with the cane together , isn't it? Touch the back of my hand if it is or the top of my head if it is not.
+INFO:08/24/2022 10:53:56 AM New behaviour: 24
+INFO:08/24/2022 10:53:57 AM Formatting action: behaviour = 24, goal_level = 2, performance = None, name = Roy, exercise = 2
+INFO:08/24/2022 10:53:57 AM Displaying action I'm looking forward to working on your external rotations with the cane for the first time together today. 
+INFO:08/24/2022 10:54:06 AM New behaviour: 4
+INFO:08/24/2022 10:54:07 AM Formatting action: behaviour = 4, goal_level = 2, performance = None, name = Roy, exercise = 2
+INFO:08/24/2022 10:54:07 AM Displaying action I'm looking forward to working on your external rotations with the cane for the first time together today. 
+INFO:08/24/2022 10:54:15 AM New behaviour: 1
+INFO:08/24/2022 10:54:16 AM Formatting action: behaviour = 1, goal_level = 2, performance = None, name = Roy, exercise = 2
+INFO:08/24/2022 10:54:16 AM Displaying action Now , we're going to focus on your external rotations with the cane. To do these, hold the cane with both hands in front of your body with your arms bent at a 90-degree angle at your sides.
+INFO:08/24/2022 10:54:31 AM Displaying action Next, push the cane outward to your left and right without dropping your arms, so that the 90-degree angle remains consistent. This exercise will improve your ability to perform external rotations with your shoulders, which are required for a significant number of everyday tasks.
+INFO:08/24/2022 10:54:52 AM Created subgoal, new goal level = 3
+INFO:08/24/2022 10:54:52 AM New behaviour: 17
+INFO:08/24/2022 10:54:53 AM 192.168.1.207 - - [24/Aug/2022 10:54:53] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:54:54 AM Formatting action: behaviour = 17, goal_level = 3, performance = None, name = Roy, exercise = 2
+INFO:08/24/2022 10:54:54 AM Displaying action Let's go for a set of 10 external rotations with the cane please . Remember, keeping your arms bent at 90 degrees by your sides will make this exercise most effective. You can start now.
+INFO:08/24/2022 10:55:01 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:55:01 AM New behaviour: 1
+INFO:08/24/2022 10:55:12 AM Received data in api: {'rep': 1, 'score': 1.915288}
+INFO:08/24/2022 10:55:12 AM Repetition: score = 1.915288, target = 3.5, difference from target = 1.584712, performance = 1, repetition count = 1
+INFO:08/24/2022 10:55:12 AM Formatting action: behaviour = 1, goal_level = 4, performance = 1.0, name = Roy, exercise = 2
+INFO:08/24/2022 10:55:12 AM Displaying action 
+INFO:08/24/2022 10:55:12 AM 192.168.1.207 - - [24/Aug/2022 10:55:12] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:55:12 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 10:55:12 AM New behaviour: 1
+INFO:08/24/2022 10:55:13 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:55:16 AM Received data in api: {'rep': 2, 'score': 4.190834}
+INFO:08/24/2022 10:55:16 AM Repetition: score = 4.190834, target = 3.5, difference from target = -0.6908339999999997, performance = 2, repetition count = 2
+INFO:08/24/2022 10:55:16 AM Formatting action: behaviour = 1, goal_level = 4, performance = 2.0, name = Roy, exercise = 2
+INFO:08/24/2022 10:55:16 AM Displaying action 
+INFO:08/24/2022 10:55:16 AM 192.168.1.207 - - [24/Aug/2022 10:55:16] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:55:17 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 10:55:17 AM New behaviour: 7
+INFO:08/24/2022 10:55:18 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:55:19 AM Received data in api: {'rep': 3, 'score': 3.081481}
+INFO:08/24/2022 10:55:19 AM Repetition: score = 3.081481, target = 3.5, difference from target = 0.41851899999999986, performance = 0, repetition count = 3
+INFO:08/24/2022 10:55:19 AM Formatting action: behaviour = 7, goal_level = 4, performance = 0.0, name = Roy, exercise = 2
+INFO:08/24/2022 10:55:19 AM Displaying action Are you maintaining the 90 degree bend at your elbows ?
+INFO:08/24/2022 10:55:19 AM 192.168.1.207 - - [24/Aug/2022 10:55:19] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:55:24 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 10:55:24 AM New behaviour: 7
+INFO:08/24/2022 10:55:25 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:55:25 AM Received data in api: {'rep': 4, 'score': 6.221926}
+INFO:08/24/2022 10:55:25 AM Repetition: score = 6.221926, target = 3.5, difference from target = -2.721926, performance = 2, repetition count = 4
+INFO:08/24/2022 10:55:25 AM Formatting action: behaviour = 7, goal_level = 4, performance = 2.0, name = Roy, exercise = 2
+INFO:08/24/2022 10:55:25 AM Displaying action Are your arms at a right angle ?
+INFO:08/24/2022 10:55:25 AM 192.168.1.207 - - [24/Aug/2022 10:55:25] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:55:28 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 10:55:28 AM New behaviour: 24
+INFO:08/24/2022 10:55:29 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:55:31 AM Received data in api: {'rep': 5, 'score': 5.70953}
+INFO:08/24/2022 10:55:31 AM Repetition: score = 5.70953, target = 3.5, difference from target = -2.20953, performance = 2, repetition count = 5
+INFO:08/24/2022 10:55:31 AM Formatting action: behaviour = 24, goal_level = 4, performance = 2.0, name = Roy, exercise = 2
+INFO:08/24/2022 10:55:31 AM Displaying action 
+INFO:08/24/2022 10:55:31 AM 192.168.1.207 - - [24/Aug/2022 10:55:31] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:55:34 AM Received data in api: {'rep': 6, 'score': 3.562973}
+INFO:08/24/2022 10:55:34 AM Repetition: score = 3.562973, target = 3.5, difference from target = -0.06297299999999995, performance = 0, repetition count = 6
+INFO:08/24/2022 10:55:35 AM 192.168.1.207 - - [24/Aug/2022 10:55:35] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:55:38 AM Received data in api: {'rep': 7, 'score': 3.558499}
+INFO:08/24/2022 10:55:38 AM Repetition: score = 3.558499, target = 3.5, difference from target = -0.05849899999999986, performance = 0, repetition count = 7
+INFO:08/24/2022 10:55:38 AM 192.168.1.207 - - [24/Aug/2022 10:55:38] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:55:39 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 10:55:39 AM New behaviour: 4
+INFO:08/24/2022 10:55:40 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:55:43 AM Received data in api: {'rep': 8, 'score': 5.010306}
+INFO:08/24/2022 10:55:43 AM Repetition: score = 5.010306, target = 3.5, difference from target = -1.510306, performance = 2, repetition count = 8
+INFO:08/24/2022 10:55:43 AM Formatting action: behaviour = 4, goal_level = 4, performance = 2.0, name = Roy, exercise = 2
+INFO:08/24/2022 10:55:43 AM Displaying action 
+INFO:08/24/2022 10:55:43 AM 192.168.1.207 - - [24/Aug/2022 10:55:43] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:55:44 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 10:55:44 AM New behaviour: 7
+INFO:08/24/2022 10:55:45 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:55:46 AM Received data in api: {'rep': 9, 'score': 3.507394}
+INFO:08/24/2022 10:55:46 AM Repetition: score = 3.507394, target = 3.5, difference from target = -0.007394000000000123, performance = 0, repetition count = 9
+INFO:08/24/2022 10:55:47 AM Formatting action: behaviour = 7, goal_level = 4, performance = 0.0, name = Roy, exercise = 2
+INFO:08/24/2022 10:55:47 AM Displaying action Are you maintaining the 90 degree bend at your elbows ?
+INFO:08/24/2022 10:55:47 AM 192.168.1.207 - - [24/Aug/2022 10:55:47] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:55:51 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 10:55:51 AM New behaviour: 4
+INFO:08/24/2022 10:55:51 AM Received data in api: {'rep': 10, 'score': 4.984871}
+INFO:08/24/2022 10:55:51 AM Repetition: score = 4.984871, target = 3.5, difference from target = -1.484871, performance = 2, repetition count = 10
+INFO:08/24/2022 10:55:52 AM 192.168.1.207 - - [24/Aug/2022 10:55:52] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:55:52 AM Received data in api: {'start': True}
+INFO:08/24/2022 10:55:52 AM Start signal from operator.
+INFO:08/24/2022 10:55:52 AM Stopping set: OK, you can stop there.
+INFO:08/24/2022 10:55:55 AM Feedback for exercise set, score = 4.233822714285714, target = 3.5, performance = 2.0
+INFO:08/24/2022 10:55:55 AM Formatting action: behaviour = 4, goal_level = 3, performance = 2.0, name = Roy, exercise = 2
+INFO:08/24/2022 10:55:55 AM Displaying action Your external rotations with the cane were too slow there   but this time I know you can speed it up a bit!. You got an average time of 4.23 seconds and were aiming for 3.5 seconds.
+INFO:08/24/2022 10:56:10 AM New behaviour: 7
+INFO:08/24/2022 10:56:11 AM Formatting action: behaviour = 7, goal_level = 3, performance = 2.0, name = Roy, exercise = 2
+INFO:08/24/2022 10:56:11 AM Displaying action How did your external rotations with the cane feel there ? Touch the back of my hand if it felt good or the top of my head if you think it still needs work.
+INFO:08/24/2022 10:56:28 AM New behaviour: 1
+INFO:08/24/2022 10:56:29 AM Ended subgoal 3. New goal level = 2.
+INFO:08/24/2022 10:56:29 AM New behaviour: 17
+INFO:08/24/2022 10:56:30 AM Created subgoal, new goal level = 3
+INFO:08/24/2022 10:56:30 AM Formatting action: behaviour = 17, goal_level = 3, performance = 2.0, name = Roy, exercise = 2
+INFO:08/24/2022 10:56:30 AM 192.168.1.207 - - [24/Aug/2022 10:56:30] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:56:31 AM Displaying action Let's go for another set of 5 external rotations with the cane please . Remember, keeping your arms bent at 90 degrees by your sides will make this exercise most effective. You can start now.
+INFO:08/24/2022 10:56:39 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:56:39 AM New behaviour: 14
+INFO:08/24/2022 10:56:50 AM Received data in api: {'rep': 1, 'score': 3.845898}
+INFO:08/24/2022 10:56:50 AM Repetition: score = 3.845898, target = 3.5, difference from target = -0.34589800000000004, performance = 0, repetition count = 1
+INFO:08/24/2022 10:56:51 AM Formatting action: behaviour = 14, goal_level = 4, performance = 0.0, name = Roy, exercise = 2
+INFO:08/24/2022 10:56:51 AM Displaying action Hard lines 
+INFO:08/24/2022 10:56:51 AM 192.168.1.207 - - [24/Aug/2022 10:56:51] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:56:53 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 10:56:53 AM New behaviour: 1
+INFO:08/24/2022 10:56:53 AM Received data in api: {'rep': 2, 'score': 2.842366}
+INFO:08/24/2022 10:56:53 AM Repetition: score = 2.842366, target = 3.5, difference from target = 0.6576339999999998, performance = 1, repetition count = 2
+INFO:08/24/2022 10:56:53 AM 192.168.1.207 - - [24/Aug/2022 10:56:53] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:56:54 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:56:54 AM Formatting action: behaviour = 1, goal_level = 4, performance = 1.0, name = Roy, exercise = 2
+INFO:08/24/2022 10:56:54 AM Displaying action 
+INFO:08/24/2022 10:56:54 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 10:56:54 AM New behaviour: 1
+INFO:08/24/2022 10:56:55 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:56:57 AM Received data in api: {'rep': 3, 'score': 3.651281}
+INFO:08/24/2022 10:56:57 AM Repetition: score = 3.651281, target = 3.5, difference from target = -0.151281, performance = 0, repetition count = 3
+INFO:08/24/2022 10:56:57 AM Formatting action: behaviour = 1, goal_level = 4, performance = 0.0, name = Roy, exercise = 2
+INFO:08/24/2022 10:56:57 AM Displaying action 
+INFO:08/24/2022 10:56:57 AM 192.168.1.207 - - [24/Aug/2022 10:56:57] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:56:58 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 10:56:58 AM New behaviour: 12
+INFO:08/24/2022 10:56:59 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:57:00 AM Received data in api: {'rep': 4, 'score': 2.700943}
+INFO:08/24/2022 10:57:00 AM Repetition: score = 2.700943, target = 3.5, difference from target = 0.7990569999999999, performance = 1, repetition count = 4
+INFO:08/24/2022 10:57:00 AM Formatting action: behaviour = 12, goal_level = 4, performance = 1.0, name = Roy, exercise = 2
+INFO:08/24/2022 10:57:00 AM Displaying action Good  Slow and controlled movements
+INFO:08/24/2022 10:57:00 AM 192.168.1.207 - - [24/Aug/2022 10:57:00] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:57:03 AM Received data in api: {'rep': 5, 'score': 3.28857}
+INFO:08/24/2022 10:57:03 AM Repetition: score = 3.28857, target = 3.5, difference from target = 0.21143, performance = 0, repetition count = 5
+INFO:08/24/2022 10:57:03 AM 192.168.1.207 - - [24/Aug/2022 10:57:03] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:57:03 AM Received data in api: {'start': True}
+INFO:08/24/2022 10:57:03 AM Start signal from operator.
+INFO:08/24/2022 10:57:03 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 10:57:03 AM New behaviour: 1
+INFO:08/24/2022 10:57:04 AM Stopping set: OK, you can stop there.
+INFO:08/24/2022 10:57:07 AM Feedback for exercise set, score = 3.260122, target = 3.5, performance = 0.0
+INFO:08/24/2022 10:57:07 AM Ended subgoal 3. New goal level = 2.
+INFO:08/24/2022 10:57:07 AM Feedback for exercise, score = 3.746972357142857, target = 3.5, performance = 2.0
+INFO:08/24/2022 10:57:07 AM New behaviour: 12
+INFO:08/24/2022 10:57:08 AM Formatting action: behaviour = 12, goal_level = 2, performance = 2.0, name = Roy, exercise = 2
+INFO:08/24/2022 10:57:08 AM Displaying action Good work . You got an average time of 3.75 seconds and were aiming for 3.5 seconds.
+INFO:08/24/2022 10:57:17 AM New behaviour: 7
+INFO:08/24/2022 10:57:18 AM Formatting action: behaviour = 7, goal_level = 2, performance = 2.0, name = Roy, exercise = 2
+INFO:08/24/2022 10:57:18 AM Displaying action How did your external rotations with the cane feel there ? Touch the back of my hand if it felt good or the top of my head if you think it still needs work.
+INFO:08/24/2022 10:57:37 AM New behaviour: 24
+INFO:08/24/2022 10:57:38 AM Formatting action: behaviour = 24, goal_level = 2, performance = 2.0, name = Roy, exercise = 2
+INFO:08/24/2022 10:57:38 AM Displaying action Your external rotations with the cane were a bit slow there   but that's OK!
+INFO:08/24/2022 10:57:46 AM New behaviour: 4
+INFO:08/24/2022 10:57:48 AM Formatting action: behaviour = 4, goal_level = 2, performance = 2.0, name = Roy, exercise = 2
+INFO:08/24/2022 10:57:48 AM Displaying action Your external rotations with the cane were a bit slow there   but that's OK!
+INFO:08/24/2022 10:57:54 AM New behaviour: 1
+INFO:08/24/2022 10:57:55 AM Ended subgoal 2. New goal level = 1.
+INFO:08/24/2022 10:57:55 AM New behaviour: 12
+INFO:08/24/2022 10:57:56 AM Created subgoal, new goal level = 2
+INFO:08/24/2022 10:57:56 AM Formatting action: behaviour = 12, goal_level = 2, performance = None, name = Roy, exercise = 0
+INFO:08/24/2022 10:57:56 AM Displaying action Nicely done in the last table top circles work that we did 
+INFO:08/24/2022 10:58:02 AM New behaviour: 7
+INFO:08/24/2022 10:58:03 AM Formatting action: behaviour = 7, goal_level = 2, performance = None, name = Roy, exercise = 0
+INFO:08/24/2022 10:58:03 AM Displaying action Is this the first time we've worked on your table top circles together ? Touch the back of my hand for yes or the top of my head for no.
+INFO:08/24/2022 10:58:15 AM New behaviour: 4
+INFO:08/24/2022 10:58:16 AM Formatting action: behaviour = 4, goal_level = 2, performance = None, name = Roy, exercise = 0
+INFO:08/24/2022 10:58:16 AM Displaying action I think this is the first time we've worked on your table top circles together 
+INFO:08/24/2022 10:58:22 AM New behaviour: 1
+INFO:08/24/2022 10:58:23 AM Formatting action: behaviour = 1, goal_level = 2, performance = None, name = Roy, exercise = 0
+INFO:08/24/2022 10:58:23 AM Displaying action Now , we're going to work on your table top circles. For this exercise, grasp a water bottle with both hands and hold it on the table in front of you.
+INFO:08/24/2022 10:58:36 AM Displaying action While engaging both sides of your body, begin sliding the bottle around the table in large circular movements. If you are struggling, you can use your non-affected arm to guide your affected arm through the movements.
+INFO:08/24/2022 10:58:51 AM Created subgoal, new goal level = 3
+INFO:08/24/2022 10:58:51 AM New behaviour: 1
+INFO:08/24/2022 10:58:53 AM Formatting action: behaviour = 1, goal_level = 3, performance = None, name = Roy, exercise = 0
+INFO:08/24/2022 10:58:53 AM 192.168.1.207 - - [24/Aug/2022 10:58:53] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:58:53 AM Displaying action Please perform a set of 10 table top circles . Remember, make all of your movements slow and controlled to get the most out of these rehabilitation exercises. This will give you the greatest improvements in your mobility and range of motion.. Start when you're ready.
+INFO:08/24/2022 10:59:06 AM Received data in api: {'rep': 1, 'score': 3.392588}
+INFO:08/24/2022 10:59:06 AM Not expecting action goal.
+INFO:08/24/2022 10:59:06 AM 192.168.1.207 - - [24/Aug/2022 10:59:06] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:59:12 AM Received data in api: {'rep': 2, 'score': 5.453941}
+INFO:08/24/2022 10:59:12 AM Not expecting action goal.
+INFO:08/24/2022 10:59:12 AM 192.168.1.207 - - [24/Aug/2022 10:59:12] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:59:13 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:59:13 AM New behaviour: 4
+INFO:08/24/2022 10:59:20 AM Received data in api: {'rep': 3, 'score': 8.526391}
+INFO:08/24/2022 10:59:20 AM Repetition: score = 8.526391, target = 6.0, difference from target = -2.5263910000000003, performance = 2, repetition count = 3
+INFO:08/24/2022 10:59:20 AM Formatting action: behaviour = 4, goal_level = 4, performance = 2.0, name = Roy, exercise = 0
+INFO:08/24/2022 10:59:20 AM Displaying action 
+INFO:08/24/2022 10:59:21 AM 192.168.1.207 - - [24/Aug/2022 10:59:21] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:59:21 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 10:59:21 AM New behaviour: 7
+INFO:08/24/2022 10:59:22 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:59:24 AM Received data in api: {'rep': 4, 'score': 4.110033}
+INFO:08/24/2022 10:59:24 AM Repetition: score = 4.110033, target = 6.0, difference from target = 1.8899670000000004, performance = 1, repetition count = 4
+INFO:08/24/2022 10:59:24 AM Formatting action: behaviour = 7, goal_level = 4, performance = 1.0, name = Roy, exercise = 0
+INFO:08/24/2022 10:59:25 AM Displaying action Are both sides of your body engaged ?
+INFO:08/24/2022 10:59:25 AM 192.168.1.207 - - [24/Aug/2022 10:59:25] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:59:28 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 10:59:28 AM New behaviour: 4
+INFO:08/24/2022 10:59:28 AM Received data in api: {'rep': 5, 'score': 4.003645}
+INFO:08/24/2022 10:59:28 AM Repetition: score = 4.003645, target = 6.0, difference from target = 1.9963550000000003, performance = 1, repetition count = 5
+INFO:08/24/2022 10:59:29 AM 192.168.1.207 - - [24/Aug/2022 10:59:29] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:59:29 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:59:29 AM Formatting action: behaviour = 4, goal_level = 4, performance = 1.0, name = Roy, exercise = 0
+INFO:08/24/2022 10:59:29 AM Displaying action 
+INFO:08/24/2022 10:59:29 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 10:59:29 AM New behaviour: 7
+INFO:08/24/2022 10:59:31 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:59:32 AM Received data in api: {'rep': 6, 'score': 4.215398}
+INFO:08/24/2022 10:59:32 AM Repetition: score = 4.215398, target = 6.0, difference from target = 1.7846019999999996, performance = 1, repetition count = 6
+INFO:08/24/2022 10:59:33 AM Formatting action: behaviour = 7, goal_level = 4, performance = 1.0, name = Roy, exercise = 0
+INFO:08/24/2022 10:59:33 AM Displaying action Are your movements at a good pace ?
+INFO:08/24/2022 10:59:33 AM 192.168.1.207 - - [24/Aug/2022 10:59:33] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:59:36 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 10:59:36 AM New behaviour: 24
+INFO:08/24/2022 10:59:37 AM Received data in api: {'rep': 7, 'score': 4.330895}
+INFO:08/24/2022 10:59:37 AM Repetition: score = 4.330895, target = 6.0, difference from target = 1.669105, performance = 1, repetition count = 7
+INFO:08/24/2022 10:59:37 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:59:37 AM Formatting action: behaviour = 24, goal_level = 4, performance = 1.0, name = Roy, exercise = 0
+INFO:08/24/2022 10:59:37 AM Displaying action 
+INFO:08/24/2022 10:59:37 AM 192.168.1.207 - - [24/Aug/2022 10:59:37] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:59:41 AM Received data in api: {'rep': 8, 'score': 4.128885}
+INFO:08/24/2022 10:59:41 AM Repetition: score = 4.128885, target = 6.0, difference from target = 1.8711149999999996, performance = 1, repetition count = 8
+INFO:08/24/2022 10:59:41 AM 192.168.1.207 - - [24/Aug/2022 10:59:41] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:59:44 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 10:59:44 AM New behaviour: 4
+INFO:08/24/2022 10:59:45 AM Received data in api: {'rep': 9, 'score': 3.730925}
+INFO:08/24/2022 10:59:45 AM Repetition: score = 3.730925, target = 6.0, difference from target = 2.269075, performance = 1, repetition count = 9
+INFO:08/24/2022 10:59:45 AM 192.168.1.207 - - [24/Aug/2022 10:59:45] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:59:45 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:59:45 AM Formatting action: behaviour = 4, goal_level = 4, performance = 1.0, name = Roy, exercise = 0
+INFO:08/24/2022 10:59:45 AM Displaying action 
+INFO:08/24/2022 10:59:46 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 10:59:46 AM New behaviour: 7
+INFO:08/24/2022 10:59:47 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 10:59:49 AM Received data in api: {'rep': 10, 'score': 4.406089}
+INFO:08/24/2022 10:59:49 AM Repetition: score = 4.406089, target = 6.0, difference from target = 1.5939110000000003, performance = 1, repetition count = 10
+INFO:08/24/2022 10:59:49 AM Stopping set: OK, you can stop there.
+INFO:08/24/2022 10:59:49 AM 192.168.1.207 - - [24/Aug/2022 10:59:49] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 10:59:49 AM Received data in api: {'start': True}
+INFO:08/24/2022 10:59:49 AM Start signal from operator.
+INFO:08/24/2022 10:59:52 AM Feedback for exercise set, score = 4.819547833333333, target = 6.0, performance = 1.0
+INFO:08/24/2022 10:59:52 AM Formatting action: behaviour = 7, goal_level = 3, performance = 1.0, name = Roy, exercise = 0
+INFO:08/24/2022 10:59:52 AM Displaying action What did you think of your table top circles there ? Touch the back of my hand if it felt good or the top of my head if you think it still needs work.. You got an average time of 4.82 seconds and were aiming for 6.0 seconds.
+INFO:08/24/2022 11:00:11 AM New behaviour: 4
+INFO:08/24/2022 11:00:12 AM Formatting action: behaviour = 4, goal_level = 3, performance = 1.0, name = Roy, exercise = 0
+INFO:08/24/2022 11:00:12 AM Displaying action Your table top circles were a bit quick there   but that's OK!
+INFO:08/24/2022 11:00:17 AM New behaviour: 1
+INFO:08/24/2022 11:00:18 AM Ended subgoal 3. New goal level = 2.
+INFO:08/24/2022 11:00:18 AM New behaviour: 17
+INFO:08/24/2022 11:00:19 AM Created subgoal, new goal level = 3
+INFO:08/24/2022 11:00:19 AM 192.168.1.207 - - [24/Aug/2022 11:00:19] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 11:00:20 AM Formatting action: behaviour = 17, goal_level = 3, performance = 1.0, name = Roy, exercise = 0
+INFO:08/24/2022 11:00:20 AM Displaying action Do another set of 5 table top circles please . Remember, engage both sides of your body to make this a bilateral movement. This is helpful during stroke recovery because it stimulates both sides of the brain.You can start whenever you're ready.
+INFO:08/24/2022 11:00:28 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 11:00:28 AM New behaviour: 14
+INFO:08/24/2022 11:00:40 AM Received data in api: {'rep': 1, 'score': 2.118715}
+INFO:08/24/2022 11:00:40 AM Repetition: score = 2.118715, target = 6.0, difference from target = 3.881285, performance = 1, repetition count = 1
+INFO:08/24/2022 11:00:40 AM Formatting action: behaviour = 14, goal_level = 4, performance = 1.0, name = Roy, exercise = 0
+INFO:08/24/2022 11:00:40 AM Displaying action Hard lines 
+INFO:08/24/2022 11:00:40 AM 192.168.1.207 - - [24/Aug/2022 11:00:40] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 11:00:42 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 11:00:42 AM New behaviour: 17
+INFO:08/24/2022 11:00:43 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 11:00:43 AM Received data in api: {'rep': 2, 'score': 3.455011}
+INFO:08/24/2022 11:00:43 AM Repetition: score = 3.455011, target = 6.0, difference from target = 2.544989, performance = 1, repetition count = 2
+INFO:08/24/2022 11:00:43 AM Formatting action: behaviour = 17, goal_level = 4, performance = 1.0, name = Roy, exercise = 0
+INFO:08/24/2022 11:00:43 AM Displaying action 
+INFO:08/24/2022 11:00:43 AM 192.168.1.207 - - [24/Aug/2022 11:00:43] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 11:00:47 AM Received data in api: {'rep': 3, 'score': 4.414733}
+INFO:08/24/2022 11:00:47 AM Repetition: score = 4.414733, target = 6.0, difference from target = 1.585267, performance = 1, repetition count = 3
+INFO:08/24/2022 11:00:48 AM 192.168.1.207 - - [24/Aug/2022 11:00:48] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 11:00:49 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 11:00:49 AM New behaviour: 7
+INFO:08/24/2022 11:00:50 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 11:00:52 AM Received data in api: {'rep': 4, 'score': 4.498801}
+INFO:08/24/2022 11:00:52 AM Repetition: score = 4.498801, target = 6.0, difference from target = 1.5011989999999997, performance = 1, repetition count = 4
+INFO:08/24/2022 11:00:52 AM Formatting action: behaviour = 7, goal_level = 4, performance = 1.0, name = Roy, exercise = 0
+INFO:08/24/2022 11:00:52 AM Displaying action Are both sides of your body engaged ?
+INFO:08/24/2022 11:00:52 AM 192.168.1.207 - - [24/Aug/2022 11:00:52] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 11:00:55 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 11:00:55 AM New behaviour: 4
+INFO:08/24/2022 11:00:56 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 11:00:57 AM Received data in api: {'rep': 5, 'score': 5.013655}
+INFO:08/24/2022 11:00:57 AM Repetition: score = 5.013655, target = 6.0, difference from target = 0.986345, performance = 1, repetition count = 5
+INFO:08/24/2022 11:00:57 AM Stopping set: OK, you can stop there.
+INFO:08/24/2022 11:00:57 AM 192.168.1.207 - - [24/Aug/2022 11:00:57] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 11:00:57 AM Received data in api: {'start': True}
+INFO:08/24/2022 11:00:57 AM Start signal from operator.
+INFO:08/24/2022 11:01:00 AM Feedback for exercise set, score = 3.357509, target = 6.0, performance = 1.0
+INFO:08/24/2022 11:01:00 AM Formatting action: behaviour = 4, goal_level = 3, performance = 1.0, name = Roy, exercise = 0
+INFO:08/24/2022 11:01:00 AM Displaying action You did your table top circles a little too quickly there   but don't worry!. You got an average time of 3.36 seconds and were aiming for 6.0 seconds.
+INFO:08/24/2022 11:01:13 AM New behaviour: 7
+INFO:08/24/2022 11:01:14 AM Formatting action: behaviour = 7, goal_level = 3, performance = 1.0, name = Roy, exercise = 0
+INFO:08/24/2022 11:01:14 AM Displaying action How did the table top circles feel to you ? Touch the back of my hand if it felt good or the top of my head if you think more work is needed.
+INFO:08/24/2022 11:01:26 AM New behaviour: 1
+INFO:08/24/2022 11:01:27 AM Ended subgoal 3. New goal level = 2.
+INFO:08/24/2022 11:01:27 AM Feedback for exercise, score = 4.088528416666667, target = 6.0, performance = 1.0
+INFO:08/24/2022 11:01:27 AM New behaviour: 4
+INFO:08/24/2022 11:01:28 AM Formatting action: behaviour = 4, goal_level = 2, performance = 1.0, name = Roy, exercise = 0
+INFO:08/24/2022 11:01:28 AM Displaying action You did your table top circles a little too quickly there   but don't worry!. You got an average time of 4.09 seconds and were aiming for 6.0 seconds.
+INFO:08/24/2022 11:01:42 AM New behaviour: 7
+INFO:08/24/2022 11:01:43 AM Formatting action: behaviour = 7, goal_level = 2, performance = 1.0, name = Roy, exercise = 0
+INFO:08/24/2022 11:01:43 AM Displaying action What did you think of your table top circles there ? Touch the back of my hand if it felt good or the top of my head if you think it still needs work.
+INFO:08/24/2022 11:01:54 AM New behaviour: 1
+INFO:08/24/2022 11:01:55 AM Ended subgoal 2. New goal level = 1.
+INFO:08/24/2022 11:01:55 AM New behaviour: 67
+INFO:08/24/2022 11:01:57 AM Created subgoal, new goal level = 2
+INFO:08/24/2022 11:01:57 AM Formatting action: behaviour = 67, goal_level = 2, performance = None, name = Roy, exercise = 3
+INFO:08/24/2022 11:01:57 AM Displaying action 
+INFO:08/24/2022 11:01:57 AM New behaviour: 1
+INFO:08/24/2022 11:01:59 AM Formatting action: behaviour = 1, goal_level = 2, performance = None, name = Roy, exercise = 3
+INFO:08/24/2022 11:01:59 AM Displaying action Now , we're going to do an exercise called shoulder openers. I'll give you some instructions on how to perform this exercise first. So, to do these, grasp a water bottle in each hand with your palms facing inwards.
+INFO:08/24/2022 11:02:16 AM Displaying action Then, holding your arms at your sides, bend your elbows 90 degrees. Frome here, slowly move your fists outwards while keeping your arms in position at your sides. Then bring your arms back to their starting position.
+INFO:08/24/2022 11:02:34 AM Displaying action It can be helpful in this exercise to imagine your arms as a door opening and then closing again.
+INFO:08/24/2022 11:02:42 AM Created subgoal, new goal level = 3
+INFO:08/24/2022 11:02:42 AM New behaviour: 4
+INFO:08/24/2022 11:02:43 AM Formatting action: behaviour = 4, goal_level = 3, performance = None, name = Roy, exercise = 3
+INFO:08/24/2022 11:02:43 AM Displaying action If my memory serves me correctly, this is the first time we've done your shoulder openers together 
+INFO:08/24/2022 11:02:51 AM New behaviour: 7
+INFO:08/24/2022 11:02:52 AM Formatting action: behaviour = 7, goal_level = 3, performance = None, name = Roy, exercise = 3
+INFO:08/24/2022 11:02:52 AM Displaying action Am I right in thinking this is the first time we've worked on your shoulder openers together ? Touch the back of my hand for yes or the top of my head for no.
+INFO:08/24/2022 11:03:05 AM New behaviour: 1
+INFO:08/24/2022 11:03:06 AM Formatting action: behaviour = 1, goal_level = 3, performance = None, name = Roy, exercise = 3
+INFO:08/24/2022 11:03:06 AM 192.168.1.207 - - [24/Aug/2022 11:03:06] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 11:03:07 AM Displaying action Let's do a set of 10 shoulder openers please . Remember, imagine your arms are like a door opening and closing.. Please start when you are ready.
+INFO:08/24/2022 11:03:14 AM Received data in api: {'rep': 1, 'score': 2.010403}
+INFO:08/24/2022 11:03:14 AM Not expecting action goal.
+INFO:08/24/2022 11:03:14 AM 192.168.1.207 - - [24/Aug/2022 11:03:14] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 11:03:18 AM Received data in api: {'rep': 2, 'score': 3.498824}
+INFO:08/24/2022 11:03:18 AM Not expecting action goal.
+INFO:08/24/2022 11:03:18 AM 192.168.1.207 - - [24/Aug/2022 11:03:18] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 11:03:18 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 11:03:18 AM New behaviour: 7
+INFO:08/24/2022 11:03:23 AM Received data in api: {'rep': 3, 'score': 4.925455}
+INFO:08/24/2022 11:03:23 AM Repetition: score = 4.925455, target = 3.0, difference from target = -1.9254550000000004, performance = 2, repetition count = 3
+INFO:08/24/2022 11:03:23 AM Formatting action: behaviour = 7, goal_level = 4, performance = 2.0, name = Roy, exercise = 3
+INFO:08/24/2022 11:03:23 AM Displaying action Are your arms at a right angle ?
+INFO:08/24/2022 11:03:23 AM 192.168.1.207 - - [24/Aug/2022 11:03:23] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 11:03:25 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 11:03:25 AM New behaviour: 24
+INFO:08/24/2022 11:03:26 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 11:03:28 AM Received data in api: {'rep': 4, 'score': 5.166616}
+INFO:08/24/2022 11:03:28 AM Repetition: score = 5.166616, target = 3.0, difference from target = -2.1666160000000003, performance = 2, repetition count = 4
+INFO:08/24/2022 11:03:28 AM Formatting action: behaviour = 24, goal_level = 4, performance = 2.0, name = Roy, exercise = 3
+INFO:08/24/2022 11:03:28 AM Displaying action 
+INFO:08/24/2022 11:03:28 AM 192.168.1.207 - - [24/Aug/2022 11:03:28] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 11:03:33 AM Received data in api: {'rep': 5, 'score': 4.875511}
+INFO:08/24/2022 11:03:33 AM Repetition: score = 4.875511, target = 3.0, difference from target = -1.8755110000000004, performance = 2, repetition count = 5
+INFO:08/24/2022 11:03:33 AM 192.168.1.207 - - [24/Aug/2022 11:03:33] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 11:03:37 AM Received data in api: {'rep': 6, 'score': 3.866734}
+INFO:08/24/2022 11:03:37 AM Repetition: score = 3.866734, target = 3.0, difference from target = -0.8667340000000001, performance = 2, repetition count = 6
+INFO:08/24/2022 11:03:37 AM 192.168.1.207 - - [24/Aug/2022 11:03:37] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 11:03:38 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 11:03:38 AM New behaviour: 4
+INFO:08/24/2022 11:03:39 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 11:03:41 AM Received data in api: {'rep': 7, 'score': 4.599258}
+INFO:08/24/2022 11:03:41 AM Repetition: score = 4.599258, target = 3.0, difference from target = -1.5992579999999998, performance = 2, repetition count = 7
+INFO:08/24/2022 11:03:41 AM Formatting action: behaviour = 4, goal_level = 4, performance = 2.0, name = Roy, exercise = 3
+INFO:08/24/2022 11:03:41 AM Displaying action 
+INFO:08/24/2022 11:03:42 AM 192.168.1.207 - - [24/Aug/2022 11:03:42] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 11:03:42 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 11:03:42 AM New behaviour: 7
+INFO:08/24/2022 11:03:43 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 11:03:46 AM Received data in api: {'rep': 8, 'score': 4.383155}
+INFO:08/24/2022 11:03:46 AM Repetition: score = 4.383155, target = 3.0, difference from target = -1.3831550000000004, performance = 2, repetition count = 8
+INFO:08/24/2022 11:03:46 AM Formatting action: behaviour = 7, goal_level = 4, performance = 2.0, name = Roy, exercise = 3
+INFO:08/24/2022 11:03:46 AM Displaying action Are you maintaining the 90 degree bend at your elbows ?
+INFO:08/24/2022 11:03:46 AM 192.168.1.207 - - [24/Aug/2022 11:03:46] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 11:03:50 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 11:03:50 AM New behaviour: 4
+INFO:08/24/2022 11:03:51 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 11:03:51 AM Received data in api: {'rep': 9, 'score': 5.970012}
+INFO:08/24/2022 11:03:51 AM Repetition: score = 5.970012, target = 3.0, difference from target = -2.9700119999999997, performance = 2, repetition count = 9
+INFO:08/24/2022 11:03:52 AM Formatting action: behaviour = 4, goal_level = 4, performance = 2.0, name = Roy, exercise = 3
+INFO:08/24/2022 11:03:52 AM Displaying action 
+INFO:08/24/2022 11:03:52 AM 192.168.1.207 - - [24/Aug/2022 11:03:52] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 11:03:52 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 11:03:52 AM New behaviour: 7
+INFO:08/24/2022 11:03:53 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 11:03:55 AM Received data in api: {'rep': 10, 'score': 3.788649}
+INFO:08/24/2022 11:03:55 AM Repetition: score = 3.788649, target = 3.0, difference from target = -0.7886489999999999, performance = 2, repetition count = 10
+INFO:08/24/2022 11:03:55 AM Stopping set: OK, you can stop there.
+INFO:08/24/2022 11:03:56 AM 192.168.1.207 - - [24/Aug/2022 11:03:56] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 11:03:56 AM Received data in api: {'start': True}
+INFO:08/24/2022 11:03:56 AM Start signal from operator.
+INFO:08/24/2022 11:03:58 AM Feedback for exercise set, score = 5.0088992, target = 3.0, performance = 2.0
+INFO:08/24/2022 11:03:58 AM Formatting action: behaviour = 7, goal_level = 3, performance = 2.0, name = Roy, exercise = 3
+INFO:08/24/2022 11:03:58 AM Displaying action How did your shoulder openers feel there ? Touch the back of my hand if it felt good or the top of my head if you think it still needs work.. You got an average time of 5.01 seconds and were aiming for 3.0 seconds.
+INFO:08/24/2022 11:04:17 AM New behaviour: 4
+INFO:08/24/2022 11:04:18 AM Formatting action: behaviour = 4, goal_level = 3, performance = 2.0, name = Roy, exercise = 3
+INFO:08/24/2022 11:04:18 AM Displaying action You did your shoulder openers a little too slowly there   but don't worry!
+INFO:08/24/2022 11:04:23 AM New behaviour: 1
+INFO:08/24/2022 11:04:25 AM Ended subgoal 3. New goal level = 2.
+INFO:08/24/2022 11:04:25 AM New behaviour: 4
+INFO:08/24/2022 11:04:26 AM Created subgoal, new goal level = 3
+INFO:08/24/2022 11:04:26 AM Formatting action: behaviour = 4, goal_level = 3, performance = 2.0, name = Roy, exercise = 3
+INFO:08/24/2022 11:04:26 AM Displaying action When we did  your shoulder openers the last time, they were a bit slow   but that's OK!
+INFO:08/24/2022 11:04:33 AM New behaviour: 7
+INFO:08/24/2022 11:04:34 AM Formatting action: behaviour = 7, goal_level = 3, performance = 2.0, name = Roy, exercise = 3
+INFO:08/24/2022 11:04:34 AM Displaying action This is the first time we've done your shoulder openers together , isn't it? Touch the back of my hand if it is or the top of my head if it is not.
+INFO:08/24/2022 11:04:46 AM New behaviour: 1
+INFO:08/24/2022 11:04:47 AM Formatting action: behaviour = 1, goal_level = 3, performance = 2.0, name = Roy, exercise = 3
+INFO:08/24/2022 11:04:47 AM 192.168.1.207 - - [24/Aug/2022 11:04:47] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 11:04:47 AM Displaying action Let's do another set of 5 shoulder openers please . Remember, imagine your arms are like a door opening and closing.. Please start when you are ready.
+INFO:08/24/2022 11:04:59 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 11:04:59 AM New behaviour: 14
+INFO:08/24/2022 11:05:01 AM Received data in api: {'rep': 1, 'score': 1.221551}
+INFO:08/24/2022 11:05:01 AM Repetition: score = 1.221551, target = 3.0, difference from target = 1.778449, performance = 1, repetition count = 1
+INFO:08/24/2022 11:05:01 AM Formatting action: behaviour = 14, goal_level = 4, performance = 1.0, name = Roy, exercise = 3
+INFO:08/24/2022 11:05:01 AM Displaying action Unlucky 
+INFO:08/24/2022 11:05:01 AM 192.168.1.207 - - [24/Aug/2022 11:05:01] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 11:05:02 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 11:05:02 AM New behaviour: 1
+INFO:08/24/2022 11:05:03 AM Received data in api: {'rep': 2, 'score': 2.551027}
+INFO:08/24/2022 11:05:03 AM Repetition: score = 2.551027, target = 3.0, difference from target = 0.44897300000000007, performance = 0, repetition count = 2
+INFO:08/24/2022 11:05:03 AM 192.168.1.207 - - [24/Aug/2022 11:05:03] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 11:05:03 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 11:05:04 AM Formatting action: behaviour = 1, goal_level = 4, performance = 0.0, name = Roy, exercise = 3
+INFO:08/24/2022 11:05:04 AM Displaying action 
+INFO:08/24/2022 11:05:04 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 11:05:04 AM New behaviour: 12
+INFO:08/24/2022 11:05:05 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 11:05:06 AM Received data in api: {'rep': 3, 'score': 2.414104}
+INFO:08/24/2022 11:05:06 AM Repetition: score = 2.414104, target = 3.0, difference from target = 0.585896, performance = 1, repetition count = 3
+INFO:08/24/2022 11:05:06 AM Formatting action: behaviour = 12, goal_level = 4, performance = 1.0, name = Roy, exercise = 3
+INFO:08/24/2022 11:05:06 AM Displaying action Good  
+INFO:08/24/2022 11:05:06 AM 192.168.1.207 - - [24/Aug/2022 11:05:06] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 11:05:07 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 11:05:07 AM New behaviour: 7
+INFO:08/24/2022 11:05:08 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 11:05:09 AM Received data in api: {'rep': 4, 'score': 3.593333}
+INFO:08/24/2022 11:05:09 AM Repetition: score = 3.593333, target = 3.0, difference from target = -0.5933329999999999, performance = 2, repetition count = 4
+INFO:08/24/2022 11:05:09 AM Formatting action: behaviour = 7, goal_level = 4, performance = 2.0, name = Roy, exercise = 3
+INFO:08/24/2022 11:05:09 AM Displaying action Are you maintaining the 90 degree bend at your elbows ?
+INFO:08/24/2022 11:05:09 AM 192.168.1.207 - - [24/Aug/2022 11:05:09] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 11:05:13 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 11:05:13 AM New behaviour: 4
+INFO:08/24/2022 11:05:14 AM Received data in api: {'rep': 5, 'score': 4.660259}
+INFO:08/24/2022 11:05:14 AM Repetition: score = 4.660259, target = 3.0, difference from target = -1.660259, performance = 2, repetition count = 5
+INFO:08/24/2022 11:05:14 AM 192.168.1.207 - - [24/Aug/2022 11:05:14] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 11:05:14 AM Received data in api: {'start': True}
+INFO:08/24/2022 11:05:14 AM Start signal from operator.
+INFO:08/24/2022 11:05:14 AM Stopping set: OK, you can stop there.
+INFO:08/24/2022 11:05:17 AM Feedback for exercise set, score = 2.44500375, target = 3.0, performance = 1.0
+INFO:08/24/2022 11:05:17 AM Formatting action: behaviour = 4, goal_level = 3, performance = 1.0, name = Roy, exercise = 3
+INFO:08/24/2022 11:05:17 AM Displaying action Your shoulder openers were a bit quick there   but that's OK!. You got an average time of 2.45 seconds and were aiming for 3.0 seconds.
+INFO:08/24/2022 11:05:29 AM New behaviour: 7
+INFO:08/24/2022 11:05:30 AM Formatting action: behaviour = 7, goal_level = 3, performance = 1.0, name = Roy, exercise = 3
+INFO:08/24/2022 11:05:30 AM Displaying action How did your shoulder openers feel there ? Touch the back of my hand if it felt good or the top of my head if you think it still needs work.
+INFO:08/24/2022 11:05:45 AM New behaviour: 1
+INFO:08/24/2022 11:05:46 AM Ended subgoal 3. New goal level = 2.
+INFO:08/24/2022 11:05:46 AM Feedback for exercise, score = 3.726951475, target = 3.0, performance = 2.0
+INFO:08/24/2022 11:05:46 AM New behaviour: 7
+INFO:08/24/2022 11:05:47 AM Formatting action: behaviour = 7, goal_level = 2, performance = 2.0, name = Roy, exercise = 3
+INFO:08/24/2022 11:05:47 AM Displaying action What did you think of your shoulder openers there ? Touch the back of my hand if it felt good or the top of my head if you think it still needs work.. You got an average time of 3.73 seconds and were aiming for 3.0 seconds.
+INFO:08/24/2022 11:06:06 AM New behaviour: 4
+INFO:08/24/2022 11:06:08 AM Formatting action: behaviour = 4, goal_level = 2, performance = 2.0, name = Roy, exercise = 3
+INFO:08/24/2022 11:06:08 AM Displaying action Your shoulder openers were too slow there   but this time I know you can speed it up a bit!
+INFO:08/24/2022 11:06:14 AM New behaviour: 1
+INFO:08/24/2022 11:06:15 AM Ended subgoal 2. New goal level = 1.
+INFO:08/24/2022 11:06:15 AM New behaviour: 67
+INFO:08/24/2022 11:06:17 AM Created subgoal, new goal level = 2
+INFO:08/24/2022 11:06:17 AM Formatting action: behaviour = 67, goal_level = 2, performance = None, name = Roy, exercise = 1
+INFO:08/24/2022 11:06:17 AM Displaying action 
+INFO:08/24/2022 11:06:17 AM New behaviour: 17
+INFO:08/24/2022 11:06:18 AM Formatting action: behaviour = 17, goal_level = 2, performance = None, name = Roy, exercise = 1
+INFO:08/24/2022 11:06:18 AM Displaying action Now , we're going to focus on your towel slides. To do these, fold or spread the towel, and make sure it's on the table immediately in front of you.
+INFO:08/24/2022 11:06:23 AM Displaying action Now, place your affected hand on the towel and put your unaffected hand directly on top of it. Apply enough pressure to keep your hands together, then use your hand to slide the towel away from you, toward the middle of the table.
+INFO:08/24/2022 11:06:34 AM Displaying action As your hands move forward, your shoulders will also stretch forward, with the towel reducing friction and allowing your shoulder muscles to stretch and strengthen.
+INFO:08/24/2022 11:06:51 AM Created subgoal, new goal level = 3
+INFO:08/24/2022 11:06:51 AM New behaviour: 1
+INFO:08/24/2022 11:06:52 AM 192.168.1.207 - - [24/Aug/2022 11:06:52] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 11:06:52 AM Formatting action: behaviour = 1, goal_level = 3, performance = None, name = Roy, exercise = 1
+INFO:08/24/2022 11:06:53 AM Displaying action Let's do a set of 10 towel slides please . Remember, if this exercise feels comfortable for you, and you want an even greater stretch for your shoulders, you can lean forward with your upper body to push the towel further away from you.. Please start when you are ready.
+INFO:08/24/2022 11:07:06 AM Received data in api: {'rep': 1, 'score': 2.202927}
+INFO:08/24/2022 11:07:06 AM Not expecting action goal.
+INFO:08/24/2022 11:07:06 AM 192.168.1.207 - - [24/Aug/2022 11:07:06] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 11:07:08 AM Received data in api: {'rep': 2, 'score': 2.42809}
+INFO:08/24/2022 11:07:08 AM Not expecting action goal.
+INFO:08/24/2022 11:07:08 AM 192.168.1.207 - - [24/Aug/2022 11:07:08] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 11:07:15 AM Received data in api: {'rep': 3, 'score': 6.157186}
+INFO:08/24/2022 11:07:15 AM Not expecting action goal.
+INFO:08/24/2022 11:07:15 AM 192.168.1.207 - - [24/Aug/2022 11:07:15] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 11:07:19 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 11:07:19 AM New behaviour: 17
+INFO:08/24/2022 11:07:21 AM Received data in api: {'rep': 4, 'score': 6.040485}
+INFO:08/24/2022 11:07:21 AM Repetition: score = 6.040485, target = 5.0, difference from target = -1.0404850000000003, performance = 2, repetition count = 4
+INFO:08/24/2022 11:07:21 AM Formatting action: behaviour = 17, goal_level = 4, performance = 2.0, name = Roy, exercise = 1
+INFO:08/24/2022 11:07:21 AM Displaying action 
+INFO:08/24/2022 11:07:21 AM 192.168.1.207 - - [24/Aug/2022 11:07:21] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 11:07:24 AM Received data in api: {'rep': 5, 'score': 3.530457}
+INFO:08/24/2022 11:07:24 AM Repetition: score = 3.530457, target = 5.0, difference from target = 1.4695429999999998, performance = 1, repetition count = 5
+INFO:08/24/2022 11:07:24 AM 192.168.1.207 - - [24/Aug/2022 11:07:24] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 11:07:25 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 11:07:25 AM New behaviour: 7
+INFO:08/24/2022 11:07:27 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 11:07:28 AM Received data in api: {'rep': 6, 'score': 3.770311}
+INFO:08/24/2022 11:07:28 AM Repetition: score = 3.770311, target = 5.0, difference from target = 1.229689, performance = 1, repetition count = 6
+INFO:08/24/2022 11:07:28 AM Formatting action: behaviour = 7, goal_level = 4, performance = 1.0, name = Roy, exercise = 1
+INFO:08/24/2022 11:07:28 AM Displaying action Do you feel comfortable reaching further forward ?
+INFO:08/24/2022 11:07:28 AM 192.168.1.207 - - [24/Aug/2022 11:07:28] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 11:07:32 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 11:07:32 AM New behaviour: 7
+INFO:08/24/2022 11:07:32 AM Received data in api: {'rep': 7, 'score': 4.13571}
+INFO:08/24/2022 11:07:32 AM Repetition: score = 4.13571, target = 5.0, difference from target = 0.8642899999999996, performance = 1, repetition count = 7
+INFO:08/24/2022 11:07:32 AM 192.168.1.207 - - [24/Aug/2022 11:07:32] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 11:07:33 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 11:07:33 AM Formatting action: behaviour = 7, goal_level = 4, performance = 1.0, name = Roy, exercise = 1
+INFO:08/24/2022 11:07:33 AM Displaying action Do you feel comfortable leaning forwards with your body ?
+INFO:08/24/2022 11:07:37 AM Received data in api: {'rep': 8, 'score': 5.089407}
+INFO:08/24/2022 11:07:37 AM Repetition: score = 5.089407, target = 5.0, difference from target = -0.08940699999999957, performance = 0, repetition count = 8
+INFO:08/24/2022 11:07:37 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 11:07:37 AM New behaviour: 24
+INFO:08/24/2022 11:07:37 AM 192.168.1.207 - - [24/Aug/2022 11:07:37] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 11:07:38 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 11:07:42 AM Received data in api: {'rep': 9, 'score': 4.566724}
+INFO:08/24/2022 11:07:42 AM Repetition: score = 4.566724, target = 5.0, difference from target = 0.4332760000000002, performance = 0, repetition count = 9
+INFO:08/24/2022 11:07:42 AM Formatting action: behaviour = 24, goal_level = 4, performance = 0.0, name = Roy, exercise = 1
+INFO:08/24/2022 11:07:42 AM Displaying action 
+INFO:08/24/2022 11:07:42 AM 192.168.1.207 - - [24/Aug/2022 11:07:42] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 11:07:45 AM Received data in api: {'rep': 10, 'score': 3.553821}
+INFO:08/24/2022 11:07:45 AM Repetition: score = 3.553821, target = 5.0, difference from target = 1.4461789999999999, performance = 1, repetition count = 10
+INFO:08/24/2022 11:07:46 AM 192.168.1.207 - - [24/Aug/2022 11:07:46] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 11:07:46 AM Received data in api: {'start': True}
+INFO:08/24/2022 11:07:46 AM Start signal from operator.
+INFO:08/24/2022 11:07:47 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 11:07:47 AM New behaviour: 4
+INFO:08/24/2022 11:07:48 AM Stopping set: OK, you can stop there.
+INFO:08/24/2022 11:07:50 AM Feedback for exercise set, score = 4.6283075, target = 5.0, performance = 1.0
+INFO:08/24/2022 11:07:50 AM Formatting action: behaviour = 4, goal_level = 3, performance = 1.0, name = Roy, exercise = 1
+INFO:08/24/2022 11:07:50 AM Displaying action Your towel slides were too fast there   but this time I know you can slow it down a bit!. You got an average time of 4.63 seconds and were aiming for 5.0 seconds.
+INFO:08/24/2022 11:08:05 AM New behaviour: 7
+INFO:08/24/2022 11:08:06 AM Formatting action: behaviour = 7, goal_level = 3, performance = 1.0, name = Roy, exercise = 1
+INFO:08/24/2022 11:08:06 AM Displaying action How did your towel slides feel there ? Touch the back of my hand if it felt good or the top of my head if you think it still needs work.
+INFO:08/24/2022 11:08:17 AM New behaviour: 1
+INFO:08/24/2022 11:08:18 AM Ended subgoal 3. New goal level = 2.
+INFO:08/24/2022 11:08:18 AM New behaviour: 4
+INFO:08/24/2022 11:08:19 AM Created subgoal, new goal level = 3
+INFO:08/24/2022 11:08:19 AM Formatting action: behaviour = 4, goal_level = 3, performance = 1.0, name = Roy, exercise = 1
+INFO:08/24/2022 11:08:19 AM Displaying action In the last set you did your towel slides a little too quickly   but don't worry!
+INFO:08/24/2022 11:08:25 AM New behaviour: 7
+INFO:08/24/2022 11:08:26 AM Formatting action: behaviour = 7, goal_level = 3, performance = 1.0, name = Roy, exercise = 1
+INFO:08/24/2022 11:08:27 AM Displaying action Correct me if I'm wrong, but I think this is the first time we've worked on your towel slides together  isn't it? Touch the back of my hand for yes or the top of my head for no.
+INFO:08/24/2022 11:08:41 AM New behaviour: 1
+INFO:08/24/2022 11:08:42 AM Formatting action: behaviour = 1, goal_level = 3, performance = 1.0, name = Roy, exercise = 1
+INFO:08/24/2022 11:08:42 AM 192.168.1.207 - - [24/Aug/2022 11:08:42] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 11:08:43 AM Displaying action Let's do another set of 5 towel slides please . Remember, if this exercise feels comfortable for you, and you want an even greater stretch for your shoulders, you can lean forward with your upper body to push the towel further away from you.. Please start when you are ready.
+INFO:08/24/2022 11:09:02 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 11:09:02 AM New behaviour: 4
+INFO:08/24/2022 11:09:04 AM Received data in api: {'rep': 1, 'score': 2.445733}
+INFO:08/24/2022 11:09:04 AM Repetition: score = 2.445733, target = 5.0, difference from target = 2.554267, performance = 1, repetition count = 1
+INFO:08/24/2022 11:09:04 AM Formatting action: behaviour = 4, goal_level = 4, performance = 1.0, name = Roy, exercise = 1
+INFO:08/24/2022 11:09:04 AM Displaying action 
+INFO:08/24/2022 11:09:04 AM 192.168.1.207 - - [24/Aug/2022 11:09:04] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 11:09:05 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 11:09:05 AM New behaviour: 7
+INFO:08/24/2022 11:09:06 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 11:09:08 AM Received data in api: {'rep': 2, 'score': 3.583735}
+INFO:08/24/2022 11:09:08 AM Repetition: score = 3.583735, target = 5.0, difference from target = 1.416265, performance = 1, repetition count = 2
+INFO:08/24/2022 11:09:08 AM Formatting action: behaviour = 7, goal_level = 4, performance = 1.0, name = Roy, exercise = 1
+INFO:08/24/2022 11:09:08 AM Displaying action Do you feel comfortable reaching further forward ?
+INFO:08/24/2022 11:09:08 AM 192.168.1.207 - - [24/Aug/2022 11:09:08] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 11:09:12 AM Received data in api: {'rep': 3, 'score': 3.836417}
+INFO:08/24/2022 11:09:12 AM Repetition: score = 3.836417, target = 5.0, difference from target = 1.163583, performance = 1, repetition count = 3
+INFO:08/24/2022 11:09:12 AM 192.168.1.207 - - [24/Aug/2022 11:09:12] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 11:09:12 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 11:09:12 AM New behaviour: 24
+INFO:08/24/2022 11:09:13 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 11:09:16 AM Received data in api: {'rep': 4, 'score': 4.065023}
+INFO:08/24/2022 11:09:16 AM Repetition: score = 4.065023, target = 5.0, difference from target = 0.934977, performance = 1, repetition count = 4
+INFO:08/24/2022 11:09:16 AM Formatting action: behaviour = 24, goal_level = 4, performance = 1.0, name = Roy, exercise = 1
+INFO:08/24/2022 11:09:16 AM Displaying action 
+INFO:08/24/2022 11:09:16 AM 192.168.1.207 - - [24/Aug/2022 11:09:16] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 11:09:21 AM Ended subgoal 4. New goal level = 3.
+INFO:08/24/2022 11:09:21 AM New behaviour: 4
+INFO:08/24/2022 11:09:22 AM Created subgoal, new goal level = 4
+INFO:08/24/2022 11:09:23 AM Received data in api: {'rep': 5, 'score': 6.952788}
+INFO:08/24/2022 11:09:23 AM Repetition: score = 6.952788, target = 5.0, difference from target = -1.952788, performance = 2, repetition count = 5
+INFO:08/24/2022 11:09:23 AM Stopping set: OK, you can stop there.
+INFO:08/24/2022 11:09:23 AM 192.168.1.207 - - [24/Aug/2022 11:09:23] "[37mPOST /cue HTTP/1.1[0m" 200 -
+INFO:08/24/2022 11:09:23 AM Received data in api: {'start': True}
+INFO:08/24/2022 11:09:23 AM Start signal from operator.
+INFO:08/24/2022 11:09:25 AM Feedback for exercise set, score = 3.3648303333333334, target = 5.0, performance = 1.0
+INFO:08/24/2022 11:09:25 AM Formatting action: behaviour = 4, goal_level = 3, performance = 1.0, name = Roy, exercise = 1
+INFO:08/24/2022 11:09:26 AM Displaying action Your towel slides were a little too quick there   but we can change that!. You got an average time of 3.36 seconds and were aiming for 5.0 seconds.
+INFO:08/24/2022 11:09:39 AM New behaviour: 7
+INFO:08/24/2022 11:09:40 AM Formatting action: behaviour = 7, goal_level = 3, performance = 1.0, name = Roy, exercise = 1
+INFO:08/24/2022 11:09:40 AM Displaying action What did you think of your towel slides there ? Touch the back of my hand if it felt good or the top of my head if you think it still needs work.
+INFO:08/24/2022 11:09:52 AM New behaviour: 24
+INFO:08/24/2022 11:09:53 AM Formatting action: behaviour = 24, goal_level = 3, performance = 1.0, name = Roy, exercise = 1
+INFO:08/24/2022 11:09:53 AM Displaying action You did your towel slides a little too quickly there   but don't worry!
+INFO:08/24/2022 11:09:58 AM New behaviour: 1
+INFO:08/24/2022 11:09:59 AM Ended subgoal 3. New goal level = 2.
+INFO:08/24/2022 11:09:59 AM Feedback for exercise, score = 3.996568916666667, target = 5.0, performance = 1.0
+INFO:08/24/2022 11:09:59 AM New behaviour: 4
+INFO:08/24/2022 11:10:00 AM Formatting action: behaviour = 4, goal_level = 2, performance = 1.0, name = Roy, exercise = 1
+INFO:08/24/2022 11:10:00 AM Displaying action Your towel slides were a bit quick there   but that's OK!. You got an average time of 4.0 seconds and were aiming for 5.0 seconds.
+INFO:08/24/2022 11:10:12 AM New behaviour: 7
+INFO:08/24/2022 11:10:13 AM Formatting action: behaviour = 7, goal_level = 2, performance = 1.0, name = Roy, exercise = 1
+INFO:08/24/2022 11:10:14 AM Displaying action How did your towel slides feel there ? Touch the back of my hand if it felt good or the top of my head if you think it still needs work.
+INFO:08/24/2022 11:10:26 AM New behaviour: 1
+INFO:08/24/2022 11:10:27 AM Ended subgoal 2. New goal level = 1.
+INFO:08/24/2022 11:10:27 AM New behaviour: 67
+INFO:08/24/2022 11:10:28 AM Session time limit reached, current duration = 4, session limit = 4.
+INFO:08/24/2022 11:10:28 AM Feedback for session, performance = 2.0
+INFO:08/24/2022 11:10:28 AM Formatting action: behaviour = 67, goal_level = 1, performance = 2.0, name = Roy, exercise = None
+INFO:08/24/2022 11:10:28 AM Displaying action That was the last exercise for today, you're finished now.
+INFO:08/24/2022 11:10:33 AM New behaviour: 14
+INFO:08/24/2022 11:10:34 AM Formatting action: behaviour = 14, goal_level = 1, performance = 2.0, name = Roy, exercise = None
+INFO:08/24/2022 11:10:34 AM Displaying action Hard luck 
+INFO:08/24/2022 11:10:35 AM New behaviour: 4
+INFO:08/24/2022 11:10:37 AM Formatting action: behaviour = 4, goal_level = 1, performance = 2.0, name = Roy, exercise = None
+INFO:08/24/2022 11:10:37 AM Displaying action You did your rehabilitation exercises a little too slowly there   but don't worry!
+INFO:08/24/2022 11:10:42 AM New behaviour: 1
+INFO:08/24/2022 11:10:44 AM Formatting action: behaviour = 1, goal_level = 1, performance = 2.0, name = Roy, exercise = None
+INFO:08/24/2022 11:10:44 AM Displaying action 
+INFO:08/24/2022 11:10:44 AM New behaviour: 1
+INFO:08/24/2022 11:10:45 AM Formatting action: behaviour = 1, goal_level = 1, performance = 2.0, name = Roy, exercise = None
+INFO:08/24/2022 11:10:45 AM Displaying action 
+INFO:08/24/2022 11:10:45 AM New behaviour: 1
+INFO:08/24/2022 11:10:46 AM Formatting action: behaviour = 1, goal_level = 1, performance = 2.0, name = Roy, exercise = None
+INFO:08/24/2022 11:10:46 AM Displaying action 
+INFO:08/24/2022 11:10:47 AM New behaviour: 1
+INFO:08/24/2022 11:10:48 AM Formatting action: behaviour = 1, goal_level = 1, performance = 2.0, name = Roy, exercise = None
+INFO:08/24/2022 11:10:48 AM Displaying action 
+INFO:08/24/2022 11:10:48 AM New behaviour: 1
+INFO:08/24/2022 11:10:49 AM Formatting action: behaviour = 1, goal_level = 1, performance = 2.0, name = Roy, exercise = None
+INFO:08/24/2022 11:10:49 AM Displaying action 
+INFO:08/24/2022 11:10:49 AM New behaviour: 1
