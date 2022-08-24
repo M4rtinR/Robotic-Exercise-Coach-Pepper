@@ -132,10 +132,10 @@ stop_set = False
 expecting_action_goal = False
 
 # Initial values to be changed at the beginning of each session:
-name = "Angela"
-participantNo = "SP3.1"
+name = "Roy"
+participantNo = "SP2.2"
 participant_filename = participantNo + "_history.txt"
-impairment = 9
+impairment = 5
 motivation = 9
 leftHand = False
 exercise = -1
