@@ -184,6 +184,8 @@ session_stop_utterance_given = False  # Used to track whether we have already to
 finished_stat = False  # Used to track whether we can safely end the session because the stat goal will have been finished.
 # TODO: ^ May need to do the same for sets ^
 pause_display = False  # Set to True when the user has selected to end the session early. At this point we will skip to session goal before displaying any more behaviours.
+# pre_instr_recursion_counter = 0  # Used when dealing with override
+# questioning_recursion_counter = 0
 
 # Initial values to be changed at the beginning of each session:
 name = "Martin"

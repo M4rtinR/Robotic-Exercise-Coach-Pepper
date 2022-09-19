@@ -326,8 +326,11 @@ class FormatAction(Node):
                         stat_measure = " seconds"
                         stat_explanation = "This is a measure of how long it takes between hitting the ball and your swing stopping."
                     if self.goal_level == config.EXERCISE_GOAL:
-                        nodedata.action = Action(pre_msg, self.score, self.target, demo=demo, question=question,
-                                                 goal=self.goal_level, stat_measure=stat_measure, shot=config.shot, hand=config.hand)
+                        if config.stat_count < config.STATS_PER_SHOT:
+                            nodedata.action = Action(pre_msg, demo=demo, question=question)
+                        else:
+                            nodedata.action = Action(pre_msg, self.score, self.target, demo=demo, question=question,
+                                                     goal=self.goal_level, stat_measure=stat_measure, shot=config.shot, hand=config.hand)
                     else:
                         if config.given_stat_explanation:
                             nodedata.action = Action(pre_msg, self.score, self.target, demo=demo, question=question,
@@ -691,7 +694,7 @@ class CreateSubgoal(Node):
             or cannot connect to API.
         """
         if not config.stop_set and not config.stop_session:
-            config.overriden = False
+            # config.overriden = False
             # Will return SUCCESS once request sent to API, FAIL if called on ACTION_GOAL or connection error.
             if self.previous_goal_level == config.BASELINE_GOAL:
                 nodedata.new_goal = config.STAT_GOAL
@@ -806,6 +809,7 @@ class EndSubgoal(Node):
                             config.stat_confirmed = False
                             config.stat = None
                             config.finished_stat = True
+                            config.shot_confirmed = False
                             config.target = -1
                             config.avg_score = -1
                     else:
@@ -821,15 +825,15 @@ class EndSubgoal(Node):
                         # config.session_time += 1
                         config.shot = None
                         config.hand = None
+                        if config.tidying:
+                            print("setting config.tidied_up to True")
+                            config.tidied_up = True
                         config.tidying = False
                         config.pause_display = False
                         config.used_stats = []
                         config.shot_goal_created = False
                         config.shot_confirmed = False
                         print("config.tidying = " + str(config.tidying))
-                        if config.tidying:
-                            print("setting config.tidied_up to True")
-                            config.tidied_up = True
                     if self.goal_level == config.ACTION_GOAL:
                         config.used_behaviours = []
                 print("Ended subgoal {old_goal}. New goal level = {new_goal}.".format(old_goal=self.goal_level, new_goal=nodedata.new_goal))
@@ -967,7 +971,7 @@ class TimestepCue(Node):
                 config.stop_session and config.phase == config.PHASE_END)):  # If the session is stopped, we still need to go into timestep cue to write the appropriate data up to now to the file.
             print("checking goal level: " + str(self.goal_level))
             # Will be ACTIVE when waiting for data and SUCCESS when got data and added to blackboard, FAIL when connection error.
-            if self.goal_level == -1:  # Person goal created after receiving info from guide.
+            if self.goal_level == -1 or self.goal_level == 0:  # Person goal created after receiving info from guide.
                 print("Timestep Cue, self.goal_level = " + str(self.goal_level))
                 if config.goal_level == config.PERSON_GOAL:  # For person goal should have name, ability and no. of sessions.
                     if config.phase == config.PHASE_END:  # Feedback sequence
@@ -1055,6 +1059,7 @@ class TimestepCue(Node):
                         return NodeStatus(NodeStatus.SUCCESS, "Data for session goal obtained from guide:" + str(nodedata))
                 else:
                     if config.shot_count > 0 and not config.tidying and not config.tidied_up:
+                        print("In timestep cue session goal, setting config.goal_level to SESSION GOAL")
                         config.goal_level = config.SESSION_GOAL
                         config.phase = config.PHASE_START
                     print("Returning ACTIVE from TimestepCue session goal")
@@ -1604,7 +1609,7 @@ class GetChoice(Node):
                         shot = self.sorted_shot_list[s]
                         print("trying to select shot:" + str(shot))
 
-                    config.used_shots.append(shot)
+                    # config.used_shots.append(shot)
                     print("chosen shot: " + shot + ", used shots = " + str(config.used_shots))
                     #config.performance = None
                     #config.score = -1
@@ -1639,7 +1644,7 @@ class GetChoice(Node):
                         tempStatList.pop(stat)
                         stat = min(tempStatList, key=tempStatList.get)
 
-                    config.used_stats.append(stat)
+                    # config.used_stats.append(stat)
                     #config.performance = None
                     #config.score = -1
 
@@ -1658,7 +1663,7 @@ class GetChoice(Node):
 
                     nodedata.shot = config.shot
                     nodedata.hand = config.hand
-                    config.used_shots.append(str(config.hand) + str(config.shot))
+                    # config.used_shots.append(str(config.hand) + str(config.shot))
                     #config.performance = None
                     #config.score = -1
                     print("Returning SUCCESS from GetUserChoice, shot = " + str(nodedata.hand) + " " + str(nodedata.shot))
@@ -1669,7 +1674,7 @@ class GetChoice(Node):
                         return NodeStatus(NodeStatus.ACTIVE, "Waiting on user's stat choice")
 
                     nodedata.stat = config.stat
-                    config.used_stats.append(config.stat)
+                    # config.used_stats.append(config.stat)
                     config.score = config.metric_score_list[config.stat]
                     print("get choice, setting stat to " + str(config.stat))
                     #config.performance = None
@@ -1929,13 +1934,13 @@ class OverrideOption(Node):
          NodeStatus.ACTIVE if still waiting for choice.
         """
 
-        if (not config.stop_set and not config.stop_session) or config.overriden:
+        if (not config.stop_set and not config.stop_session):  # or config.overriden:
             if config.override is None:
                 print("Returning ACTIVE from OverrideOption, Waiting for user to decide whether to override.")
                 return NodeStatus(NodeStatus.ACTIVE, "Waiting for user to decide whether to override.")
             else:
                 if config.override:
-                    config.overriden = True
+                    # config.overriden = True
                     if self.original_behaviour == config.A_PREINSTRUCTION:
                         config.behaviour = config.A_QUESTIONING
                     else:
@@ -1943,6 +1948,7 @@ class OverrideOption(Node):
 
                     config.override = None
                     config.need_new_behaviour = False
+                    config.behaviour_displayed = False
                     print("Returning SUCCESS from OverrideOption, User decided to override")
                     return NodeStatus(NodeStatus.SUCCESS, "User decided to override")
                 else:

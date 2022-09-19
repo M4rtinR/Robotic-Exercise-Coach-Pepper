@@ -96,6 +96,7 @@ class TimestepCue(Resource):
                         }
 
                         print("sending: " + str(config.shot))
+                        config.used_shots.append("" + config.hand + config.shot)
                         if not (config.shot == -1):
                             print("sending: " + str(config.shot_list_master.get(config.shot)))
                             new_data['shotType'] = config.shot_list_master.get(config.shot)
@@ -148,7 +149,9 @@ class TimestepCue(Resource):
                         return new_data, 200
                     else:
                         if content['impactSpeed'] == 'null':
+                            print("api classes, exercise goal received")
                             config.completed = config.COMPLETED_STATUS_UNDEFINED
+                            print("Setting config.goal_level to EXERCISE_GOAL")
                             config.goal_level = config.EXERCISE_GOAL
                             config.phase = config.PHASE_START
                             config.score = None
@@ -299,6 +302,7 @@ class TimestepCue(Resource):
                                 pass
 
                             print("returning stat data to app: " + config.stat)
+                            config.used_stats.append(config.stat)
                             config.stat_confirmed = False  # Reset stat_confirmed for next time.
                             new_data = {
                                 'goal_level': '4',
@@ -493,6 +497,10 @@ class TimestepCue(Resource):
                             config.performance = performanceValue            # Not perfect because we might have the same performance for set and action.
                         config.goal_level = config.ACTION_GOAL
                         config.shot_count += 1
+
+                        requestURL = config.screen_post_address + str(config.shot_count) + "/newRep"
+                        logging.debug('sending request, url = ' + requestURL)
+                        r = requests.post(requestURL)
 
                         self.previous_shot_performance = performanceValue
 
