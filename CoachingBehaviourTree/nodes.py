@@ -304,7 +304,7 @@ class FormatAction(Node):
                     print("Formatting action, no score or performance")
                     nodedata.action = Action(pre_msg, demo=demo, question=question)
                 else:
-                    print("Formatiing action, got score and performance")
+                    print("Formatting action, got score and performance")
                     print("ACTION, self.score = " + str(self.score))
                     print("ACTION, self.target = " + str(self.target))
                     if config.stat == "racketPreparation" or config.stat == "approachTiming":
@@ -1366,6 +1366,7 @@ class TimestepCue(Node):
                         stat_name = str(config.stat) + "\n"
 
                         if len(config.stat_performance_list) > 0:
+                            print("Stat_performance_list not empty")
                             nodedata.performance = config.stat_performance_list[len(config.set_performance_list) - 1]  # Get last entry of stat performance list.
                             nodedata.score = config.stat_score_list[len(config.stat_score_list) - 1]
 
@@ -1378,8 +1379,11 @@ class TimestepCue(Node):
                             f.writelines(file_contents)
                             f.close()
                         else:
+                            print("stat_performance_list empty")
                             nodedata.performance = None
-                            nodedata.score = None
+                            print("config.score = " + str(config.score))
+                            nodedata.score = config.score
+                            print("set nodedata.score = " + str(nodedata.score))
 
                             file_contents.append(str(config.set_count + 1) + "\n")
                             f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + config.hand + str(config.shot) + "/" + str(config.sessions) + ".txt", "w")

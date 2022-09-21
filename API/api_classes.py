@@ -189,6 +189,7 @@ class TimestepCue(Resource):
                             config.score = float(content['score'])
                             accList = {}
                             scoreList = {}
+                            targetList = {}
                             print('Created accList')
                             racketPreparationStringList = content['racketPreparation'].split(", ")
                             print('Got racket prep list')
@@ -196,13 +197,15 @@ class TimestepCue(Resource):
                             # print('calculated racket prep average')
                             accList['racketPreparation'] = float(content['racketPreparationAcc'])
                             print('get racket prep acc')
-                            scoreList['racketPreparation'] = float(content['racketPreparationScore'][:-1])
+                            config.metric_score_list[config.stat_list.index('racketPreparation')] = float(content['racketPreparationScore'][:-1])
+                            targetList['racketPreparation'] = float(content['racketPreparationTarget'][:-1])
                             approachTimingStringList = content["approachTiming"].split(", ")
                             print('got approach timing list')
                             # config.metric_score_list.append(sum(approachTimingList) / len(approachTimingList))
                             # print('calculated approcah timimng average')
                             accList["approachTiming"] = float(content['approachTimingAcc'])
-                            scoreList["approachTiming"] = float(content['approachTimingScore'])
+                            config.metric_score_list[config.stat_list.index("approachTiming")] = float(content['approachTimingScore'][:-1])
+                            targetList["approachTiming"] = float(content['approachTimingTarget'][:-1])
                             print('got approach timing acc')
                             impactCutAngleStringList = content["impactCutAngle"].split(", ")
                             print('got impact cut angle list')
@@ -210,13 +213,15 @@ class TimestepCue(Resource):
                             # print('calculated impact cut angle average')
                             accList["impactCutAngle"] = float(content['impactCutAngleAcc'])
                             print('got impact cut angle acc')
-                            scoreList["impactCutAngle"] = float(content['impactCutAngleScore'])
+                            config.metric_score_list[config.stat_list.index("impactCutAngle")] = float(content['impactCutAngleScore'][:-5])
+                            targetList["impactCutAngle"] = float(content['impactCutAngleTarget'][:-5])
                             impactSpeedStringList = content["impactSpeed"].split(", ")
                             print('got impact speed list')
                             # config.metric_score_list.append(sum(impactSpeedList) / len(impactSpeedList))
                             # print('calculated impact speed average')
                             accList["impactSpeed"] = float(content['impactSpeedAcc'])
-                            scoreList["impactSpeed"] = float(content['impactSpeedScore'])
+                            config.metric_score_list[config.stat_list.index("impactSpeed")] = float(content['impactSpeedScore'][:-9])
+                            targetList["impactSpeed"] = float(content['impactSpeedTarget'][:-9])
                             print('got impact speed acc')
                             followThroughRollStringList = content["followThroughRoll"].split(", ")
                             print('got follow thorugh roll list')
@@ -224,14 +229,16 @@ class TimestepCue(Resource):
                             # print('calculated follow through roll average')
                             accList["followThroughRoll"] = float(content['followThroughRollAcc'])
                             print('got follow through roll acc')
-                            scoreList["followThroughRoll"] = float(content['followThroughRollScore'])
+                            config.metric_score_list[config.stat_list.index("followThroughRoll")] = float(content['followThroughRollScore'][:-5])
+                            targetList["followThroughRoll"] = float(content['followThroughRollTarget'][:-5])
                             followThroughTimeStringList = content["followThroughTime"].split(", ")
                             print('got gollow through time list')
                             # config.metric_score_list.append(sum(followThroughTimeList) / len(followThroughTimeList))
                             # print('calculated follow through time average')
                             accList["followThroughTime"] = float(content['followThroughTimeAcc'])
                             print('got follow through time acc')
-                            scoreList["followThroughTime"] = float(content['followThroughTimeScore'])
+                            config.metric_score_list[config.stat_list.index("followThroughTime")] = float(content['followThroughTimeScore'][:-5])
+                            targetList["followThroughTime"] = float(content['followThroughTimeTarget'][:-5])
                             config.stat_list = accList
                             config.metric_score_list = scoreList
                             print('sorted stat list')
@@ -303,6 +310,11 @@ class TimestepCue(Resource):
 
                             print("returning stat data to app: " + config.stat)
                             config.used_stats.append(config.stat)
+                            # config.score = scoreList[config.stat]
+                            # print("Baseline set results, setting config.stat score = " + str(config.score))
+                            config.target = targetList[config.stat]
+                            print("Baseline set results, setting config.stat target = " + str(config.target))
+
                             config.stat_confirmed = False  # Reset stat_confirmed for next time.
                             new_data = {
                                 'goal_level': '4',
@@ -499,8 +511,10 @@ class TimestepCue(Resource):
                         config.shot_count += 1
 
                         requestURL = config.screen_post_address + str(config.shot_count) + "/newRep"
-                        logging.debug('sending request, url = ' + requestURL)
+                        print('sending request, url = ' + requestURL)
                         r = requests.post(requestURL)
+                        refresh_screen_data = {'silence': 1}
+                        r = requests.post(config.post_address, json=refresh_screen_data)
 
                         self.previous_shot_performance = performanceValue
 
