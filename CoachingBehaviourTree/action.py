@@ -46,7 +46,7 @@ class Action:
         if self.score is not None and isinstance(self.score, float) and not self.goal == config.ACTION_GOAL:
             if self.goal > config.EXERCISE_GOAL:
                 if self.stat_explanation is not None:
-                    return f'{self.pre_msg}. You got an average score of {round(self.score, 2)}' + self.stat_measure + f' and were aiming for {round(self.target, 2)}' + self.stat_measure + '. ' + self.stat_explanation
+                    return f'{self.pre_msg}. Your baseline score is {round(self.score, 2)}' + self.stat_measure + f' and you are aiming for {round(self.target, 2)}' + self.stat_measure + '. ' + self.stat_explanation
                 else:
                     return f'{self.pre_msg}. You got an average score of {round(self.score, 2)}' + self.stat_measure + f' and were aiming for {round(self.target, 2)}' + self.stat_measure + '.'
             else:

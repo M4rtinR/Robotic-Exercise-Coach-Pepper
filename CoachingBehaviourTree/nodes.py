@@ -297,7 +297,19 @@ class FormatAction(Node):
                 if self.performance is None:
                     self.performance = -1
                 if self.behaviour is not None:
-                    pre_msg = self.behaviour_lib.get_pre_msg(self.behaviour, self.goal_level, self.performance, self.phase, self.name, config.shot, config.hand, config.stat, config.shot_count == 3 and config.set_count == config.SETS_PER_STAT, not config.set_count == 0 and not config.set_count == config.SETS_PER_STAT, self.score, self.target)
+                    if ((self.goal_level == config.EXERCISE_GOAL and self.behaviour in [config.A_PREINSTRUCTION, config.A_PREINSTRUCTION_FIRSTNAME,
+                                                      config.A_PREINSTRUCTION_POSITIVEMODELING, config.A_POSITIVEMODELING_PREINSTRUCTION,
+                                                      config.A_PREINSTRUCTION_QUESTIONING, config.A_PREINSTRUCTION_PRAISE,
+                                                      config.A_PREINSTRUCTION_NEGATIVEMODELING]) or self.goal_level == config.STAT_GOAL) and self.phase == config.PHASE_START:
+                        print("Using config scores to generate utterance. goal_level = " + str(self.goal_level) + ", behaviour = " + str(self.behaviour) + ", phase = " + str(self.phase))
+                        pre_msg = self.behaviour_lib.get_pre_msg(self.behaviour, self.goal_level, self.performance,
+                                                                 self.phase, self.name, config.shot, config.hand,
+                                                                 config.stat,
+                                                                 config.shot_count == 3 and config.set_count == config.SETS_PER_STAT,
+                                                                 not config.set_count == 0 and not config.set_count == config.SETS_PER_STAT,
+                                                                 config.score, config.target)
+                    else:
+                        pre_msg = self.behaviour_lib.get_pre_msg(self.behaviour, self.goal_level, self.performance, self.phase, self.name, config.shot, config.hand, config.stat, config.shot_count == 3 and config.set_count == config.SETS_PER_STAT, not config.set_count == 0 and not config.set_count == config.SETS_PER_STAT, self.score, self.target)
                 else:
                     pre_msg = ""
                 if (self.score is None and self.performance is None) or config.has_score_been_provided:  # or config.given_score >= 2:
@@ -325,7 +337,7 @@ class FormatAction(Node):
                     else:  # followThroughTime
                         stat_measure = " seconds"
                         stat_explanation = "This is a measure of how long it takes between hitting the ball and your swing stopping."
-                    if self.goal_level == config.EXERCISE_GOAL:
+                    if self.goal_level == config.EXERCISE_GOAL and self.phase == config.PHASE_END:
                         if config.stat_count < config.STATS_PER_SHOT:
                             nodedata.action = Action(pre_msg, demo=demo, question=question)
                         else:
@@ -338,8 +350,30 @@ class FormatAction(Node):
                             '''has_score_been_provided=config.has_score_been_provided,'''
 
                         else:
-                            nodedata.action = Action(pre_msg, self.score, self.target, demo=demo, question=question,
-                                                     goal=self.goal_level, stat_measure=stat_measure, stat_explanation=stat_explanation)
+                            if self.goal_level == config.SET_GOAL:
+                                if self.behaviour in [config.A_PREINSTRUCTION, config.A_PREINSTRUCTION_FIRSTNAME,
+                                                      config.A_PREINSTRUCTION_POSITIVEMODELING, config.A_POSITIVEMODELING_PREINSTRUCTION,
+                                                      config.A_PREINSTRUCTION_QUESTIONING, config.A_PREINSTRUCTION_PRAISE,
+                                                      config.A_PREINSTRUCTION_NEGATIVEMODELING]:
+                                    nodedata.action = Action(pre_msg, self.score, self.target, demo=demo,
+                                                             question=question,
+                                                             goal=self.goal_level, stat_measure=stat_measure,
+                                                             stat_explanation=stat_explanation)
+                                else:
+                                    if self.phase == config.PHASE_START:
+                                        nodedata.action = Action(pre_msg, demo=demo, question=question)
+                                    else:
+                                        nodedata.action = Action(pre_msg, self.score, self.target, demo=demo,
+                                                                 question=question,
+                                                                 goal=self.goal_level, stat_measure=stat_measure)
+                            elif self.goal_level == config.STAT_GOAL and self.phase == config.PHASE_START:
+                                print("Using config scores in action. goal_level = " + str(
+                                    self.goal_level) + ", behaviour = " + str(self.behaviour) + ", phase = " + str(
+                                    self.phase))
+                                nodedata.action = Action(pre_msg, demo=demo, question=question)
+                            else:
+                                nodedata.action = Action(pre_msg, self.score, self.target, demo=demo, question=question,
+                                                         goal=self.goal_level, stat_measure=stat_measure, stat_explanation=stat_explanation)
                             '''has_score_been_provided=config.has_score_been_provided,'''
 
                             # config.given_stat_explanation = True
@@ -721,7 +755,7 @@ class CreateSubgoal(Node):
                         config.shot_confirmed = True
                         if not(self.previous_goal_level == config.BASELINE_GOAL):
                             config.performance = None
-                            config.score = None
+                            # config.score = None
 
                         # Update exercise picture on Pepper's tablet screen and reset the counter
                         shotString = nodedata.get_data("hand") + " " + nodedata.get_data("shot")
@@ -1221,7 +1255,7 @@ class TimestepCue(Node):
                                 f.write(file_contents)
                                 f.close()
                                 config.performance = None
-                                config.score = None
+                                # config.score = None
 
                             print("got data from file.")
                         nodedata.performance = config.performance
@@ -1291,7 +1325,7 @@ class TimestepCue(Node):
                                 config.performance = split[1]
                             else:
                                 config.performance = None
-                                config.score = None
+                                # config.score = None
                         except:
                             print("File error")
 
@@ -1655,7 +1689,7 @@ class GetChoice(Node):
                     nodedata.stat = stat
                     config.stat = stat
                     config.score = config.metric_score_list[stat]
-                    print("get choice, setting stat to " + str(config.stat))
+                    print("get choice, setting stat to " + str(config.stat) + " and score to " + str(config.score))
                     config.set_count = 0  # Reset the set count for this session to 0.
                     logging.debug("Returning SUCCESS from GetUserChoice, stat = " + str(nodedata.stat))
                     return NodeStatus(NodeStatus.SUCCESS,"Returning SUCCESS from GetUserChoice, stat = " + str(nodedata.stat))
@@ -1680,7 +1714,7 @@ class GetChoice(Node):
                     nodedata.stat = config.stat
                     # config.used_stats.append(config.stat)
                     config.score = config.metric_score_list[config.stat]
-                    print("get choice, setting stat to " + str(config.stat))
+                    print("get choice, setting stat to " + str(config.stat) + " and score to " + str(config.score))
                     #config.performance = None
                     #config.score = -1
                     logging.debug("Returning SUCCESS from GetUserChoice, stat = " + str(nodedata.stat))
