@@ -241,6 +241,7 @@ class TimestepCue(Resource):
                             targetList["followThroughTime"] = float(content['followThroughTimeTarget'][:-5])
                             config.stat_list = accList
                             config.metric_score_list = scoreList
+                            config.targetList = targetList
                             print('sorted stat list')
 
                             '''print("populating lists with floats")

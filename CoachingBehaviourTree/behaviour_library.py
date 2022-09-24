@@ -15810,7 +15810,7 @@ class BehaviourLibraryFunctions:
             elif behaviour in [config.A_SCOLD, config.A_SCOLD_FIRSTNAME]:
                 utterance = utterance + "That was not good " + name"""
 
-    def get_demo_string(self, behaviour, goal_level, shot, hand, stat, leftHand):
+    def get_demo_string(self, behaviour, goal_level, shot, hand, stat, leftHand, score, target):
         posNeg = "_pos"
         if behaviour in [config.A_NEGATIVEMODELING, config.A_PREINSTRUCTION_NEGATIVEMODELING,
                          config.A_POSTINSTRUCTIONPOSITIVE_NEGATIVE_MODELING,
@@ -15824,22 +15824,85 @@ class BehaviourLibraryFunctions:
             r = random.randint(0, 1)
             if r == 1:
                 vid = "_vid"
-        demoName = ""
-        if goal_level < 3 or goal_level == 6:
-            shotName = "forehand_drive"
-            if hand == "BH":
-                shotName = "backhand_drive"
-            else:
-                shotName = shot
-            demoName = shotName + posNeg
-        else:
-            statName = "racket_up"
-            if stat == "impactCutAngle":
-                statName = "racket_face"
-            elif stat == "followThroughTime":
-                statName = "follow_through"
 
-            demoName = statName + posNeg
+        handName = ""
+        if hand == "BH":
+            handName = "backhand"
+        demoName = ""
+        if stat is None:
+            shotName = handName + "_" + shot
+            demoName = shotName + posNeg
+
+        else:
+            statName = handName + stat
+            if stat == "racketPreparation":
+                if score < target:
+                    if posNeg == "_pos":
+                        demoName = statName + "_high"
+                    else:
+                        demoName = statName + "_low"
+                else:
+                    if posNeg == "_pos":
+                        demoName = statName + "_low"
+                    else:
+                        demoName = statName + "_high"
+
+            elif stat == "impactCutAngle":
+                if score < target:
+                    demoName = statName + "_open" + posNeg
+                else:
+                    demoName = statName + "_closed" + posNeg
+
+            elif stat == "followThroughTime":
+                if score < target:
+                    if posNeg == "_pos":
+                        demoName = statName + "_long"
+                    else:
+                        demoName = statName + "_short"
+                else:
+                    if posNeg == "_pos":
+                        demoName = statName + "_short"
+                    else:
+                        demoName = statName + "_long"
+
+            elif stat == "impactSpeed":
+                if score < target:
+                    if posNeg == "_pos":
+                        demoName = statName + "_fast"
+                    else:
+                        demoName = statName + "_slow"
+                else:
+                    if posNeg == "_pos":
+                        demoName = statName + "_slow"
+                    else:
+                        demoName = statName + "_fast"
+
+            elif stat == "approachTiming":
+                if behaviour in [config.A_POSITIVEMODELING_PRAISE, config.A_POSITIVEMODELING]:
+                    demoName = statName + posNeg
+                else:
+                    if score < target:
+                        if posNeg == "_pos":
+                            demoName = statName + "_infront"
+                        else:
+                            demoName = statName + "_behind"
+                    else:
+                        if posNeg == "_pos":
+                            demoName = statName + "_behind"
+                        else:
+                            demoName = statName + "_infront"
+
+            else:  # stat == "followThroughRoll
+                if score < target:
+                    if posNeg == "_pos":
+                        demoName = statName + "_over"
+                    else:
+                        demoName = statName + "_under"
+                else:
+                    if posNeg == "_pos":
+                        demoName = statName + "_under"
+                    else:
+                        demoName = statName + "_over"
 
         if leftHand:
             demoName = demoName + "_left"

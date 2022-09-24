@@ -263,7 +263,17 @@ class FormatAction(Node):
                                       config.A_POSITIVEMODELING_CONCURRENTINSTRUCTIONPOSITIVE,
                                       config.A_POSITIVEMODELING_QUESTIONING, config.A_POSITIVEMODELING_HUSTLE,
                                       config.A_POSITIVEMODELING_PRAISE]:
-                    demo = self.behaviour_lib.get_demo_string(self.behaviour, self.goal_level, config.shot, config.hand, config.stat, config.leftHand)
+                    if ((self.goal_level == config.EXERCISE_GOAL and self.behaviour in [config.A_PREINSTRUCTION,
+                                                                                        config.A_PREINSTRUCTION_FIRSTNAME,
+                                                                                        config.A_PREINSTRUCTION_POSITIVEMODELING,
+                                                                                        config.A_POSITIVEMODELING_PREINSTRUCTION,
+                                                                                        config.A_PREINSTRUCTION_QUESTIONING,
+                                                                                        config.A_PREINSTRUCTION_PRAISE,
+                                                                                        config.A_PREINSTRUCTION_NEGATIVEMODELING]) or self.goal_level == config.STAT_GOAL) and self.phase == config.PHASE_START:
+                        demo = self.behaviour_lib.get_demo_string(self.behaviour, self.goal_level, config.shot, config.hand, config.stat, config.leftHand, config.score, config.target)
+                    else:
+                        demo = self.behaviour_lib.get_demo_string(self.behaviour, self.goal_level, config.shot,
+                                                                  config.hand, config.stat, config.leftHand, self.score, self.target)
                 question = None
                 if self.behaviour in [config.A_QUESTIONING, config.A_QUESTIONING_FIRSTNAME,
                                       config.A_QUESTIONING_POSITIVEMODELING,
@@ -301,7 +311,7 @@ class FormatAction(Node):
                                                       config.A_PREINSTRUCTION_POSITIVEMODELING, config.A_POSITIVEMODELING_PREINSTRUCTION,
                                                       config.A_PREINSTRUCTION_QUESTIONING, config.A_PREINSTRUCTION_PRAISE,
                                                       config.A_PREINSTRUCTION_NEGATIVEMODELING]) or self.goal_level == config.STAT_GOAL) and self.phase == config.PHASE_START:
-                        print("Using config scores to generate utterance. goal_level = " + str(self.goal_level) + ", behaviour = " + str(self.behaviour) + ", phase = " + str(self.phase))
+                        print("Using config scores to generate utterance. goal_level = " + str(self.goal_level) + ", behaviour = " + str(self.behaviour) + ", phase = " + str(self.phase) + ", score = " + str(config.score) + ", target = " + str(config.target))
                         pre_msg = self.behaviour_lib.get_pre_msg(self.behaviour, self.goal_level, self.performance,
                                                                  self.phase, self.name, config.shot, config.hand,
                                                                  config.stat,
@@ -312,11 +322,11 @@ class FormatAction(Node):
                         pre_msg = self.behaviour_lib.get_pre_msg(self.behaviour, self.goal_level, self.performance, self.phase, self.name, config.shot, config.hand, config.stat, config.shot_count == 3 and config.set_count == config.SETS_PER_STAT, not config.set_count == 0 and not config.set_count == config.SETS_PER_STAT, self.score, self.target)
                 else:
                     pre_msg = ""
-                if (self.score is None and self.performance is None) or config.has_score_been_provided:  # or config.given_score >= 2:
-                    print("Formatting action, no score or performance")
+                if self.score is None and ((config.score is None or config.score == -1) and (self.goal_level == config.EXERCISE_GOAL or self.goal_level == config.STAT_GOAL)) or config.has_score_been_provided:  # or config.given_score >= 2:
+                    print("Formatting action, no score")
                     nodedata.action = Action(pre_msg, demo=demo, question=question)
                 else:
-                    print("Formatting action, got score and performance")
+                    print("Formatting action, got score")
                     print("ACTION, self.score = " + str(self.score))
                     print("ACTION, self.target = " + str(self.target))
                     if config.stat == "racketPreparation" or config.stat == "approachTiming":
@@ -338,6 +348,7 @@ class FormatAction(Node):
                         stat_measure = " seconds"
                         stat_explanation = "This is a measure of how long it takes between hitting the ball and your swing stopping."
                     if self.goal_level == config.EXERCISE_GOAL and self.phase == config.PHASE_END:
+                        print("stat count = " + str(config.stat_count))
                         if config.stat_count < config.STATS_PER_SHOT:
                             nodedata.action = Action(pre_msg, demo=demo, question=question)
                         else:
@@ -345,24 +356,36 @@ class FormatAction(Node):
                                                      goal=self.goal_level, stat_measure=stat_measure, shot=config.shot, hand=config.hand)
                     else:
                         if config.given_stat_explanation:
-                            nodedata.action = Action(pre_msg, self.score, self.target, demo=demo, question=question,
+                            print("given stat explanation")
+                            if self.goal_level == config.EXERCISE_GOAL and self.phase == config.PHASE_START:
+                                print("self.goal_level == config.EXERCISE_GOAL and self.phase == config.PHASE_START")
+                                nodedata.action = Action(pre_msg, demo=demo, question=question)
+                            else:
+                                print("self.goal_level != config.EXERCISE_GOAL or self.phase != config.PHASE_START, self.goal_level = " + str(self.goal_level) + ", phase = " + str(self.phase))
+                                nodedata.action = Action(pre_msg, self.score, self.target, demo=demo, question=question,
                                                      goal=self.goal_level, stat_measure=stat_measure)
                             '''has_score_been_provided=config.has_score_been_provided,'''
 
                         else:
+                            print("Not given stat explanation")
                             if self.goal_level == config.SET_GOAL:
+                                print("SET_GOAL")
                                 if self.behaviour in [config.A_PREINSTRUCTION, config.A_PREINSTRUCTION_FIRSTNAME,
                                                       config.A_PREINSTRUCTION_POSITIVEMODELING, config.A_POSITIVEMODELING_PREINSTRUCTION,
                                                       config.A_PREINSTRUCTION_QUESTIONING, config.A_PREINSTRUCTION_PRAISE,
                                                       config.A_PREINSTRUCTION_NEGATIVEMODELING]:
+                                    print("pre-instruction")
                                     nodedata.action = Action(pre_msg, self.score, self.target, demo=demo,
                                                              question=question,
                                                              goal=self.goal_level, stat_measure=stat_measure,
                                                              stat_explanation=stat_explanation)
                                 else:
+                                    print("not pre-instruction")
                                     if self.phase == config.PHASE_START:
+                                        print("phase start")
                                         nodedata.action = Action(pre_msg, demo=demo, question=question)
                                     else:
+                                        print("not phase start")
                                         nodedata.action = Action(pre_msg, self.score, self.target, demo=demo,
                                                                  question=question,
                                                                  goal=self.goal_level, stat_measure=stat_measure)
@@ -372,6 +395,7 @@ class FormatAction(Node):
                                     self.phase))
                                 nodedata.action = Action(pre_msg, demo=demo, question=question)
                             else:
+                                print("self.goal_level != STAT_GOAL or self.phase != PHASE_START, self.goal_level = " + str(self.goal_level) + ", self.phase = " + str(self.phase))
                                 nodedata.action = Action(pre_msg, self.score, self.target, demo=demo, question=question,
                                                          goal=self.goal_level, stat_measure=stat_measure, stat_explanation=stat_explanation)
                             '''has_score_been_provided=config.has_score_been_provided,'''
@@ -569,7 +593,7 @@ class DisplayBehaviour(Node):
 
             config.behaviour_displayed = True
             #config.need_new_behaviour = True
-            if self.score is not None:  # and config.has_score_been_provided is False:
+            if self.score is not None and isinstance(self.action.score, float) and not self.action.goal == config.ACTION_GOAL:  # and config.has_score_been_provided is False:
                 config.has_score_been_provided = True
                 config.given_stat_explanation = True
                 # config.scores_provided += 1
@@ -1689,6 +1713,7 @@ class GetChoice(Node):
                     nodedata.stat = stat
                     config.stat = stat
                     config.score = config.metric_score_list[stat]
+                    config.target = config.targetList[stat]
                     print("get choice, setting stat to " + str(config.stat) + " and score to " + str(config.score))
                     config.set_count = 0  # Reset the set count for this session to 0.
                     logging.debug("Returning SUCCESS from GetUserChoice, stat = " + str(nodedata.stat))
