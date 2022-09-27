@@ -831,13 +831,24 @@ def update(state, state2, reward, action, action2):
 
 
 def main():
-    #TODO: for testing purposes. Delete the next if-else statement after testing.
+    if config.sessions == 1:
+        print("AlphaTesting0.9")
+        config.participant_filename = "AlphaTesting0.9"
+    elif config.sessions == 2:
+        print("AlphaTesting0.5")
+        config.participant_filename = "AlphaTesting0.5"
+    elif config.sessions == 3:
+        print("AlphaTesting0.1")
+        config.participant_filename = "AlphaTesting0.1"
+    else:
+        print("AlphaTestingElse")
+        config.participant_filename = "AlphaTestingElse"
     filename = "/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participant_filename
     print(filename)
-    if os.path.exists(filename):
-        os.remove(filename)
-    else:
-        print("The file does not exist")
+    # if os.path.exists(filename):
+    #     os.remove(filename)
+    # else:
+    #     print("The file does not exist")
     loggingFilename = "" + config.participantNo + ".log"
     logging.basicConfig(format='%(levelname)s:%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.INFO, filename=loggingFilename)
     logging.info("Logging started")
@@ -887,8 +898,11 @@ def main():
 
     # Write final policy to file
     f = open(filename, "w")
-    f.writelines(str(config.policy_matrix.get_matrix()))
+    f.writelines([str(config.policy_matrix.get_matrix()), str(config.sessions)])
     f.close()
+
+    if config.sessions < 4:
+        main()
 
 def api_start():
     api_classes.app.run(host='0.0.0.0', port=5000)

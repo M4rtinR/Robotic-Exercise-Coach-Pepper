@@ -177,8 +177,8 @@ action_score_given = False
 expecting_action_goal = False
 
 # Initial values to be changed at the beginning of each session:
-name = "Jamie"
-participantNo = "RobotariumFilming"
+name = "Martin"
+participantNo = "GammaTesting0.5"
 participant_filename = participantNo + "_history.txt"
 ability = 5
 motivation = 8
@@ -192,8 +192,8 @@ policy = -1
 leftHand = False
 
 # Values for RL
-alpha = 0.85
-gamma = 0.95
+alpha = 0.9
+gamma = 0.7
 epsilon = -1
 policy_matrix = None
 
