@@ -208,7 +208,7 @@ alpha = 0.85
 gamma = 0.95
 policy_matrix = None
 
-# Robot through Peppernet router:
+# Robot through Peppernet router\:
 # post_address = 'http://192.168.1.237:4999/output'
 
 # Simulation on 4G:
