@@ -58,15 +58,15 @@ class CoachingEnvironment(gym.Env, ABC):
             f.close()
             matrix = ast.literal_eval(contents[0][:-1])
             sessions = int(contents[1]) + 1
-            if sessions == 1:
+            if sessions == 0:
                 print("config.alpha = 0.9")
                 config.epsilon = 0.3
                 config.alpha = 0.9
-            elif sessions == 2:
+            elif sessions == 1:
                 print("config.alpha = 0.5")
                 config.epsilon = 0.3
                 config.alpha = 0.5
-            elif sessions == 3:
+            elif sessions == 2:
                 print("config.alpha = 0.1")
                 config.epsilon = 0.3
                 config.alpha = 0.1
@@ -78,6 +78,16 @@ class CoachingEnvironment(gym.Env, ABC):
             print("Creating new belief distribution")
             belief_distribution = [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0] if config.ability < 4 else [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0]
             config.epsilon = 0.3
+            if config.sessions == 0:
+                print("config.alpha = 0.2")
+                config.alpha = 0.2
+            elif config.sessions == 1:
+                print("config.alpha = 0.4")
+                config.alpha = 0.4
+            else:
+                print("config.sessions == " + str(config.sessions) + "config.alpha = 0.05")
+                config.alpha = 0.05
+
             observation = 0
             self.policy = PolicyWrapper(belief=belief_distribution)
 

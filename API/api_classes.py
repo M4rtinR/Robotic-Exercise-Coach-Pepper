@@ -32,7 +32,7 @@ class TimestepCue(Resource):
                 # logging.info("Received data from app: {}".format(content))
                 config.goal_level = config.PERSON_GOAL
                 # config.name = content['name']  # Name was not working so removed here and will set it at the start of each session.
-                config.sessions = int(content['sessions'])
+                # config.sessions = int(content['sessions'])
                 config.ability = int(content['ability'])
                 config.completed = config.COMPLETED_STATUS_UNDEFINED
 
@@ -344,7 +344,7 @@ class TimestepCue(Resource):
                 logging.debug('player goal setting controller values')
                 config.goal_level = config.PERSON_GOAL
                 config.name = args['name']
-                config.sessions = int(args['sessions'])
+                # config.sessions = int(args['sessions'])
                 config.ability = int(args['ability'])
 
                 while config.completed == config.COMPLETED_STATUS_UNDEFINED:

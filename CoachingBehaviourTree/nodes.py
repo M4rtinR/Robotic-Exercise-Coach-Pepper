@@ -647,7 +647,7 @@ class EndSubgoal(Node):
                 #     config.completed = config.COMPLETED_STATUS_TRUE
             if nodedata.new_goal == -1:
                 print("Completed")
-                time.sleep(5.0)
+                # time.sleep(5.0)
             logging.info("Ended subgoal {old_goal}. New goal level = {new_goal}.".format(old_goal=self.goal_level, new_goal=nodedata.new_goal))
             logging.debug("Returning SUCCESS from EndSubgoal, new subgoal level = " + str(nodedata.new_goal))
             return NodeStatus(NodeStatus.SUCCESS, "Completed subgoal: " + str(self.goal_level - 1))

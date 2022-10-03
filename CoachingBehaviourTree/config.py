@@ -127,7 +127,7 @@ stat_list = {}
 
 # Initial values which will be updated when the API gets called by the guide.
 goal_level = -1
-sessions = -1
+sessions = 0
 score = -1
 target = -1
 avg_score = -1

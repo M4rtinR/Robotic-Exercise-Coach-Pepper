@@ -831,27 +831,33 @@ def update(state, state2, reward, action, action2):
 
 
 def main():
-    if config.sessions == 1:
-        print("AlphaTesting0.9")
-        config.participant_filename = "AlphaTesting0.9"
+    if config.sessions == 0:
+        print("AlphaTesting0.2")
+        config.participant_filename = "AlphaTesting0.2"
+    elif config.sessions == 1:
+        print("AlphaTesting0.4")
+        config.participant_filename = "AlphaTesting0.4"
     elif config.sessions == 2:
-        print("AlphaTesting0.5")
-        config.participant_filename = "AlphaTesting0.5"
-    elif config.sessions == 3:
-        print("AlphaTesting0.1")
-        config.participant_filename = "AlphaTesting0.1"
+        print("AlphaTesting0.05")
+        config.participant_filename = "AlphaTesting0.05"
     else:
         print("AlphaTestingElse")
         config.participant_filename = "AlphaTestingElse"
     filename = "/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participant_filename
     print(filename)
-    # if os.path.exists(filename):
-    #     os.remove(filename)
-    # else:
-    #     print("The file does not exist")
-    loggingFilename = "" + config.participantNo + ".log"
-    logging.basicConfig(format='%(levelname)s:%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.INFO, filename=loggingFilename)
-    logging.info("Logging started")
+    if os.path.exists(filename):
+        os.remove(filename)
+    else:
+        print("The file does not exist")
+    filename2 = "/home/martin/PycharmProjects/coachingPolicies/AdaptedPolicies/" + config.participant_filename
+    if os.path.exists(filename2):
+        os.remove(filename2)
+    else:
+        print("The file does not exist")
+    if config.sessions == 0:
+        loggingFilename = "" + config.participantNo + ".log"
+        logging.basicConfig(format='%(levelname)s:%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.INFO, filename=loggingFilename)
+        logging.info("Logging started")
 
     # Create the environment
     coaching_tree = create_coaching_tree()
@@ -901,7 +907,8 @@ def main():
     f.writelines([str(config.policy_matrix.get_matrix()), str(config.sessions)])
     f.close()
 
-    if config.sessions < 4:
+    if config.sessions < 2:
+        config.sessions += 1
         main()
 
 def api_start():
