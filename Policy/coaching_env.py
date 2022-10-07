@@ -1,3 +1,4 @@
+import ast
 import logging
 import os
 from abc import ABC
@@ -54,8 +55,18 @@ class CoachingEnvironment(gym.Env, ABC):
         filename = "/home/martin/PycharmProjects/coachingPolicies/AdaptedPolicies/" + config.participant_filename
         if os.path.exists(filename):
             f = open(filename, "r")
-            matrix = f.readlines()
+            contents = f.readlines()
             f.close()
+            matrix = ast.literal_eval(contents[0][:-1])
+            try:
+                f = open(
+                    "~/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/Sessions.txt",
+                    "r")
+                file_contents = f.readlines()
+                f.close()
+                config.sessions = int(file_contents[0]) + 1
+            except:
+                config.sessions = 1
             observation = 0
             self.policy = PolicyWrapper(policy=matrix)
         else:
@@ -63,6 +74,19 @@ class CoachingEnvironment(gym.Env, ABC):
             belief_distribution = [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0] if config.ability < 4 else [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0]
             observation = 0
             self.policy = PolicyWrapper(belief=belief_distribution)
+
+        if config.sessions == 1:
+            config.alpha = 0.3
+            config.epsilon = 0.3
+        elif config.sessions == 2:
+            config.alpha = 0.2
+            config.epsilon = 0.3
+        elif config.sessions == 3 or config.sessions == 4:
+            config.alpha = 0.1
+            config.epsilon = 0.2
+        else:
+            config.alpha = 0.1
+            config.epsilon = 0.1
 
         return observation, self.policy
 
@@ -117,6 +141,7 @@ class CoachingEnvironment(gym.Env, ABC):
         return observation, reward, done, result
 
     def _calculate_reward(self, action, observation, score, target, performance):
+        print("calculating reward, score = " + str(score))
         if score is None or target is None or score == -1 or target == -1:
             print("No score/target, reward = 0. score = " + str(score) + ", target = " + str(target))
             return 0
@@ -184,41 +209,47 @@ class CoachingEnvironment(gym.Env, ABC):
             return reward
         '''
 
-        # Option 3
-        '''
-        if score is None:
-            if action == config.A_QUESTIONING and config.question_type = config.FEEDBACK_QUESTION:
-                if config.question_feedback = 1:
-                    return 0.2
+        '''# Option 3
+        if score is None or score == -1:
+            if action == config.A_QUESTIONING and config.feedback_question:
+                if question_feedback == config.Q_RESPONSE_POSITIVE:
+                    returnValue = 0.2
                 else:
-                    return -0.2
-            elif action == config.A_QUESTIONING or action == config.A_PRE-INSTRUCTION:
+                    returnValue = -0.2
+                config.feedback_question = False
+                config.question_response = None
+                return returnValue
+            elif action == config.A_QUESTIONING or action == config.A_PREINSTRUCTION:
                 if config.overriden:
                     return -1  # If policy's decision to select shots for user or have user select shots, is overriden, receive a large negative reward.
             else:
                 return None  # No actions from user so reward is None and policy does not change.
         else:
-            # Reward is based on improvement since last time or since baseline set if this is the first time.
-            if performance == config.MET:
-                reward = 1
-            elif performance == config.MUCH_IMPROVED:
-                reward = 0.6
-            elif performance == config.IMPROVED or performance == config.IMPROVED_SWAP:
-                reward = 0.3
-            elif performance == config.STEADY:
-                reward = 0
-            elif performance == config.REGRESSED or performance == config.REGRESSED_SWAP:
-                reward = -0.3
-            elif performance == config.MUCH_REGRESSED:
-                reward = -0.6
-                
-            # Levels of performance:
-            MET = 0             # Met the target
-            MUCH_IMPROVED = 1   # Moved a lot closer to the target
-            IMPROVED = 2        # Moved closer to the target
-            IMPROVED_SWAP = 3   # Moved closer to the target but passed it
-            STEADY = 4          # Stayed the same
-            REGRESSED = 5       # Moved further away from the target
-            REGRESSED_SWAP = 6  # Moved past the target and further from it
-            MUCH_REGRESSED = 7  # Moved a lot further away from the target
-        '''
+            if config.action_score_given:
+                # Reward is based on improvement since last time or since baseline set if this is the first time.
+                if performance == config.MET:
+                    reward = 1
+                elif performance == config.MUCH_IMPROVED:
+                    reward = 0.6
+                elif performance == config.IMPROVED or performance == config.IMPROVED_SWAP:
+                    reward = 0.3
+                elif performance == config.STEADY:
+                    reward = 0
+                elif performance == config.REGRESSED or performance == config.REGRESSED_SWAP:
+                    reward = -0.3
+                elif performance == config.MUCH_REGRESSED:
+                    reward = -0.6
+                else:
+                    reward = None
+                return reward
+            else:
+                return None'''
+        # Levels of performance:
+        '''MET = 0             # Met the target
+        MUCH_IMPROVED = 1   # Moved a lot closer to the target
+        IMPROVED = 2        # Moved closer to the target
+        IMPROVED_SWAP = 3   # Moved closer to the target but passed it
+        STEADY = 4          # Stayed the same
+        REGRESSED = 5       # Moved further away from the target
+        REGRESSED_SWAP = 6  # Moved past the target and further from it
+        MUCH_REGRESSED = 7  # Moved a lot further away from the target'''

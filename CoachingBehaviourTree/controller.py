@@ -1431,12 +1431,12 @@ def update(state, state2, reward, action, action2):
 
 def main():
     #TODO: for testing purposes. Delete the next if-else statement after testing.
-    filename = "/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participant_filename
+    filename = "/home/martin/PycharmProjects/coachingPolicies/AdaptedPolicies/" + config.participant_filename
     print(filename)
-    if os.path.exists(filename):
-        os.remove(filename)
-    else:
-        print("The file does not exist")
+    # if os.path.exists(filename):
+    #     os.remove(filename)
+    # else:
+    #     print("The file does not exist")
     loggingFilename = "" + config.participantNo + ".log"
     logging.basicConfig(format='%(levelname)s:%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.INFO, filename=loggingFilename)
     logging.info("Logging started")
@@ -1512,9 +1512,19 @@ def main():
     logging.info("New behaviour: " + str(action2))
 
     # Write final policy to file
-    f = open(filename, "w")
-    f.writelines(str(config.policy_matrix.get_matrix()))
-    f.close()
+    try:
+        f = open("/home/martin/PycharmProjects/coachingPolicies/AdaptedPolicies/" + config.participant_filename, "r")
+        file_contents = f.readlines()
+        f.close()
+
+        f = open("/home/martin/PycharmProjects/coachingPolicies/AdaptedPolicies/" + config.participant_filename, "w")
+        file_contents.insert(0, str(config.policy_matrix.get_matrix() + "\n"))
+        f.writelines(file_contents)
+        f.close()
+    except:
+        f = open("/home/martin/PycharmProjects/coachingPolicies/AdaptedPolicies/" + config.participant_filename, "a")
+        f.writelines(str(config.policy_matrix.get_matrix()) + "\n")  # Write the policy in the first line of the newly created file.
+        f.close()
 
 def api_start():
     api_classes.app.run(host='0.0.0.0', port=5000)

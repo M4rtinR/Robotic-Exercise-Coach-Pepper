@@ -50,7 +50,11 @@ class Action:
                 else:
                     return f'{self.pre_msg}. You got an average score of {round(self.score, 2)}' + self.stat_measure + f' and were aiming for {round(self.target, 2)}' + self.stat_measure + '.'
             else:
-                return f'{self.pre_msg}. You got an average accuracy of {round(self.score, 2)} out of 5 for your {"backhand" if self.hand == "BH" else "forehand"} {self.shot}s today.'
+                if self.goal == config.EXERCISE_GOAL:
+                    return f'{self.pre_msg}. You got an average accuracy of {round(self.score, 2)} out of 5 for your {"backhand" if self.hand == "BH" else "forehand"} {self.shot}s today.'
+                else:
+                    return f'{self.pre_msg}. You got an average accuracy of {round(self.score, 2)} out of 5 for all of your shots combined today.'
+
             '''if self.goal is not config.ACTION_GOAL:
                 # TODO: add score-specific utterance (e.g. seconds, degrees) to explain the score better to the user.
                 print("ACTION, self.score = " + str(self.score))

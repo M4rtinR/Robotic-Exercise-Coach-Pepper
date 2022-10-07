@@ -45,7 +45,7 @@ class TimestepCue(Resource):
                 elif int(content['goal_level']) == config.SESSION_GOAL:
                     print('session goal setting controller values')
                     if 'feedback' in content:  # End of session
-                        logging.debug('end of session')
+                        print('end of session')
                         config.score = float(content['score'][0:len(content['score']) - 1])
                         config.target = 5
                         config.performance = int(content['performance'])
@@ -80,6 +80,7 @@ class TimestepCue(Resource):
 
                         return new_data, 200
                     else:
+                        print("Start of session")
                         config.completed = config.COMPLETED_STATUS_UNDEFINED
                         config.goal_level = config.SESSION_GOAL
                         config.phase = config.PHASE_START
@@ -108,9 +109,9 @@ class TimestepCue(Resource):
                         return new_data, 200
 
                 elif int(content['goal_level']) == config.EXERCISE_GOAL:
-                    logging.debug('shot goal setting controller values')
+                    print('shot goal setting controller values')
                     if 'feedback' in content:  # End of shot
-                        logging.debug('end of shot')
+                        print('end of shot')
                         config.score = float(content['score'][0:len(content['score']) - 1])
                         config.target = 5
                         config.performance = int(content['performance'])
@@ -126,13 +127,15 @@ class TimestepCue(Resource):
                             'completed': str(config.completed)
                         }
 
+                        while not config.tidying and (not config.shot_confirmed or not len(config.shots_dealt_with) == 0):
+                            pass
+
                         if not config.tidying:
-                            while not config.shot_confirmed or not len(config.shots_dealt_with) == 0:
-                                pass
                             print("Sending shot type: " + str(config.hand) + str(config.shot))
                             new_data['shotType'] = config.shot_list_master.get(config.shot)
                             new_data['hand'] = config.hand
                         else:
+                            print("Sending final")
                             new_data['final'] = "1"
 
                         return new_data, 200

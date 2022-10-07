@@ -497,10 +497,13 @@ class CheckForBehaviour(Node):
                           config.A_PREINSTRUCTION_FIRSTNAME, config.A_PREINSTRUCTION_MANUALMANIPULATION,
                           config.A_PREINSTRUCTION_NEGATIVEMODELING, config.A_MANUALMANIPULATION_PREINSTRUCTION]
         elif check_behaviour == config.A_QUESTIONING:
-            check_list = [config.A_QUESTIONING, config. A_PREINSTRUCTION_QUESTIONING, config.A_QUESTIONING_FIRSTNAME,
+            '''check_list = [config.A_QUESTIONING, config. A_PREINSTRUCTION_QUESTIONING, config.A_QUESTIONING_FIRSTNAME,
                           config.A_QUESTIONING_POSITIVEMODELING, config.A_POSITIVEMODELING_QUESTIONING,
                           config.A_CONCURRENTINSTRUCTIONPOSITIVE_QUESTIONING, config.A_MANUALMANIPULATION_QUESTIONING,
                           config.A_POSTINSTRUCTIONNEGATIVE_QUESTIONING, config.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING,
+                          config.A_QUESTIONING_NEGATIVEMODELING]'''
+            check_list = [config.A_QUESTIONING, config.A_QUESTIONING_FIRSTNAME, config.A_QUESTIONING_POSITIVEMODELING,
+                          config.A_POSITIVEMODELING_QUESTIONING, config.A_MANUALMANIPULATION_QUESTIONING,
                           config.A_QUESTIONING_NEGATIVEMODELING]
         else:
             check_list = [config.A_END]
@@ -1036,12 +1039,12 @@ class TimestepCue(Node):
                         nodedata.phase = config.PHASE_END
                         nodedata.performance = mode(config.session_performance_list)
                         # Write updated no. of sessions to file.
-                        f = open("~/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/Sessions.txt", "r")
+                        f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/Sessions.txt", "r")
                         file_contents = f.readlines()
                         f.close()
 
                         file_contents[0] = str(config.sessions) + "\n"
-                        f = open("~/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/Sessions.txt", "w")
+                        f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/Sessions.txt", "w")
                         f.writelines(file_contents)
                         f.close()
 
@@ -1054,7 +1057,7 @@ class TimestepCue(Node):
                     else:
                         # Get no. of sessions from file.
                         try:
-                            f = open("~/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/Sessions.txt", "r")
+                            f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/Sessions.txt", "r")
                             file_contents = f.readlines()
                             f.close()
                             config.sessions = int(file_contents[0]) + 1
@@ -1083,13 +1086,14 @@ class TimestepCue(Node):
                         nodedata.phase = config.PHASE_END
                         if not (len(config.session_performance_list) == 0):
                             nodedata.performance = mode(config.session_performance_list)
+                            nodedata.score = config.score
                             # Write session performance to file.
                             f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/Sessions.txt", "r")
                             file_contents = f.readlines()
                             f.close()
 
-                            file_contents[config.sessions - 1] = str(nodedata.performance) + "\n"
-                            f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participant_filename, "w")
+                            file_contents.insert(1, str(nodedata.performance) + ", " + str(nodedata.score) + "\n")
+                            f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo  + "/Sessions.txt", "w")
                             f.writelines(file_contents)
                             f.close()
 
@@ -1109,8 +1113,10 @@ class TimestepCue(Node):
                                 file_contents = f.readlines()
                                 f.close()
 
-                                config.performance = int(file_contents[config.sessions])
+                                config.performance = int(file_contents[1].split(", ")[0])
+                                config.score = float(file_contents[1].split(" ")[1])
                         nodedata.performance = config.performance
+                        nodedata.score = config.score
                         nodedata.phase = config.PHASE_START
                         config.completed = config.COMPLETED_STATUS_FALSE
                         print("Returning SUCCESS from TimestepCue session goal, nodedata = " + str(nodedata))
@@ -1139,9 +1145,10 @@ class TimestepCue(Node):
                             stat_list = ["racketPreparation", "approachTiming", "impactCutAngle", "impactSpeed",
                                          "followThroughRoll", "followThroughTime"]
                             index = 1
-                            for score in nodedata.score:
+                            for i in range(0, nodedata.score.__len__()):
+                            # for score in nodedata.score.items():
                                 stat_name = stat_list[int(index/2 - 0.5)]
-                                file_contents[index] = str(score) + ", " + str(config.stat_list[stat_name]) + ", \n"
+                                file_contents[index] = str(nodedata.score[stat_name]) + ", " + str(config.stat_list[stat_name]) + ", \n"
                                 index += 2
 
                             f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + config.hand + str(config.shot) + "/Baseline.txt", "w")
@@ -1314,7 +1321,13 @@ class TimestepCue(Node):
 
                             print("file contents of session_no.txt = " + str(file_contents))
                             stat_name = str(config.stat) + "\n"
-                            index = file_contents.index(stat_name)
+                            # Find last occurence of stat_name in file_contents:
+                            index = 0
+                            for i in range(0, len(file_contents)):
+                                if file_contents[i] == stat_name:
+                                    index = i
+
+                            # index = file_contents.index(stat_name)
                             file_contents.insert(index+1, str(nodedata.score) + ", " + str(nodedata.performance) + ", \n")
 
                             f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + config.hand + str(config.shot) + "/" + str(config.sessions) + ".txt", "w")
@@ -1343,7 +1356,11 @@ class TimestepCue(Node):
 
                             stat_name = str(config.stat) + "\n"
                             if stat_name in file_contents:
-                                index = file_contents.index(stat_name)
+                                index = 0
+                                for i in range(0, len(file_contents)):
+                                    if file_contents[i] == stat_name:
+                                        index = i
+                                # index = file_contents.index(stat_name)
                                 split = file_contents[index+1].split(", ")
                                 config.score = split[0]
                                 config.performance = split[1]
@@ -1428,7 +1445,11 @@ class TimestepCue(Node):
                             nodedata.performance = config.stat_performance_list[len(config.set_performance_list) - 1]  # Get last entry of stat performance list.
                             nodedata.score = config.stat_score_list[len(config.stat_score_list) - 1]
 
-                            index = file_contents.index(stat_name)
+                            index = 0
+                            for i in range(0, len(file_contents)):
+                                if file_contents[i] == stat_name:
+                                    index = i
+                            # index = file_contents.index(stat_name)
                             if len(file_contents) > index:
                                 file_contents[index+1] = str(config.set_count + 1) + "\n"
                             else:
@@ -1580,9 +1601,10 @@ class DurationCheck(Node):
                 return NodeStatus(NodeStatus.FAIL, "Time limit not yet reached.")
             else:
                 if not config.session_stop_utterance_given:
-                    utterance = "That's all we have time for today."
+                    utterance = "That's all we have time for today. Let's finish what we're working on and then stop there."
                     output = {
-                        "utterance": "That's all we have time for today."
+                        "utterance": "That's all we have time for today. Let's finish what we're working on and then stop there.",
+                        "end": "1"
                     }
 
                     if config.goal_level > 1:
@@ -1590,7 +1612,7 @@ class DurationCheck(Node):
                     else:
                         phase = "non-exercise"
 
-                    utteranceURL = config.screen_post_address + utterance + "/" + phase + "/newUtterance"
+                    utteranceURL = config.screen_post_address + utterance + "/" + phase + "/end/newUtterance"
                     r = requests.post(utteranceURL)
                     # Send post request to Pepper
                     r = requests.post(config.post_address, json=output)
@@ -1887,13 +1909,13 @@ class InitialiseBlackboard(Node):
         nodedata.start_time = datetime.now()  # TODO: update with actual time.
 
         # Create file for this participant if it is their first session.
-        try:
-            f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participant_filename, "r")
+        """try:
+            f = open("/home/martin/PycharmProjects/coachingPolicies/AdaptedPolicies/" + config.participant_filename, "r")
             f.close()
         except:
-            f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participant_filename, "a")
+            f = open("/home/martin/PycharmProjects/coachingPolicies/AdaptedPolicies/" + config.participant_filename, "a")
             f.write(config.participantNo + "\n0\n")  # Write participant number and 0 sessions to the new file.
-            f.close()
+            f.close()"""
 
         # Populate the sorted_shot_list with data stored in file from previous sessions.
         shot_set = {}

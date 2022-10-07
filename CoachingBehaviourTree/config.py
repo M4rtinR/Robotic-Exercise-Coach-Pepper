@@ -4,7 +4,7 @@ STAT_CHOICE = 1
 CHOICE_BY_PERSON = 0
 CHOICE_BY_SYSTEM = 1
 
-MAX_SESSION_TIME = 1200  # 1800 seconds is 30 minutes
+MAX_SESSION_TIME = 300  # 1800 seconds is 30 minutes
 
 COMPLETED_STATUS_UNDEFINED = -1
 COMPLETED_STATUS_FALSE = 0
@@ -190,7 +190,7 @@ targetList = {}
 
 # Initial values to be changed at the beginning of each session:
 name = "Martin"
-participantNo = "Testing.0"
+participantNo = "MultipleSessionsTest"
 participant_filename = participantNo + "_history.txt"
 ability = 6
 motivation = 8
@@ -204,8 +204,9 @@ policy = 11
 leftHand = False
 
 # Values for RL
-alpha = 0.85
-gamma = 0.95
+alpha = 0.3
+gamma = 0.7
+epsilon = -1
 policy_matrix = None
 
 # Robot through Peppernet router\:
