@@ -355,6 +355,7 @@ class TimestepCue(Resource):
                             print("Got targetString for mtrs\/sec = " + targetString)
                         config.target = float(targetString)
                         config.performance = int(content['performance'])
+                        config.accuracy = float(content['accuracy'])
                         config.goal_level = config.STAT_GOAL
                         config.phase = config.PHASE_END
                         config.completed = config.COMPLETED_STATUS_UNDEFINED

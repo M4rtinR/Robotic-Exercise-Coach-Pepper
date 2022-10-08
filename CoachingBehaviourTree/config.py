@@ -187,6 +187,7 @@ pause_display = False  # Set to True when the user has selected to end the sessi
 # pre_instr_recursion_counter = 0  # Used when dealing with override
 # questioning_recursion_counter = 0
 targetList = {}
+accuracy = None  # Stores accuracy for a stat from sensor data, to update the baseline file at the end of each stat.
 
 # Initial values to be changed at the beginning of each session:
 name = "Martin"

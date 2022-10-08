@@ -1257,13 +1257,28 @@ class TimestepCue(Node):
                                     print("Opened baseline")
                                     file_contents = f.readlines()
                                     f.close()
-
-                                    stat_set = {}
+                                    print("Closed file")
+                                    stat_acc_set = {}
+                                    stat_score_set = {}
+                                    stat_perf_set = {}
                                     max = len(file_contents)
                                     index = 0
                                     while index < max:
                                         stat_name = file_contents[index].replace("\n", "")
-                                        stat_set[stat_name] = float(file_contents[index+1].split(", ")[0].replace("\n", ""))
+                                        print("stat_name = " + stat_name)
+                                        stat_acc_set[stat_name] = float(file_contents[index+1].split(", ")[1].replace("\n", ""))
+                                        print("stat_acc_set found")
+                                        print("stat_acc_set = " + str(stat_acc_set))
+                                        stat_score_set[stat_name] = float(file_contents[index+1].split(", ")[0].replace("\n", ""))
+                                        print("stat_score_set found")
+                                        print("stat_score_set = " + str(stat_score_set))
+                                        print("file_contents.split = " + str(file_contents[index + 1].split(", ")))
+                                        if len(file_contents[index + 1].split(", ")) > 2:
+                                            stat_perf_set[stat_name] = int(file_contents[index+1].split(", ")[2].replace("\n", "").replace(",", ""))
+                                        else:
+                                            stat_perf_set[stat_name] = None
+                                        print("stat_perf_set found")
+                                        print("stat_perf_set = " + str(stat_perf_set))
                                         index += 2
 
                                     #sorted_stat_set = sorted(stat_set.items(), key=operator.itemgetter(1))
@@ -1272,7 +1287,12 @@ class TimestepCue(Node):
                                     #    sorted_stat_list.append(i[0])
                                     #sorted_stat_list.reverse()  # Reverse to get most important shot first.
 
-                                    config.sorted_stat = stat_set
+                                    config.stat_list = stat_acc_set
+                                    config.metric_score_list = stat_acc_set
+                                    config.metric_performance_list = stat_perf_set
+                                    print("Config.stat_list = " + str(config.stat_list))
+                                    print("Config.metric_score_list = " + str(config.metric_score_list))
+                                    print("Config.metric_performance_list = " + str(config.metric_performance_list))
                                 except:
                                     print("Aggregator text file found but baseline text file not found, in start of exercise goal.")
 
@@ -1328,7 +1348,7 @@ class TimestepCue(Node):
                                     index = i
 
                             # index = file_contents.index(stat_name)
-                            file_contents.insert(index+1, str(nodedata.score) + ", " + str(nodedata.performance) + ", \n")
+                            file_contents.insert(index+1, str(nodedata.score) + ", " + str(config.accuracy) + ", " + str(nodedata.performance) + ", \n")
 
                             f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + config.hand + str(config.shot) + "/" + str(config.sessions) + ".txt", "w")
                             f.writelines(file_contents)
@@ -1736,6 +1756,7 @@ class GetChoice(Node):
                     config.stat = stat
                     config.score = config.metric_score_list[stat]
                     config.target = config.targetList[stat]
+                    config.performance = config.metric_performance_list[stat] if len(config.metric_performance_list) > 0 else None
                     print("get choice, setting stat to " + str(config.stat) + " and score to " + str(config.score))
                     config.set_count = 0  # Reset the set count for this session to 0.
                     logging.debug("Returning SUCCESS from GetUserChoice, stat = " + str(nodedata.stat))
@@ -1761,6 +1782,9 @@ class GetChoice(Node):
                     nodedata.stat = config.stat
                     # config.used_stats.append(config.stat)
                     config.score = config.metric_score_list[config.stat]
+                    config.target = config.targetList[config.stat]
+                    config.performance = config.metric_performance_list[config.stat] if len(
+                        config.metric_performance_list) > 0 else None
                     print("get choice, setting stat to " + str(config.stat) + " and score to " + str(config.score))
                     #config.performance = None
                     #config.score = -1
