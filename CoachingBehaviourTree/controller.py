@@ -831,21 +831,21 @@ def update(state, state2, reward, action, action2):
 
 
 def main():
-    if config.sessions == 0:
-        print("AlphaTesting0.2")
-        config.participant_filename = "AlphaTesting0.2"
+    '''if config.sessions == 0:
+        print("AlphaTesting0.15")
+        config.participant_filename = "AlphaTesting0.15"
     elif config.sessions == 1:
-        print("AlphaTesting0.4")
-        config.participant_filename = "AlphaTesting0.4"
+        print("AlphaTesting0.7")
+        config.participant_filename = "AlphaTesting0.7"
     elif config.sessions == 2:
-        print("AlphaTesting0.05")
-        config.participant_filename = "AlphaTesting0.05"
+        print("AlphaTesting0.25")
+        config.participant_filename = "AlphaTesting0.25"
     else:
         print("AlphaTestingElse")
-        config.participant_filename = "AlphaTestingElse"
+        config.participant_filename = "AlphaTestingElse"'''
     filename = "/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participant_filename
     print(filename)
-    if os.path.exists(filename):
+    '''if os.path.exists(filename):
         os.remove(filename)
     else:
         print("The file does not exist")
@@ -853,7 +853,7 @@ def main():
     if os.path.exists(filename2):
         os.remove(filename2)
     else:
-        print("The file does not exist")
+        print("The file does not exist")'''
     if config.sessions == 0:
         loggingFilename = "" + config.participantNo + ".log"
         logging.basicConfig(format='%(levelname)s:%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.INFO, filename=loggingFilename)

@@ -51,34 +51,34 @@ class CoachingEnvironment(gym.Env, ABC):
         super().reset(seed=seed)
 
         filename = "/home/martin/PycharmProjects/coachingPolicies/AdaptedPolicies/" + config.participant_filename
-        if os.path.exists(filename):
+        if os.path.exists(filename) and (not config.sessions == 8 or config.sessions == 12 or config.sessions == 21):
             print("using policy from file")
             f = open(filename, "r")
             contents = f.readlines()
             f.close()
-            matrix = ast.literal_eval(contents[0][:-1])
-            sessions = int(contents[1]) + 1
-            if sessions == 0:
-                print("config.alpha = 0.9")
+            matrix = ast.literal_eval(contents[4][:-1])
+            # sessions = int(contents[1]) + 1
+            '''if sessions == 0:
+                print("config.alpha = 0.2")
                 config.epsilon = 0.3
-                config.alpha = 0.9
+                config.alpha = 0.2
             elif sessions == 1:
-                print("config.alpha = 0.5")
+                print("config.alpha = 0.4")
                 config.epsilon = 0.3
-                config.alpha = 0.5
+                config.alpha = 0.4
             elif sessions == 2:
-                print("config.alpha = 0.1")
+                print("config.alpha = 0.05")
                 config.epsilon = 0.3
                 config.alpha = 0.1
             else:
-                config.epsilon = 0.3
+                config.epsilon = 0.3'''
             observation = 0
             self.policy = PolicyWrapper(policy=matrix)
         else:
             print("Creating new belief distribution")
             belief_distribution = [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0] if config.ability < 4 else [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0]
             config.epsilon = 0.3
-            if config.sessions == 0:
+            '''if config.sessions == 0:
                 print("config.alpha = 0.2")
                 config.alpha = 0.2
             elif config.sessions == 1:
@@ -86,7 +86,7 @@ class CoachingEnvironment(gym.Env, ABC):
                 config.alpha = 0.4
             else:
                 print("config.sessions == " + str(config.sessions) + "config.alpha = 0.05")
-                config.alpha = 0.05
+                config.alpha = 0.05'''
 
             observation = 0
             self.policy = PolicyWrapper(belief=belief_distribution)

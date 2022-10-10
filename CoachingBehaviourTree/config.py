@@ -172,6 +172,7 @@ reset_action_score = False
 question_response = None
 feedback_question = False
 action_score_given = False
+finished_session = False
 
 # Initial values which will be updated when the API gets called by the guide.
 expecting_action_goal = False
@@ -192,7 +193,7 @@ policy = -1
 leftHand = False
 
 # Values for RL
-alpha = 0.9
+alpha = 0.7
 gamma = 0.7
 epsilon = -1
 policy_matrix = None

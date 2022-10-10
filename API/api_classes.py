@@ -233,6 +233,11 @@ class TimestepCue(Resource):
                     while not config.completed == config.COMPLETED_STATUS_FALSE:
                         pass
 
+                    while config.set_count == 6 and not config.finished_session:
+                        pass
+
+                    config.finished_session = False
+
                     new_data = {
                         'goal_level': 4,
                         'completed': config.completed,
