@@ -141,7 +141,7 @@ class CoachingEnvironment(gym.Env, ABC):
         return observation, reward, done, result
 
     def _calculate_reward(self, action, observation, score, target, performance):
-        print("calculating reward, score = " + str(score))
+        print("calculating reward, score = " + str(score) + ", type = " + str(type(score)) + ", target = " + str(target) + ", type = " + str(type(target)))
         if score is None or target is None or score == -1 or target == -1:
             print("No score/target, reward = 0. score = " + str(score) + ", target = " + str(target))
             return 0

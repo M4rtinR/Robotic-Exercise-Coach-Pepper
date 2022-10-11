@@ -188,10 +188,12 @@ pause_display = False  # Set to True when the user has selected to end the sessi
 # questioning_recursion_counter = 0
 targetList = {}
 accuracy = None  # Stores accuracy for a stat from sensor data, to update the baseline file at the end of each stat.
+doneBaselineGoal = False
 
 # Initial values to be changed at the beginning of each session:
 name = "Martin"
-participantNo = "MultipleSessionsTest"
+participantNo = "NewUserTest" \
+                ""
 participant_filename = participantNo + "_history.txt"
 ability = 6
 motivation = 8

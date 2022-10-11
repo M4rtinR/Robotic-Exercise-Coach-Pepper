@@ -87,7 +87,7 @@ class TimestepCue(Resource):
                         config.performance = None
                         # config.performance = content['performance']
 
-                        while config.completed == config.COMPLETED_STATUS_UNDEFINED or config.shot is None:
+                        while config.completed == config.COMPLETED_STATUS_UNDEFINED or config.shot is None or not config.shot_confirmed:
                             pass
 
                         new_data = {
@@ -127,7 +127,7 @@ class TimestepCue(Resource):
                             'completed': str(config.completed)
                         }
 
-                        while not config.tidying and (not config.shot_confirmed or not len(config.shots_dealt_with) == 0):
+                        while not config.tidying and ((not config.shot_confirmed or not len(config.shots_dealt_with) == 0) or (not config.stat_confirmed and config.stat_count <= config.STATS_PER_SHOT)):
                             pass
 
                         if not config.tidying:
@@ -353,9 +353,11 @@ class TimestepCue(Resource):
                             print("Getting targetString for mtrs\/sec")
                             targetString = content['tgtValue'][:-9]
                             print("Got targetString for mtrs\/sec = " + targetString)
+
                         config.target = float(targetString)
                         config.performance = int(content['performance'])
                         config.accuracy = float(content['accuracy'])
+                        print("Setting new goal level to STAT_GOAL in API class.")
                         config.goal_level = config.STAT_GOAL
                         config.phase = config.PHASE_END
                         config.completed = config.COMPLETED_STATUS_UNDEFINED
@@ -368,7 +370,7 @@ class TimestepCue(Resource):
                             'completed': config.completed
                         }
 
-                        if config.stat_count == 2 or config.tidying:  # config.tidying indicates end of session
+                        if config.stat_count == config.STATS_PER_SHOT or config.tidying:  # config.tidying indicates end of session
                             new_data["final"] = 1
                         else:
                             while config.stat_confirmed is False:
