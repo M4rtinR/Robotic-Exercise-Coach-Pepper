@@ -130,6 +130,8 @@ class TimestepCue(Resource):
                         while not config.tidying and ((not config.shot_confirmed or not len(config.shots_dealt_with) == 0) or (not config.stat_confirmed and config.stat_count <= config.STATS_PER_SHOT)):
                             pass
 
+                        config.stat_confirmed = False
+
                         if not config.tidying:
                             print("Sending shot type: " + str(config.hand) + str(config.shot))
                             new_data['shotType'] = config.shot_list_master.get(config.shot)
@@ -375,6 +377,7 @@ class TimestepCue(Resource):
                         else:
                             while config.stat_confirmed is False:
                                 pass
+                            config.stat_confirmed = False
                             print("New stat = " + str(config.stat))
                             new_data["stat"] = config.stat
 

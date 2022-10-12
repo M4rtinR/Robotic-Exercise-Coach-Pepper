@@ -1151,7 +1151,15 @@ class TimestepCue(Node):
                             stat_list = ["racketPreparation", "approachTiming", "impactCutAngle", "impactSpeed",
                                          "followThroughRoll", "followThroughTime"]
                             index = 0
-                            contentIndex = 1 + (config.sessions - 1) * 12
+                            # folder path
+                            dir_path = "/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + config.hand + str(config.shot)
+                            fileCount = 0
+                            # Iterate directory
+                            for path in os.listdir(dir_path):
+                                # check if current path is a file
+                                if os.path.isfile(os.path.join(dir_path, path)):
+                                    fileCount += 1
+                            contentIndex = 1 + (fileCount - 2) * 12
                             for i in range(0, nodedata.score.__len__()):
                             # for score in nodedata.score.items():
                                 stat_name = stat_list[index]
@@ -1271,7 +1279,17 @@ class TimestepCue(Node):
                                     stat_score_set = {}
                                     stat_perf_set = {}
                                     max = len(file_contents)
-                                    index = (config.sessions - 1) * 12
+                                    # folder path
+                                    dir_path = "/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + config.hand + str(
+                                        config.shot)
+                                    fileCount = 0
+                                    # Iterate directory
+                                    for path in os.listdir(dir_path):
+                                        # check if current path is a file
+                                        if os.path.isfile(os.path.join(dir_path, path)):
+                                            fileCount += 1
+                                    index = (fileCount - 2) * 12
+                                    # index = (config.sessions - 1) * 12
                                     while index < max:
                                         stat_name = file_contents[index].replace("\n", "")
                                         print("stat_name = " + stat_name)
@@ -2142,9 +2160,19 @@ class CheckDoneBefore(Node):
                 f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + config.hand + str(config.shot) + "/Baseline.txt", "r")
                 f_contents = f.readlines()
                 f.close()
-                required_length = config.sessions * 12 + 1
+                # folder path
+                dir_path = "/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + config.hand + str(
+                    config.shot)
+                fileCount = 0
+                # Iterate directory
+                for path in os.listdir(dir_path):
+                    # check if current path is a file
+                    if os.path.isfile(os.path.join(dir_path, path)):
+                        fileCount += 1
+                required_length = 1 + (fileCount - 2) * 12
+                # required_length = (config.sessions - 1) * 12 + 1
                 print("Checking done before.")
-                print("required_length = " + str(required_length) + ", len(f_contents) = " + str(len(f_contents)) + ", f_contents[required_length = " + f_contents[required_length])
+                print("required_length = " + str(required_length) + ", len(f_contents) = " + str(len(f_contents)))  # + ", f_contents[required_length = " + f_contents[required_length])
                 if len(f_contents) > required_length and f_contents[required_length] != "0\n":
                     print("Returning SUCCESS from CheckDoneBefore")
                     return NodeStatus(NodeStatus.SUCCESS, "Found file containing this exercise.")

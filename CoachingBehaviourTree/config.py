@@ -192,11 +192,10 @@ doneBaselineGoal = False
 
 # Initial values to be changed at the beginning of each session:
 name = "Martin"
-participantNo = "NewUserTest" \
-                ""
+participantNo = "User2Test"
 participant_filename = participantNo + "_history.txt"
-ability = 6
-motivation = 8
+ability = 7
+motivation = 6
 # 1 = DRIVE, 5 = LOB, 0 = DROP
 shot = None
 # "FH" or "BH"
