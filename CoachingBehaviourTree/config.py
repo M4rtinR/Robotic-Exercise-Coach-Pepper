@@ -127,7 +127,7 @@ stat_list = {}
 
 # Initial values which will be updated when the API gets called by the guide.
 goal_level = -1
-sessions = 0
+sessions = 26
 score = -1
 target = -1
 avg_score = -1
@@ -173,14 +173,15 @@ question_response = None
 feedback_question = False
 action_score_given = False
 finished_session = False
+cumulative_reward = 0
 
 # Initial values which will be updated when the API gets called by the guide.
 expecting_action_goal = False
 
 # Initial values to be changed at the beginning of each session:
 name = "Martin"
-participantNo = "GammaTesting0.5"
-participant_filename = participantNo + "_history.txt"
+participantNo = "AlphaEpsilonTesting"
+participant_filename = "AlphaEpsilonTesting0.35-0.3"
 ability = 5
 motivation = 8
 # 1 = DRIVE, 5 = LOB, 0 = DROP

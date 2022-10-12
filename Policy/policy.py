@@ -2406,6 +2406,7 @@ class Policy:
         f.write(str(state) + "\n")
         f.write(str(action) + "\n")
         f.write(str(self.transition_matrix) + "\n")
+        f.write(str(config.cumulative_reward))
         f.close()
 
     physioActionDict = {0: config.A_START,

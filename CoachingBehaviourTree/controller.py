@@ -854,7 +854,7 @@ def main():
         os.remove(filename2)
     else:
         print("The file does not exist")'''
-    if config.sessions == 0:
+    if config.sessions == 26:
         loggingFilename = "" + config.participantNo + ".log"
         logging.basicConfig(format='%(levelname)s:%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.INFO, filename=loggingFilename)
         logging.info("Logging started")
@@ -907,7 +907,7 @@ def main():
     f.writelines([str(config.policy_matrix.get_matrix()), str(config.sessions)])
     f.close()
 
-    if config.sessions < 2:
+    if config.sessions < 48:
         config.sessions += 1
         main()
 

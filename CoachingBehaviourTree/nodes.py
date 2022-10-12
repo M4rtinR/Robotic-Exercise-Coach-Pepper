@@ -461,122 +461,205 @@ class GetStats(Node):
         config.session_time = 0
         config.set_count = 0
         config.done_baseline_goal = False
-        if config.sessions == 0:
+        config.cumulative_reward = 0
+        '''if config.sessions == 0:
+            config.epsilon = 0.3
+            config.alpha = 0.3
+            config.participant_filename = "AlphaEpsilonTesting0.3-0.3"
+        elif config.sessions == 1:
+            config.epsilon = 0.3
+            config.alpha = 0.2
+            config.participant_filename = "AlphaEpsilonTesting0.2-0.3"
+        elif config.sessions == 2:
             config.epsilon = 0.2
             config.alpha = 0.1
-            config.participant_filename = "AlphaTesting0.1-0.2-2"
-        elif config.sessions == 1:
-            config.epsilon = 0.1
-            config.alpha = 0.1
-            config.participant_filename = "AlphaTesting0.1-0.1-1"
-        elif config.sessions == 2:
-            config.epsilon = 0.1
-            config.alpha = 0.1
-            config.participant_filename = "AlphaTesting0.1-0.1-2"
+            config.participant_filename = "AlphaEpsilonTesting0.1-0.2-1"
         elif config.sessions == 3:
-            config.epsilon = 0.1
+            config.epsilon = 0.2
             config.alpha = 0.1
-            config.participant_filename = "AlphaTesting0.1-0.1-3"
+            config.participant_filename = "AlphaEpsilonTesting0.1-0.2-2"
         elif config.sessions == 4:
             config.epsilon = 0.1
             config.alpha = 0.1
-            config.participant_filename = "AlphaTesting0.1-0.1-4"
+            config.participant_filename = "AlphaEpsilonTesting0.1-0.1-1"
         elif config.sessions == 5:
             config.epsilon = 0.1
             config.alpha = 0.1
-            config.participant_filename = "AlphaTesting0.1-0.1-5"
+            config.participant_filename = "AlphaEpsilonTesting0.1-0.1-2"
         elif config.sessions == 6:
             config.epsilon = 0.1
             config.alpha = 0.1
-            config.participant_filename = "AlphaTesting0.1-0.1-6"
+            config.participant_filename = "AlphaEpsilonTesting0.1-0.1-3"
         elif config.sessions == 7:
             config.epsilon = 0.1
             config.alpha = 0.1
-            config.participant_filename = "AlphaTesting0.1-0.1-7"
+            config.participant_filename = "AlphaEpsilonTesting0.1-0.1-4"
         elif config.sessions == 8:
             config.epsilon = 0.1
             config.alpha = 0.1
-            config.participant_filename = "AlphaTesting0.1-0.1-8"
+            config.participant_filename = "AlphaEpsilonTesting0.1-0.1-5"
         elif config.sessions == 9:
+            config.epsilon = 0.1
+            config.alpha = 0.1
+            config.participant_filename = "AlphaEpsilonTesting0.1-0.1-6"
+        elif config.sessions == 10:
+            config.epsilon = 0.1
+            config.alpha = 0.1
+            config.participant_filename = "AlphaEpsilonTesting0.1-0.1-7"
+        elif config.sessions == 11:
+            config.epsilon = 0.1
+            config.alpha = 0.1
+            config.participant_filename = "AlphaEpsilonTesting0.1-0.1-8"
+        elif config.sessions == 12:
             config.epsilon = 0.5
             config.alpha = 0.5
-            config.participant_filename = "AlphaTesting0.5-0.5"
-        elif config.sessions == 10:
+            config.participant_filename = "AlphaEpsilonTesting0.5-0.5"
+        elif config.sessions == 13:
             config.epsilon = 0.4
             config.alpha = 0.4
-            config.participant_filename = "AlphaTesting0.4-0.4"
-        elif config.sessions == 11:
-            config.epsilon = 0.3
-            config.alpha = 0.3
-            config.participant_filename = "AlphaTesting0.3-0.3-2"
-        elif config.sessions == 12:
-            config.epsilon = 0.2
-            config.alpha = 0.2
-            config.participant_filename = "AlphaTesting0.2-0.2"
-        elif config.sessions == 13:
-            config.epsilon = 0.3
-            config.alpha = 0.4
-            config.participant_filename = "AlphaTesting0.4.0.3"
+            config.participant_filename = "AlphaEpsilonTesting0.4-0.4"
         elif config.sessions == 14:
             config.epsilon = 0.3
-            config.alpha = 0.35
-            config.participant_filename = "AlphaTesting0.35-0.3"
+            config.alpha = 0.3
+            config.participant_filename = "AlphaEpsilonTesting0.3-0.3-2"
         elif config.sessions == 15:
             config.epsilon = 0.2
-            config.alpha = 0.3
-            config.participant_filename = "AlphaTesting0.3-0.2"
+            config.alpha = 0.2
+            config.participant_filename = "AlphaEpsilonTesting0.2-0.2"
         elif config.sessions == 16:
-            config.epsilon = 0.2
-            config.alpha = 0.25
-            config.participant_filename = "AlphaTesting0.25-0.2"
+            config.epsilon = 0.1
+            config.alpha = 0.1
+            config.participant_filename = "AlphaEpsilonTesting0.1-0.1-2-1"
         elif config.sessions == 17:
             config.epsilon = 0.1
-            config.alpha = 0.2
-            config.participant_filename = "AlphaTesting0.2-0.1"
+            config.alpha = 0.1
+            config.participant_filename = "AlphaEpsilonTesting0.1-0.1-2-2"
         elif config.sessions == 18:
             config.epsilon = 0.1
-            config.alpha = 0.15
-            config.participant_filename = "AlphaTesting0.15-0.1"
+            config.alpha = 0.1
+            config.participant_filename = "AlphaEpsilonTesting0.1-0.1-2-3"
         elif config.sessions == 19:
             config.epsilon = 0.1
             config.alpha = 0.1
-            config.participant_filename = "AlphaTesting0.1-0.1-2-1"
+            config.participant_filename = "AlphaEpsilonTesting0.1-0.1-2-4"
         elif config.sessions == 20:
             config.epsilon = 0.1
-            config.alpha = 0.05
-            config.participant_filename = "AlphaTesting0.05-0.1-1"
+            config.alpha = 0.1
+            config.participant_filename = "AlphaEpsilonTesting0.1-0.1-2-5"
         elif config.sessions == 21:
             config.epsilon = 0.1
-            config.alpha = 0.05
-            config.participant_filename = "AlphaTesting0.05-0.1-2"
+            config.alpha = 0.1
+            config.participant_filename = "AlphaEpsilonTesting0.1-0.1-2-6"
         elif config.sessions == 22:
-            config.epsilon = 0.5
-            config.alpha = 0.3
-            config.participant_filename = "AlphaTesting0.3-0.5"
+            config.epsilon = 0.1
+            config.alpha = 0.1
+            config.participant_filename = "AlphaEpsilonTesting0.1-0.1-2-7"
         elif config.sessions == 23:
-            config.epsilon = 0.4
-            config.alpha = 0.2
-            config.participant_filename = "AlphaTesting0.2-0.4"
+            config.epsilon = 0.1
+            config.alpha = 0.1
+            config.participant_filename = "AlphaEpsilonTesting0.1-0.1-2-8"
         elif config.sessions == 24:
             config.epsilon = 0.3
-            config.alpha = 0.1
-            config.participant_filename = "AlphaTesting0.1-0.3"
+            config.alpha = 0.4
+            config.participant_filename = "AlphaEpsilonTesting0.4.0.3"
         elif config.sessions == 25:
+            config.epsilon = 0.3
+            config.alpha = 0.35
+            config.participant_filename = "AlphaEpsilonTesting0.35-0.3"
+        el'''
+
+        if config.sessions == 26:
+            config.epsilon = 0.2
+            config.alpha = 0.3
+            config.participant_filename = "AlphaEpsilonTesting0.3-0.2"
+        elif config.sessions == 27:
+            config.epsilon = 0.2
+            config.alpha = 0.25
+            config.participant_filename = "AlphaEpsilonTesting0.25-0.2"
+        elif config.sessions == 28:
+            config.epsilon = 0.1
+            config.alpha = 0.2
+            config.participant_filename = "AlphaEpsilonTesting0.2-0.1"
+        elif config.sessions == 29:
+            config.epsilon = 0.1
+            config.alpha = 0.15
+            config.participant_filename = "AlphaEpsilonTesting0.15-0.1"
+        elif config.sessions == 30:
+            config.epsilon = 0.1
+            config.alpha = 0.1
+            config.participant_filename = "AlphaEpsilonTesting0.1-0.1-3-1"
+        elif config.sessions == 31:
+            config.epsilon = 0.1
+            config.alpha = 0.05
+            config.participant_filename = "AlphaEpsilonTesting0.05-0.1-1"
+        elif config.sessions == 32:
+            config.epsilon = 0.1
+            config.alpha = 0.05
+            config.participant_filename = "AlphaEpsilonTesting0.05-0.1-2"
+        elif config.sessions == 33:
+            config.epsilon = 0.1
+            config.alpha = 0.05
+            config.participant_filename = "AlphaEpsilonTesting0.05-0.1-3"
+        elif config.sessions == 34:
+            config.epsilon = 0.1
+            config.alpha = 0.05
+            config.participant_filename = "AlphaEpsilonTesting0.05-0.1-4"
+        elif config.sessions == 35:
+            config.epsilon = 0.1
+            config.alpha = 0.05
+            config.participant_filename = "AlphaEpsilonTesting0.05-0.1-5"
+        elif config.sessions == 36:
+            config.epsilon = 0.5
+            config.alpha = 0.3
+            config.participant_filename = "AlphaEpsilonTesting0.3-0.5"
+        elif config.sessions == 37:
+            config.epsilon = 0.4
+            config.alpha = 0.2
+            config.participant_filename = "AlphaEpsilonTesting0.2-0.4"
+        elif config.sessions == 38:
+            config.epsilon = 0.3
+            config.alpha = 0.1
+            config.participant_filename = "AlphaEpsilonTesting0.1-0.3"
+        elif config.sessions == 39:
             config.epsilon = 0.2
             config.alpha = 0.05
-            config.participant_filename = "AlphaTesting0.05-0.2"
-        elif config.sessions == 26:
+            config.participant_filename = "AlphaEpsilonTesting0.05-0.2"
+        elif config.sessions == 40:
             config.epsilon = 0.1
             config.alpha = 0.05
-            config.participant_filename = "AlphaTesting0.05-0.1-2-1"
-        elif config.sessions == 27:
+            config.participant_filename = "AlphaEpsilonTesting0.05-0.1-4-1"
+        elif config.sessions == 41:
             config.epsilon = 0.1
             config.alpha = 0.05
-            config.participant_filename = "AlphaTesting0.05-0.1-2-2"
+            config.participant_filename = "AlphaEpsilonTesting0.05-0.1-4-2"
+        elif config.sessions == 42:
+            config.epsilon = 0.1
+            config.alpha = 0.05
+            config.participant_filename = "AlphaEpsilonTesting0.05-0.1-4-3"
+        elif config.sessions == 43:
+            config.epsilon = 0.1
+            config.alpha = 0.05
+            config.participant_filename = "AlphaEpsilonTesting0.05-0.1-4-4"
+        elif config.sessions == 44:
+            config.epsilon = 0.1
+            config.alpha = 0.05
+            config.participant_filename = "AlphaEpsilonTesting0.05-0.1-4-5"
+        elif config.sessions == 45:
+            config.epsilon = 0.1
+            config.alpha = 0.05
+            config.participant_filename = "AlphaEpsilonTesting0.05-0.1-4-6"
+        elif config.sessions == 46:
+            config.epsilon = 0.1
+            config.alpha = 0.05
+            config.participant_filename = "AlphaEpsilonTesting0.05-0.1-4-7"
+        elif config.sessions == 47:
+            config.epsilon = 0.1
+            config.alpha = 0.05
+            config.participant_filename = "AlphaEpsilonTesting0.05-0.1-4-8"
         else:
             config.epsilon = 0.3
-            config.participant_filename = "AlphaTestingElse"
-
+            config.participant_filename = "AlphaEpsilonTestingElse"
+        print("config.filename = " + config.participant_filename)
         # Will be ACTIVE when waiting for data and SUCCESS when got data and added to blackboard, FAIL when connection error.
         # logging.debug("In get stats")
         nodedata.motivation = config.motivation

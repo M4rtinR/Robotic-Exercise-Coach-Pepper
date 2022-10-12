@@ -51,7 +51,7 @@ class CoachingEnvironment(gym.Env, ABC):
         super().reset(seed=seed)
 
         filename = "/home/martin/PycharmProjects/coachingPolicies/AdaptedPolicies/" + config.participant_filename
-        if os.path.exists(filename) and (not config.sessions == 8 or config.sessions == 12 or config.sessions == 21):
+        if os.path.exists(filename) and (not config.sessions == 12 or config.sessions == 24 or config.sessions == 36):
             print("using policy from file")
             f = open(filename, "r")
             contents = f.readlines()
@@ -138,6 +138,8 @@ class CoachingEnvironment(gym.Env, ABC):
         observation = self.policy.get_observation(state, action)
         print("about to calculate reward, score = " + str(config.action_score))
         reward = self._calculate_reward(action, observation, config.action_score, config.target, config.performance, config.question_response)
+        if reward is not None:
+            config.cumulative_reward += reward
 
         if action == config.A_END and config.goal_level == config.PERSON_GOAL:
             done = True
