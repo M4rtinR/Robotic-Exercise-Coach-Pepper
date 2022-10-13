@@ -104,7 +104,7 @@ A_POSITIVEMODELING_PRAISE = 66
 A_END = 67
 A_SILENCE = 68
 
-SHOTS_PER_SET = 10
+SHOTS_PER_SET = 30
 SETS_PER_STAT = 1
 STATS_PER_SHOT = 2
 
@@ -192,7 +192,7 @@ doneBaselineGoal = False
 
 # Initial values to be changed at the beginning of each session:
 name = "Martin"
-participantNo = "User2Test"
+participantNo = "StatResultTesting"
 participant_filename = participantNo + "_history.txt"
 ability = 7
 motivation = 6

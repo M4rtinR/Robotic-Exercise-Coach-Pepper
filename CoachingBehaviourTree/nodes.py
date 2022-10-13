@@ -2170,6 +2170,8 @@ class CheckDoneBefore(Node):
                     if os.path.isfile(os.path.join(dir_path, path)):
                         fileCount += 1
                 required_length = 1 + (fileCount - 2) * 12
+                if config.stat_count > 0:
+                    required_length -= 1
                 # required_length = (config.sessions - 1) * 12 + 1
                 print("Checking done before.")
                 print("required_length = " + str(required_length) + ", len(f_contents) = " + str(len(f_contents)))  # + ", f_contents[required_length = " + f_contents[required_length])
