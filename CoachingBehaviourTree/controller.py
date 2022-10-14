@@ -848,13 +848,13 @@ def main():
     '''if os.path.exists(filename):
         os.remove(filename)
     else:
-        print("The file does not exist")
+        print("The fle does not exist")
     filename2 = "/home/martin/PycharmProjects/coachingPolicies/AdaptedPolicies/" + config.participant_filename
     if os.path.exists(filename2):
         os.remove(filename2)
     else:
         print("The file does not exist")'''
-    if config.sessions == 31:
+    if config.sessions == 41:
         loggingFilename = "" + config.participantNo + ".log"
         logging.basicConfig(format='%(levelname)s:%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.INFO, filename=loggingFilename)
         logging.info("Logging started")

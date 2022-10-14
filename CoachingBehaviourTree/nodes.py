@@ -586,8 +586,7 @@ class GetStats(Node):
             config.epsilon = 0.1
             config.alpha = 0.1
             config.participant_filename = "AlphaEpsilonTesting0.1-0.1-3-1"
-        el'''
-        if config.sessions == 31:
+        elif config.sessions == 31:
             config.epsilon = 0.1
             config.alpha = 0.05
             config.participant_filename = "AlphaEpsilonTesting0.05-0.1-1"
@@ -627,7 +626,8 @@ class GetStats(Node):
             config.epsilon = 0.1
             config.alpha = 0.05
             config.participant_filename = "AlphaEpsilonTesting0.05-0.1-4-1"
-        elif config.sessions == 41:
+        el'''
+        if config.sessions == 41:
             config.epsilon = 0.1
             config.alpha = 0.05
             config.participant_filename = "AlphaEpsilonTesting0.05-0.1-4-2"
