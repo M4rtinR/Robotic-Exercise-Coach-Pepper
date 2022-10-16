@@ -75,7 +75,7 @@ class CoachingEnvironment(gym.Env, ABC):
             observation = 0
             self.policy = PolicyWrapper(belief=belief_distribution)
 
-        if config.sessions == 1:
+        '''if config.sessions == 1:
             config.alpha = 0.3
             config.epsilon = 0.3
         elif config.sessions == 2:
@@ -86,7 +86,7 @@ class CoachingEnvironment(gym.Env, ABC):
             config.epsilon = 0.2
         else:
             config.alpha = 0.1
-            config.epsilon = 0.1
+            config.epsilon = 0.1'''
 
         return observation, self.policy
 
@@ -142,7 +142,7 @@ class CoachingEnvironment(gym.Env, ABC):
 
     def _calculate_reward(self, action, observation, score, target, performance):
         print("calculating reward, score = " + str(score) + ", type = " + str(type(score)) + ", target = " + str(target) + ", type = " + str(type(target)))
-        if score is None or target is None or score == -1 or target == -1:
+        '''if score is None or target is None or score == -1 or target == -1:
             print("No score/target, reward = 0. score = " + str(score) + ", target = " + str(target))
             return 0
         else:
@@ -154,7 +154,7 @@ class CoachingEnvironment(gym.Env, ABC):
             elif score > target:
                 return 0.5
             else:
-                return -0.5
+                return -0.5'''
 
         # Option 1
         '''
@@ -209,13 +209,17 @@ class CoachingEnvironment(gym.Env, ABC):
             return reward
         '''
 
-        '''# Option 3
+        print("config.feedback_question = " + str(config.feedback_question))
+        # Option 3
         if score is None or score == -1:
             if action == config.A_QUESTIONING and config.feedback_question:
-                if question_feedback == config.Q_RESPONSE_POSITIVE:
+                print("config.question_response = " + config.question_response)
+                if config.question_response == config.Q_RESPONSE_POSITIVE:
                     returnValue = 0.2
-                else:
+                elif config.question_response == config.Q_RESPONSE_NEGATIVE:
                     returnValue = -0.2
+                else:
+                    returnValue = None
                 config.feedback_question = False
                 config.question_response = None
                 return returnValue
@@ -243,13 +247,13 @@ class CoachingEnvironment(gym.Env, ABC):
                     reward = None
                 return reward
             else:
-                return None'''
-        # Levels of performance:
-        '''MET = 0             # Met the target
-        MUCH_IMPROVED = 1   # Moved a lot closer to the target
-        IMPROVED = 2        # Moved closer to the target
-        IMPROVED_SWAP = 3   # Moved closer to the target but passed it
-        STEADY = 4          # Stayed the same
-        REGRESSED = 5       # Moved further away from the target
-        REGRESSED_SWAP = 6  # Moved past the target and further from it
-        MUCH_REGRESSED = 7  # Moved a lot further away from the target'''
+                return None
+            # Levels of performance:
+            '''MET = 0             # Met the target
+            MUCH_IMPROVED = 1   # Moved a lot closer to the target
+            IMPROVED = 2        # Moved closer to the target
+            IMPROVED_SWAP = 3   # Moved closer to the target but passed it
+            STEADY = 4          # Stayed the same
+            REGRESSED = 5       # Moved further away from the target
+            REGRESSED_SWAP = 6  # Moved past the target and further from it
+            MUCH_REGRESSED = 7  # Moved a lot further away from the target'''

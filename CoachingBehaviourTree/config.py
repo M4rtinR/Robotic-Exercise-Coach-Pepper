@@ -10,6 +10,9 @@ COMPLETED_STATUS_UNDEFINED = -1
 COMPLETED_STATUS_FALSE = 0
 COMPLETED_STATUS_TRUE = 1
 
+Q_RESPONSE_POSITIVE = 1
+Q_RESPONSE_NEGATIVE = 0
+
 # Goal Levels
 PERSON_GOAL = 0
 SESSION_GOAL = 1
@@ -170,6 +173,10 @@ overriden = False  # Indicates whether an override has already occured at this g
 overridePreInstructionOption = False  # Will be set to True when user is being given the option to override a pre-instruction
 overrideQuestioningOption = False     # so that the correct screen can be displayed.
 getBehaviourGoalLevel = -1  # To keep track of which level the controller is in when getting a new behaviour from the policy.
+question_response = None
+feedback_question = False
+action_score_given = False
+cumulative_reward = 0
 expecting_action_goal = False
 stat_confirmed = False  # Becomes true when stat goal is created with chosen stat, reset to false on end stat goal.
 shot_confirmed = False  # Becomes true when shot goal is created with chosen shot, reset to false on end shot goal.
@@ -189,10 +196,14 @@ pause_display = False  # Set to True when the user has selected to end the sessi
 targetList = {}
 accuracy = None  # Stores accuracy for a stat from sensor data, to update the baseline file at the end of each stat.
 doneBaselineGoal = False
+stop_on_baseline = False
+stop_session_on_baseline = False
+during_baseline_goal = False
+finish_session_baseline_stop = False
 
 # Initial values to be changed at the beginning of each session:
 name = "Martin"
-participantNo = "StatResultTesting"
+participantNo = "BaselineStopTesting"
 participant_filename = participantNo + "_history.txt"
 ability = 7
 motivation = 6

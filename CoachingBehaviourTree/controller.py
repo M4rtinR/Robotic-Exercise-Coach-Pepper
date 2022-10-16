@@ -1007,9 +1007,9 @@ def get_intro_sequence(name, blackboard, initialise_node, new_goal_start, new_go
             blackboard.save('choice_type', config.STAT_CHOICE, new_goal_choice._id)
         blackboard.save('whos_choice', config.CHOICE_BY_SYSTEM, new_goal_choice._id)
 
-        new_goal_choice_until_name = new_goal_system_choice_name + "_until"
-        new_goal_choice_until = Until(name=new_goal_choice_until_name, child=new_goal_choice)
-        new_goal_intro_pre_instr_sequence.add_child(new_goal_choice_until)
+        # new_goal_choice_until_name = new_goal_system_choice_name + "_until"
+        # new_goal_choice_until = Until(name=new_goal_choice_until_name, child=new_goal_choice)
+        new_goal_intro_pre_instr_sequence.add_child(new_goal_choice)
 
         '''if name == "shot_goal_intro_loop":
             first_time_check_selector_post_choice = Selector(name="first_time_check_selector_post_choice")
@@ -1251,9 +1251,9 @@ def get_intro_sequence(name, blackboard, initialise_node, new_goal_start, new_go
             blackboard.save('choice_type', config.STAT_CHOICE, new_goal_choice._id)
         blackboard.save('whos_choice', config.CHOICE_BY_PERSON, new_goal_choice._id)
 
-        new_goal_choice_until_name = new_goal_player_choice_name + "_until"
-        new_goal_choice_until = Until(name=new_goal_choice_until_name, child=new_goal_choice)
-        new_goal_intro_questioning_sequence.add_child(new_goal_choice_until)
+        # new_goal_choice_until_name = new_goal_player_choice_name + "_until"
+        # new_goal_choice_until = Until(name=new_goal_choice_until_name, child=new_goal_choice)
+        new_goal_intro_questioning_sequence.add_child(new_goal_choice)
 
         '''if name == "shot_goal_intro_loop":
             first_time_check_selector_post_choice = Selector(name="first_time_check_selector_post_choice")

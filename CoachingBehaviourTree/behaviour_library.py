@@ -15811,6 +15811,8 @@ class BehaviourLibraryFunctions:
                 utterance = utterance + "That was not good " + name"""
 
     def get_demo_string(self, behaviour, goal_level, shot, hand, stat, leftHand, score, target):
+        if score is None or target is None or score == -1 or target == -1:
+            return None
         posNeg = "_pos"
         if behaviour in [config.A_NEGATIVEMODELING, config.A_PREINSTRUCTION_NEGATIVEMODELING,
                          config.A_POSTINSTRUCTIONPOSITIVE_NEGATIVE_MODELING,

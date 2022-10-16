@@ -64,14 +64,17 @@ class TimestepCue(Resource):
                         return new_data, 200
                     elif 'stop' in content:
                         print("stop session")
-                        config.stop_set = True  # High level global variable which will be checked at each node until session goal feedback is reached.
-                        config.pause_display = True
-                        config.goal_level = config.EXERCISE_GOAL
-                        # config.phase = config.PHASE_END
-                        # config.set_count += 1
-                        # config.completed = config.COMPLETED_STATUS_TRUE
-                        # config.session_time = config.MAX_SESSION_TIME
-                        config.MAX_SESSION_TIME = 1  # Session will stop because time is now > MAX_SESSION_TIME
+                        if config.goal_level == config.ACTION_GOAL and config.during_baseline_goal:
+                            config.stop_session_on_baseline = True
+                        else:
+                            config.stop_set = True  # High level global variable which will be checked at each node until session goal feedback is reached.
+                            config.pause_display = True
+                            config.goal_level = config.EXERCISE_GOAL
+                            # config.phase = config.PHASE_END
+                            # config.set_count += 1
+                            # config.completed = config.COMPLETED_STATUS_TRUE
+                            # config.session_time = config.MAX_SESSION_TIME
+                            config.MAX_SESSION_TIME = 1  # Session will stop because time is now > MAX_SESSION_TIME
 
                         new_data = {
                             'goal_level': 1,
@@ -143,8 +146,11 @@ class TimestepCue(Resource):
                         return new_data, 200
                     elif 'stop' in content:  # Stop current set.
                         if config.expecting_action_goal:
-                            config.stop_set = True  # High level global variable which will be checked at each node until set goal feedback loop is reached.
-                            config.goal_level = config.EXERCISE_GOAL  # Set to exercise goal so that we wait for end of set feedback from app.
+                            if config.goal_level == config.ACTION_GOAL and config.during_baseline_goal:
+                                config.stop_on_baseline = True
+                            else:
+                                config.stop_set = True  # High level global variable which will be checked at each node until set goal feedback loop is reached.
+                                config.goal_level = config.EXERCISE_GOAL  # Set to exercise goal so that we wait for end of set feedback from app.
 
                         new_data = {
                             'goal_level': 2,
@@ -328,6 +334,13 @@ class TimestepCue(Resource):
                                 'shotSet': '1',
                                 'stat': config.stat
                             }
+                            if config.stop_session_on_baseline:
+                                new_data['stop_on_baseline'] = '1'
+                                new_data['final'] = '1'
+                                config.stop_session_on_baseline = False
+                                config.finish_session_baseline_stop = True
+                            else:
+                                new_data['stop_on_baseline'] = '0'
                         print("returning data to app: " + str(new_data))
                         return new_data, 200
 
@@ -447,6 +460,7 @@ class TimestepCue(Resource):
 
                         print('got values from content')
                         config.avg_score = float(scoreString)
+                        config.action_score_given = False
                         config.set_score_list.append(float(scoreString))
                         config.target = float(targetString)
                         if not content['performance'] == "":
@@ -496,6 +510,7 @@ class TimestepCue(Resource):
                     if config.expecting_action_goal:
                         print('action goal setting controller values')
                         config.action_score = float(content['score'])
+                        config.action_score_given = True
                         config.has_score_been_provided = False
                         performanceValue = config.MET
                         if content['performance'] == 'Very Low':
@@ -561,6 +576,15 @@ class TimestepCue(Resource):
                     config.override = True
                 else:
                     config.override = False
+
+            elif 'questionResponse' in content:
+                print("dealing with question response in API")
+                if content['questionResponse'] == "Pos":
+                    config.question_response = config.Q_RESPONSE_POSITIVE
+                elif content['questionResponse'] == "Neg":
+                    config.question_response = config.Q_RESPONSE_NEGATIVE
+                else:
+                    config.question_response = None
 
             else:
                 print("dealing with shot/stat selection in API")
