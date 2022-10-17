@@ -203,7 +203,7 @@ finish_session_baseline_stop = False
 
 # Initial values to be changed at the beginning of each session:
 name = "Martin"
-participantNo = "BaselineStopTesting"
+participantNo = "DemosTest"
 participant_filename = participantNo + "_history.txt"
 ability = 7
 motivation = 6
@@ -233,15 +233,15 @@ policy_matrix = None
 # screen_post_address = "http://192.168.1.174:8000/"
 
 # Robot through ITT Pepper router:
-# post_address = "http://192.168.1.207:4999/output"
-# screen_post_address = "http://192.168.1.207:8000/"
+post_address = "http://192.168.1.207:4999/output"
+screen_post_address = "http://192.168.1.207:8000/"
 
 # Robot through hotspot:
 # post_address = "http://192.168.43.19:4999/output"
 
 # Dusty on HRI lab 5G:
-post_address = "http://192.168.1.115:4999/output"
-screen_post_address = "http://192.168.1.115:8000/"
+# post_address = "http://192.168.1.115:4999/output"
+# screen_post_address = "http://192.168.1.115:8000/"
 
 behaviour = -1
 need_new_behaviour = False
