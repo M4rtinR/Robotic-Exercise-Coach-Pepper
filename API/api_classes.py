@@ -29,6 +29,7 @@ class TimestepCue(Resource):
             logging.debug(content)
             logging.info("Received data from app: {}".format(content))
             if int(content['goal_level']) == config.PERSON_GOAL:
+                logging.info("Received person goal info")
                 # logging.info("Received data from app: {}".format(content))
                 config.goal_level = config.PERSON_GOAL
                 # config.name = content['name']  # Name was not working so removed here and will set it at the start of each session.
@@ -48,14 +49,15 @@ class TimestepCue(Resource):
                 return new_data, 200
 
             elif int(content['goal_level']) == config.SESSION_GOAL:
-                logging.debug('session goal setting controller values')
+                logging.info('session goal setting controller values')
                 if 'feedback' in content:  # End of session
-                    logging.debug('end of session')
+                    logging.info('end of session')
                     config.performance = content['performance']
                     config.goal_level = config.SESSION_GOAL
                     config.phase = config.PHASE_END
                     config.completed = config.COMPLETED_STATUS_UNDEFINED
                     config.question_response = config.Q_RESPONSE_POSITIVE if content['question'] == "True" else config.Q_RESPONSE_NEGATIVE
+                    config.session_finished = True
 
                     while config.completed == config.COMPLETED_STATUS_UNDEFINED:
                         pass
@@ -93,9 +95,9 @@ class TimestepCue(Resource):
                     return new_data, 200
 
             elif int(content['goal_level']) == config.EXERCISE_GOAL:
-                logging.debug('shot goal setting controller values')
+                logging.info('shot goal setting controller values')
                 if 'feedback' in content:  # End of shot
-                    logging.debug('end of shot')
+                    logging.info('end of shot')
                     config.score = content['score']
                     config.target = content['tgtValue']
                     config.performance = content['performance']
@@ -103,6 +105,7 @@ class TimestepCue(Resource):
                     config.phase = config.PHASE_END
                     config.completed = config.COMPLETED_STATUS_FALSE
                     config.question_response = config.Q_RESPONSE_POSITIVE if content['question'] == "True" else config.Q_RESPONSE_NEGATIVE
+                    config.shot_finished = True
 
                     while config.completed == config.COMPLETED_STATUS_FALSE:
                         pass
@@ -148,9 +151,9 @@ class TimestepCue(Resource):
                     return new_data, 200
 
             elif int(content['goal_level']) == config.STAT_GOAL:
-                logging.debug('stat goal setting controller values')
+                logging.info('stat goal setting controller values')
                 if 'feedback' in content:  # End of stat
-                    logging.debug('end of stat')
+                    logging.info('end of stat')
                     config.score = float(content['score'])
                     config.target = float(content['tgtValue'])
                     config.performance = int(content['performance'])
@@ -158,6 +161,7 @@ class TimestepCue(Resource):
                     config.phase = config.PHASE_END
                     config.completed = config.COMPLETED_STATUS_UNDEFINED
                     config.question_response = config.Q_RESPONSE_POSITIVE if content['question'] == "True" else config.Q_RESPONSE_NEGATIVE
+                    config.stat_finished = True
 
                     while config.completed == config.COMPLETED_STATUS_UNDEFINED:
                         pass
@@ -199,9 +203,9 @@ class TimestepCue(Resource):
                     config.score = content['score']
                     config.goal_level = config.EXERCISE_GOAL
                 else:'''
-                logging.debug('set goal setting controller values')
+                logging.info('set goal setting controller values')
                 if 'score' in content:  # End of set
-                    logging.debug('end of set')
+                    logging.info('end of set')
                     scoreString = content['score']
                     if scoreString[-1] == "%":
                         scoreString = content['score'][:-1]
@@ -229,6 +233,7 @@ class TimestepCue(Resource):
                         config.completed = config.COMPLETED_STATUS_TRUE
 
                     config.question_response = config.Q_RESPONSE_POSITIVE if content['question'] == "True" else config.Q_RESPONSE_NEGATIVE
+                    config.set_finished = True
 
                     while not config.completed == config.COMPLETED_STATUS_FALSE:
                         pass
@@ -265,8 +270,8 @@ class TimestepCue(Resource):
 
             elif int(content['goal_level']) == config.ACTION_GOAL:
                 #if expecting_action_goal:
-                logging.debug('action goal setting controller values')
-                config.action_score = float(content['score'])
+                logging.info('action goal setting controller values')
+                config.score = float(content['score'])
                 config.action_score_given = True
                 performanceValue = config.MET
                 if content['performance'] == 'Very Low':
@@ -302,7 +307,7 @@ class TimestepCue(Resource):
 
                 while (config.done_baseline_goal and expecting_action_goal is False) or (config.done_baseline_goal and not config.completed == config.COMPLETED_STATUS_TRUE):
                     pass
-                print("past while")
+                logging.info("past while")
 
                 new_data = {
                     'goal_level': 5,
@@ -325,7 +330,7 @@ class TimestepCue(Resource):
                         'shotSet': 1,
                         'shotSetComplete': 0
                     }'''
-                print("returning data")
+                logging.info("returning data")
                 return new_data, 200
 
         else:

@@ -103,7 +103,7 @@ class GetBehaviour(Node):
             state information.
         :return: None
         """
-        print("Configuring GetBehaviour: " + self._name)
+        logging.info("Configuring GetBehaviour: " + self._name)
         # logging.debug(str(nodedata))
         self.belief = nodedata.get_data('belief')            # Belief distribution over policies.
         self.goal_level = nodedata.get_data('goal')          # Which level of goal we are currently in (e.g. SET_GOAL)
@@ -125,7 +125,7 @@ class GetBehaviour(Node):
         :return: NodeStatus.SUCCESS when a behaviour and observation has been obtained from the policy wrapper.
         """
         #if not config.stop_set and not config.stop_session:
-        # print('GetBehaviour, self.goal_level = ' + str(self.goal_level) + ', nodedata.goal = ' + str(nodedata.goal))
+        # logging.info('GetBehaviour, self.goal_level = ' + str(self.goal_level) + ', nodedata.goal = ' + str(nodedata.goal))
         # policy = PolicyWrapper(self.belief)  # TODO: generate this at start of interaction and store on blackboard.
         #, nodedata.obs_behaviour
         # nodedata.behaviour = policy.get_behaviour(self.state, self.goal_level, self.performance, self.phase)
@@ -158,6 +158,7 @@ class GetBehaviour(Node):
             if config.reset_action_score:
                 config.reset_action_score = False
                 config.action_score = None
+
             logging.debug("Returning SUCCESS from GetBehaviour, nodedata = " + str(nodedata))
             return NodeStatus(NodeStatus.SUCCESS, "Obtained behaviour " + str(nodedata.behaviour))
         #else:
@@ -237,7 +238,7 @@ class FormatAction(Node):
             nodes.
         :return: NodeStatus.SUCCESS when an action has been created.
         """
-        print("Formatting action: behaviour = {behaviour}, goal_level = {goal_level}, performance = {performance}, name = {name}, shot = {shot}, hand = {hand}, stat = {stat}, score = {score}".format(behaviour=self.behaviour, goal_level=self.goal_level, performance=self.performance, name=self.name, shot=self.shot, hand=self.hand, stat=self.stat, score=self.score))
+        logging.info("Formatting action: behaviour = {behaviour}, goal_level = {goal_level}, performance = {performance}, name = {name}, shot = {shot}, hand = {hand}, stat = {stat}, score = {score}".format(behaviour=self.behaviour, goal_level=self.goal_level, performance=self.performance, name=self.name, shot=self.shot, hand=self.hand, stat=self.stat, score=self.score))
         if not(self.behaviour == config.A_SILENCE):
             demo = None
             if self.behaviour in [config.A_POSITIVEMODELING, config.A_NEGATIVEMODELING,
@@ -277,7 +278,7 @@ class FormatAction(Node):
             logging.debug("Returning FAIL from FormatAction, behaviour = " + str(self.behaviour))
             return NodeStatus(NodeStatus.FAIL, "Behaviour == A_SILENCE")
 
-        print("behaviour = " + str(self.behaviour) + ", action = " + str(nodedata.action))
+        logging.info("behaviour = " + str(self.behaviour) + ", action = " + str(nodedata.action))
         logging.debug("Returning SUCCESS from FormatAction, action = " + str(nodedata.action))
         return NodeStatus(NodeStatus.SUCCESS, "Created action from given behaviour.")
 
@@ -318,7 +319,7 @@ class CheckForBehaviour(Node):
             behaviour information.
         :return: None
         """
-        print("Configuring CheckForBehaviour: " + self._name)
+        logging.info("Configuring CheckForBehaviour: " + self._name)
         self.behaviour = nodedata.get_data('behaviour')              # The behaviour selected from the policy
         self.check_behaviour = nodedata.get_data('check_behaviour')  # The behaviour to check against
 
@@ -392,7 +393,7 @@ class DisplayBehaviour(Node):
             be performed.
         :return: None
         """
-        print("Configuring DisplayBehaviour: " + self._name)
+        logging.info("Configuring DisplayBehaviour: " + self._name)
         self.action = nodedata.get_data('action')
         self.set_start = nodedata.get_data('set_start', False)
 
@@ -452,7 +453,7 @@ class GetStats(Node):
         :return: NodeStatus.ACTIVE when waiting for data, NodeStatus.SUCCESS when got data and added to blackboard,
             NodeStatus.FAIL otherwise.
         """
-        print("Running GetStats: " + self._name)
+        logging.info("Running GetStats: " + self._name)
 
         output = {
             "start": str(1)
@@ -462,203 +463,202 @@ class GetStats(Node):
         config.set_count = 0
         config.done_baseline_goal = False
         config.cumulative_reward = 0
-        '''if config.sessions == 0:
+        if config.sessions == 0:
             config.epsilon = 0.3
             config.alpha = 0.3
-            config.participant_filename = "AlphaEpsilonTesting0.3-0.3"
+            config.participant_filename = "SecondAlphaEpsilonTesting0.3-0.3"
         elif config.sessions == 1:
             config.epsilon = 0.3
             config.alpha = 0.2
-            config.participant_filename = "AlphaEpsilonTesting0.2-0.3"
+            config.participant_filename = "SecondAlphaEpsilonTesting0.2-0.3"
         elif config.sessions == 2:
             config.epsilon = 0.2
             config.alpha = 0.1
-            config.participant_filename = "AlphaEpsilonTesting0.1-0.2-1"
+            config.participant_filename = "SecondAlphaEpsilonTesting0.1-0.2-1"
         elif config.sessions == 3:
             config.epsilon = 0.2
             config.alpha = 0.1
-            config.participant_filename = "AlphaEpsilonTesting0.1-0.2-2"
+            config.participant_filename = "SecondAlphaEpsilonTesting0.1-0.2-2"
         elif config.sessions == 4:
             config.epsilon = 0.1
             config.alpha = 0.1
-            config.participant_filename = "AlphaEpsilonTesting0.1-0.1-1"
+            config.participant_filename = "SecondAlphaEpsilonTesting0.1-0.1-1"
         elif config.sessions == 5:
             config.epsilon = 0.1
             config.alpha = 0.1
-            config.participant_filename = "AlphaEpsilonTesting0.1-0.1-2"
+            config.participant_filename = "SecondAlphaEpsilonTesting0.1-0.1-2"
         elif config.sessions == 6:
             config.epsilon = 0.1
             config.alpha = 0.1
-            config.participant_filename = "AlphaEpsilonTesting0.1-0.1-3"
+            config.participant_filename = "SecondAlphaEpsilonTesting0.1-0.1-3"
         elif config.sessions == 7:
             config.epsilon = 0.1
             config.alpha = 0.1
-            config.participant_filename = "AlphaEpsilonTesting0.1-0.1-4"
+            config.participant_filename = "SecondAlphaEpsilonTesting0.1-0.1-4"
         elif config.sessions == 8:
             config.epsilon = 0.1
             config.alpha = 0.1
-            config.participant_filename = "AlphaEpsilonTesting0.1-0.1-5"
+            config.participant_filename = "SecondAlphaEpsilonTesting0.1-0.1-5"
         elif config.sessions == 9:
             config.epsilon = 0.1
             config.alpha = 0.1
-            config.participant_filename = "AlphaEpsilonTesting0.1-0.1-6"
+            config.participant_filename = "SecondAlphaEpsilonTesting0.1-0.1-6"
         elif config.sessions == 10:
             config.epsilon = 0.1
             config.alpha = 0.1
-            config.participant_filename = "AlphaEpsilonTesting0.1-0.1-7"
+            config.participant_filename = "SecondAlphaEpsilonTesting0.1-0.1-7"
         elif config.sessions == 11:
             config.epsilon = 0.1
             config.alpha = 0.1
-            config.participant_filename = "AlphaEpsilonTesting0.1-0.1-8"
+            config.participant_filename = "SecondAlphaEpsilonTesting0.1-0.1-8"
         elif config.sessions == 12:
             config.epsilon = 0.5
             config.alpha = 0.5
-            config.participant_filename = "AlphaEpsilonTesting0.5-0.5"
+            config.participant_filename = "SecondAlphaEpsilonTesting0.5-0.5"
         elif config.sessions == 13:
             config.epsilon = 0.4
             config.alpha = 0.4
-            config.participant_filename = "AlphaEpsilonTesting0.4-0.4"
+            config.participant_filename = "SecondAlphaEpsilonTesting0.4-0.4"
         elif config.sessions == 14:
             config.epsilon = 0.3
             config.alpha = 0.3
-            config.participant_filename = "AlphaEpsilonTesting0.3-0.3-2"
+            config.participant_filename = "SecondAlphaEpsilonTesting0.3-0.3-2"
         elif config.sessions == 15:
             config.epsilon = 0.2
             config.alpha = 0.2
-            config.participant_filename = "AlphaEpsilonTesting0.2-0.2"
+            config.participant_filename = "SecondAlphaEpsilonTesting0.2-0.2"
         elif config.sessions == 16:
             config.epsilon = 0.1
             config.alpha = 0.1
-            config.participant_filename = "AlphaEpsilonTesting0.1-0.1-2-1"
+            config.participant_filename = "SecondAlphaEpsilonTesting0.1-0.1-2-1"
         elif config.sessions == 17:
             config.epsilon = 0.1
             config.alpha = 0.1
-            config.participant_filename = "AlphaEpsilonTesting0.1-0.1-2-2"
+            config.participant_filename = "SecondAlphaEpsilonTesting0.1-0.1-2-2"
         elif config.sessions == 18:
             config.epsilon = 0.1
             config.alpha = 0.1
-            config.participant_filename = "AlphaEpsilonTesting0.1-0.1-2-3"
+            config.participant_filename = "SecondAlphaEpsilonTesting0.1-0.1-2-3"
         elif config.sessions == 19:
             config.epsilon = 0.1
             config.alpha = 0.1
-            config.participant_filename = "AlphaEpsilonTesting0.1-0.1-2-4"
+            config.participant_filename = "SecondAlphaEpsilonTesting0.1-0.1-2-4"
         elif config.sessions == 20:
             config.epsilon = 0.1
             config.alpha = 0.1
-            config.participant_filename = "AlphaEpsilonTesting0.1-0.1-2-5"
+            config.participant_filename = "SecondAlphaEpsilonTesting0.1-0.1-2-5"
         elif config.sessions == 21:
             config.epsilon = 0.1
             config.alpha = 0.1
-            config.participant_filename = "AlphaEpsilonTesting0.1-0.1-2-6"
+            config.participant_filename = "SecondAlphaEpsilonTesting0.1-0.1-2-6"
         elif config.sessions == 22:
             config.epsilon = 0.1
             config.alpha = 0.1
-            config.participant_filename = "AlphaEpsilonTesting0.1-0.1-2-7"
+            config.participant_filename = "SecondAlphaEpsilonTesting0.1-0.1-2-7"
         elif config.sessions == 23:
             config.epsilon = 0.1
             config.alpha = 0.1
-            config.participant_filename = "AlphaEpsilonTesting0.1-0.1-2-8"
+            config.participant_filename = "SecondAlphaEpsilonTesting0.1-0.1-2-8"
         elif config.sessions == 24:
             config.epsilon = 0.3
             config.alpha = 0.4
-            config.participant_filename = "AlphaEpsilonTesting0.4.0.3"
+            config.participant_filename = "SecondAlphaEpsilonTesting0.4.0.3"
         elif config.sessions == 25:
             config.epsilon = 0.3
             config.alpha = 0.35
-            config.participant_filename = "AlphaEpsilonTesting0.35-0.3"
+            config.participant_filename = "SecondAlphaEpsilonTesting0.35-0.3"
         elif config.sessions == 26:
             config.epsilon = 0.2
             config.alpha = 0.3
-            config.participant_filename = "AlphaEpsilonTesting0.3-0.2"
+            config.participant_filename = "SecondAlphaEpsilonTesting0.3-0.2"
         elif config.sessions == 27:
             config.epsilon = 0.2
             config.alpha = 0.25
-            config.participant_filename = "AlphaEpsilonTesting0.25-0.2"
+            config.participant_filename = "SecondAlphaEpsilonTesting0.25-0.2"
         elif config.sessions == 28:
             config.epsilon = 0.1
             config.alpha = 0.2
-            config.participant_filename = "AlphaEpsilonTesting0.2-0.1"
+            config.participant_filename = "SecondAlphaEpsilonTesting0.2-0.1"
         elif config.sessions == 29:
             config.epsilon = 0.1
             config.alpha = 0.15
-            config.participant_filename = "AlphaEpsilonTesting0.15-0.1"
+            config.participant_filename = "SecondAlphaEpsilonTesting0.15-0.1"
         elif config.sessions == 30:
             config.epsilon = 0.1
             config.alpha = 0.1
-            config.participant_filename = "AlphaEpsilonTesting0.1-0.1-3-1"
+            config.participant_filename = "SecondAlphaEpsilonTesting0.1-0.1-3-1"
         elif config.sessions == 31:
             config.epsilon = 0.1
             config.alpha = 0.05
-            config.participant_filename = "AlphaEpsilonTesting0.05-0.1-1"
+            config.participant_filename = "SecondAlphaEpsilonTesting0.05-0.1-1"
         elif config.sessions == 32:
             config.epsilon = 0.1
             config.alpha = 0.05
-            config.participant_filename = "AlphaEpsilonTesting0.05-0.1-2"
+            config.participant_filename = "SecondAlphaEpsilonTesting0.05-0.1-2"
         elif config.sessions == 33:
             config.epsilon = 0.1
             config.alpha = 0.05
-            config.participant_filename = "AlphaEpsilonTesting0.05-0.1-3"
+            config.participant_filename = "SecondAlphaEpsilonTesting0.05-0.1-3"
         elif config.sessions == 34:
             config.epsilon = 0.1
             config.alpha = 0.05
-            config.participant_filename = "AlphaEpsilonTesting0.05-0.1-4"
+            config.participant_filename = "SecondAlphaEpsilonTesting0.05-0.1-4"
         elif config.sessions == 35:
             config.epsilon = 0.1
             config.alpha = 0.05
-            config.participant_filename = "AlphaEpsilonTesting0.05-0.1-5"
+            config.participant_filename = "SecondAlphaEpsilonTesting0.05-0.1-5"
         elif config.sessions == 36:
             config.epsilon = 0.5
             config.alpha = 0.3
-            config.participant_filename = "AlphaEpsilonTesting0.3-0.5"
+            config.participant_filename = "SecondAlphaEpsilonTesting0.3-0.5"
         elif config.sessions == 37:
             config.epsilon = 0.4
             config.alpha = 0.2
-            config.participant_filename = "AlphaEpsilonTesting0.2-0.4"
+            config.participant_filename = "SecondAlphaEpsilonTesting0.2-0.4"
         elif config.sessions == 38:
             config.epsilon = 0.3
             config.alpha = 0.1
-            config.participant_filename = "AlphaEpsilonTesting0.1-0.3"
+            config.participant_filename = "SecondAlphaEpsilonTesting0.1-0.3"
         elif config.sessions == 39:
             config.epsilon = 0.2
             config.alpha = 0.05
-            config.participant_filename = "AlphaEpsilonTesting0.05-0.2"
+            config.participant_filename = "SecondAlphaEpsilonTesting0.05-0.2"
         elif config.sessions == 40:
             config.epsilon = 0.1
             config.alpha = 0.05
-            config.participant_filename = "AlphaEpsilonTesting0.05-0.1-4-1"
-        el'''
-        if config.sessions == 41:
+            config.participant_filename = "SecondAlphaEpsilonTesting0.05-0.1-4-1"
+        elif config.sessions == 41:
             config.epsilon = 0.1
             config.alpha = 0.05
-            config.participant_filename = "AlphaEpsilonTesting0.05-0.1-4-2"
+            config.participant_filename = "SecondAlphaEpsilonTesting0.05-0.1-4-2"
         elif config.sessions == 42:
             config.epsilon = 0.1
             config.alpha = 0.05
-            config.participant_filename = "AlphaEpsilonTesting0.05-0.1-4-3"
+            config.participant_filename = "SecondAlphaEpsilonTesting0.05-0.1-4-3"
         elif config.sessions == 43:
             config.epsilon = 0.1
             config.alpha = 0.05
-            config.participant_filename = "AlphaEpsilonTesting0.05-0.1-4-4"
+            config.participant_filename = "SecondAlphaEpsilonTesting0.05-0.1-4-4"
         elif config.sessions == 44:
             config.epsilon = 0.1
             config.alpha = 0.05
-            config.participant_filename = "AlphaEpsilonTesting0.05-0.1-4-5"
+            config.participant_filename = "SecondAlphaEpsilonTesting0.05-0.1-4-5"
         elif config.sessions == 45:
             config.epsilon = 0.1
             config.alpha = 0.05
-            config.participant_filename = "AlphaEpsilonTesting0.05-0.1-4-6"
+            config.participant_filename = "SecondAlphaEpsilonTesting0.05-0.1-4-6"
         elif config.sessions == 46:
             config.epsilon = 0.1
             config.alpha = 0.05
-            config.participant_filename = "AlphaEpsilonTesting0.05-0.1-4-7"
+            config.participant_filename = "SecondAlphaEpsilonTesting0.05-0.1-4-7"
         elif config.sessions == 47:
             config.epsilon = 0.1
             config.alpha = 0.05
-            config.participant_filename = "AlphaEpsilonTesting0.05-0.1-4-8"
+            config.participant_filename = "SecondAlphaEpsilonTesting0.05-0.1-4-8"
         else:
             config.epsilon = 0.3
-            config.participant_filename = "AlphaEpsilonTestingElse"
-        print("config.filename = " + config.participant_filename)
+            config.participant_filename = "SecondAlphaEpsilonTestingElse"
+        logging.info("config.filename = " + config.participant_filename)
         # Will be ACTIVE when waiting for data and SUCCESS when got data and added to blackboard, FAIL when connection error.
         # logging.debug("In get stats")
         nodedata.motivation = config.motivation
@@ -694,7 +694,7 @@ class GetDuration(Node):
         :return: NodeStatus.ACTIVE when waiting for user's input, NodeStatus.SUCCESS when user's input has been received
             and data has been stored in the blackboard, NodeStatus.FAIL otherwise.
         """
-        print("Running GetDuration: " + self._name)
+        logging.info("Running GetDuration: " + self._name)
         # Will be ACTIVE when waiting for data and SUCCESS when got data and added to blackboard, FAIL when connection error.
         nodedata.session_duration = 1
         logging.info("Set session duration to: {duration}".format(duration=nodedata.session_duration))
@@ -732,7 +732,7 @@ class CreateSubgoal(Node):
         :param nodedata :type Blackboard: the blackboard associated with this Behaviour Tree containing the goal level.
         :return: None
         """
-        print("Configuring CreateSubgoal: " + self._name)
+        logging.info("Configuring CreateSubgoal: " + self._name)
         logging.debug("createSubgoal nodedata = " + str(nodedata))
         self.previous_goal_level = nodedata.get_data('goal', -1)
         self.shot = nodedata.get_data('shot')
@@ -745,7 +745,7 @@ class CreateSubgoal(Node):
         :return: NodeStatus.SUCCESS when request is sent to API, NodeStatus.FAIL if current goal level is ACTION_GOAL
             or cannot connect to API.
         """
-        print("Create subgoal stat = " + str(self.stat))
+        logging.info("Create subgoal stat = " + str(self.stat))
         # Will return SUCCESS once request sent to API, FAIL if called on ACTION_GOAL or connection error.
         if self.previous_goal_level == 6:
             nodedata.new_goal = 3
@@ -805,7 +805,7 @@ class EndSubgoal(Node):
         :param nodedata :type Blackboard: the blackboard associated with this Behaviour Tree containing the goal level.
         :return: None
         """
-        print("Configuring EndSubgoal: " + self._name)
+        logging.info("Configuring EndSubgoal: " + self._name)
         self.goal_level = nodedata.get_data('goal', -1)
 
     def run(self, nodedata):
@@ -830,9 +830,9 @@ class EndSubgoal(Node):
             else:
                 if (self.goal_level == config.SET_GOAL and config.set_count == 6) or self.goal_level == config.STAT_GOAL or self.goal_level == config.EXERCISE_GOAL or self.goal_level == config.SESSION_GOAL:
                     if self.goal_level == config.EXERCISE_GOAL:
-                        print("adding 1 to session time")
+                        logging.info("adding 1 to session time")
                         config.session_time += 1
-                        config.finished_session = True
+                        # config.finished_session = True
                     config.goal_level -= 1
                     config.phase = config.PHASE_END
                 else:
@@ -847,7 +847,7 @@ class EndSubgoal(Node):
                     # api_classes.expecting_action_goal = False
                 #     config.completed = config.COMPLETED_STATUS_TRUE
             if nodedata.new_goal == -1:
-                print("Completed")
+                logging.info("Completed")
                 # time.sleep(5.0)
             logging.info("Ended subgoal {old_goal}. New goal level = {new_goal}.".format(old_goal=self.goal_level, new_goal=nodedata.new_goal))
             logging.debug("Returning SUCCESS from EndSubgoal, new subgoal level = " + str(nodedata.new_goal))
@@ -876,7 +876,7 @@ class TimestepCue(Node):
             *args, **kwargs)
 
     def configure(self, nodedata):
-        print("Configuring TimestepCue: " + self._name)
+        logging.info("Configuring TimestepCue: " + self._name)
         self.goal_level = nodedata.get_data('goal')
         self.phase = nodedata.get_data('phase')
         # config.completed = config.COMPLETED_STATUS_FALSE
@@ -899,6 +899,7 @@ class TimestepCue(Node):
                 if config.phase == config.PHASE_END:  # Feedback sequence
                     nodedata.performance = round(mean(config.set_performance_list))
                     nodedata.phase = config.PHASE_END
+                    config.finished_session = True
                     logging.info(
                         "Feedback for session, performance = {performance}".format(performance=nodedata.performance))
                     logging.debug("Returning SUCCESS from TimestepCue person goal (end), stats = " + str(nodedata))
@@ -940,14 +941,14 @@ class TimestepCue(Node):
             if config.goal_level == 2:
                 if config.phase == config.PHASE_END:
                     if config.completed == config.COMPLETED_STATUS_TRUE:  # This is actually the end of a baseline goal. Might need to update this so it's not as weirdly laid out.
-                        print("Baseline goal feedback sequence")
+                        logging.debug("Baseline goal feedback sequence")
                         nodedata.phase = config.PHASE_END
                         nodedata.performance = config.performance
                         config.completed = config.COMPLETED_STATUS_FALSE
                         logging.debug("Returning SUCCESS from TimestepCue shot goal (end), stats = " + str(nodedata))
                         return NodeStatus(NodeStatus.SUCCESS, "Data for shot goal obtained from guide:" + str(nodedata))
                     elif config.completed == config.COMPLETED_STATUS_FALSE:  # Feedback Sequence
-                        print("Shot goal feedback sequence")
+                        logging.debug("Shot goal feedback sequence")
                         nodedata.performance = round(mean(config.set_performance_list))
                         nodedata.score = mean(config.set_score_list)
                         nodedata.target = config.target
@@ -1078,7 +1079,7 @@ class DurationCheck(Node):
         :param nodedata :type Blackboard: the blackboard associated with this Behaviour Tree containing the time data.
         :return: None
         """
-        print("Configuring DurationCheck: " + self._name)
+        logging.info("Configuring DurationCheck: " + self._name)
         self.start_time = nodedata.get_data('start_time')
         self.session_duration = nodedata.get_data('session_duration')
         # Only use until getting actual time:
@@ -1097,7 +1098,7 @@ class DurationCheck(Node):
             logging.debug("Returning FAIL from DurationCheck - time limit not yet reached, current time = " + str(self.current_time))
             return NodeStatus(NodeStatus.FAIL, "Time limit not yet reached.")
         else:
-            print("Session time limit reached, current duration = {a}, session limit = {limit}.".format(
+            logging.info("Session time limit reached, current duration = {a}, session limit = {limit}.".format(
                 a=self.current_time - self.start_time, limit=self.session_duration))
             logging.debug("Returning SUCCESS from DurationCheck - Time limit reached, current time = " + str(self.current_time))
             return NodeStatus(NodeStatus.SUCCESS, "Session time limit reached.")
@@ -1125,7 +1126,7 @@ class GetUserChoice(Node):
             *args, **kwargs)
 
     def configure(self, nodedata):
-        print("Configuring GetUserChoice: " + self._name)
+        logging.info("Configuring GetUserChoice: " + self._name)
         self.choice_type = nodedata.get_data('choice_type')
 
     def run(self, nodedata):
@@ -1168,7 +1169,7 @@ class EndSetEvent(Node):
             *args, **kwargs)
 
     def configure(self, nodedata):
-        print("Configuring EndSetEvent: " + self._name + ", setting shotcount to " + str(config.shot_count))
+        logging.info("Configuring EndSetEvent: " + self._name + ", setting shotcount to " + str(config.shot_count))
         self.shotcount = config.shot_count
 
     def run(self, nodedata):
@@ -1187,7 +1188,7 @@ class EndSetEvent(Node):
             output = {
                 "stop": str(1)
             }
-            print("Stopping set: That's 30, you can stop there.")
+            logging.info("Stopping set: That's 30, you can stop there.")
             # r = requests.post(post_address, json=output)
 
             logging.info("Shot set completed.")
@@ -1234,7 +1235,7 @@ class InitialiseBlackboard(Node):
             state information.
         :return: None
         """
-        print("Configuring InitialiseBlackboard: " + self._name)
+        logging.info("Configuring InitialiseBlackboard: " + self._name)
         self.motivation = nodedata.get_data('motivation')
         self.ability = nodedata.get_data('player_ability')
         if self.ability < 4:

@@ -211,10 +211,10 @@ class Policy:
         # TODO: make it an epsilon-greedy policy.
         r = random.uniform(0, 1)
         if r < config.epsilon:
-            print("exploring")
+            logging.info("exploring")
             action = random.randint(1, 67)
         else:
-            print("exploiting")
+            logging.info("exploiting")
             # print("transition matrix = " + str(self.transition_matrix))
             # print("state = " + str(state))
             # print("matrix = " + str(self.transition_matrix[state]))
@@ -238,7 +238,7 @@ class Policy:
                 """if style < 7 and action == 44:
                     action = config.A_END"""
             else:
-                print("exploring because no data in transition matrix")
+                logging.info("exploring because no data in transition matrix")
                 action = -1
 
         return action  # choices(range(68), self.transition_matrix[style - 1][self._get_action(state)])[0]

@@ -126,7 +126,7 @@ class CoachingEnvironment(gym.Env, ABC):
         config.behaviour_displayed = False
         # config.behaviour = 1
 
-        print("config.behaviour = " + str(config.behaviour))
+        logging.info("config.behaviour = " + str(config.behaviour))
         while not config.need_new_behaviour:  # Keep ticking the tree until a behaviour is given by the robot. This is the point the controller can select a new action and learn.
             result = self.coaching_tree.tick()
             '''if config.behaviour_displayed:
@@ -136,18 +136,19 @@ class CoachingEnvironment(gym.Env, ABC):
             logging.debug(result)
 
         observation = self.policy.get_observation(state, action)
-        print("about to calculate reward, score = " + str(config.action_score))
-        reward = self._calculate_reward(action, observation, config.action_score, config.target, config.performance, config.question_response)
+        logging.info("about to calculate reward, score = " + str(config.score))
+        reward = self._calculate_reward(action, observation, config.score, config.target, config.performance, config.question_response)
         if reward is not None:
             config.cumulative_reward += reward
 
         if action == config.A_END and config.goal_level == config.PERSON_GOAL:
             done = True
+            config.person_finished = True
 
         return observation, reward, done, result
 
     def _calculate_reward(self, action, observation, score, target, performance, question_feedback):
-        print("calculating reward, score = " + str(score))
+        logging.info("calculating reward, score = " + str(score))
         '''if score is None or score == -1:
             return 0
         else:
@@ -244,25 +245,25 @@ class CoachingEnvironment(gym.Env, ABC):
             else:
                 return None  # No actions from user so reward is None and policy does not change.
         else:
-            if config.action_score_given:
-                # Reward is based on improvement since last time or since baseline set if this is the first time.
-                if performance == config.MET:
-                    reward = 1
-                elif performance == config.MUCH_IMPROVED:
-                    reward = 0.6
-                elif performance == config.IMPROVED or performance == config.IMPROVED_SWAP:
-                    reward = 0.3
-                elif performance == config.STEADY:
-                    reward = 0
-                elif performance == config.REGRESSED or performance == config.REGRESSED_SWAP:
-                    reward = -0.3
-                elif performance == config.MUCH_REGRESSED:
-                    reward = -0.6
-                else:
-                    reward = None
-                return reward
+            # if config.action_score_given:
+            # Reward is based on improvement since last time or since baseline set if this is the first time.
+            if performance == config.MET:
+                reward = 1
+            elif performance == config.MUCH_IMPROVED:
+                reward = 0.6
+            elif performance == config.IMPROVED or performance == config.IMPROVED_SWAP:
+                reward = 0.3
+            elif performance == config.STEADY:
+                reward = 0
+            elif performance == config.REGRESSED or performance == config.REGRESSED_SWAP:
+                reward = -0.3
+            elif performance == config.MUCH_REGRESSED:
+                reward = -0.6
             else:
-                return None
+                reward = None
+            return reward
+            # else:
+            #     return None
             # Levels of performance:
             '''MET = 0             # Met the target
             MUCH_IMPROVED = 1   # Moved a lot closer to the target
