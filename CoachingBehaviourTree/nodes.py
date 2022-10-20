@@ -359,8 +359,16 @@ class FormatAction(Node):
                         if config.stat_count < config.STATS_PER_SHOT:
                             nodedata.action = Action(pre_msg, demo=demo, question=question)
                         else:
-                            nodedata.action = Action(pre_msg, self.score, self.target, demo=demo, question=question,
-                                                     goal=self.goal_level, stat_measure=stat_measure, shot=config.shot, hand=config.hand)
+                            if config.session_time >= config.MAX_SESSION_TIME:
+                                nodedata.action = Action(pre_msg, self.score, self.target, demo=demo, question=question,
+                                                         goal=self.goal_level, stat_measure=stat_measure,
+                                                         shot=config.shot, hand=config.hand,
+                                                         stat_count=config.stat_count, ending=True)
+                            else:
+                                nodedata.action = Action(pre_msg, self.score, self.target, demo=demo, question=question,
+                                                         goal=self.goal_level, stat_measure=stat_measure,
+                                                         shot=config.shot, hand=config.hand,
+                                                         stat_count=config.stat_count)
                     else:
                         if config.given_stat_explanation:
                             print("given stat explanation")
@@ -368,9 +376,15 @@ class FormatAction(Node):
                                 print("self.goal_level == config.EXERCISE_GOAL and self.phase == config.PHASE_START")
                                 nodedata.action = Action(pre_msg, demo=demo, question=question)
                             else:
-                                print("self.goal_level != config.EXERCISE_GOAL or self.phase != config.PHASE_START, self.goal_level = " + str(self.goal_level) + ", phase = " + str(self.phase))
-                                nodedata.action = Action(pre_msg, self.score, self.target, demo=demo, question=question,
-                                                     goal=self.goal_level, stat_measure=stat_measure)
+                                if config.session_time >= config.MAX_SESSION_TIME:
+                                    nodedata.action = Action(pre_msg, self.score, self.target, demo=demo,
+                                                             question=question,
+                                                             goal=self.goal_level, stat_measure=stat_measure,
+                                                             ending=True)
+                                else:
+                                    print("self.goal_level != config.EXERCISE_GOAL or self.phase != config.PHASE_START, self.goal_level = " + str(self.goal_level) + ", phase = " + str(self.phase))
+                                    nodedata.action = Action(pre_msg, self.score, self.target, demo=demo, question=question,
+                                                         goal=self.goal_level, stat_measure=stat_measure)
                             '''has_score_been_provided=config.has_score_been_provided,'''
 
                         else:
@@ -381,11 +395,16 @@ class FormatAction(Node):
                                                       config.A_PREINSTRUCTION_POSITIVEMODELING, config.A_POSITIVEMODELING_PREINSTRUCTION,
                                                       config.A_PREINSTRUCTION_QUESTIONING, config.A_PREINSTRUCTION_PRAISE,
                                                       config.A_PREINSTRUCTION_NEGATIVEMODELING]:
-                                    print("pre-instruction")
-                                    nodedata.action = Action(pre_msg, self.score, self.target, demo=demo,
+                                    if config.set_count > 1:
+                                        nodedata.action = Action(pre_msg, self.score, self.target, demo=demo,
                                                              question=question,
-                                                             goal=self.goal_level, stat_measure=stat_measure,
-                                                             stat_explanation=stat_explanation)
+                                                             goal=self.goal_level, stat_measure=stat_measure)
+                                    else:
+                                        print("pre-instruction")
+                                        nodedata.action = Action(pre_msg, self.score, self.target, demo=demo,
+                                                                 question=question,
+                                                                 goal=self.goal_level, stat_measure=stat_measure,
+                                                                 stat_explanation=stat_explanation)
                                 else:
                                     print("not pre-instruction")
                                     if self.phase == config.PHASE_START:
@@ -408,8 +427,14 @@ class FormatAction(Node):
                                     nodedata.action = Action(pre_msg, demo=demo, question=question)
                                 else:
                                     print("phase end")
-                                    nodedata.action = Action(pre_msg, self.score, self.target, demo=demo, question=question,
-                                                         goal=self.goal_level, stat_measure=stat_measure, stat_explanation=stat_explanation)
+                                    if config.session_time >= config.MAX_SESSION_TIME:
+                                        nodedata.action = Action(pre_msg, self.score, self.target, demo=demo,
+                                                                 question=question,
+                                                                 goal=self.goal_level, stat_measure=stat_measure,
+                                                                 stat_explanation=stat_explanation, ending=True)
+                                    else:
+                                        nodedata.action = Action(pre_msg, self.score, self.target, demo=demo, question=question,
+                                                             goal=self.goal_level, stat_measure=stat_measure, stat_explanation=stat_explanation)
                             '''has_score_been_provided=config.has_score_been_provided,'''
 
                             # config.given_stat_explanation = True
@@ -666,6 +691,8 @@ class GetStats(Node):
             }
             r = requests.post(post_address, json=output)'''
 
+             # config.cumulative_reward = 0
+
             if config.sessions == 0:
                 config.epsilon = 0.3
                 config.alpha = 0.3
@@ -853,7 +880,8 @@ class CreateSubgoal(Node):
                             # config.score = None
 
                         # Update exercise picture on Pepper's tablet screen and reset the counter
-                        shotString = nodedata.get_data("hand") + " " + nodedata.get_data("shot")
+                        shotString = config.hand + " " + config.shot
+                        # shotString = nodedata.get_data("hand") + " " + nodedata.get_data("shot")
                         utteranceURL = config.screen_post_address + shotString + "/newPicture"
                         r = requests.post(utteranceURL)
                         r = requests.post(config.screen_post_address + "0/newRep")
@@ -972,6 +1000,7 @@ class EndSubgoal(Node):
                         config.used_stats = []
                         config.shot_goal_created = False
                         config.shot_confirmed = False
+                        config.doneBaselineGoal = False
                         print("config.tidying = " + str(config.tidying))
                     if self.goal_level == config.ACTION_GOAL:
                         config.used_behaviours = []
@@ -1169,7 +1198,7 @@ class TimestepCue(Node):
                         nodedata.phase = config.PHASE_END
                         if not (len(config.session_performance_list) == 0):
                             nodedata.performance = mode(config.session_performance_list)
-                            nodedata.score = config.score
+                            nodedata.score = mean(config.session_score_list)  # config.score
                             # Write session performance to file.
                             f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/Sessions.txt", "r")
                             file_contents = f.readlines()
@@ -1257,8 +1286,9 @@ class TimestepCue(Node):
                             logging.debug("Exercise goal feedback sequence")
                             nodedata.phase = config.PHASE_END
                             if not (len(config.shot_performance_list) == 0):
-                                nodedata.performance = config.performance
+                                nodedata.performance = mode(config.shot_performance_list)
                                 config.session_performance_list.append(nodedata.performance)
+                                config.performance = mode(config.shot_performance_list)
                                 nodedata.score = config.score
                                 config.session_score_list.append(nodedata.score)
 
@@ -1348,7 +1378,9 @@ class TimestepCue(Node):
                                 file_contents = f.readlines()
                                 f.close()
                                 config.performance = int(file_contents[1].replace("\n", ""))
+                                nodedata.performance = config.performance
                                 config.score = float(file_contents[0].replace("\n", ""))
+                                nodedata.score = config.score
 
                                 try:
                                     print("Trying to open baseline")
@@ -1372,15 +1404,15 @@ class TimestepCue(Node):
                                         # check if current path is a file
                                         if os.path.isfile(os.path.join(dir_path, path)):
                                             fileCount += 1
-                                    index = (fileCount - 2) * 12
+                                    index = (fileCount - 3) * 12
                                     # index = (config.sessions - 1) * 12
                                     while index < max:
                                         stat_name = file_contents[index].replace("\n", "")
                                         print("stat_name = " + stat_name)
-                                        stat_acc_set[stat_name] = float(file_contents[index+1].split(", ")[1].replace("\n", ""))
+                                        stat_acc_set[stat_name] = float(file_contents[index+1].split(", ")[1].replace("\n", "").replace(",", "").replace(" ", ""))
                                         print("stat_acc_set found")
                                         print("stat_acc_set = " + str(stat_acc_set))
-                                        stat_score_set[stat_name] = float(file_contents[index+1].split(", ")[0].replace("\n", ""))
+                                        stat_score_set[stat_name] = float(file_contents[index+1].split(", ")[0].replace("\n", "").replace(",", "").replace(" ", ""))
                                         print("stat_score_set found")
                                         print("stat_score_set = " + str(stat_score_set))
 
@@ -1393,14 +1425,16 @@ class TimestepCue(Node):
                                             print("already got performance for " + stat_name + ": " + str(stat_perf_set[stat_name]))
                                         except KeyError as error:
                                             print("file_contents.split = " + str(file_contents[index].split(", ")))
-                                            split = file_contents[index + 1].split(", ")
+                                            split = file_contents[index].split(", ")
                                             if len(split) > 2 and split[2] != "\n":
                                                 stat_perf_set[stat_name] = int(
-                                                    split[2].replace("\n", "").replace(",", ""))
+                                                    split[2].replace("\n", "").replace(",", "").replace(" ", ""))
                                             else:
                                                 stat_perf_set[stat_name] = None
                                             print("stat_perf_set found")
                                             print("stat_perf_set = " + str(stat_perf_set))
+
+                                        index -= 2
 
                                     #sorted_stat_set = sorted(stat_set.items(), key=operator.itemgetter(1))
                                     #sorted_stat_list = []
@@ -1430,6 +1464,8 @@ class TimestepCue(Node):
                                 # config.score = None
 
                             print("got data from file.")
+                            print("config.score = " + str(config.score))
+                            print("config.performance = " + str(config.performance))
                         nodedata.performance = config.performance
                         nodedata.score = config.score
                         nodedata.target = config.target
@@ -1491,6 +1527,7 @@ class TimestepCue(Node):
                         # Get performance data of previous time user did this stat for this exercise from file.
                         stat_name = None
                         try:
+                            print("Getting last time's data from file.")
                             f = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/" + config.hand + str(config.shot) + "/Aggregator.txt", "r")
                             file_contents = f.readlines()
                             f.close()
@@ -1504,8 +1541,10 @@ class TimestepCue(Node):
                                 # index = file_contents.index(stat_name)
                                 split = file_contents[index+1].split(", ")
                                 config.score = float(split[0])
-                                config.performance = int(split[1].replace("\n", "").replace(",", ""))
+                                config.performance = int(split[2].replace("\n", "").replace(",", "").replace(" ", ""))
+                                print("Stat in file. score = " + str(config.score) + ", performance = " + str(config.performance))
                             else:
+                                print("Stat not in file: " + stat_name)
                                 config.performance = None
                                 # config.score = None
                         except:
@@ -1915,8 +1954,10 @@ class GetChoice(Node):
                     print("config.metric_performance_list = " + str(config.metric_performance_list))
                     config.score = config.metric_score_list[config.stat]
                     config.target = config.targetList[config.stat]
-                    config.performance = config.metric_performance_list[config.stat] if len(
-                        config.metric_performance_list) > 0 else None
+                    if len(config.metric_performance_list) > 0:
+                        config.performance = config.metric_performance_list[config.stat]
+                    else:
+                        config.performance = None
                     print("get choice, setting stat to " + str(config.stat) + " and score to " + str(config.score))
                     #config.performance = None
                     #config.score = -1

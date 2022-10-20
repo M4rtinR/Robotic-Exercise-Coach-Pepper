@@ -13269,6 +13269,11 @@ class BehaviourLibraryFunctions:
                         utterance = utterance + ". OK?"
                     if behaviour == config.A_PREINSTRUCTION_FIRSTNAME:
                         utterance = utterance + name
+                    if not(shot == "drive"):
+                        if shot == "drop" or shot == "straight kill":
+                            utterance = utterance + ". You can either feed the ball to yourself each time or play them continuously."
+                        else:
+                            utterance = utterance + ". If you want you can feed the ball to yourself each time."
                 else:
                     utterance = "Good"
 
@@ -13828,6 +13833,11 @@ class BehaviourLibraryFunctions:
                         utterance = utterance + ". OK?"
                     if behaviour == config.A_PREINSTRUCTION_FIRSTNAME:
                         utterance = utterance + name
+                    if not (shot == "drive"):
+                        if shot == "drop" or shot == "straight kill":
+                            utterance = utterance + ". You can either feed the ball to yourself each time or play them continuously."
+                        else:
+                            utterance = utterance + ". If you want you can feed the ball to yourself each time."
                 else:
                     utterance = "Nice one!"
 
@@ -14367,6 +14377,11 @@ class BehaviourLibraryFunctions:
                         utterance = utterance + ". OK?"
                     if behaviour == config.A_PREINSTRUCTION_FIRSTNAME:
                         utterance = utterance + name
+                    if not(shot == "drive"):
+                        if shot == "drop" or shot == "straight kill":
+                            utterance = utterance + ". You can either feed the ball to yourself each time or play them continuously."
+                        else:
+                            utterance = utterance + ". If you want you can feed the ball to yourself each time."
                 else:
                     utterance = "Good"
 
@@ -14921,6 +14936,11 @@ class BehaviourLibraryFunctions:
                         utterance = utterance + ". OK?"
                     if behaviour == config.A_PREINSTRUCTION_FIRSTNAME:
                         utterance = utterance + name
+                    if not(shot == "drive"):
+                        if shot == "drop" or shot == "straight kill":
+                            utterance = utterance + ". You can either feed the ball to yourself each time or play them continuously."
+                        else:
+                            utterance = utterance + ". If you want you can feed the ball to yourself each time."
                 else:
                     utterance = "Superb"
 
@@ -15827,15 +15847,19 @@ class BehaviourLibraryFunctions:
             if r == 1:
                 vid = "_vid"
 
-        handName = ""
-        if hand == "BH":
-            handName = "backhand"
+
         demoName = ""
         if stat is None:
+            handName = "forehand"
+            if hand == "BH":
+                handName = "backhand"
             shotName = handName + "_" + shot
             demoName = shotName + posNeg
 
         else:
+            handName = ""
+            if hand == "BH":
+                handName = "backhand"
             statName = handName + stat
             if stat == "racketPreparation":
                 if score < target:

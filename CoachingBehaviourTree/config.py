@@ -4,7 +4,7 @@ STAT_CHOICE = 1
 CHOICE_BY_PERSON = 0
 CHOICE_BY_SYSTEM = 1
 
-MAX_SESSION_TIME = 300  # 1800 seconds is 30 minutes
+MAX_SESSION_TIME = 1680  # 1800 seconds is 30 minutes so set to 2 minutes left to give time for tidying up.
 
 COMPLETED_STATUS_UNDEFINED = -1
 COMPLETED_STATUS_FALSE = 0
@@ -108,7 +108,7 @@ A_END = 67
 A_SILENCE = 68
 
 SHOTS_PER_SET = 30
-SETS_PER_STAT = 1
+SETS_PER_STAT = 2
 STATS_PER_SHOT = 2
 
 shot_list_master = {"drop": 0,
@@ -177,6 +177,20 @@ question_response = None
 feedback_question = False
 action_score_given = False
 cumulative_reward = 0
+
+# Variables to deal with rewards:
+set_level_behaviours = []
+stat_level_behaviours = []
+shot_level_behaviours = []
+session_level_behaviours = []
+person_level_behaviours = []
+set_finished = False
+stat_finished = False
+shot_finished = False
+session_finished = False
+person_finished = False
+
+# Initial values which will be updated when the API gets called by the guide.
 expecting_action_goal = False
 stat_confirmed = False  # Becomes true when stat goal is created with chosen stat, reset to false on end stat goal.
 shot_confirmed = False  # Becomes true when shot goal is created with chosen shot, reset to false on end shot goal.
@@ -203,7 +217,7 @@ finish_session_baseline_stop = False
 
 # Initial values to be changed at the beginning of each session:
 name = "Martin"
-participantNo = "DemosTest"
+participantNo = "DataFromFileTest"
 participant_filename = participantNo + "_history.txt"
 ability = 7
 motivation = 6

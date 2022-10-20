@@ -1421,13 +1421,106 @@ def get_feedback_loop(name, behav, blackboard, goal_node, initialise_node, times
 
 
 def update(state, state2, reward, action, action2):
-    print("Updating policy, state: " + str(state) + ", action: " + str(action))
-    predict = config.policy_matrix.get_matrix()[state][action]
-    target = reward + config.gamma * config.policy_matrix.get_matrix()[state2][action2]
-    config.policy_matrix.update_matrix(state, action, 0.0 if config.policy_matrix.get_matrix()[state][action] + config.alpha * (target - predict) < 0.0 else config.policy_matrix.get_matrix()[state][action] + config.alpha * (target - predict))
+    if config.action_score_given:
+        logging.info("Updating policy, state: " + str(state) + ", action: " + str(action))
+        logging.info("State2 = " + str(state2) + ", action2 = " + str(action2))
+        logging.info("Reward = " + str(reward))
+        predict = config.policy_matrix.get_matrix()[state][action]
+        target = reward + config.gamma * config.policy_matrix.get_matrix()[state2][action2]
+        config.policy_matrix.update_matrix(state, action, 0.0 if config.policy_matrix.get_matrix()[state][action] + config.alpha * (target - predict) < 0.0 else config.policy_matrix.get_matrix()[state][action] + config.alpha * (target - predict))
+    else:
+        if config.set_finished:
+            logging.info("set finished, updating matrix")
+            for list in config.set_level_behaviours:
+                predict = config.policy_matrix.get_matrix()[list[0]][list[1]]
+                target = reward + config.gamma * config.policy_matrix.get_matrix()[list[2]][list[3]]
+                config.policy_matrix.update_matrix(list[0], list[1], 0.0 if config.policy_matrix.get_matrix()[list[0]][list[1]] + config.alpha * (target - predict) < 0.0 else config.policy_matrix.get_matrix()[list[0]][list[1]] + config.alpha * (target - predict))
+            config.set_finished = False
+        elif config.stat_finished:
+            config.set_level_behaviours = []
+            logging.info("stat finished, updating matrix")
+            for list in config.stat_level_behaviours:
+                predict = config.policy_matrix.get_matrix()[list[0]][list[1]]
+                target = reward + config.gamma * config.policy_matrix.get_matrix()[list[2]][list[3]]
+                config.policy_matrix.update_matrix(list[0], list[1], 0.0 if config.policy_matrix.get_matrix()[list[0]][list[1]] + config.alpha * (target - predict) < 0.0 else config.policy_matrix.get_matrix()[list[0]][list[1]] + config.alpha * (target - predict))
+            config.stat_finished = False
+            config.stat_level_behaviours = []
+        elif config.shot_finished:
+            logging.info("shot finished, updating matrix")
+            for list in config.shot_level_behaviours:
+                predict = config.policy_matrix.get_matrix()[list[0]][list[1]]
+                target = reward + config.gamma * config.policy_matrix.get_matrix()[list[2]][list[3]]
+                config.policy_matrix.update_matrix(list[0], list[1], 0.0 if config.policy_matrix.get_matrix()[list[0]][list[1]] + config.alpha * (target - predict) < 0.0 else config.policy_matrix.get_matrix()[list[0]][list[1]] + config.alpha * (target - predict))
+            config.shot_finished = False
+            config.shot_level_behaviours = []
+        elif config.session_finished:
+            logging.info("session finished, updating matrix")
+            for list in config.session_level_behaviours:
+                predict = config.policy_matrix.get_matrix()[list[0]][list[1]]
+                target = reward + config.gamma * config.policy_matrix.get_matrix()[list[2]][list[3]]
+                config.policy_matrix.update_matrix(list[0], list[1], 0.0 if config.policy_matrix.get_matrix()[list[0]][list[1]] + config.alpha * (target - predict) < 0.0 else config.policy_matrix.get_matrix()[list[0]][list[1]] + config.alpha * (target - predict))
+            config.session_finished = False
+            config.session_level_behaviours = []
+        elif config.person_finished:
+            logging.info("person finished, updating matrix")
+            for list in config.person_level_behaviours:
+                logging.info("list[0] = " + str(list[0]))
+                logging.info("list[1] = " + str(list[1]))
+                logging.info("list[2] = " + str(list[2]))
+                logging.info("list[3] = " + str(list[3]))
+                matrix = config.policy_matrix.get_matrix()
+                logging.info("matrix size = " + str(len(matrix)) + " x " + str(len(matrix[0])))
+                predict = config.policy_matrix.get_matrix()[list[0]][list[1]]
+                target = reward + config.gamma * config.policy_matrix.get_matrix()[list[2]][list[3]]
+                config.policy_matrix.update_matrix(list[0], list[1], 0.0 if config.policy_matrix.get_matrix()[list[0]][list[1]] + config.alpha * (target - predict) < 0.0 else config.policy_matrix.get_matrix()[list[0]][list[1]] + config.alpha * (target - predict))
+            config.person_finished = False
+            config.person_level_behaviours = []
+
     reward = None
     return config.policy
 
+
+def threeTimesCategory(action, thisList):
+    count = 0
+    category = getCategory(action)
+
+    if category is None:
+        return False
+
+    for element in thisList:
+        if category == getCategory(element):
+            count += 1
+
+    if count > 1:
+        return True
+    else:
+        return False
+
+
+def getCategory(action):
+    category = None
+    if action in [config.A_PREINSTRUCTION, config.A_PREINSTRUCTION_PRAISE, config.A_PREINSTRUCTION_QUESTIONING,
+                  config.A_PREINSTRUCTION_POSITIVEMODELING, config.A_POSITIVEMODELING_PREINSTRUCTION,
+                  config.A_PREINSTRUCTION_FIRSTNAME, config.A_PREINSTRUCTION_MANUALMANIPULATION,
+                  config.A_PREINSTRUCTION_NEGATIVEMODELING, config.A_MANUALMANIPULATION_PREINSTRUCTION]:
+        category = config.A_PREINSTRUCTION
+    elif action in [config.A_QUESTIONING, config.A_QUESTIONING_FIRSTNAME, config.A_QUESTIONING_POSITIVEMODELING,
+                    config.A_POSITIVEMODELING_QUESTIONING, config.A_MANUALMANIPULATION_QUESTIONING,
+                    config.A_QUESTIONING_NEGATIVEMODELING]:
+        category = config.A_QUESTIONING
+    elif action in [config.A_POSTINSTRUCTIONPOSITIVE_MANUALMANIPULATION, config.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING,
+                    config.A_POSTINSTRUCTIONPOSITIVE_POSITIVE_MODELING,
+                    config.A_POSTINSTRUCTIONPOSITIVE_NEGATIVE_MODELING,
+                    config.A_POSTINSTRUCTIONPOSITIVE_FIRSTNAME, config.A_POSITIVEMODELING_POSTINSTRUCTIONPOSITIVE,
+                    config.A_POSTINSTRUCTIONPOSITIVE, config.A_MANUALMANIPULATION_POSTINSTRUCTIONPOSITIVE]:
+        category = config.A_POSTINSTRUCTIONPOSITIVE
+    elif action in [config.A_POSTINSTRUCTIONNEGATIVE, config.A_POSTINSTRUCTIONNEGATIVE_MANUALMANIPULATION,
+                    config.A_POSTINSTRUCTIONNEGATIVE_QUESTIONING, config.A_POSTINSTRUCTIONNEGATIVE_POSITIVEMODELING,
+                    config.A_POSTINSTRUCTIONNEGATIVE_NEGATIVEMODELING, config.A_POSTINSTRUCTIONNEGATIVE_PRAISE,
+                    config.A_MANUALMANIPULATION_POSTINSTRUCTIONNEGATIVE, config.A_POSTINSTRUCTIONNEGATIVE_FIRSTNAME]:
+        category = config.A_POSTINSTRUCTIONNEGATIVE
+
+    return category
 
 def main():
     #TODO: for testing purposes. Delete the next if-else statement after testing.
@@ -1437,7 +1530,18 @@ def main():
     #     os.remove(filename)
     # else:
     #     print("The file does not exist")
-    loggingFilename = "" + config.participantNo + ".log"
+
+    if os.path.exists("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/Sessions.txt"):
+        sessionsFile = "/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + config.participantNo + "/Sessions.txt"
+        f = open(sessionsFile, 'r')
+        file_contents = f.readlines()
+        f.close()
+
+        sessions = int(file_contents[0])
+    else:
+        sessions = 0
+
+    loggingFilename = "" + config.participantNo + str(sessions) + ".log"
     logging.basicConfig(format='%(levelname)s:%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.INFO, filename=loggingFilename)
     logging.info("Logging started")
 
@@ -1464,7 +1568,7 @@ def main():
 
         # If behaviour occurs twice, just skip to pre-instruction.
         print("used behaviours = " + str(config.used_behaviours) + ", config.getBehaviourGoalLevel = " + str(config.getBehaviourGoalLevel))
-        if action2 in config.used_behaviours and (
+        if (action2 in config.used_behaviours or threeTimesCategory(action2, config.used_behaviours)) and (
                 config.getBehaviourGoalLevel == config.SESSION_GOAL or config.getBehaviourGoalLevel == config.EXERCISE_GOAL or config.getBehaviourGoalLevel == config.STAT_GOAL or config.getBehaviourGoalLevel == config.SET_GOAL):
             action2 = config.A_PREINSTRUCTION
             print('Got new behaviour: 1')
@@ -1472,10 +1576,33 @@ def main():
         else:
             config.used_behaviours.append(action2)
 
+        if config.goal_level == config.SET_GOAL or config.goal_level == config.ACTION_GOAL or config.goal_level == config.BASELINE_GOAL:
+            config.set_level_behaviours.append([state1, action1, state2, action2])
+            config.stat_level_behaviours.append([state1, action1, state2, action2])
+            config.shot_level_behaviours.append([state1, action1, state2, action2])
+            config.session_level_behaviours.append([state1, action1, state2, action2])
+            config.person_level_behaviours.append([state1, action1, state2, action2])
+        elif config.goal_level == config.STAT_GOAL:
+            config.stat_level_behaviours.append([state1, action1, state2, action2])
+            config.shot_level_behaviours.append([state1, action1, state2, action2])
+            config.session_level_behaviours.append([state1, action1, state2, action2])
+            config.person_level_behaviours.append([state1, action1, state2, action2])
+        elif config.goal_level == config.EXERCISE_GOAL:
+            config.shot_level_behaviours.append([state1, action1, state2, action2])
+            config.session_level_behaviours.append([state1, action1, state2, action2])
+            config.person_level_behaviours.append([state1, action1, state2, action2])
+        elif config.goal_level == config.SESSION_GOAL or config.goal_level == config.PERSON_GOAL:
+            config.session_level_behaviours.append([state1, action1, state2, action2])
+            config.person_level_behaviours.append([state1, action1, state2, action2])
+
         # Learning the Q-value
         if reward is not None:
             update(state1, state2, reward, action1, action2)
-#
+
+        if config.goal_level == config.EXERCISE_GOAL and config.phase == config.PHASE_END:
+            logging.info("Policy = " + str(config.policy_matrix.get_matrix()))
+            logging.info("Cumulative reward = " + str(config.cumulative_reward))
+        #
         config.behaviour = action2
         config.prev_behav = action2
         state1 = state2
@@ -1512,19 +1639,37 @@ def main():
     logging.info("New behaviour: " + str(action2))
 
     # Write final policy to file
+    print("Writing policy to file: " + filename)
     try:
-        f = open("/home/martin/PycharmProjects/coachingPolicies/AdaptedPolicies/" + config.participant_filename, "r")
+        f = open(filename, "r")
+        print("Opened file for reading")
         file_contents = f.readlines()
+        print("Got file contents: " + str(file_contents))
         f.close()
+        print("Closed file")
 
-        f = open("/home/martin/PycharmProjects/coachingPolicies/AdaptedPolicies/" + config.participant_filename, "w")
-        file_contents.insert(0, str(config.policy_matrix.get_matrix() + "\n"))
+        f = open(filename, "w")
+        print("Opened file for writing")
+        file_contents.insert(0, str(config.cumulative_reward) + "\n")
+        print("Inserted " + str(config.cumulative_reward))
+        file_contents.insert(0, str(config.policy_matrix.get_matrix()) + "\n")
+        print("Inserted " + str(config.policy_matrix.get_matrix()))
         f.writelines(file_contents)
+        print("written file_contents to file")
         f.close()
+        print("Closed file")
     except:
-        f = open("/home/martin/PycharmProjects/coachingPolicies/AdaptedPolicies/" + config.participant_filename, "a")
-        f.writelines(str(config.policy_matrix.get_matrix()) + "\n")  # Write the policy in the first line of the newly created file.
+        print("except")
+        f = open(filename, "a")
+        print("Opened file for append")
+        matrix = config.policy_matrix.get_matrix()
+        print("matrix = " + str(matrix))
+        lines = [str(config.policy_matrix.get_matrix()) + "\n", str(config.cumulative_reward) + "\n"]
+        print("Created list " + str(list))
+        f.writelines(lines)  # Write the policy in the first line of the newly created file.
+        print("Written to file")
         f.close()
+        print("closed file")
 
 def api_start():
     api_classes.app.run(host='0.0.0.0', port=5000)

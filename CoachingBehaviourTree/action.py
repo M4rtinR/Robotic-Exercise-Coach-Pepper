@@ -37,6 +37,8 @@ class Action:
     stat_explanation: str = None
     shot: str = None
     hand: str = None
+    stat_count: int = 0
+    ending: bool = False
 
     def __str__(self):
         """
@@ -51,9 +53,15 @@ class Action:
                     return f'{self.pre_msg}. You got an average score of {round(self.score, 2)}' + self.stat_measure + f' and were aiming for {round(self.target, 2)}' + self.stat_measure + '.'
             else:
                 if self.goal == config.EXERCISE_GOAL:
-                    return f'{self.pre_msg}. You got an average accuracy of {round(self.score, 2)} out of 5 for your {"backhand" if self.hand == "BH" else "forehand"} {self.shot}s today.'
+                    if self.stat_count < config.STATS_PER_SHOT:
+                        return f'{self.pre_msg}. You\'ve got an average accuracy of {round(self.score, 2)} out of 5 so far for your {"backhand" if self.hand == "BH" else "forehand"} {self.shot}s today.'
+                    else:
+                        return f'{self.pre_msg}. You got an average accuracy of {round(self.score, 2)} out of 5 for your {"backhand" if self.hand == "BH" else "forehand"} {self.shot}s today.'
                 else:
-                    return f'{self.pre_msg}. You got an average accuracy of {round(self.score, 2)} out of 5 for all of your shots combined today.'
+                    if not self.ending:
+                        return f'{self.pre_msg}. So far, you\'ve had an average accuracy of {round(self.score, 2)} out of 5 for all of your shots combined today.'
+                    else:
+                        return f'{self.pre_msg}. You got an average accuracy of {round(self.score, 2)} out of 5 for all of your shots combined today.'
 
             '''if self.goal is not config.ACTION_GOAL:
                 # TODO: add score-specific utterance (e.g. seconds, degrees) to explain the score better to the user.

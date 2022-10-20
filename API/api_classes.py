@@ -52,6 +52,7 @@ class TimestepCue(Resource):
                         config.goal_level = config.SESSION_GOAL
                         config.phase = config.PHASE_END
                         config.completed = config.COMPLETED_STATUS_UNDEFINED
+                        config.session_finished = True
 
                         while config.completed == config.COMPLETED_STATUS_UNDEFINED:
                             pass
@@ -121,6 +122,7 @@ class TimestepCue(Resource):
                         config.goal_level = config.EXERCISE_GOAL
                         config.phase = config.PHASE_END
                         config.completed = config.COMPLETED_STATUS_FALSE
+                        config.shot_finished = True
 
                         while config.completed == config.COMPLETED_STATUS_FALSE:  # or (config.shot is None and config.session_time < config.MAX_SESSION_TIME):
                             pass
@@ -130,7 +132,8 @@ class TimestepCue(Resource):
                             'completed': str(config.completed)
                         }
 
-                        while not config.tidying and ((not config.shot_confirmed or not len(config.shots_dealt_with) == 0) or (not config.stat_confirmed and config.stat_count <= config.STATS_PER_SHOT)):
+                        print("config.tidying = " + str(config.tidying) + ", len(config.shots_dealt_with) = " + str(len(config.shots_dealt_with)) + ", config.stat_confirmed = " + str(config.stat_confirmed) + ", config.stat_count = " + str(config.stat_count))
+                        while not config.tidying and ((not config.shot_confirmed or not len(config.shots_dealt_with) == 0) or (not config.stat_confirmed and config.stat_count <= config.STATS_PER_SHOT and config.stat_count != 0)):
                             pass
 
                         config.stat_confirmed = False
@@ -165,8 +168,8 @@ class TimestepCue(Resource):
                             print("Setting config.goal_level to EXERCISE_GOAL")
                             config.goal_level = config.EXERCISE_GOAL
                             config.phase = config.PHASE_START
-                            config.score = None
-                            config.performance = None
+                            # config.score = None
+                            # config.performance = None
 
                             if config.shot == -1:
                                 config.shot = content['shotType']
@@ -376,6 +379,7 @@ class TimestepCue(Resource):
                         config.goal_level = config.STAT_GOAL
                         config.phase = config.PHASE_END
                         config.completed = config.COMPLETED_STATUS_UNDEFINED
+                        config.stat_finished = True
 
                         while config.completed == config.COMPLETED_STATUS_UNDEFINED:
                             pass
@@ -470,6 +474,7 @@ class TimestepCue(Resource):
                         config.goal_level = config.SET_GOAL
                         config.phase = config.PHASE_END
                         config.completed = config.COMPLETED_STATUS_UNDEFINED
+                        config.set_finished = True
 
                         while config.completed == config.COMPLETED_STATUS_UNDEFINED:
                             pass

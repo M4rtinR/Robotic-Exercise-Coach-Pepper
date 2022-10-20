@@ -69,11 +69,13 @@ class CoachingEnvironment(gym.Env, ABC):
                 config.sessions = 1
             observation = 0
             self.policy = PolicyWrapper(policy=matrix)
+            print("Using policy from file")
         else:
             # TODO: check this is the correct measure for choosing the initial policy.
             belief_distribution = [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0] if config.ability < 4 else [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0]
             observation = 0
             self.policy = PolicyWrapper(belief=belief_distribution)
+            print("Using belief distribution")
 
         '''if config.sessions == 1:
             config.alpha = 0.3
@@ -134,9 +136,14 @@ class CoachingEnvironment(gym.Env, ABC):
 
         observation = self.policy.get_observation(state, action)
         reward = self._calculate_reward(action, observation, config.score, config.target, config.performance)
+        if reward is not None:
+            print("Adding " + str(reward) + " to cumulative reward. New value = " + str(config.cumulative_reward))
+            config.cumulative_reward += reward
 
         if action == config.A_END and config.goal_level == config.PERSON_GOAL:
+            print("Setting done = True")
             done = True
+            config.person_finished = True
 
         return observation, reward, done, result
 
@@ -229,25 +236,25 @@ class CoachingEnvironment(gym.Env, ABC):
             else:
                 return None  # No actions from user so reward is None and policy does not change.
         else:
-            if config.action_score_given:
-                # Reward is based on improvement since last time or since baseline set if this is the first time.
-                if performance == config.MET:
-                    reward = 1
-                elif performance == config.MUCH_IMPROVED:
-                    reward = 0.6
-                elif performance == config.IMPROVED or performance == config.IMPROVED_SWAP:
-                    reward = 0.3
-                elif performance == config.STEADY:
-                    reward = 0
-                elif performance == config.REGRESSED or performance == config.REGRESSED_SWAP:
-                    reward = -0.3
-                elif performance == config.MUCH_REGRESSED:
-                    reward = -0.6
-                else:
-                    reward = None
-                return reward
+            # if config.action_score_given:
+            # Reward is based on improvement since last time or since baseline set if this is the first time.
+            if performance == config.MET:
+                reward = 1
+            elif performance == config.MUCH_IMPROVED:
+                reward = 0.6
+            elif performance == config.IMPROVED or performance == config.IMPROVED_SWAP:
+                reward = 0.3
+            elif performance == config.STEADY:
+                reward = 0
+            elif performance == config.REGRESSED or performance == config.REGRESSED_SWAP:
+                reward = -0.3
+            elif performance == config.MUCH_REGRESSED:
+                reward = -0.6
             else:
-                return None
+                reward = None
+            return reward
+            # else:
+            #     return None
             # Levels of performance:
             '''MET = 0             # Met the target
             MUCH_IMPROVED = 1   # Moved a lot closer to the target
