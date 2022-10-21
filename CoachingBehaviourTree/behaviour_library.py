@@ -13197,7 +13197,7 @@ class BehaviourLibraryFunctions:
         if phase is None:
             logging.debug("Setting phase to -1")
             phase = -1
-        print("behaviour = " + str(behaviour) + ", goal_level = " + str(goal_level) + ", performance = " + str(performance) + ", phase = " + str(phase))
+        logging.debug("behaviour = " + str(behaviour) + ", goal_level = " + str(goal_level) + ", performance = " + str(performance) + ", phase = " + str(phase))
         if behaviour > 68 or behaviour < 1 or goal_level > 6 or goal_level < 0 or performance > 7 or performance < -1 or phase > 1 or phase < -1:
             msg = "Error: I don't know how to perform that behaviour."
         else:
@@ -13284,10 +13284,10 @@ class BehaviourLibraryFunctions:
                     goal_level_insert = ""
                     performance_insert = ""
                     performance_reaction = ""
-                    if performance == config.MET or performance == config.STEADY:
+                    if performance == config.STEADY:
                         performance_insert = "stayed consistent"
                         performance_reaction = "so well done!"
-                    elif performance == config.MUCH_IMPROVED:
+                    elif performance == config.MET or performance == config.MUCH_IMPROVED:
                         performance_insert = "improved a lot"
                         performance_reaction = "so well done!"
                     elif performance == config.IMPROVED:
@@ -13323,7 +13323,10 @@ class BehaviourLibraryFunctions:
                         elif goal_level == config.STAT_GOAL or goal_level == config.SET_GOAL:
                             goal_level_insert = stat_utterance
 
-                        utterance = utterance + "Last time, "
+                        if (goal_level == config.SET_GOAL and config.set_count == 0) or (goal_level == config.STAT_GOAL and config.stat_count == 1) or (goal_level == config.EXERCISE_GOAL and config.shot_count == 0) or goal_level == config.SESSION_GOAL:
+                            utterance = utterance + "Last time, "
+                        else:
+                            utterance = utterance + "In that work, "
 
                         if behaviour in [config.A_POSTINSTRUCTIONPOSITIVE, config.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING,
                                          config.A_POSTINSTRUCTIONPOSITIVE_FIRSTNAME,
@@ -13348,7 +13351,7 @@ class BehaviourLibraryFunctions:
                                     optional_question = "isn't it?"
                                 utterance = "I think this is the first time we've worked on your " + goal_level_insert + " together " + optional_question + name
                             else:
-                                utterance = utterance + " you didn't do well with your " + goal_level_insert + optional_question
+                                utterance = utterance + " you " + performance_insert + " with your " + goal_level_insert + optional_question
                     elif behaviour in [config.A_QUESTIONING, config.A_QUESTIONING_FIRSTNAME,
                                        config.A_QUESTIONING_POSITIVEMODELING,
                                        config.A_POSITIVEMODELING_QUESTIONING, config.A_QUESTIONING_NEGATIVEMODELING]:
@@ -13357,7 +13360,13 @@ class BehaviourLibraryFunctions:
                             if performance_insert == "":
                                 utterance = "Am I right in thinking this is the first time we've worked on your " + goal_level_insert + " together " + name + "? Touch the back of my hand for yes or the top of my head for no."
                             else:
-                                utterance = utterance + "How did your " + goal_level_insert + " feel last time" + name + "? Touch the back of my hand if it felt good or the top of my head if you think it still needs work."
+                                if (goal_level == config.SET_GOAL and config.set_count == 0) or (
+                                        goal_level == config.STAT_GOAL and config.stat_count == 1) or (
+                                        goal_level == config.EXERCISE_GOAL and config.shot_count == 0) or goal_level == config.SESSION_GOAL:
+
+                                    utterance = utterance + "How did your " + goal_level_insert + " feel last time" + name + "? Touch the back of my hand if it felt good or the top of my head if you think it still needs work."
+                                else:
+                                    utterance = utterance + "How did your " + goal_level_insert + " feel in that work" + name + "? Touch the back of my hand if it felt good or the top of my head if you think it still needs work."
                         else:
                             if goal_level == config.SESSION_GOAL:
                                 goal_level_insert = "shot"
@@ -13418,7 +13427,7 @@ class BehaviourLibraryFunctions:
                                 utterance = utterance + "Play a set of 30 " + hand_utterance + " " + shot_utterance + "s please " + name + ". Remember, " + stat_advice + question + ". You can start whenever you're ready."
                         else:
                             if goal_level == config.SESSION_GOAL:
-                                goal_level_insert = "do a solo practice session and I'm going to coach you. We'll work on your " + hand_utterance + " " + shot_utterance + ". If you would like to work on a different shot, please tap the button on my screen."
+                                goal_level_insert = "do a solo practice session and I'm going to coach you. We'll now work on your " + hand_utterance + " " + shot_utterance + ". If you would like to work on a different shot, please tap the button on my screen."
                                 config.overridePreInstructionOption = True
                             elif goal_level == config.EXERCISE_GOAL:
                                 goal_level_insert = "focus on your " + hand_utterance + " " + shot_utterance + ", paying specific attention to the " + stat_utterance + ". If you would like to work on a different metric of your swing, other than your " + stat_utterance + ", please tap the button on my screen."
@@ -13487,7 +13496,7 @@ class BehaviourLibraryFunctions:
                             else:  # shot == "two wall boast":
                                 shot_advice = "letting your " + hand_utterance + " " + shot_utterance + " come off that third wall."
                             if goal_level == config.SESSION_GOAL:
-                                goal_level_insert = "do a solo practice session and I'm going to coach you. We'll work on not " + shot_advice + ". If you would like to work on a different shot, please tap the button on my screen."
+                                goal_level_insert = "do a solo practice session and I'm going to coach you. We'll now work on not " + shot_advice + ". If you would like to work on a different shot, please tap the button on my screen."
                                 config.overridePreInstructionOption = True
                             elif goal_level == config.EXERCISE_GOAL:
                                 goal_level_insert = "focus on not " + shot_advice + ", remembering to not " + stat_advice + ". If you would like to work on a different metric of your swing, other than your " + stat_utterance + ", please tap the button on my screen."
@@ -13513,7 +13522,12 @@ class BehaviourLibraryFunctions:
                             behaviour_insert = "Unlucky"
                         else:
                             behaviour_insert = "Well done"
-                        utterance = utterance + behaviour_insert + " for the last " + goal_level_insert + " " + name
+                        if (goal_level == config.SET_GOAL and config.set_count == 0) or (
+                                goal_level == config.STAT_GOAL and config.stat_count == 1) or (
+                                goal_level == config.EXERCISE_GOAL and config.shot_count == 0) or goal_level == config.SESSION_GOAL:
+                            utterance = utterance + behaviour_insert + " for the last " + goal_level_insert + " " + name
+                        else:
+                            utterance = utterance + behaviour_insert + " for that " + goal_level_insert + " " + name
 
                     elif behaviour in [config.A_SCOLD, config.A_SCOLD_FIRSTNAME]:
                         if goal_level == config.SESSION_GOAL:
@@ -13524,7 +13538,12 @@ class BehaviourLibraryFunctions:
                             goal_level_insert = "time we worked on your " + stat_utterance
                         elif goal_level == config.SET_GOAL:
                             goal_level_insert = "set"
-                        utterance = utterance + "That last " + goal_level_insert + " was bad " + name
+                        if (goal_level == config.SET_GOAL and config.set_count == 0) or (
+                                goal_level == config.STAT_GOAL and config.stat_count == 1) or (
+                                goal_level == config.EXERCISE_GOAL and config.shot_count == 0) or goal_level == config.SESSION_GOAL:
+                            utterance = utterance + "That last " + goal_level_insert + " was bad " + name
+                        else:
+                            utterance = utterance + "That " + goal_level_insert + " was bad " + name
 
                 else:  # phase == self.PHASE_END
                     goal_level_insert = ""
@@ -13551,10 +13570,10 @@ class BehaviourLibraryFunctions:
                                      config.A_POSITIVEMODELING_POSTINSTRUCTIONPOSITIVE,
                                      config.A_NEGATIVEMODELING_POSTINSTRUCTIONNEGATIVE]:
 
-                        if performance == config.MET or performance == config.STEADY:
+                        if performance == config.STEADY:
                             performance_insert = "stayed consistent"
                             performance_reaction = "so well done!"
-                        elif performance == config.MUCH_IMPROVED:
+                        elif performance == config.MET or performance == config.MUCH_IMPROVED:
                             performance_insert = "improved a lot"
                             performance_reaction = "so well done!"
                         elif performance == config.IMPROVED:
@@ -13848,10 +13867,10 @@ class BehaviourLibraryFunctions:
                     goal_level_insert = ""
                     performance_insert = ""
                     performance_reaction = ""
-                    if performance == config.MET or performance == config.STEADY:
+                    if performance == config.STEADY:
                         performance_insert = "remained steady"
                         performance_reaction = "which was great!"
-                    elif performance == config.MUCH_IMPROVED:
+                    elif performance == config.MET or performance == config.MUCH_IMPROVED:
                         performance_insert = "got a lot better"
                         performance_reaction = "which was great!"
                     elif performance == config.IMPROVED:
@@ -13887,7 +13906,12 @@ class BehaviourLibraryFunctions:
                         elif goal_level == config.STAT_GOAL or goal_level == config.SET_GOAL:
                             goal_level_insert = stat_utterance
 
-                        utterance = utterance + "Previously, "
+                        if (goal_level == config.SET_GOAL and config.set_count == 0) or (
+                                goal_level == config.STAT_GOAL and config.stat_count == 1) or (
+                                goal_level == config.EXERCISE_GOAL and config.shot_count == 0) or goal_level == config.SESSION_GOAL:
+                            utterance = utterance + "Previously, "
+                        else:
+                            utterance = utterance + "In those drills, "
 
                         if behaviour in [config.A_POSTINSTRUCTIONPOSITIVE, config.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING,
                                          config.A_POSTINSTRUCTIONPOSITIVE_FIRSTNAME,
@@ -13912,7 +13936,7 @@ class BehaviourLibraryFunctions:
                                     optional_question = "isn't it?"
                                 utterance = "This seems to be the first time we've looked at your " + goal_level_insert + " together " + optional_question + name
                             else:
-                                utterance = utterance + " your " + goal_level_insert + " " + performance_insert + " " + optional_question + " which was not good."
+                                utterance = utterance + " your " + goal_level_insert + " " + performance_insert + " " + optional_question + " so could have been a bit better."
                     elif behaviour in [config.A_QUESTIONING, config.A_QUESTIONING_FIRSTNAME,
                                        config.A_QUESTIONING_POSITIVEMODELING,
                                        config.A_POSITIVEMODELING_QUESTIONING, config.A_QUESTIONING_NEGATIVEMODELING]:
@@ -13921,7 +13945,12 @@ class BehaviourLibraryFunctions:
                             if performance_insert == "":
                                 utterance = "Correct me if I'm wrong, but I think this is the first time we've worked on your " + goal_level_insert + " together " + name + " isn't it? Touch the back of my hand for yes or the top of my head for no."
                             else:
-                                utterance = utterance + "Do you think your " + goal_level_insert + " got better last time we worked on it" + name + "?"
+                                if (goal_level == config.SET_GOAL and config.set_count == 0) or (
+                                        goal_level == config.STAT_GOAL and config.stat_count == 1) or (
+                                        goal_level == config.EXERCISE_GOAL and config.shot_count == 0) or goal_level == config.SESSION_GOAL:
+                                    utterance = utterance + "Do you think your " + goal_level_insert + " got better last time we worked on it" + name + "?"
+                                else:
+                                    utterance = utterance + "Do you think your " + goal_level_insert + " got better in those drills" + name + "?"
                         else:
                             if goal_level == config.SESSION_GOAL:
                                 goal_level_insert = "shots"
@@ -13985,7 +14014,7 @@ class BehaviourLibraryFunctions:
                             if behaviour == config.A_PREINSTRUCTION_QUESTIONING:
                                 optional_question = "Does that sound good?"
                             if goal_level == config.SESSION_GOAL:
-                                goal_level_insert = " I'm going to coach you through a solo practice session. We'll work on your " + hand_utterance + " " + shot_utterance + ". If you would like to work on a different shot, please tap the button on my screen."
+                                goal_level_insert = " I'm going to coach you through a solo practice session. We'll now work on your " + hand_utterance + " " + shot_utterance + ". If you would like to work on a different shot, please tap the button on my screen."
                                 # utterance = utterance + "Today " + name + goal_level_insert + ". " + optional_question
                                 config.overridePreInstructionOption = True
                             elif goal_level == config.EXERCISE_GOAL:
@@ -14081,7 +14110,12 @@ class BehaviourLibraryFunctions:
                             behaviour_insert = " things didn't quite go your way."
                         else:
                             behaviour_insert = " you did well!"
-                        utterance = utterance + "In your previous " + goal_level_insert + " " + name + " " + behaviour_insert
+                        if (goal_level == config.SET_GOAL and config.set_count == 0) or (
+                                goal_level == config.STAT_GOAL and config.stat_count == 1) or (
+                                goal_level == config.EXERCISE_GOAL and config.shot_count == 0) or goal_level == config.SESSION_GOAL:
+                            utterance = utterance + "In your previous " + goal_level_insert + " " + name + " " + behaviour_insert
+                        else:
+                            utterance = utterance + "In that " + goal_level_insert + " " + name + " " + behaviour_insert
 
                     elif behaviour in [config.A_SCOLD, config.A_SCOLD_FIRSTNAME]:
                         if goal_level == config.SESSION_GOAL:
@@ -14092,16 +14126,21 @@ class BehaviourLibraryFunctions:
                             goal_level_insert = stat_utterance + " work"
                         elif goal_level == config.SET_GOAL:
                             goal_level_insert = "set"
-                        utterance = utterance + "Your previous " + goal_level_insert + " was not good " + name
+                        if (goal_level == config.SET_GOAL and config.set_count == 0) or (
+                                goal_level == config.STAT_GOAL and config.stat_count == 1) or (
+                                goal_level == config.EXERCISE_GOAL and config.shot_count == 0) or goal_level == config.SESSION_GOAL:
+                            utterance = utterance + "Your previous " + goal_level_insert + " was not good " + name
+                        else:
+                            utterance = utterance + "That last " + goal_level_insert + " was not good " + name
 
                 else:  # phase == self.PHASE_END
                     goal_level_insert = ""
                     performance_insert = ""
                     performance_reaction = ""
-                    if performance == config.MET or performance == config.STEADY:
+                    if performance == config.STEADY:
                         performance_insert = "remained steady"
                         performance_reaction = "which was great!"
-                    elif performance == config.MUCH_IMPROVED:
+                    elif performance == config.MET or performance == config.MUCH_IMPROVED:
                         performance_insert = "got a lot better"
                         performance_reaction = "which was great!"
                     elif performance == config.IMPROVED:
@@ -14393,10 +14432,10 @@ class BehaviourLibraryFunctions:
                     goal_level_name = "session"
                     performance_insert = ""
                     performance_reaction = ""
-                    if performance == config.MET or performance == config.STEADY:
+                    if performance == config.STEADY:
                         performance_insert = "didn't improve much but didn't get worse either"
                         performance_reaction = "so that was great!"
-                    elif performance == config.MUCH_IMPROVED:
+                    elif performance == config.MET or performance == config.MUCH_IMPROVED:
                         performance_insert = "improved massively"
                         performance_reaction = "so that was great!"
                     elif performance == config.IMPROVED:
@@ -14447,7 +14486,13 @@ class BehaviourLibraryFunctions:
                                     optional_question = "have we?"
                                 utterance = "I don't believe we've worked " + goal_level_insert + " before " + optional_question + name
                             else:
-                                utterance = utterance + goal_level_insert + " before, you " + performance_insert + " " + optional_question + " " + name + " " + performance_reaction
+                                if (goal_level == config.SET_GOAL and config.set_count == 0) or (
+                                        goal_level == config.STAT_GOAL and config.stat_count == 1) or (
+                                        goal_level == config.EXERCISE_GOAL and config.shot_count == 0) or goal_level == config.SESSION_GOAL:
+                                    utterance = utterance + goal_level_insert + " before, you " + performance_insert + " " + optional_question + " " + name + " " + performance_reaction
+                                else:
+                                    utterance = utterance + goal_level_insert + " there, you " + performance_insert + " " + optional_question + " " + name + " " + performance_reaction
+
                         else:
                             optional_question = ""
                             if behaviour == config.A_POSTINSTRUCTIONNEGATIVE_QUESTIONING:
@@ -14457,7 +14502,12 @@ class BehaviourLibraryFunctions:
                                     optional_question = "isn't it?"
                                 utterance = "I think this is the first time we've worked " + goal_level_insert + " in a session " + optional_question + name
                             else:
-                                utterance = utterance + goal_level_insert + " before, you took a step backwards with it" + optional_question
+                                if (goal_level == config.SET_GOAL and config.set_count == 0) or (
+                                        goal_level == config.STAT_GOAL and config.stat_count == 1) or (
+                                        goal_level == config.EXERCISE_GOAL and config.shot_count == 0) or goal_level == config.SESSION_GOAL:
+                                    utterance = utterance + goal_level_insert + " before, you " + performance_insert + " " + optional_question
+                                else:
+                                    utterance = utterance + goal_level_insert + " there, you " + performance_insert + " " + optional_question
                     elif behaviour in [config.A_QUESTIONING, config.A_QUESTIONING_FIRSTNAME,
                                        config.A_QUESTIONING_POSITIVEMODELING,
                                        config.A_POSITIVEMODELING_QUESTIONING, config.A_QUESTIONING_NEGATIVEMODELING]:
@@ -14466,7 +14516,12 @@ class BehaviourLibraryFunctions:
                             if performance_insert == "":
                                 utterance = "Is this the first time we've worked " + goal_level_insert + " in a session " + name + "? Touch the back of my hand for yes or the top of my head for no."
                             else:
-                                utterance = utterance + "When we worked " + goal_level_insert + " before" + name + ", how do you feel you got on? Touch the back of my hand for good or the top of my head if you think it still needs work."
+                                if (goal_level == config.SET_GOAL and config.set_count == 0) or (
+                                        goal_level == config.STAT_GOAL and config.stat_count == 1) or (
+                                        goal_level == config.EXERCISE_GOAL and config.shot_count == 0) or goal_level == config.SESSION_GOAL:
+                                    utterance = utterance + "When we worked " + goal_level_insert + " before" + name + ", how do you feel you got on? Touch the back of my hand for good or the top of my head if you think it still needs work."
+                                else:
+                                    utterance = utterance + "When we worked " + goal_level_insert + " there" + name + ", how do you feel you got on? Touch the back of my hand for good or the top of my head if you think it still needs work."
 
                         else:
                             if goal_level == config.SESSION_GOAL:
@@ -14607,14 +14662,26 @@ class BehaviourLibraryFunctions:
 
                     elif behaviour in [config.A_PRAISE, config.A_PRAISE_FIRSTNAME, config.A_POSITIVEMODELING_PRAISE,
                                        config.A_CONSOLE, config.A_CONSOLE_FIRSTNAME]:
-                        if goal_level == config.SESSION_GOAL:
-                            goal_level_insert = " when we worked together before "
-                        elif goal_level == config.EXERCISE_GOAL:
-                            goal_level_insert = " when we worked on your " + hand_utterance + " " + shot_utterance + " before "
-                        elif goal_level == config.STAT_GOAL:
-                            goal_level_insert = " when we worked on your " + stat_utterance + " before "
-                        elif goal_level == config.SET_GOAL:
-                            goal_level_insert = " there "
+                        if (goal_level == config.SET_GOAL and config.set_count == 0) or (
+                                goal_level == config.STAT_GOAL and config.stat_count == 1) or (
+                                goal_level == config.EXERCISE_GOAL and config.shot_count == 0) or goal_level == config.SESSION_GOAL:
+                            if goal_level == config.SESSION_GOAL:
+                                goal_level_insert = " when we worked together before "
+                            elif goal_level == config.EXERCISE_GOAL:
+                                goal_level_insert = " when we worked on your " + hand_utterance + " " + shot_utterance + " before "
+                            elif goal_level == config.STAT_GOAL:
+                                goal_level_insert = " when we worked on your " + stat_utterance + " before "
+                            elif goal_level == config.SET_GOAL:
+                                goal_level_insert = " there "
+                        else:
+                            if goal_level == config.SESSION_GOAL:
+                                goal_level_insert = " in that session "
+                            elif goal_level == config.EXERCISE_GOAL:
+                                goal_level_insert = " when we worked on your " + hand_utterance + " " + shot_utterance + " there "
+                            elif goal_level == config.STAT_GOAL:
+                                goal_level_insert = " when we worked on your " + stat_utterance + " there "
+                            elif goal_level == config.SET_GOAL:
+                                goal_level_insert = " there "
 
                         behaviour_insert = ""
                         if behaviour == config.A_CONSOLE or behaviour == config.A_CONSOLE_FIRSTNAME:
@@ -14624,14 +14691,26 @@ class BehaviourLibraryFunctions:
                         utterance = utterance + behaviour_insert + goal_level_insert + name
 
                     elif behaviour in [config.A_SCOLD, config.A_SCOLD_FIRSTNAME]:
-                        if goal_level == config.SESSION_GOAL:
-                            goal_level_insert = " when we worked together before "
-                        elif goal_level == config.EXERCISE_GOAL:
-                            goal_level_insert = " when we worked on your " + hand_utterance + " " + shot_utterance + " before "
-                        elif goal_level == config.STAT_GOAL:
-                            goal_level_insert = " when we worked on your " + stat_utterance + " before "
-                        elif goal_level == config.SET_GOAL:
-                            goal_level_insert = " there "
+                        if (goal_level == config.SET_GOAL and config.set_count == 0) or (
+                                goal_level == config.STAT_GOAL and config.stat_count == 1) or (
+                                goal_level == config.EXERCISE_GOAL and config.shot_count == 0) or goal_level == config.SESSION_GOAL:
+                            if goal_level == config.SESSION_GOAL:
+                                goal_level_insert = " when we worked together before "
+                            elif goal_level == config.EXERCISE_GOAL:
+                                goal_level_insert = " when we worked on your " + hand_utterance + " " + shot_utterance + " before "
+                            elif goal_level == config.STAT_GOAL:
+                                goal_level_insert = " when we worked on your " + stat_utterance + " before "
+                            elif goal_level == config.SET_GOAL:
+                                goal_level_insert = " there "
+                        else:
+                            if goal_level == config.SESSION_GOAL:
+                                goal_level_insert = " in that session "
+                            elif goal_level == config.EXERCISE_GOAL:
+                                goal_level_insert = " when we worked on your " + hand_utterance + " " + shot_utterance + " there "
+                            elif goal_level == config.STAT_GOAL:
+                                goal_level_insert = " when we worked on your " + stat_utterance + " there "
+                            elif goal_level == config.SET_GOAL:
+                                goal_level_insert = " there "
                         utterance = utterance + "You performed poorly " + goal_level_insert + name
 
                 else:  # phase == self.PHASE_END
@@ -14659,10 +14738,10 @@ class BehaviourLibraryFunctions:
                                      config.A_POSITIVEMODELING_POSTINSTRUCTIONPOSITIVE,
                                      config.A_NEGATIVEMODELING_POSTINSTRUCTIONNEGATIVE]:
 
-                        if performance == config.MET or performance == config.STEADY:
+                        if performance == config.STEADY:
                             performance_insert = "didn't improve much but didn't get worse either"
                             performance_reaction = "so that was great!"
-                        elif performance == config.MUCH_IMPROVED:
+                        elif performance == config.MET or performance == config.MUCH_IMPROVED:
                             performance_insert = "improved massively"
                             performance_reaction = "so that was great!"
                         elif performance == config.IMPROVED:
@@ -14952,10 +15031,10 @@ class BehaviourLibraryFunctions:
 
                     performance_insert = ""
                     performance_reaction = ""
-                    if performance == config.MET or performance == config.STEADY:
+                    if performance == config.STEADY:
                         performance_insert = "remained pretty much the same as before"
                         performance_reaction = "Awesome work!"
-                    elif performance == config.MUCH_IMPROVED:
+                    elif performance == config.MET or performance == config.MUCH_IMPROVED:
                         performance_insert = "were a lot better than before"
                         performance_reaction = "Awesome work!"
                     elif performance == config.IMPROVED:
@@ -14984,16 +15063,33 @@ class BehaviourLibraryFunctions:
                                      config.A_POSTINSTRUCTIONNEGATIVE_NEGATIVEMODELING,
                                      config.A_POSITIVEMODELING_POSTINSTRUCTIONPOSITIVE,
                                      config.A_NEGATIVEMODELING_POSTINSTRUCTIONNEGATIVE]:
-                        if goal_level == config.SESSION_GOAL:
-                            goal_level_insert = "session"
-                        elif goal_level == config.EXERCISE_GOAL:
-                            goal_level_insert = "session when we worked on your " + hand_utterance + " " + shot_utterance
-                        elif goal_level == config.STAT_GOAL:
-                            goal_level_insert = "session when we worked on your " + stat_utterance
-                        elif goal_level == config.SET_GOAL:
-                            goal_level_insert = "set"
+                        if (goal_level == config.SET_GOAL and config.set_count == 0) or (
+                                goal_level == config.STAT_GOAL and config.stat_count == 1) or (
+                                goal_level == config.EXERCISE_GOAL and config.shot_count == 0) or goal_level == config.SESSION_GOAL:
+                            if goal_level == config.SESSION_GOAL:
+                                goal_level_insert = "session"
+                            elif goal_level == config.EXERCISE_GOAL:
+                                goal_level_insert = "session when we worked on your " + hand_utterance + " " + shot_utterance
+                            elif goal_level == config.STAT_GOAL:
+                                goal_level_insert = "session when we worked on your " + stat_utterance
+                            elif goal_level == config.SET_GOAL:
+                                goal_level_insert = "set"
+                        else:
+                            if goal_level == config.SESSION_GOAL:
+                                goal_level_insert = "session"
+                            elif goal_level == config.EXERCISE_GOAL:
+                                goal_level_insert = "" + hand_utterance + " " + shot_utterance + " exercises"
+                            elif goal_level == config.STAT_GOAL:
+                                goal_level_insert = "" + stat_utterance + " exercises"
+                            elif goal_level == config.SET_GOAL:
+                                goal_level_insert = "set"
 
-                        utterance = utterance + "In that previous "
+                        if (goal_level == config.SET_GOAL and config.set_count == 0) or (
+                                goal_level == config.STAT_GOAL and config.stat_count == 1) or (
+                                goal_level == config.EXERCISE_GOAL and config.shot_count == 0) or goal_level == config.SESSION_GOAL:
+                            utterance = utterance + "In that previous "
+                        else:
+                            utterance = utterance + "In that "
                         if behaviour in [config.A_POSTINSTRUCTIONPOSITIVE, config.A_POSTINSTRUCTIONPOSITIVE_QUESTIONING,
                                          config.A_POSTINSTRUCTIONPOSITIVE_FIRSTNAME,
                                          config.A_POSTINSTRUCTIONPOSITIVE_POSITIVE_MODELING,
@@ -15026,7 +15122,12 @@ class BehaviourLibraryFunctions:
                             if performance_insert == "":
                                 utterance = "This is the first time we've done your " + goal_level_insert + " together " + name + ", isn't it? Touch the back of my hand if it is or the top of my head if it is not."
                             else:
-                                utterance = utterance + "How do you think the previous " + goal_level_insert + " went " + name + "? Touch the back of my hand if you think it went well or the top of my head if you think it could have been better."
+                                if (goal_level == config.SET_GOAL and config.set_count == 0) or (
+                                        goal_level == config.STAT_GOAL and config.stat_count == 1) or (
+                                        goal_level == config.EXERCISE_GOAL and config.shot_count == 0) or goal_level == config.SESSION_GOAL:
+                                    utterance = utterance + "How do you think the previous " + goal_level_insert + " went " + name + "? Touch the back of my hand if you think it went well or the top of my head if you think it could have been better."
+                                else:
+                                    utterance = utterance + "How do you think that " + goal_level_insert + " went " + name + "? Touch the back of my hand if you think it went well or the top of my head if you think it could have been better."
 
                         else:
                             if goal_level == config.SESSION_GOAL:
@@ -15102,7 +15203,7 @@ class BehaviourLibraryFunctions:
 
                         else:
                             if goal_level == config.SESSION_GOAL:
-                                goal_level_insert = "do some solo practice exercises together. The drills will all be based around you're " + hand_utterance + " " + shot_utterance + ". If you would like to work on a different shot, please tap the button on my screen."
+                                goal_level_insert = "do some solo practice exercises together. The next drills will all be based around you're " + hand_utterance + " " + shot_utterance + ". If you would like to work on a different shot, please tap the button on my screen."
                                 optional_question = ""
                                 if behaviour == config.A_PREINSTRUCTION_QUESTIONING:
                                     optional_question = "Does that make sense?"
@@ -15197,32 +15298,66 @@ class BehaviourLibraryFunctions:
 
                     elif behaviour in [config.A_PRAISE, config.A_PRAISE_FIRSTNAME, config.A_POSITIVEMODELING_PRAISE,
                                        config.A_CONSOLE, config.A_CONSOLE_FIRSTNAME]:
-                        if goal_level == config.SESSION_GOAL:
-                            goal_level_insert = "session"
-                        elif goal_level == config.EXERCISE_GOAL:
-                            goal_level_insert = "session that we worked on your " + hand_utterance + " " + shot_utterance
-                        elif goal_level == config.STAT_GOAL:
-                            goal_level_insert = "session that we worked on your " + stat_utterance
-                        elif goal_level == config.SET_GOAL:
-                            goal_level_insert = "set"
+                        if (goal_level == config.SET_GOAL and config.set_count == 0) or (
+                                goal_level == config.STAT_GOAL and config.stat_count == 1) or (
+                                goal_level == config.EXERCISE_GOAL and config.shot_count == 0) or goal_level == config.SESSION_GOAL:
+                            if goal_level == config.SESSION_GOAL:
+                                goal_level_insert = "session"
+                            elif goal_level == config.EXERCISE_GOAL:
+                                goal_level_insert = "session that we worked on your " + hand_utterance + " " + shot_utterance
+                            elif goal_level == config.STAT_GOAL:
+                                goal_level_insert = "session that we worked on your " + stat_utterance
+                            elif goal_level == config.SET_GOAL:
+                                goal_level_insert = "set"
+                        else:
+                            if goal_level == config.SESSION_GOAL:
+                                goal_level_insert = "session"
+                            elif goal_level == config.EXERCISE_GOAL:
+                                goal_level_insert = "" + hand_utterance + " " + shot_utterance + " exercises"
+                            elif goal_level == config.STAT_GOAL:
+                                goal_level_insert = "" + stat_utterance + " exercises"
+                            elif goal_level == config.SET_GOAL:
+                                goal_level_insert = "set"
 
                         behaviour_insert = ""
                         if behaviour == config.A_CONSOLE or behaviour == config.A_CONSOLE_FIRSTNAME:
                             behaviour_insert = "Tough luck"
                         else:
                             behaviour_insert = "Good job"
-                        utterance = utterance + behaviour_insert + " in that last " + goal_level_insert + " " + name
+                        if (goal_level == config.SET_GOAL and config.set_count == 0) or (
+                                goal_level == config.STAT_GOAL and config.stat_count == 1) or (
+                                goal_level == config.EXERCISE_GOAL and config.shot_count == 0) or goal_level == config.SESSION_GOAL:
+                            utterance = utterance + behaviour_insert + " in that last " + goal_level_insert + " " + name
+                        else:
+                            utterance = utterance + behaviour_insert + " in that " + goal_level_insert + " " + name
 
                     elif behaviour in [config.A_SCOLD, config.A_SCOLD_FIRSTNAME]:
-                        if goal_level == config.SESSION_GOAL:
-                            goal_level_insert = "session"
-                        elif goal_level == config.EXERCISE_GOAL:
-                            goal_level_insert = "session that we worked on your " + hand_utterance + " " + shot_utterance
-                        elif goal_level == config.STAT_GOAL:
-                            goal_level_insert = "session that we worked on your " + stat_utterance
-                        elif goal_level == config.SET_GOAL:
-                            goal_level_insert = "set"
-                        utterance = utterance + "Awful performance in the last " + goal_level_insert + " " + name
+                        if (goal_level == config.SET_GOAL and config.set_count == 0) or (
+                                goal_level == config.STAT_GOAL and config.stat_count == 1) or (
+                                goal_level == config.EXERCISE_GOAL and config.shot_count == 0) or goal_level == config.SESSION_GOAL:
+                            if goal_level == config.SESSION_GOAL:
+                                goal_level_insert = "session"
+                            elif goal_level == config.EXERCISE_GOAL:
+                                goal_level_insert = "session that we worked on your " + hand_utterance + " " + shot_utterance
+                            elif goal_level == config.STAT_GOAL:
+                                goal_level_insert = "session that we worked on your " + stat_utterance
+                            elif goal_level == config.SET_GOAL:
+                                goal_level_insert = "set"
+                        else:
+                            if goal_level == config.SESSION_GOAL:
+                                goal_level_insert = "session"
+                            elif goal_level == config.EXERCISE_GOAL:
+                                goal_level_insert = "" + hand_utterance + " " + shot_utterance + " exercises"
+                            elif goal_level == config.STAT_GOAL:
+                                goal_level_insert = "" + stat_utterance + " exercises"
+                            elif goal_level == config.SET_GOAL:
+                                goal_level_insert = "set"
+                        if (goal_level == config.SET_GOAL and config.set_count == 0) or (
+                                goal_level == config.STAT_GOAL and config.stat_count == 1) or (
+                                goal_level == config.EXERCISE_GOAL and config.shot_count == 0) or goal_level == config.SESSION_GOAL:
+                            utterance = utterance + "Awful performance in the last " + goal_level_insert + " " + name
+                        else:
+                            utterance = utterance + "Awful performance in that " + goal_level_insert + " " + name
 
                 else:  # phase == self.PHASE_END
                     goal_level_insert = ""
@@ -15250,10 +15385,10 @@ class BehaviourLibraryFunctions:
                                      config.A_POSITIVEMODELING_POSTINSTRUCTIONPOSITIVE,
                                      config.A_NEGATIVEMODELING_POSTINSTRUCTIONNEGATIVE]:
 
-                        if performance == config.MET or performance == config.STEADY:
+                        if performance == config.STEADY:
                             performance_insert = "remained pretty much the same as before"
                             performance_reaction = "Awesome work!"
-                        elif performance == config.MUCH_IMPROVED:
+                        elif performance == config.MET or performance == config.MUCH_IMPROVED:
                             performance_insert = "were a lot better than before"
                             performance_reaction = "Awesome work!"
                         elif performance == config.IMPROVED:

@@ -69,13 +69,13 @@ class CoachingEnvironment(gym.Env, ABC):
                 config.sessions = 1
             observation = 0
             self.policy = PolicyWrapper(policy=matrix)
-            print("Using policy from file")
+            logging.info("Using policy from file. Policy = " + str(self.policy.get_matrix()))
         else:
             # TODO: check this is the correct measure for choosing the initial policy.
             belief_distribution = [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0] if config.ability < 4 else [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0]
             observation = 0
             self.policy = PolicyWrapper(belief=belief_distribution)
-            print("Using belief distribution")
+            logging.info("Using belief distribution. Policy = " + str(self.policy.get_matrix()))
 
         '''if config.sessions == 1:
             config.alpha = 0.3
@@ -125,32 +125,32 @@ class CoachingEnvironment(gym.Env, ABC):
         config.behaviour_displayed = False
         # config.behaviour = 1
 
-        print("config.behaviour = " + str(config.behaviour))
+        logging.debug("config.behaviour = " + str(config.behaviour))
         while not config.need_new_behaviour:  # Keep ticking the tree until a behaviour is given by the robot. This is the point the controller can select a new action and learn.
             result = self.coaching_tree.tick()
             if config.behaviour_displayed:
-                print("Tree ticked, not returning: " + str(result))
+                logging.debug("Tree ticked, not returning: " + str(result))
             else:
-                print("Tree ticked, returning: " + str(result))
+                logging.debug("Tree ticked, returning: " + str(result))
             logging.debug(result)
 
         observation = self.policy.get_observation(state, action)
         reward = self._calculate_reward(action, observation, config.score, config.target, config.performance)
         if reward is not None:
-            print("Adding " + str(reward) + " to cumulative reward. New value = " + str(config.cumulative_reward))
+            logging.info("Adding " + str(reward) + " to cumulative reward. New value = " + str(config.cumulative_reward))
             config.cumulative_reward += reward
 
         if action == config.A_END and config.goal_level == config.PERSON_GOAL:
-            print("Setting done = True")
+            logging.debug("Setting done = True")
             done = True
             config.person_finished = True
 
         return observation, reward, done, result
 
     def _calculate_reward(self, action, observation, score, target, performance):
-        print("calculating reward, score = " + str(score) + ", type = " + str(type(score)) + ", target = " + str(target) + ", type = " + str(type(target)))
+        logging.debug("calculating reward, score = " + str(score) + ", type = " + str(type(score)) + ", target = " + str(target) + ", type = " + str(type(target)))
         '''if score is None or target is None or score == -1 or target == -1:
-            print("No score/target, reward = 0. score = " + str(score) + ", target = " + str(target))
+            logging.debug("No score/target, reward = 0. score = " + str(score) + ", target = " + str(target))
             return 0
         else:
             # Calculate reward based on how close score is to target
@@ -216,11 +216,11 @@ class CoachingEnvironment(gym.Env, ABC):
             return reward
         '''
 
-        print("config.feedback_question = " + str(config.feedback_question))
+        logging.debug("config.feedback_question = " + str(config.feedback_question))
         # Option 3
         if score is None or score == -1:
             if action == config.A_QUESTIONING and config.feedback_question:
-                print("config.question_response = " + config.question_response)
+                logging.debug("config.question_response = " + config.question_response)
                 if config.question_response == config.Q_RESPONSE_POSITIVE:
                     returnValue = 0.2
                 elif config.question_response == config.Q_RESPONSE_NEGATIVE:

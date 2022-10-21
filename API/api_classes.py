@@ -17,7 +17,7 @@ class TimestepCue(Resource):
     previous_shot_performance = None
     def post(self):
         if request.is_json:
-            print("request is json")
+            logging.debug("request is json")
             logging.debug("request is json")
             content = request.get_json()
             logging.debug(content)
@@ -27,8 +27,8 @@ class TimestepCue(Resource):
                     # logging.info("Received data from app: {}".format(content))
                     config.goal_level = config.PERSON_GOAL
                     # config.name = content['name']  # Name was not working so removed here and will set it at the start of each session.
-                    config.sessions = int(content['sessions'])
-                    config.ability = int(content['ability'])
+                    # config.sessions = int(content['sessions'])
+                    # config.ability = int(content['ability'])
                     config.completed = config.COMPLETED_STATUS_UNDEFINED
 
                     while config.completed == config.COMPLETED_STATUS_UNDEFINED:
@@ -39,13 +39,14 @@ class TimestepCue(Resource):
                         'completed': config.completed,
                         'shotSet': 0
                     }
-
+                    
+                    logging.info("Returning data to app: " + str(new_data))
                     return new_data, 200
 
                 elif int(content['goal_level']) == config.SESSION_GOAL:
-                    print('session goal setting controller values')
+                    logging.debug('session goal setting controller values')
                     if 'feedback' in content:  # End of session
-                        print('end of session')
+                        logging.debug('end of session')
                         config.score = float(content['score'][0:len(content['score']) - 1])
                         config.target = 5
                         config.performance = int(content['performance'])
@@ -62,9 +63,10 @@ class TimestepCue(Resource):
                             'completed': config.completed
                         }
 
+                        logging.info("Returning data to app: " + str(new_data))
                         return new_data, 200
                     elif 'stop' in content:
-                        print("stop session")
+                        logging.info("Stop session selected by user.")
                         if config.goal_level == config.ACTION_GOAL and config.during_baseline_goal:
                             config.stop_session_on_baseline = True
                         else:
@@ -82,9 +84,10 @@ class TimestepCue(Resource):
                             'completed': config.completed,
                         }
 
+                        logging.info("Returning data to app: " + str(new_data))
                         return new_data, 200
                     else:
-                        print("Start of session")
+                        logging.debug("Start of session")
                         config.completed = config.COMPLETED_STATUS_UNDEFINED
                         config.goal_level = config.SESSION_GOAL
                         config.phase = config.PHASE_START
@@ -100,22 +103,23 @@ class TimestepCue(Resource):
                             'shotSet': 0
                         }
 
-                        print("sending: " + str(config.shot))
+                        logging.debug("sending: " + str(config.shot))
                         config.used_shots.append("" + config.hand + config.shot)
                         if not (config.shot == -1):
-                            print("sending: " + str(config.shot_list_master.get(config.shot)))
+                            logging.debug("sending: " + str(config.shot_list_master.get(config.shot)))
                             new_data['shotType'] = config.shot_list_master.get(config.shot)
                             new_data['hand'] = config.hand
 
                         if not (config.stat == ""):
                             new_data['stat'] = config.stat
 
+                        logging.info("Returning data to app: " + str(new_data))
                         return new_data, 200
 
                 elif int(content['goal_level']) == config.EXERCISE_GOAL:
-                    print('shot goal setting controller values')
+                    logging.debug('shot goal setting controller values')
                     if 'feedback' in content:  # End of shot
-                        print('end of shot')
+                        logging.debug('end of shot')
                         config.score = float(content['score'][0:len(content['score']) - 1])
                         config.target = 5
                         config.performance = int(content['performance'])
@@ -132,40 +136,46 @@ class TimestepCue(Resource):
                             'completed': str(config.completed)
                         }
 
-                        print("config.tidying = " + str(config.tidying) + ", len(config.shots_dealt_with) = " + str(len(config.shots_dealt_with)) + ", config.stat_confirmed = " + str(config.stat_confirmed) + ", config.stat_count = " + str(config.stat_count))
+                        logging.debug("config.tidying = " + str(config.tidying) + ", len(config.shots_dealt_with) = " + str(len(config.shots_dealt_with)) + ", config.stat_confirmed = " + str(config.stat_confirmed) + ", config.stat_count = " + str(config.stat_count))
                         while not config.tidying and ((not config.shot_confirmed or not len(config.shots_dealt_with) == 0) or (not config.stat_confirmed and config.stat_count <= config.STATS_PER_SHOT and config.stat_count != 0)):
                             pass
 
                         config.stat_confirmed = False
 
                         if not config.tidying:
-                            print("Sending shot type: " + str(config.hand) + str(config.shot))
+                            logging.debug("Sending shot type: " + str(config.hand) + str(config.shot))
                             new_data['shotType'] = config.shot_list_master.get(config.shot)
                             new_data['hand'] = config.hand
                         else:
-                            print("Sending final")
+                            logging.debug("Sending final")
                             new_data['final'] = "1"
 
+                        logging.info("Returning data to app: " + str(new_data))
                         return new_data, 200
                     elif 'stop' in content:  # Stop current set.
+                        logging.info("Stop set selected by the user.")
                         if config.expecting_action_goal:
                             if config.goal_level == config.ACTION_GOAL and config.during_baseline_goal:
                                 config.stop_on_baseline = True
                             else:
                                 config.stop_set = True  # High level global variable which will be checked at each node until set goal feedback loop is reached.
                                 config.goal_level = config.EXERCISE_GOAL  # Set to exercise goal so that we wait for end of set feedback from app.
+                                config.double_set_count_feedback = 0
+                                config.double_set_count_start = 0
+                                config.expecting_double_set = True
 
                         new_data = {
                             'goal_level': 2,
                             'completed': config.completed
                         }
 
+                        logging.info("Returning data to app: " + str(new_data))
                         return new_data, 200
                     else:
                         if content['impactSpeed'] == 'null':
-                            print("api classes, exercise goal received")
+                            logging.debug("api classes, exercise goal received")
                             config.completed = config.COMPLETED_STATUS_UNDEFINED
-                            print("Setting config.goal_level to EXERCISE_GOAL")
+                            logging.debug("Setting config.goal_level to EXERCISE_GOAL")
                             config.goal_level = config.EXERCISE_GOAL
                             config.phase = config.PHASE_START
                             # config.score = None
@@ -196,139 +206,139 @@ class TimestepCue(Resource):
                                 new_data['stat'] = config.stat
 
                         else:
-                            print('end of baseline set')
+                            logging.debug('end of baseline set')
 
                             config.metric_score_list = []  # Reset the metric score list from last time.
-                            print("setting config.score = " + content['score'])
+                            logging.debug("setting config.score = " + content['score'])
                             config.score = float(content['score'])
                             accList = {}
                             scoreList = {}
                             targetList = {}
-                            print('Created accList')
+                            logging.debug('Created accList')
                             racketPreparationStringList = content['racketPreparation'].split(", ")
-                            print('Got racket prep list')
+                            logging.debug('Got racket prep list')
                             # config.metric_score_list.append(sum(racketPreparationList) / len(racketPreparationList))
-                            # print('calculated racket prep average')
+                            # logging.debug('calculated racket prep average')
                             accList['racketPreparation'] = float(content['racketPreparationAcc'])
-                            print('get racket prep acc')
+                            logging.debug('get racket prep acc')
                             scoreList['racketPreparation'] = float(content['racketPreparationScore'][:-1])
                             targetList['racketPreparation'] = float(content['racketPreparationTarget'][:-1])
                             approachTimingStringList = content["approachTiming"].split(", ")
-                            print('got approach timing list')
+                            logging.debug('got approach timing list')
                             # config.metric_score_list.append(sum(approachTimingList) / len(approachTimingList))
-                            # print('calculated approcah timimng average')
+                            # logging.debug('calculated approcah timimng average')
                             accList["approachTiming"] = float(content['approachTimingAcc'])
                             scoreList["approachTiming"] = float(content['approachTimingScore'][:-1])
                             targetList["approachTiming"] = float(content['approachTimingTarget'][:-1])
-                            print('got approach timing acc')
+                            logging.debug('got approach timing acc')
                             impactCutAngleStringList = content["impactCutAngle"].split(", ")
-                            print('got impact cut angle list')
+                            logging.debug('got impact cut angle list')
                             # config.metric_score_list.append(sum(impactCutAngleList) / len(impactCutAngleList))
-                            # print('calculated impact cut angle average')
+                            # logging.debug('calculated impact cut angle average')
                             accList["impactCutAngle"] = float(content['impactCutAngleAcc'])
-                            print('got impact cut angle acc')
+                            logging.debug('got impact cut angle acc')
                             scoreList["impactCutAngle"] = float(content['impactCutAngleScore'][:-5])
                             targetList["impactCutAngle"] = float(content['impactCutAngleTarget'][:-5])
                             impactSpeedStringList = content["impactSpeed"].split(", ")
-                            print('got impact speed list')
+                            logging.debug('got impact speed list')
                             # config.metric_score_list.append(sum(impactSpeedList) / len(impactSpeedList))
-                            # print('calculated impact speed average')
+                            # logging.debug('calculated impact speed average')
                             accList["impactSpeed"] = float(content['impactSpeedAcc'])
                             scoreList["impactSpeed"] = float(content['impactSpeedScore'][:-9])
                             targetList["impactSpeed"] = float(content['impactSpeedTarget'][:-9])
-                            print('got impact speed acc')
+                            logging.debug('got impact speed acc')
                             followThroughRollStringList = content["followThroughRoll"].split(", ")
-                            print('got follow thorugh roll list')
+                            logging.debug('got follow thorugh roll list')
                             # config.metric_score_list.append(sum(followThroughRollList) / len(followThroughRollList))
-                            # print('calculated follow through roll average')
+                            # logging.debug('calculated follow through roll average')
                             accList["followThroughRoll"] = float(content['followThroughRollAcc'])
-                            print('got follow through roll acc')
+                            logging.debug('got follow through roll acc')
                             scoreList["followThroughRoll"] = float(content['followThroughRollScore'][:-5])
                             targetList["followThroughRoll"] = float(content['followThroughRollTarget'][:-5])
                             followThroughTimeStringList = content["followThroughTime"].split(", ")
-                            print('got gollow through time list')
+                            logging.debug('got gollow through time list')
                             # config.metric_score_list.append(sum(followThroughTimeList) / len(followThroughTimeList))
-                            # print('calculated follow through time average')
+                            # logging.debug('calculated follow through time average')
                             accList["followThroughTime"] = float(content['followThroughTimeAcc'])
-                            print('got follow through time acc')
+                            logging.debug('got follow through time acc')
                             scoreList["followThroughTime"] = float(content['followThroughTimeScore'][:-5])
                             targetList["followThroughTime"] = float(content['followThroughTimeTarget'][:-5])
                             config.stat_list = accList
                             config.metric_score_list = scoreList
                             config.targetList = targetList
-                            print('sorted stat list')
+                            logging.debug('sorted stat list')
 
-                            '''print("populating lists with floats")
+                            '''logging.debug("populating lists with floats")
                             for i in range(len(racketPreparationStringList)):
                                 if i == 0:
-                                    print("first list element")
+                                    logging.debug("first list element")
                                     racketPreparationFloatList = [float(racketPreparationStringList[i][1:])]
-                                    print("first racket prep done")
+                                    logging.debug("first racket prep done")
                                     approachTimingFloatList = [float(approachTimingStringList[i][1:])]
-                                    print("first approach timing done")
+                                    logging.debug("first approach timing done")
                                     impactCutAngleFloatList = [float(impactCutAngleStringList[i][1:])]
-                                    print("first impact cut angle done")
+                                    logging.debug("first impact cut angle done")
                                     impactSpeedFloatList = [float(impactSpeedStringList[i][1:])]
-                                    print("first impact speed done")
+                                    logging.debug("first impact speed done")
                                     followThroughRollFloatList = [float(followThroughRollStringList[i][1:])]
-                                    print("first follow through roll done")
+                                    logging.debug("first follow through roll done")
                                     followThroughTimeFloatList = [float(followThroughTimeStringList[i][1:])]
-                                    print("first follow through time done")
+                                    logging.debug("first follow through time done")
                                 elif i == len(racketPreparationStringList) - 1:
-                                    print("last list element")
+                                    logging.debug("last list element")
                                     racketPreparationFloatList.append(float(
                                         racketPreparationStringList[i][0:len(racketPreparationStringList[i]) - 1]))
-                                    print("last racket prep done")
+                                    logging.debug("last racket prep done")
                                     approachTimingFloatList.append(float(
                                         approachTimingStringList[i][0:len(approachTimingStringList[i]) - 1]))
-                                    print("last approach timing done")
+                                    logging.debug("last approach timing done")
                                     impactCutAngleFloatList.append(float(
                                         impactCutAngleStringList[i][0:len(impactCutAngleStringList[i]) - 1]))
-                                    print("last impact cut angle done")
+                                    logging.debug("last impact cut angle done")
                                     impactSpeedFloatList.append(float(
                                         impactSpeedStringList[i][0:len(impactSpeedStringList[i]) - 1]))
-                                    print("last impact speed done")
+                                    logging.debug("last impact speed done")
                                     followThroughRollFloatList.append(float(
                                         followThroughRollStringList[i][0:len(followThroughRollStringList[i]) - 1]))
-                                    print("last follow thorugh roll done")
+                                    logging.debug("last follow thorugh roll done")
                                     followThroughTimeFloatList.append(float(
                                         followThroughTimeStringList[i][0:len(followThroughTimeStringList[i]) - 1]))
-                                    print("last follow thorugh time done")
+                                    logging.debug("last follow thorugh time done")
                                 else:
-                                    print("Regular element: " + str(i))
+                                    logging.debug("Regular element: " + str(i))
                                     racketPreparationFloatList.append(float(racketPreparationStringList[i]))
-                                    print("racket prep done")
+                                    logging.debug("racket prep done")
                                     approachTimingFloatList.append(float(approachTimingStringList[i]))
-                                    print("approach timing done")
+                                    logging.debug("approach timing done")
                                     impactCutAngleFloatList.append(float(impactCutAngleStringList[i]))
-                                    print("impact cut angle done")
+                                    logging.debug("impact cut angle done")
                                     impactSpeedFloatList.append(float(impactSpeedStringList[i]))
-                                    print("impact speed done")
+                                    logging.debug("impact speed done")
                                     followThroughRollFloatList.append(float(followThroughRollStringList[i]))
-                                    print("follow through roll done")
+                                    logging.debug("follow through roll done")
                                     followThroughTimeFloatList.append(float(followThroughTimeStringList[i]))
-                                    print("follow through time done")
+                                    logging.debug("follow through time done")
 
-                            print("calculating average of lists")
+                            logging.debug("calculating average of lists")
                             for list in [racketPreparationFloatList, approachTimingFloatList, impactCutAngleFloatList,
                                          impactSpeedFloatList, followThroughRollFloatList, followThroughTimeFloatList]:
                                 config.metric_score_list.append(sum(list) / len(list))
-                            print("list averages calculated")'''
+                            logging.debug("list averages calculated")'''
 
                             config.goal_level = config.EXERCISE_GOAL
                             config.phase = config.PHASE_END
                             config.completed = config.COMPLETED_STATUS_TRUE
 
-                            print("waiting for config.stat")
+                            logging.debug("waiting for config.stat")
                             while config.stat_confirmed is False:
                                 pass
 
-                            print("returning stat data to app: " + config.stat)
+                            logging.debug("returning stat data to app: " + config.stat)
                             config.used_stats.append(config.stat)
                             # config.score = scoreList[config.stat]
-                            # print("Baseline set results, setting config.stat score = " + str(config.score))
+                            # logging.debug("Baseline set results, setting config.stat score = " + str(config.score))
                             config.target = targetList[config.stat]
-                            print("Baseline set results, setting config.stat target = " + str(config.target))
+                            logging.debug("Baseline set results, setting config.stat target = " + str(config.target))
 
                             config.stat_confirmed = False  # Reset stat_confirmed for next time.
                             new_data = {
@@ -344,23 +354,23 @@ class TimestepCue(Resource):
                                 config.finish_session_baseline_stop = True
                             else:
                                 new_data['stop_on_baseline'] = '0'
-                        print("returning data to app: " + str(new_data))
+                        logging.info("Returning data to app: " + str(new_data))
                         return new_data, 200
 
                 elif int(content['goal_level']) == config.STAT_GOAL:
-                    print('stat goal setting controller values')
+                    logging.debug('stat goal setting controller values')
                     if 'feedback' in content:  # End of stat
-                        print('end of stat')
-                        print('content = ' + str(content))
+                        logging.debug('end of stat')
+                        logging.debug('content = ' + str(content))
                         scoreString = content['score']
                         if scoreString[-1] == "%":
                             scoreString = content['score'][:-1]
                         elif scoreString[-1] == "s":
                             scoreString = content['score'][:-5]
                         elif scoreString[-1] == "c":
-                            print("Getting score string for mtrs\/sec")
+                            logging.debug("Getting score string for mtrs\/sec")
                             scoreString = content['score'][:-9]
-                            print("Got score string for mtrs\/sec = " + scoreString)
+                            logging.debug("Got score string for mtrs\/sec = " + scoreString)
                         config.score = float(scoreString)
                         targetString = content['tgtValue']
                         if targetString[-1] == "%":
@@ -368,14 +378,14 @@ class TimestepCue(Resource):
                         elif targetString[-1] == "s":
                             targetString = content['tgtValue'][:-5]
                         elif targetString[-1] == "c":
-                            print("Getting targetString for mtrs\/sec")
+                            logging.debug("Getting targetString for mtrs\/sec")
                             targetString = content['tgtValue'][:-9]
-                            print("Got targetString for mtrs\/sec = " + targetString)
+                            logging.debug("Got targetString for mtrs\/sec = " + targetString)
 
                         config.target = float(targetString)
                         config.performance = int(content['performance'])
                         config.accuracy = float(content['accuracy'])
-                        print("Setting new goal level to STAT_GOAL in API class.")
+                        logging.debug("Setting new goal level to STAT_GOAL in API class.")
                         config.goal_level = config.STAT_GOAL
                         config.phase = config.PHASE_END
                         config.completed = config.COMPLETED_STATUS_UNDEFINED
@@ -395,9 +405,10 @@ class TimestepCue(Resource):
                             while config.stat_confirmed is False:
                                 pass
                             config.stat_confirmed = False
-                            print("New stat = " + str(config.stat))
+                            logging.debug("New stat = " + str(config.stat))
                             new_data["stat"] = config.stat
 
+                        logging.info("Returning data to app: " + str(new_data))
                         return new_data, 200
                     else:
                         config.completed = config.COMPLETED_STATUS_UNDEFINED
@@ -418,7 +429,9 @@ class TimestepCue(Resource):
                             config.performance = None
                         else:
                             config.performance = int(config.performance)'''
-                        config.performance = None
+                        if config.stat_count > 1:
+                            print("Setting config.performance to None.")
+                            config.performance = None
 
                         while config.completed != config.COMPLETED_STATUS_FALSE:
                             pass
@@ -428,7 +441,7 @@ class TimestepCue(Resource):
                             'completed': config.completed,
                             'shotSet': 0
                         }
-                        print("returning from stat goal start")
+                        logging.info("Returning data to app: " + str(new_data))
                         return new_data, 200
 
                 elif int(content['goal_level']) == config.SET_GOAL:  # Also represents baseline goal
@@ -438,31 +451,44 @@ class TimestepCue(Resource):
                         config.goal_level = config.EXERCISE_GOAL
                     else:'''
                     config.dont_send_action_response = True
-                    print('set goal setting controller values')
+                    logging.debug('set goal setting controller values')
 
                     if 'score' in content:  # End of set
-                        print('end of set')
-                        print('content = ' + str(content))
+                        if config.expecting_double_set:
+                            config.double_set_count_feedback += 1
+                            if config.double_set_count_feedback >= 2:
+                                config.expecting_double_set = False
+                                config.double_set_count_feedback = 0
+                                new_data = {
+                                    'goal_level': 4,
+                                    'completed': config.completed,
+                                    'shotSet': 1
+                                }
+
+                                logging.info("Returning data to app: " + str(new_data))
+                                return new_data, 200
+                        logging.debug('end of set')
+                        logging.debug('content = ' + str(content))
                         scoreString = content['score']
                         if scoreString[-1] == "%":
                             scoreString = content['score'][:-1]
                         elif scoreString[-1] == "s":
                             scoreString = content['score'][:-5]
                         elif scoreString[-1] == "c":
-                            print("Getting scoreString for mtrs\/sec")
+                            logging.debug("Getting scoreString for mtrs\/sec")
                             scoreString = content['score'][:-9]
-                            print("Got scoreString for mtrs\/sec = " + scoreString)
+                            logging.debug("Got scoreString for mtrs\/sec = " + scoreString)
                         targetString = content['tgtValue']
                         if targetString[-1] == "%":
                             targetString = content['tgtValue'][:-1]
                         elif targetString[-1] == "s":
                             targetString = content['tgtValue'][:-5]
                         elif targetString[-1] == "c":
-                            print("Getting targetString for mtrs\/sec")
+                            logging.debug("Getting targetString for mtrs\/sec")
                             targetString = content['tgtValue'][:-9]
-                            print("Got targetString for mtrs\/sec = " + targetString)
+                            logging.debug("Got targetString for mtrs\/sec = " + targetString)
 
-                        print('got values from content')
+                        logging.debug('got values from content')
                         config.avg_score = float(scoreString)
                         config.action_score_given = False
                         config.set_score_list.append(float(scoreString))
@@ -487,33 +513,46 @@ class TimestepCue(Resource):
 
                         if config.set_count == config.SETS_PER_STAT:
                             new_data["final"] = 1
-                        print("returning new_data: " + str(new_data))
+                        logging.info("Returning data to app: " + str(new_data))
                         return new_data, 200
 
                     else:  # Start of set
-                        print("Start of set")
+                        logging.debug("Start of set")
+                        if config.expecting_double_set:
+                            config.double_set_count_start += 1
+                            if config.double_set_count_start >= 2:
+                                config.expecting_double_set = False
+                                config.double_set_count_start = 0
+                                new_data = {
+                                    'goal_level': 4,
+                                    'completed': config.completed,
+                                    'shotSet': 1
+                                }
+
+                                logging.info("Returning data to app: " + str(new_data))
+                                return new_data, 200
                         config.goal_level = config.SET_GOAL
                         config.phase = config.PHASE_START
                         config.completed = config.COMPLETED_STATUS_UNDEFINED
 
-                        print("Waiting")
+                        logging.debug("Waiting")
                         while config.completed != config.COMPLETED_STATUS_FALSE:
                             pass
 
-                        print("Setting data")
+                        logging.debug("Setting data")
                         new_data = {
                             'goal_level': 4,
                             'completed': config.completed,
                             'shotSet': 1
                         }
 
-                        print("Returning")
+                        logging.info("Returning data to app: " + str(new_data))
                         return new_data, 200
 
                 elif int(content['goal_level']) == config.ACTION_GOAL:
                     config.shots_dealt_with.append("1")
                     if config.expecting_action_goal:
-                        print('action goal setting controller values')
+                        logging.debug('action goal setting controller values')
                         config.action_score = float(content['score'])
                         config.action_score_given = True
                         config.has_score_been_provided = False
@@ -535,13 +574,13 @@ class TimestepCue(Resource):
                         else:
                             logging.debug('no performanceValue found')
                         if config.performance == self.previous_shot_performance:  # We haven't received the set goal feedback so can safely update config.performance
-                            print("updating config.performance: " + str(performanceValue))
+                            logging.debug("updating config.performance: " + str(performanceValue))
                             config.performance = performanceValue            # Not perfect because we might have the same performance for set and action.
                         config.goal_level = config.ACTION_GOAL
                         config.shot_count += 1
 
                         requestURL = config.screen_post_address + str(config.shot_count) + "/newRep"
-                        print('sending request, url = ' + requestURL)
+                        logging.debug('sending request, url = ' + requestURL)
                         r = requests.post(requestURL)
                         refresh_screen_data = {'silence': 1}
                         r = requests.post(config.post_address, json=refresh_screen_data)
@@ -555,14 +594,14 @@ class TimestepCue(Resource):
                         }
 
                         if config.shot_count == config.SHOTS_PER_SET - 1:
-                            print("Setting shot_setComplet = 1")
+                            logging.debug("Setting shot_setComplet = 1")
                             new_data['shotSetComplete'] = 1
                             # new_data['stat'] = config.stat
                         else:
                             new_data['shotSetComplete'] = 0
 
                     else:
-                        print("Action goal not expected, not using data.")
+                        logging.debug("Action goal not expected, not using data.")
                         logging.debug("Action goal not expected, not setting controller values.")
                         new_data = {
                             'goal_level': 5,
@@ -572,18 +611,19 @@ class TimestepCue(Resource):
                         }
 
                     config.shots_dealt_with.pop(0)
-                    print("sending shot response. Shots still to be dealt with: " + str(config.shots_dealt_with))
+                    logging.debug("sending shot response. Shots still to be dealt with: " + str(config.shots_dealt_with))
+                    logging.info("Returning data to app: " + str(new_data))
                     return new_data, 200
 
             elif 'override' in content:
-                print("dealing with override in API")
+                logging.debug("dealing with override in API")
                 if content['override'] == "True":
                     config.override = True
                 else:
                     config.override = False
 
             elif 'questionResponse' in content:
-                print("dealing with question response in API")
+                logging.debug("dealing with question response in API")
                 if content['questionResponse'] == "Pos":
                     config.question_response = config.Q_RESPONSE_POSITIVE
                 elif content['questionResponse'] == "Neg":
@@ -592,18 +632,18 @@ class TimestepCue(Resource):
                     config.question_response = None
 
             else:
-                print("dealing with shot/stat selection in API")
+                logging.debug("dealing with shot/stat selection in API")
                 if 'shot_selection' in content:
                     shotWithSpaces = content['shot_selection'].replace('%20', ' ')
                     config.shot = shotWithSpaces
                     config.hand = content['hand']
                 else:
                     config.stat = content['stat_selection'].replace('%20', ' ')
-                    print("New stat = " + config.stat)
+                    logging.debug("New stat = " + config.stat)
                 config.override = False
 
         else:
-            print("request not json")
+            logging.debug("request not json")
             parser = reqparse.RequestParser()
 
             parser.add_argument('goal_level', required=True)

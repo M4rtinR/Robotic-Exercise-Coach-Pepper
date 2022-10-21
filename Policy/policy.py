@@ -282,15 +282,15 @@ class Policy:
         # TODO: make it an epsilon-greedy policy.
         r = random.uniform(0, 1)
         if r < config.epsilon:
-            print("exploring")
+            logging.info("exploring")
             action = random.randint(1, 67)
         else:
-            print("exploiting")
-            print("transition matrix = " + str(self.transition_matrix))
-            print("state = " + str(state) + ", matrix = " + str(self.transition_matrix[state]))
+            logging.info("exploiting")
+            logging.debug("transition matrix = " + str(self.transition_matrix))
+            logging.info("state = " + str(state))
             if sum(self.transition_matrix[state]) > 0.0:
                 choicess = choices(range(69), self.transition_matrix[state])
-                print("choices = " + str(choicess))
+                logging.debug("choices = " + str(choicess))
                 action = choicess[0]
                 logging.debug("action: " + str(action))
                 count = 1
@@ -308,7 +308,7 @@ class Policy:
                 """if style < 7 and action == 44:
                     action = config.A_END"""
             else:
-                print("exploring because no data in transition matrix")
+                logging.info("exploring because no data in transition matrix")
                 action = -1
 
         return action  # choices(range(68), self.transition_matrix[style - 1][self._get_action(state)])[0]
@@ -2549,8 +2549,8 @@ class Policy:
         total_rewards = sum(non_neg_rewards)
 
         prob_matrix = [[0 for x in range(68)] for x in range(68)]
-        # print('before')
-        # print(len(prob_matrix), len(prob_matrix[0]))
+        # logging.debug('before')
+        # logging.debug(len(prob_matrix), len(prob_matrix[0]))
         # Set transition probability for valid actions to be:
         # the non-neg reward associated with that action / sum of all rewards in that style.
         if style < 7:
@@ -2566,8 +2566,8 @@ class Policy:
                 for reward in non_neg_rewards:
                     prob_matrix[self.physioActionDict[state]][count] = reward / total_rewards if reward > 0 else 0.00000001
                     count += 1
-        # print('after')
-        # print(len(prob_matrix), len(prob_matrix[0]))
+        # logging.debug('after')
+        # logging.debug(len(prob_matrix), len(prob_matrix[0]))
 
         return prob_matrix'''
 
@@ -2582,4 +2582,4 @@ class Policy:
 
 if __name__ == '__main__':
     p = Policy([x / 100 for x in _constrainedSumSamplePos(12, 100, 0.001)])
-    print(p.sample_observation(429, 18))'''
+    logging.debug(p.sample_observation(429, 18))'''
