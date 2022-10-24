@@ -1,0 +1,6 @@
+2.64
+1
+impactCutAngle
+19.0, 44.0, 1, 
+followThroughTime
+0.17, 0.31, 5, 
