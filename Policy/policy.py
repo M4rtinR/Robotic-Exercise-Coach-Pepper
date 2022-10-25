@@ -50,6 +50,7 @@ class Policy:
             self.transition_matrix = self._get_transition_matrix()
         elif policy is not None:
             self.transition_matrix = policy
+        self.E = [[0 for i in range(len(self.transition_matrix[0]))] for j in range(len(self.transition_matrix))]
 
     # Rewards for all different styles based on Max-Ent IRL.
     '''rewardsDict = {1: [-1.75616380e-01, 2.97698764e+00, 3.80941213e+00, 1.26260231e+00,
@@ -2397,6 +2398,9 @@ class Policy:
     def get_matrix(self):
         return self.transition_matrix
 
+    def get_eligibility_traces(self):
+        return self.E
+
     def update(self, state, action, updatedValue):
         filename = "/home/martin/PycharmProjects/coachingPolicies/AdaptedPolicies/" + config.participant_filename
         f = open(filename, "w")
@@ -2408,6 +2412,9 @@ class Policy:
         f.write(str(self.transition_matrix) + "\n")
         f.write(str(config.cumulative_reward))
         f.close()
+
+    def update_eligibility_traces(self, state, action, updatedValue):
+        self.E[state][action] = updatedValue
 
     physioActionDict = {0: config.A_START,
                         1: config.A_PREINSTRUCTION,

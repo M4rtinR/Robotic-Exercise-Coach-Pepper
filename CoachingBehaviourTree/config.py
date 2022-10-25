@@ -127,7 +127,7 @@ stat_list = {}
 
 # Initial values which will be updated when the API gets called by the guide.
 goal_level = -1
-sessions = 0
+sessions = 48
 score = -1
 target = -1
 avg_score = -1
@@ -207,7 +207,8 @@ leftHand = False
 
 # Values for RL
 alpha = 0.7
-gamma = 0.7
+gamma = 0.9
+lambdaValue = 0.9
 epsilon = -1
 policy_matrix = None
 

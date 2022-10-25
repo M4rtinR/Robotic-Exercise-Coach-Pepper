@@ -51,7 +51,7 @@ class CoachingEnvironment(gym.Env, ABC):
         super().reset(seed=seed)
 
         filename = "/home/martin/PycharmProjects/coachingPolicies/AdaptedPolicies/" + config.participant_filename
-        if os.path.exists(filename) and (not config.sessions == 12 or config.sessions == 24 or config.sessions == 36):
+        if os.path.exists(filename) and not (config.sessions == 12 or config.sessions == 24 or config.sessions == 36 or config.sessions == 48 or config.sessions == 60):
             print("using policy from file")
             f = open(filename, "r")
             contents = f.readlines()
@@ -77,7 +77,7 @@ class CoachingEnvironment(gym.Env, ABC):
         else:
             print("Creating new belief distribution")
             belief_distribution = [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0] if config.ability < 4 else [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0]
-            config.epsilon = 0.3
+            # config.epsilon = 0.3
             '''if config.sessions == 0:
                 print("config.alpha = 0.2")
                 config.alpha = 0.2
