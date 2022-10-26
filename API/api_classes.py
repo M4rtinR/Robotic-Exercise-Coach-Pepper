@@ -12,7 +12,7 @@ stat_list_master = ["racketPreparation", "approachTiming", "impactCutAngle", "im
 shot_list_master = {"drop": 0, "drive": 1, "cross court lob": 14, "two wall boast": 7, "straight kill": 16, "volley kill": 17, "volley drop": 18}
 sessions = 0
 
-participantNo = "TestingBaseline1"
+participantNo = "TestingBaseline2"
 
 '''
 Layout of participant history files:
@@ -66,6 +66,8 @@ class TimestepCue(Resource):
                         if not content['performance'] == "":
                             performance = content['performance']'''
                         score = content['score']
+                        accuracy = content['accuracy']
+                        shots = content['count']
 
                         shot = content['shot']
                         hand = content['hand']
@@ -93,15 +95,19 @@ class TimestepCue(Resource):
                         file_contents[0] = str(setsCount) + "\n"
 
                         file_contents.append(str(score) + "\n")
+                        file_contents.append(str(accuracy) + "\n")
+                        file_contents.append(str(shots) + "\n")
                         for stat in stat_list_master:
                             file_contents.append(stat + "\n")
-                            file_contents.append(str(content[stat]) + "\n")
+                            file_contents.append(str(content[stat]))
+                            statTarget = stat + "Target"
+                            file_contents.append(", " + str(content[statTarget]) + "\n")
 
                         file = open("/home/martin/PycharmProjects/coachingPolicies/SessionDataFiles/" + participantNo + "/" + hand + str(shot) + "/" + str(sessions) + ".txt", "w")
                         file.writelines(file_contents)
                         file.close()
 
-                        logging.debug('written shot set data to file')
+                        print('written shot set data to file')
 
                         new_data = {
                             'goal_level': 4,
@@ -143,9 +149,9 @@ class TimestepCue(Resource):
                             total = 0
                             for s in range(setsCount):
                                 print(file_contents[line].split("\n")[0])
-                                total += float(file_contents[line].split("\n")[0])
+                                total += float(file_contents[line].split("\n")[0][:-1])
                                 print("total = " + str(total))
-                                line += 13
+                                line += 15
                                 print("line = " + str(line))
 
                             averageScore = total/setsCount

@@ -168,7 +168,7 @@ getBehaviourGoalLevel = -1  # To keep track of which level the controller is in 
 
 # Initial values to be changed at the beginning of each session:
 name = "Martin"
-participantNo = "Testing.0"
+participantNo = "Testing.1"
 participant_filename = participantNo + "_history.txt"
 ability = 6
 motivation = 8
