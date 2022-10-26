@@ -1421,14 +1421,35 @@ def get_feedback_loop(name, behav, blackboard, goal_node, initialise_node, times
 
 
 def update(state, state2, reward, action, action2):
-    if config.action_score_given:
-        logging.debug("Updating policy, state: " + str(state) + ", action: " + str(action))
-        logging.debug("State2 = " + str(state2) + ", action2 = " + str(action2))
-        logging.debug("Reward = " + str(reward))
-        predict = config.policy_matrix.get_matrix()[state][action]
-        target = reward + config.gamma * config.policy_matrix.get_matrix()[state2][action2]
-        config.policy_matrix.update_matrix(state, action, 0.0 if config.policy_matrix.get_matrix()[state][action] + config.alpha * (target - predict) < 0.0 else config.policy_matrix.get_matrix()[state][action] + config.alpha * (target - predict))
-    else:
+    # if config.action_score_given:
+    logging.debug("Updating policy, state: " + str(state) + ", action: " + str(action))
+    logging.debug("State2 = " + str(state2) + ", action2 = " + str(action2))
+    logging.debug("Reward = " + str(reward))
+    # Expected reward:
+    predict = config.policy_matrix.get_matrix()[state][action]
+    # Next expected reward: config.policy_matrix.get_matrix()[state2][action2]
+    # TD:
+    target = reward + config.gamma * config.policy_matrix.get_matrix()[state2][action2]
+    # TD error: target - predict
+    td_error = target - predict
+
+    # increment eligibility traces (state, action)
+    config.policy_matrix.update_eligibility_traces(state, action, config.policy_matrix.get_eligibility_traces()[state][action] + 1)
+
+    # For each state action pair:
+    for s in range(len(config.policy_matrix.get_matrix())):
+        # Only do it if >= 0.1 to save time.
+        if sum(config.policy_matrix.get_eligibility_traces()[s]) >= 0.001:
+            for a in range(len(config.policy_matrix.get_matrix()[s])):
+                if config.policy_matrix.get_eligibility_traces()[s][a] >= 0.001:
+                    # Update transition matrix:
+                    config.policy_matrix.update_matrix(s, a, 0.0 if config.policy_matrix.get_matrix()[s][a] + config.alpha * td_error * config.policy_matrix.get_eligibility_traces()[s][a] < 0.0 else config.policy_matrix.get_matrix()[s][a] + config.alpha * td_error * config.policy_matrix.get_eligibility_traces()[s][a])
+                    # config.policy_matrix.get_matrix()[state][action] = config.policy_matrix.get_matrix()[state][action] + config.alpha * (target - predict) * eligibility_traces(state, action)
+                    # Decay E(state, action)
+                    config.policy_matrix.update_eligibility_traces(s, a, config.gamma * config.lambdaValue * config.policy_matrix.get_eligibility_traces()[s][a])
+
+    # config.policy_matrix.update_matrix(state, action, 0.0 if config.policy_matrix.get_matrix()[state][action] + config.alpha * (target - predict) < 0.0 else config.policy_matrix.get_matrix()[state][action] + config.alpha * (target - predict))
+    '''else:
         if config.set_finished:
             logging.debug("set finished, updating matrix")
             for list in config.set_level_behaviours:
@@ -1474,7 +1495,7 @@ def update(state, state2, reward, action, action2):
                 target = reward + config.gamma * config.policy_matrix.get_matrix()[list[2]][list[3]]
                 config.policy_matrix.update_matrix(list[0], list[1], 0.0 if config.policy_matrix.get_matrix()[list[0]][list[1]] + config.alpha * (target - predict) < 0.0 else config.policy_matrix.get_matrix()[list[0]][list[1]] + config.alpha * (target - predict))
             config.person_finished = False
-            config.person_level_behaviours = []
+            config.person_level_behaviours = []'''
 
     reward = None
     return config.policy
@@ -1553,6 +1574,9 @@ def main():
     state1, config.policy_matrix = env.reset()
     done = False
 
+    print("policy = " + str(config.policy_matrix.get_matrix()))
+    print("eligibility traces = " + str(config.policy_matrix.get_eligibility_traces()))
+
     result = NodeStatus(NodeStatus.ACTIVE)
     action1 = config.policy_matrix.get_behaviour(state1, config.PERSON_GOAL, None, config.PHASE_START)
     config.behaviour = action1
@@ -1579,7 +1603,7 @@ def main():
         else:
             config.used_behaviours.append(action2)
 
-        if config.goal_level == config.SET_GOAL or config.goal_level == config.ACTION_GOAL or config.goal_level == config.BASELINE_GOAL:
+        '''if config.goal_level == config.SET_GOAL or config.goal_level == config.ACTION_GOAL or config.goal_level == config.BASELINE_GOAL:
             config.set_level_behaviours.append([state1, action1, state2, action2])
             config.stat_level_behaviours.append([state1, action1, state2, action2])
             config.shot_level_behaviours.append([state1, action1, state2, action2])
@@ -1596,13 +1620,13 @@ def main():
             config.person_level_behaviours.append([state1, action1, state2, action2])
         elif config.goal_level == config.SESSION_GOAL or config.goal_level == config.PERSON_GOAL:
             config.session_level_behaviours.append([state1, action1, state2, action2])
-            config.person_level_behaviours.append([state1, action1, state2, action2])
+            config.person_level_behaviours.append([state1, action1, state2, action2])'''
 
         # Learning the Q-value
         if reward is not None:
             update(state1, state2, reward, action1, action2)
 
-        if config.goal_level == config.EXERCISE_GOAL and config.phase == config.PHASE_END:
+        if (config.goal_level == config.EXERCISE_GOAL or config.goal_level == config.STAT_GOAL) and config.phase == config.PHASE_END:
             logging.info("Policy = " + str(config.policy_matrix.get_matrix()))
             logging.info("Cumulative reward = " + str(config.cumulative_reward))
         #

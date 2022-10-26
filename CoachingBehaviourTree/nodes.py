@@ -2016,6 +2016,8 @@ class EndSetEvent(Node):
         if config.stop_on_baseline or config.stop_session_on_baseline:
             logging.debug("config.stat_list = " + str(config.stat_list))
             if config.stat_list:
+                logging.info("Policy = " + str(config.policy_matrix.get_matrix()))
+                logging.info("Cumulative reward = " + str(config.cumulative_reward))
                 config.stop_set = True
                 config.goal_level = config.EXERCISE_GOAL
                 if config.stop_session_on_baseline:

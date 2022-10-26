@@ -287,3 +287,10 @@ class PolicyWrapper:
     def update_matrix(self, state, action, updatedValue):
         self.policy.update(state, action, updatedValue)
         return self.policy.get_matrix()
+
+    def get_eligibility_traces(self):
+        return self.policy.get_eligibility_traces()
+
+    def update_eligibility_traces(self, state, action, updatedValue):
+        self.policy.update_eligibility_traces(state, action, updatedValue)
+        return self.policy.get_eligibility_traces()

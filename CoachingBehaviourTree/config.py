@@ -4,7 +4,7 @@ STAT_CHOICE = 1
 CHOICE_BY_PERSON = 0
 CHOICE_BY_SYSTEM = 1
 
-MAX_SESSION_TIME = 1200  # 1800 seconds is 30 minutes so set to 2 minutes left to give time for tidying up.
+MAX_SESSION_TIME = 1680  # 1800 seconds is 30 minutes so set to 2 minutes left to give time for tidying up.
 
 COMPLETED_STATUS_UNDEFINED = -1
 COMPLETED_STATUS_FALSE = 0
@@ -220,8 +220,8 @@ double_set_count_feedback = 0
 double_set_count_start = 0
 
 # Initial values to be changed at the beginning of each session:
-name = "Martin"
-participantNo = "Runthrough"
+name = "Fraser"
+participantNo = "P5."
 participant_filename = participantNo + "_history.txt"
 ability = 7
 motivation = 6
@@ -237,6 +237,7 @@ leftHand = False
 # Values for RL
 alpha = 0.3
 gamma = 0.7
+lambdaValue = 0.6
 epsilon = -1
 policy_matrix = None
 
