@@ -224,7 +224,7 @@ name = "Fraser"
 participantNo = "P5."
 participant_filename = participantNo + "_history.txt"
 ability = 7
-motivation = 6
+motivation = 10
 # 1 = DRIVE, 5 = LOB, 0 = DROP
 shot = None
 # "FH" or "BH"
