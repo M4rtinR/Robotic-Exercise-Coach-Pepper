@@ -1,0 +1,2 @@
+1
+forehanddrop: 2.44, backhanddrop: 2.25, forehanddrive: 1.8399999999999999, backhanddrive: 1.15, forehandstraight kill: 1.29, forehandvolley drop: 2.18,
