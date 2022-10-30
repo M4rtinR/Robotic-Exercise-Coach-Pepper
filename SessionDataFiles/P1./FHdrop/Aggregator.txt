@@ -1,0 +1,6 @@
+2.46
+4
+approachTiming
+99.0, 0.0, 4, 
+followThroughRoll
+50.0, 11.0, 4, 
