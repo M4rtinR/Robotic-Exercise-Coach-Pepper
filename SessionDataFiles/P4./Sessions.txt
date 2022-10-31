@@ -1,0 +1,2 @@
+1
+forehanddrop: 2.81, backhanddrop: 2.47, forehanddrive: 2.21, backhanddrive: 2.143333333333333, forehandcross court lob: 2.5531578947368425, backhandcross court lob: 2.678, 
