@@ -1,0 +1,2 @@
+1
+forehanddrop: 2.244285714285714, backhanddrop: 2.37, forehanddrive: 1.615, backhanddrive: 1.6560000000000001, forehandcross court lob: 2.81, backhandcross court lob: 3.24, forehandtwo wall boast: 1.5187499999999998, backhandtwo wall boast: 1.4600000000000002, forehandstraight kill: 1.33, forehandvolley kill: 1.7325, backhandvolley kill: 2.245, forehandvolley drop: 2.21, 
