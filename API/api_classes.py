@@ -12,7 +12,7 @@ stat_list_master = ["racketPreparation", "approachTiming", "impactCutAngle", "im
 shot_list_master = {"drop": 0, "drive": 1, "cross court lob": 14, "two wall boast": 7, "straight kill": 16, "volley kill": 17, "volley drop": 18}
 sessions = 0
 
-participantNo = "P11."
+participantNo = "P6."
 
 '''
 Layout of participant history files:
