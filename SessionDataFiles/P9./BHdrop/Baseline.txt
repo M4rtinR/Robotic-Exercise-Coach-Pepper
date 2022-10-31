@@ -3,7 +3,7 @@ racketPreparation
 approachTiming
 8.0, 20.0, 4, 
 impactCutAngle
-27.0, 0.18127722, 
+23.0, 0.18127722, 4,
 impactSpeed
 9.0, 1.0, 5, 
 followThroughRoll
