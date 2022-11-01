@@ -1,0 +1,4 @@
+2.67
+1
+followThroughRoll
+45.0, 7.0, 1, 

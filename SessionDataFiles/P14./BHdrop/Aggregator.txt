@@ -1,0 +1,6 @@
+2.63
+4
+racketPreparation
+57.0, 46.0, 4, 
+impactCutAngle
+50.0, 30.0, 5, 
