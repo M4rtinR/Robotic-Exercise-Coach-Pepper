@@ -4,7 +4,7 @@ STAT_CHOICE = 1
 CHOICE_BY_PERSON = 0
 CHOICE_BY_SYSTEM = 1
 
-MAX_SESSION_TIME = 1680  # 1800 seconds is 30 minutes so set to 2 minutes left to give time for tidying up.
+MAX_SESSION_TIME = 420  # 1800 seconds is 30 minutes so set to 2 minutes left to give time for tidying up.
 
 COMPLETED_STATUS_UNDEFINED = -1
 COMPLETED_STATUS_FALSE = 0
