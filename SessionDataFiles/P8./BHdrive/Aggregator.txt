@@ -1,0 +1,6 @@
+2.4
+1
+followThroughTime
+0.1, 0.6, 1, 
+followThroughRoll
+0.0, 7.0, 5, 

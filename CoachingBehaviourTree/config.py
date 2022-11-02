@@ -4,7 +4,7 @@ STAT_CHOICE = 1
 CHOICE_BY_PERSON = 0
 CHOICE_BY_SYSTEM = 1
 
-MAX_SESSION_TIME = 420  # 1800 seconds is 30 minutes so set to 2 minutes left to give time for tidying up.
+MAX_SESSION_TIME = 1680  # 1800 seconds is 30 minutes so set to 2 minutes left to give time for tidying up.
 
 COMPLETED_STATUS_UNDEFINED = -1
 COMPLETED_STATUS_FALSE = 0
@@ -220,10 +220,10 @@ double_set_count_feedback = 0
 double_set_count_start = 0
 
 # Initial values to be changed at the beginning of each session:
-name = "Fraser"
-participantNo = "P5."
+name = "James"
+participantNo = "P7."
 participant_filename = participantNo + "_history.txt"
-ability = 7
+ability = 2
 motivation = 8
 # 1 = DRIVE, 5 = LOB, 0 = DROP
 shot = None
