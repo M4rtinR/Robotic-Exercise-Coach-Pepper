@@ -1,0 +1,6 @@
+1.43
+1
+approachTiming
+39.0, 18.0, 1, 
+followThroughTime
+0.21, 0.32, 1, 

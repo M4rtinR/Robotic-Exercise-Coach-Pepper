@@ -1,0 +1,6 @@
+2.64
+1
+impactSpeed
+33.0, 0.0, 1, 
+racketPreparation
+67.0, 40.0, 4, 
