@@ -1,0 +1,17 @@
+2.68
+1
+2.68★
+0.53655636
+72
+racketPreparation
+33%, 7%
+approachTiming
+33%, 55%
+impactCutAngle
+50 degs, 40 degs
+impactSpeed
+10 mtrs/sec, 16 mtrs/sec
+followThroughRoll
+21 degs, 50 degs
+followThroughTime
+0.13 secs, 0.10 secs
