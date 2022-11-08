@@ -220,8 +220,8 @@ double_set_count_feedback = 0
 double_set_count_start = 0
 
 # Initial values to be changed at the beginning of each session:
-name = "Bryn"
-participantNo = "P9."
+name = "Dan"
+participantNo = "P14."
 participant_filename = participantNo + "_history.txt"
 ability = 3
 motivation = 8
@@ -232,7 +232,7 @@ hand = None
 # "racketPreparation" = RACKET_PREP, "impactCutAngle" = IMPACT_CUT_ANGLE, "followThroughTime" = FOLLOW_THROUGH_TIME
 stat = None
 policy = 11
-leftHand = True
+leftHand = False
 
 # Values for RL
 alpha = 0.3
