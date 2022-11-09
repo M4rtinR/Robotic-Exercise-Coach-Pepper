@@ -1,0 +1,137 @@
+2.444444444444444
+9
+2.00★
+0.40028706
+15
+racketPreparation
+72%, 36%
+approachTiming
+49%, 57%
+impactCutAngle
+16 degs, 50 degs
+impactSpeed
+5 mtrs/sec, 13 mtrs/sec
+followThroughRoll
+0 degs, 58 degs
+followThroughTime
+0.03 secs, 0.11 secs
+2.27★
+0.45458135
+3
+racketPreparation
+2%, 36%
+approachTiming
+36%, 57%
+impactCutAngle
+12 degs, 50 degs
+impactSpeed
+20 mtrs/sec, 13 mtrs/sec
+followThroughRoll
+15 degs, 58 degs
+followThroughTime
+0.09 secs, 0.11 secs
+2.78★
+0.5563305
+1
+racketPreparation
+32%, 36%
+approachTiming
+61%, 57%
+impactCutAngle
+10 degs, 50 degs
+impactSpeed
+20 mtrs/sec, 13 mtrs/sec
+followThroughRoll
+64 degs, 58 degs
+followThroughTime
+0.12 secs, 0.11 secs
+1.91★
+0.3812461
+1
+racketPreparation
+77%, 36%
+approachTiming
+100%, 57%
+impactCutAngle
+22 degs, 50 degs
+impactSpeed
+3 mtrs/sec, 13 mtrs/sec
+followThroughRoll
+0 degs, 58 degs
+followThroughTime
+0.03 secs, 0.11 secs
+2.50★
+0.50074095
+2
+racketPreparation
+52%, 36%
+approachTiming
+50%, 57%
+impactCutAngle
+52 degs, 50 degs
+impactSpeed
+9 mtrs/sec, 13 mtrs/sec
+followThroughRoll
+22 degs, 58 degs
+followThroughTime
+0.07 secs, 0.11 secs
+2.61★
+0.5226545
+1
+racketPreparation
+69%, 36%
+approachTiming
+65%, 57%
+impactCutAngle
+10 degs, 50 degs
+impactSpeed
+7 mtrs/sec, 13 mtrs/sec
+followThroughRoll
+56 degs, 58 degs
+followThroughTime
+0.03 secs, 0.11 secs
+2.66★
+0.5314967
+1
+racketPreparation
+25%, 36%
+approachTiming
+0%, 57%
+impactCutAngle
+13 degs, 50 degs
+impactSpeed
+10 mtrs/sec, 13 mtrs/sec
+followThroughRoll
+45 degs, 58 degs
+followThroughTime
+0.03 secs, 0.11 secs
+3.15★
+0.6303331
+1
+racketPreparation
+36%, 36%
+approachTiming
+78%, 57%
+impactCutAngle
+4 degs, 50 degs
+impactSpeed
+8 mtrs/sec, 13 mtrs/sec
+followThroughRoll
+63 degs, 58 degs
+followThroughTime
+0.10 secs, 0.11 secs
+2.12★
+0.42479703
+1
+racketPreparation
+22%, 36%
+approachTiming
+91%, 57%
+impactCutAngle
+11 degs, 50 degs
+impactSpeed
+22 mtrs/sec, 13 mtrs/sec
+followThroughRoll
+53 degs, 58 degs
+followThroughTime
+0.23 secs, 0.11 secs
