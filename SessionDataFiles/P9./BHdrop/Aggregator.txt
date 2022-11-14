@@ -1,8 +1,8 @@
-1.97
-4
+2.05
+1
 impactSpeed
 9.0, 1.0, 5, 
 approachTiming
-17.0, 25.0, 5, 
+7.0, 18.0, 5, 
 impactCutAngle
-18.0, 0.0, 4, 
+26.0, 4.0, 1, 
