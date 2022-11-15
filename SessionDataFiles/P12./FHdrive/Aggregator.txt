@@ -1,0 +1,6 @@
+1.8
+4
+approachTiming
+88.0, 0.0, 4,
+impactSpeed
+15.0, 0.0, 4,
