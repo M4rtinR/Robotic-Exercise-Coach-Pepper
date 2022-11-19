@@ -1,8 +1,10 @@
-1.37
-4
+1.63
+5
 impactSpeed
 30.0, 0.0, 1,
 racketPreparation
-33.0, 0.0, 4, 
+42.0, 3.0, 4, 
 approachTiming
 90.0, 0.0, 4, 
+impactCutAngle
+16.0, 30.0, 5, 
