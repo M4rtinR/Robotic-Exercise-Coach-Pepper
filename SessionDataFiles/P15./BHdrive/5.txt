@@ -2,5 +2,6 @@
 1
 impactSpeed
 24.0, 0.0, 1, 
-approachTiming
-57.0, 16.0, 1, 
+2
+23.0, 2, 
+24.0, 4, 
