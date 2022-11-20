@@ -1,5 +1,5 @@
-2.83
-1
+2.69
+5
 followThroughRoll
 14.0, 2.0, 5, 
 racketPreparation
@@ -10,3 +10,5 @@ followThroughTime
 0.14, 0.73, 1, 
 impactSpeed
 11.0, 1.0, 5, 
+approachTiming
+39.0, 39.0, 5, 
