@@ -2,5 +2,6 @@
 4
 approachTiming
 96.0, 0.0, 4, 
-impactCutAngle
-1.0, 0.0, 4, 
+2
+96.0, 4, 
+96.0, 4, 

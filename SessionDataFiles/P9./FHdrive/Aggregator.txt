@@ -1,0 +1,8 @@
+1.33
+1
+impactCutAngle
+5.0, 28.0, 1, 
+approachTiming
+89.0, 2.0, 4,
+impactSpeed
+27.0, 0.0, 4,
