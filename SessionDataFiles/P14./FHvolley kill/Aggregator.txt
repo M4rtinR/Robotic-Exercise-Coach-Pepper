@@ -1,6 +1,8 @@
-1.98
-4
+2.4
+1
 followThroughTime
 0.12, 0.2, 4, 
 impactSpeed
-22.0, 0.0, 1, 
+29.0, 0.0, 1, 
+impactCutAngle
+28.0, 21.0, 4, 
