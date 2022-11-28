@@ -2,9 +2,11 @@
 1
 impactSpeed
 25.0, 0.0, 1, 
-approachTiming
-88.0, 44.0, 5, 
+2
+23.0, 2, 
+25.0, 4, 
 racketPreparation
 19.0, 26.0, 5, 
-followThroughRoll
-0.0, 13.0, 5, 
+2
+22.0, 5, 
+19.0, 4, 
