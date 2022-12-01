@@ -220,8 +220,8 @@ double_set_count_feedback = 0
 double_set_count_start = 0
 
 # Initial values to be changed at the beginning of each session:
-name = "David"
-participantNo = "P1."
+name = "Bryn"
+participantNo = "P9."
 participant_filename = participantNo + "_history.txt"
 ability = 2
 motivation = 8
