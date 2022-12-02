@@ -1,4 +1,4 @@
-7
+8
 forehanddrop: 2.81, backhanddrop: 2.47, forehanddrive: 2.21, backhanddrive: 2.143333333333333, forehandcross court lob: 2.5531578947368425, backhandcross court lob: 2.678, 
 backhanddrop: 2.63, forehanddrive: 2.4899999999999998, backhanddrive: 1.9166666666666667, forehandcross court lob: 2.335, backhandcross court lob: 2.783333333333333, 
 
@@ -7,3 +7,4 @@ forehanddrive: 2.95, backhanddrive: 2.34, forehandtwo wall boast: 3.13, backhand
 forehanddrive: 2.78, backhanddrive: 2.21, forehandtwo wall boast: 2.35, backhandtwo wall boast: 1.8050000000000002, 
 forehanddrop: 2.62, backhanddrop: 2.3200000000000003, forehanddrive: 2.89, backhanddrive: 2.225, forehandvolley drop: 2.53, backhandvolley drop: 2.75, 
 forehanddrop: 2.5, backhanddrop: 2.42, forehanddrive: 3.07, backhanddrive: 2.355, forehandtwo wall boast: 3.19, backhandtwo wall boast: 2.18, 
+backhanddrop: 2.81, forehanddrive: 2.99, backhanddrive: 1.94, forehandtwo wall boast: 2.52, backhandtwo wall boast: 2.13, forehandvolley drop: 2.55, backhandvolley drop: 2.6, 
