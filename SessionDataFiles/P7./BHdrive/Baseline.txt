@@ -106,3 +106,15 @@ followThroughRoll
 72.0, 0.54680747, 
 followThroughTime
 0.16, 0.602232, 
+racketPreparation
+39.0, 0.40853137, 
+approachTiming
+31.0, 8.0, 1, 
+impactCutAngle
+29.0, 0.5269223, 
+impactSpeed
+14.0, 0.0, 4, 
+followThroughRoll
+71.0, 0.6037394, 
+followThroughTime
+0.15, 0.6633818, 
