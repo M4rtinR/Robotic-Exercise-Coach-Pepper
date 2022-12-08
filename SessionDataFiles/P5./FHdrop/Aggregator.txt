@@ -1,11 +1,11 @@
-2.62
+2.61
 1
 followThroughRoll
-14.0, 2.0, 5, 
+41.0, 7.0, 1, 
 racketPreparation
 92.0, 35.0, 1, 
 impactCutAngle
-31.0, 13.0, 5, 
+26.0, 12.0, 5, 
 followThroughTime
 0.14, 0.73, 1, 
 impactSpeed
