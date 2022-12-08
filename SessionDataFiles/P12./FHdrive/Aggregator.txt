@@ -5,4 +5,4 @@ approachTiming
 impactSpeed
 16.0, 0.0, 4, 
 racketPreparation
-57.0, 18.0, 1, 
+63.0, 28.0, 5,
