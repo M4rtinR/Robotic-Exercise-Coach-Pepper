@@ -220,10 +220,10 @@ double_set_count_feedback = 0
 double_set_count_start = 0
 
 # Initial values to be changed at the beginning of each session:
-name = "Fraser"
-participantNo = "P5."
+name = "Anoopp"
+participantNo = "P8."
 participant_filename = participantNo + "_history.txt"
-ability = 7
+ability = 6
 motivation = 8
 # 1 = DRIVE, 5 = LOB, 0 = DROP
 shot = None
