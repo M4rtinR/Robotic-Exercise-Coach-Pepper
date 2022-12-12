@@ -2,7 +2,11 @@
 1
 impactSpeed
 29.0, 0.0, 1, 
-racketPreparation
-78.0, 35.0, 1, 
+2
+29.0, 4, 
+29.0, 4, 
 followThroughTime
 0.26, 0.39, 1, 
+2
+0.26, 4, 
+0.26, 4, 
