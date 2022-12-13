@@ -1,3 +1,5 @@
+# Squash and Stroke Rehabilitation Coaching Robot
+
 This repo contains code for running both the squash coaching and stroke rehabilitation demonstration on Pepper. For detailed instructions on how to install and run each demonstration please see the "long-term squash" and "long-term stroke" branches respectively.
 
 The demonstrations are the same code as was used for the evaluations of the system with participants so should be fairly robust. However, they are a bit complex to set up and run and the code is a bit hacked together in places. A description of the studies run and the background to the project can be found in the demos folder in Dropbox: <Insert Link>.
