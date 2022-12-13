@@ -1,0 +1,62 @@
+2.315
+4
+2.38★
+0.4759954
+15
+racketPreparation
+70%, 7%
+approachTiming
+57%, 19%
+impactCutAngle
+35 degs, 34 degs
+impactSpeed
+10 mtrs/sec, 19 mtrs/sec
+followThroughRoll
+0 degs, 124 degs
+followThroughTime
+0.20 secs, 0.12 secs
+1.82★
+0.36347404
+2
+racketPreparation
+32%, 7%
+approachTiming
+81%, 19%
+impactCutAngle
+18 degs, 34 degs
+impactSpeed
+1 mtrs/sec, 19 mtrs/sec
+followThroughRoll
+22 degs, 124 degs
+followThroughTime
+0.03 secs, 0.12 secs
+2.39★
+0.4776443
+16
+racketPreparation
+83%, 7%
+approachTiming
+70%, 19%
+impactCutAngle
+29 degs, 34 degs
+impactSpeed
+11 mtrs/sec, 19 mtrs/sec
+followThroughRoll
+22 degs, 124 degs
+followThroughTime
+0.19 secs, 0.12 secs
+2.67★
+0.5346085
+1
+racketPreparation
+85%, 7%
+approachTiming
+21%, 19%
+impactCutAngle
+21 degs, 34 degs
+impactSpeed
+31 mtrs/sec, 19 mtrs/sec
+followThroughRoll
+80 degs, 124 degs
+followThroughTime
+0.14 secs, 0.12 secs
