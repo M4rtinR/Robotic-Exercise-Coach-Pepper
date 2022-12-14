@@ -10,3 +10,13 @@ racketPreparation
 2
 22.0, 5, 
 19.0, 4, 
+impactSpeed
+23.0, 0.0, 5, 
+2
+21.0, 4, 
+23.0, 2, 
+followThroughTime
+0.13, 0.42, 5, 
+2
+0.13, 5, 
+0.13, 4, 
