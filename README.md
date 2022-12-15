@@ -30,7 +30,7 @@ NOTE: The demonstrations will only work on the ITT group's Pepper (the one with 
   This is where the interaction with the user is done through Pepper. All of the actions are sent here to be conducted by Pepper and any use of Pepper's touch sensors/limbs is dealt with here. Written in Python 2.
       
   Similar to component 1 above, clone the robot test repo into a new Pycharm project. You should then be able to select the required branch for the particular demo you wish to run.
-  #### 3. Rehab Interface <Need to update this name> <Insert link to repo>
+  #### 3. Rehab Interface: <Need to update this name> https://github.com/M4rtinR/RehabInterface
   This is where the display on Pepper's tablet computer screen and interaction with the screen from the user is handled. Written in Python 3.
       
   For this component you will need to run Pycharm as an administrator. In a terminal, open the folder in which Pycharm is installed (for me this is /snap/pycharm-community/current/bin) and use the following command:
