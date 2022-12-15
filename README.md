@@ -14,6 +14,14 @@ NOTE: The demonstrations will only work on the ITT group's Pepper (the one with 
     <Instructions on downloading Python 2 and 3>
   3. Pycharm v2020.3
     <Instructions on downloading and installing Pycharm>
+    
+      a) Visit https://www.jetbrains.com/pycharm/download/#section=linux and download the free community edition.
+      
+      b) Extract the contents of the tar file to the location of your choice.
+      
+      c) Run Pycharm by opening a terminal, navigating to {extract_location}/bin, and typing ```./pycharm.sh```.
+      
+      d) Upon running, you can import a project from version control (e.g. this project or one of the others listed below.)
   4. Android Studio v 2021.3
     <Instructions on downloading and installing Android Studio>
   5. Choregraphe v2.5.10.7
