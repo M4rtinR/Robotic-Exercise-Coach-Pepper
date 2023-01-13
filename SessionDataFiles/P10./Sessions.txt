@@ -1,4 +1,4 @@
-7
+9
 forehanddrop: 2.41, backhanddrop: 3.61, forehandstraight kill: 1.93, forehandvolley drop: 2.62, backhandvolley drop: 2.915, 
 forehandvolley drop: 2.6399999999999997, backhandvolley drop: 2.7899999999999996, 
 forehanddrop: 2.4, forehandvolley drop: 2.4699999999999998, backhandvolley drop: 2.83, 
@@ -6,3 +6,5 @@ forehanddrop: 2.885, backhanddrop: 2.815, forehandvolley drop: 2.35, backhandvol
 forehanddrop: 2.6799999999999997, backhanddrop: 2.7525, forehanddrive: 3.02, backhanddrive: 1.65, 
 forehanddrop: 2.46, backhanddrop: 2.453333333333333, forehanddrive: 2.02, backhanddrive: 2.19, forehandvolley drop: 2.3200000000000003, backhandvolley drop: 2.486666666666667,
 forehanddrop: 2.836, backhanddrop: 2.9771428571428564, forehandvolley drop: 2.6925, backhandvolley drop: 2.567142857142857, 
+forehanddrop: 2.892, backhanddrop: 2.636, forehandvolley drop: 2.5766666666666667, backhandvolley drop: 3.013333333333333, 
+forehanddrop: 2.71, backhanddrop: 2.66, forehandvolley drop: 2.42, backhandvolley drop: 2.58, 
