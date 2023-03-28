@@ -9,9 +9,21 @@ NOTE: The demonstrations will only work on the ITT group's Pepper (the one with 
 ## Instructions for Installing and Running (applicable to both squash and rehabilitation)
   ### Requirements
   1. Ubuntu 16.04 (newer versions might work but I had problems with any version other than this).
-    <Instructions on downloading Ubuntu and creating dual boot on Windows>
+     
+     a) You can install Ubuntu alongside Windows (dual-boot) by following the instructions here: https://itsfoss.com/install-ubuntu-1404-dual-boot-mode-windows-8-81-uefi/
+     
+     b) I found that it wasn't necessary to conduct "Step 4: Make some free space on your disk for Ubuntu installation" because the Ubuntu installer will partition your hard drive automatically during installation.
   2. Python 2 and Python 3 (not great practice I know, but some parts of the Naoqi SDK only work with Python 2 and some other functionality was a lot easier to implement in Python 3).
-    <Instructions on downloading Python 2 and 3>
+      
+      a) Python 2 should already be installed with Ubuntu 16.04. You can check which version you have by typing ```python -V``` into a terminal window.
+      
+      b) To install Python 3, use the following commands in a terminal window:
+      
+         sudo apt-get update
+         sudo apt-get install build-essential libpq-dev libssl-dev openssl libffi-dev zlib1g-dev
+         sudo apt-get install python3-pip python3-dev
+      
+      c) You can verify the installation was successful by typing ```python3 -V``` into a terminal window.
   3. Pycharm v2020.3
     <Instructions on downloading and installing Pycharm>
     
@@ -21,7 +33,17 @@ NOTE: The demonstrations will only work on the ITT group's Pepper (the one with 
       
       c) Run Pycharm by opening a terminal, navigating to {extract_location}/bin, and typing ```./pycharm.sh```.
       
-      d) Upon running, you can import a project from version control (e.g. this project or one of the others listed below.)
+      d) Upon running, you can import a project from version control (e.g. this project or one of the others listed below):
+      
+      (i) Select "Get from VCS" on the welcome screen.
+      
+      (ii) You will also need to install git by typing ```sudo apt install git``` in a terminal window. This may not install the required git version, so you might still see an error message in PyCharm. If this happens you can install the latest version of git as follows:
+      
+         sudo add-apt-repository ppa:git-core/ppa
+         sudo apt update
+         sudo apt install git
+      
+      e) Next, enter the URL of the repository you want to download (e.g. https://github.com/M4rtinR/coachingPolicies)
   4. Android Studio v 2021.3
     <Instructions on downloading and installing Android Studio>
   5. Choregraphe v2.5.10.7
