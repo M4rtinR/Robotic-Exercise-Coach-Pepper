@@ -33,17 +33,6 @@ NOTE: The demonstrations will only work on the ITT group's Pepper (the one with 
       
       c) Run Pycharm by opening a terminal, navigating to {extract_location}/bin, and typing ```./pycharm.sh```.
       
-      d) Upon running, you can import a project from version control (e.g. this project or one of the others listed below):
-      
-      (i) Select "Get from VCS" on the welcome screen.
-      
-      (ii) You will also need to install git by typing ```sudo apt install git``` in a terminal window. This may not install the required git version, so you might still see an error message in PyCharm. If this happens you can install the latest version of git as follows:
-      
-         sudo add-apt-repository ppa:git-core/ppa
-         sudo apt update
-         sudo apt install git
-      
-      e) Next, enter the URL of the repository you want to download (e.g. https://github.com/M4rtinR/coachingPolicies)
   4. Android Studio v 2021.3
     <Instructions on downloading and installing Android Studio>
   5. Choregraphe v2.5.10.7
@@ -53,9 +42,25 @@ NOTE: The demonstrations will only work on the ITT group's Pepper (the one with 
   #### 1. Coaching Policies <Need to update this name>
   This is the current repo and is where the main program is stored. It does everything to do with the policies, deciding what action to take, RL to adapt the policies, behaviour tree to track the place within the session etc. Written in Python 2.
       
-  Once you have installed Pycharm, as above, clone this repo into Pycharm as a new project.
+  Once you have installed Pycharm, as above, clone this repo into Pycharm as a new project:
   
-  You should now be able to select the required branch for the particular demo you wish to run (NOTE: the master branch does nothing).
+  a) Open Pycharm.
+     
+  b) Upon running, you can import a project from version control (e.g. this project or one of the others listed below):
+      
+  (i) Select "Get from VCS" on the welcome screen.
+      
+  (ii) You will also need to install git by typing ```sudo apt install git``` in a terminal window. This may not install the required git version, so you might still see an error message in PyCharm. If this happens you can install the latest version of git as follows:
+      
+      sudo add-apt-repository ppa:git-core/ppa
+      sudo apt update
+      sudo apt install git
+      
+  c) Next, enter the URL of the repository you want to download (e.g. https://github.com/M4rtinR/coachingPolicies.git) and click "clone". You should fork the project first into your own repository if you plan to edit the code.
+      
+  d) You may need to click "Trust project" before it will open in PyCharm.
+  
+  You should now be able to select the required branch for the particular demo you wish to run (NOTE: the master branch contains the squash system).
   #### 2. Robot Test: <Need to update this name> https://github.com/M4rtinR/RobotTest
   This is where the interaction with the user is done through Pepper. All of the actions are sent here to be conducted by Pepper and any use of Pepper's touch sensors/limbs is dealt with here. Written in Python 2.
       
