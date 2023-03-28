@@ -1,0 +1,12 @@
+1.83
+5
+approachTiming
+59.0, 36.0, 4, 
+followThroughTime
+0.12, 0.72, 1, 
+impactCutAngle
+20.0, 40.0, 5, 
+followThroughRoll
+0.0, 16.0, 5, 
+impactSpeed
+30.0, 0.0, 1, 

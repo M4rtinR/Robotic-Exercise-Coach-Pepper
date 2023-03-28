@@ -1,0 +1,8 @@
+1.35
+5
+racketPreparation
+46.0, 0.0, 4, 
+followThroughRoll
+31.0, 38.0, 5, 
+followThroughTime
+0.12, 0.31, 5, 

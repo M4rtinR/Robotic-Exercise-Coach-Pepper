@@ -1,0 +1,84 @@
+racketPreparation
+18.0, 0.23522246, 
+approachTiming
+39.0, 18.0, 1, 
+impactCutAngle
+29.0, 0.5891033, 
+impactSpeed
+21.0, 0.19558805, 
+followThroughRoll
+80.0, 0.7937569, 
+followThroughTime
+0.21, 0.32, 1, 
+racketPreparation
+45.0, 0.48304397, 
+approachTiming
+30.0, 5.0, 4, 
+impactCutAngle
+26.0, 0.5781182, 
+impactSpeed
+22.0, 0.2036196, 
+followThroughRoll
+70.0, 0.5424447, 
+followThroughTime
+0.16, 0.6084265, 
+racketPreparation
+39.0, 0.45632958, 
+approachTiming
+35.0, 15.0, 1, 
+impactCutAngle
+15.0, 41.0, 5, 
+impactSpeed
+23.0, 0.23671079, 
+followThroughRoll
+70.0, 0.5134796, 
+followThroughTime
+0.2, 0.43041402, 
+racketPreparation
+51.0, 0.5103674, 
+approachTiming
+45.0, 0.27712035, 
+impactCutAngle
+19.0, 0.78658223, 
+impactSpeed
+25.0, 0.0, 4, 
+followThroughRoll
+0.0, 16.0, 5, 
+followThroughTime
+0.2, 0.41918617, 
+racketPreparation
+33.0, 0.393292, 
+approachTiming
+30.0, 0.058020055, 
+impactCutAngle
+16.0, 0.7871977, 
+impactSpeed
+28.0, 0.0, 5, 
+followThroughRoll
+77.0, 0.49814606, 
+followThroughTime
+0.17, 0.47756124, 
+racketPreparation
+69.0, 0.1689133, 
+approachTiming
+59.0, 36.0, 4, 
+impactCutAngle
+13.0, 0.7750253, 
+impactSpeed
+30.0, 0.0, 1, 
+followThroughRoll
+75.0, 0.4670788, 
+followThroughTime
+0.14, 0.7270218, 
+racketPreparation
+31.0, 0.24066347, 
+approachTiming
+55.0, 0.3915478, 
+impactCutAngle
+20.0, 40.0, 5, 
+impactSpeed
+24.0, 0.2517889, 
+followThroughRoll
+67.0, 0.36709577, 
+followThroughTime
+0.12, 0.72, 1, 

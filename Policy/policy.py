@@ -1,6 +1,10 @@
+import logging
+
 import numpy as np
 import random
 from random import choices
+
+from CoachingBehaviourTree import controller, config
 
 
 class Policy:
@@ -40,11 +44,15 @@ class Policy:
         Helper function for generating transition matrix which generates the matrix for a single given style.
     """
     # TODO: Change from using IRL rewards to just clustered policies.
-    def __init__(self, belief):
-        self.belief_distribution = belief
-        self.transition_matrix = self._get_transition_matrix()
+    def __init__(self, belief=None, policy=None):
+        if belief is not None:
+            self.belief_distribution = belief
+            self.transition_matrix = self._get_transition_matrix()
+        elif policy is not None:
+            self.transition_matrix = policy
+        self.E = [[0 for i in range(len(self.transition_matrix[0]))] for j in range(len(self.transition_matrix))]
 
-    # ACTIONS
+    '''        # ACTIONS
     A_START = 0
     A_PREINSTRUCTION = 1
     A_CONCURRENTINSTRUCTIONPOSITIVE = 2
@@ -108,12 +116,12 @@ class Policy:
     A_MANUALMANIPULATION_PRAISE = 60
     A_MANUALMANIPULATION_CONSOLE = 61
     A_QUESTIONING_POSITIVEMODELING = 62
-    A_POSITIVEMODELING_CONCURRENTINSTRUCTIONNEGATIVE = 63
+    A_POSITIVEMODELING_CONCURRENTINSTRUCTIONPOSITIVE = 63
     A_POSITIVEMODELING_QUESTIONING = 64
-    A_POSITIVEMODELLING_HUSTLE = 65
+    A_POSITIVEMODELING_HUSTLE = 65
     A_POSITIVEMODELING_PRAISE = 66
     A_END = 67
-    A_SILENCE = 68
+    A_SILENCE = 68'''
 
     # Rewards for all different styles based on Max-Ent IRL.
     '''rewardsDict = {1: [-1.75616380e-01, 2.97698764e+00, 3.80941213e+00, 1.26260231e+00,
@@ -257,71 +265,95 @@ class Policy:
         :param state :type int: the state last observed by the policy.
         :return:type int: a random action from the given state based on transition matrix probabilities.
         """
-        # Find which style state belongs to.
+
+        # We don't need to look up style all the time now because style doesn't change. We now only have the transition
+        # matrix of the current policy.
+        """# Find which style state belongs to.
         style = self._get_style(state)
 
         # Get random action based on self.transition_matrix probabilities.
-        print("style: " + str(style))
-        print("state: " + str(state))
-        print("self._get_action(state): " + str(self._get_action(state)))
-        print(len(self.transition_matrix[style-1]))
-        #print(len(self.transition_matrix[style - 1][self._get_action(state)]))
-        #print(len(range(68)))
-        action = choices(range(68), self.transition_matrix[style - 1][self._get_action(state)])[0]
-        print("action: " + str(action))
-        count = 1
-        while action == self.A_MANUALMANIPULATION:
-            # Manual manipulation is not possible for the robot so if this is the case, get new behaviour
-            if count <= 10:  # Either from original state
-                print("count <= 10")
-                action = choices(range(68), self.transition_matrix[style - 1][self._get_action(state)])[0]
-            else:  # or from manual manipulation if this is the only behaviour following the original state.
-                print("count > 10")
-                action = choices(range(68), self.transition_matrix[style - 1][action])[0]
-            count += 1
+        logging.debug("style: " + str(style))
+        logging.debug("state: " + str(state))
+        logging.debug("self._get_action(state): " + str(self._get_action(state)))
+        logging.debug(len(self.transition_matrix[style-1]))
+        #logging.debug(len(self.transition_matrix[style - 1][self._get_action(state)]))
+        #logging.debug(len(range(68)))
+        logging.debug(self.transition_matrix[style - 1][self._get_action(state)])"""
 
-        # Special case when action == 44 (A_END) for coach styles.
-        if style < 7 and action == 44:
-            action = self.A_END
+        # TODO: make it an epsilon-greedy policy.
+        r = random.uniform(0, 1)
+        if r < config.epsilon:
+            logging.info("exploring")
+            action = random.randint(1, 67)
+        else:
+            logging.info("exploiting")
+            logging.debug("transition matrix = " + str(self.transition_matrix))
+            logging.info("state = " + str(state))
+            if sum(self.transition_matrix[state]) > 0.0:
+                choicess = choices(range(69), self.transition_matrix[state])
+                logging.debug("choices = " + str(choicess))
+                action = choicess[0]
+                logging.debug("action: " + str(action))
+                count = 1
+                while action == config.A_MANUALMANIPULATION:
+                    # Manual manipulation is not possible for the robot so if this is the case, get new behaviour
+                    if count <= 10:  # Either from original state
+                        logging.debug("count <= 10")
+                        action = choices(range(69), self.transition_matrix[state])[0]
+                    else:  # or from manual manipulation if this is the only behaviour following the original state.
+                        logging.debug("count > 10")
+                        action = choices(range(69), self.transition_matrix[state])[0]
+                    count += 1
+
+                # Special case when action == 44 (A_END) for coach styles.
+                """if style < 7 and action == 44:
+                    action = config.A_END"""
+            else:
+                logging.info("exploring because no data in transition matrix")
+                action = -1
 
         return action  # choices(range(68), self.transition_matrix[style - 1][self._get_action(state)])[0]
 
     def sample_observation(self, state, action):
         """
-        Decide whether to move style based on self.belief_distribution and selected action (if it is possible in other
-        styles).
+        Get the observation given the action. Based on belief_distribution in case we need to change style but at the
+        moment we don't.
         :param state :type int: the current state
         :param action :type int: the chosen behaviour
         :return state :type int: the new state we observe based on belief distribution
         """
 
         # If action == silence, nothing changes
-        if action == self.A_SILENCE:
+        if action == config.A_SILENCE and sum(self.transition_matrix[action]) == 0.0:
             return state
+        else:
+            return action
 
-        new_style = choices(range(1, 13), self.belief_distribution)[0]
+        # We don't need the code for possibly changing our "style" based on belief distribution, because we decided to
+        # only choose a single style and stick with that throughout the whole session.
+        """new_style = choices(range(1, 13), self.belief_distribution)[0]
         #new_style = 9
 
         # Check if action is valid in new_style
-        #print(self.transition_matrix[new_style - 1])
+        #logging.debug(self.transition_matrix[new_style - 1])
         #actionKey = next((key for key, value in self.physioActionDict.items() if value == 18), None)
-        #print(str(actionKey))
-        #print(self.transition_matrix[new_style - 1][actionKey])
+        #logging.debug(str(actionKey))
+        #logging.debug(self.transition_matrix[new_style - 1][actionKey])
         if new_style < 7 and not(43 < action < self.A_END):
             if sum(self.transition_matrix[new_style - 1][action]) > 0.0:
                 return (new_style - 1) * 45 + action if action < self.A_END else (new_style - 1) * 45 + 44
         elif new_style >= 7 and action in self.physioActionDict.values():
             physio_action = next((key for key, value in self.physioActionDict.items() if value == action), None)
             if sum(self.transition_matrix[new_style - 1][physio_action]) > 0.0:
-                return 270 + ((new_style - 7) * 53) + physio_action
+                return 270 + ((new_style - 7) * 53) + physio_action"""
 
         # If invalid action we don't change style, so return new action in original style.
-        current_style = self._get_style(state)
+        """current_style = self._get_style(state)
         if current_style < 7:
             return (current_style - 1) * 45 + action if action < self.A_END else (current_style - 1) * 45 + 44
         else:
             physio_action = next((key for key, value in self.physioActionDict.items() if value == action), None)
-            return 270 + ((current_style - 7) * 53) + physio_action
+            return 270 + ((current_style - 7) * 53) + physio_action"""
 
     def _get_action(self, state):
         """
@@ -330,13 +362,13 @@ class Policy:
         :return:type int: the action corresponding to the given state.
         """
         if state > 269:
-            print('getting physio action')
+            logging.debug('getting physio action')
             return self.physioActionDict[(state - 270) % 53]
 
         else:
-            print('getting coach action')
+            logging.debug('getting coach action')
             if state in [44, 89, 134, 179, 224, 269]:
-                return self.A_END
+                return config.A_END
             else:
                 return state % 45
 
@@ -2407,14 +2439,21 @@ class Policy:
                   0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]],
         }
 
-        tm = [[[0.0 for x in range(68)] for y in range(68)] for z in range(12)]
+        tm = [[[0.0 for x in range(69)] for y in range(69)] for z in range(12)]
         for count in range(12):
             if count < 6:
-                for row in range(68):
+                for row in range(69):
                     if row < 45:
-                        for col in range(68):
+                        for col in range(69):
                             if col < 45:
-                                tm[count][row][col] = switcher[count][row][col]
+                                if row == 44 and not(col == 44):  # A_END cases
+                                    tm[count][67][col] = switcher[count][row][col]
+                                elif not(row == 44) and col == 44:
+                                    tm[count][row][67] = switcher[count][row][col]
+                                elif row == 44 and col == 44:
+                                    tm[count][67][67] = switcher[count][row][col]
+                                else:  # Normal case
+                                    tm[count][row][col] = switcher[count][row][col]
             else:
                 for row in range(68):
                     if row < 53:
@@ -2423,61 +2462,83 @@ class Policy:
                                 tm[count][self.physioActionDict[row]][self.physioActionDict[col]] = switcher[count][row][col]
             count += 1
 
-        return tm
+        # Return only the matrix associated with the chosen policy according to our belief distribution.
+        return tm[choices(range(1, 13), self.belief_distribution)[0]]
 
-    physioActionDict = {0: A_START,
-                        1: A_PREINSTRUCTION,
-                        2: A_CONCURRENTINSTRUCTIONPOSITIVE,
-                        3: A_CONCURRENTINSTRUCTIONNEGATIVE,
-                        4: A_POSTINSTRUCTIONPOSITIVE,
-                        5: A_POSTINSTRUCTIONNEGATIVE,
-                        6: A_MANUALMANIPULATION,
-                        7: A_QUESTIONING,
-                        8: A_POSITIVEMODELING,
-                        9: A_FIRSTNAME,
-                        10: A_HUSTLE,
-                        11: A_PRAISE,
-                        12: A_SCOLD,
-                        13: A_CONSOLE,
-                        14: A_PREINSTRUCTION_MANUALMANIPULATION,
-                        15: A_PREINSTRUCTION_POSITIVEMODELING,
-                        16: A_PREINSTRUCTION_NEGATIVEMODELING,
-                        17: A_CONCURRENTINSTRUCTIONPOSITIVE_FIRSTNAME,
-                        18: A_POSTINSTRUCTIONPOSITIVE_MANUALMANIPULATION,
-                        19: A_POSTINSTRUCTIONPOSITIVE_POSITIVE_MODELING,
-                        20: A_POSTINSTRUCTIONPOSITIVE_NEGATIVE_MODELING,
-                        21: A_POSTINSTRUCTIONPOSITIVE_FIRSTNAME,
-                        22: A_POSTINSTRUCTIONNEGATIVE_NEGATIVEMODELING,
-                        23: A_MANUALMANIPULATION_POSTINSTRUCTIONPOSITIVE,
-                        24: A_MANUALMANIPULATION_POSTINSTRUCTIONNEGATIVE,
-                        25: A_QUESTIONING_NEGATIVEMODELING,
-                        26: A_QUESTIONING_FIRSTNAME,
-                        27: A_HUSTLE_FIRSTNAME,
-                        28: A_PRAISE_FIRSTNAME,
-                        29: A_PREINSTRUCTION_FIRSTNAME,
-                        30: A_CONCURRENTINSTRUCTIONPOSITIVE_CONCURRENTINSTRUCTIONPOSITIVE,
-                        31: A_CONCURRENTINSTRUCTIONPOSITIVE_MANUALMANIPULATION,
-                        32: A_CONCURRENTINSTRUCTIONPOSITIVE_POSITIVEMODELING,
-                        33: A_CONCURRENTINSTRUCTIONPOSITIVE_PRAISE,
-                        34: A_CONCURRENTINSTRUCTIONNEGATIVE_MANUALMANIPULATION,
-                        35: A_CONCURRENTINSTRUCTIONNEGATIVE_NEGATIVEMODELING,
-                        36: A_CONCURRENTINSTRUCTIONNEGATIVE_FIRSTNAME,
-                        37: A_POSTINSTRUCTIONNEGATIVE_FIRSTNAME,
-                        38: A_MANUALMANIPULATION_PREINSTRUCTION,
-                        39: A_MANUALMANIPULATION_CONCURRENTINSTRUCTIONPOSITIVE,
-                        40: A_MANUALMANIPULATION_CONCURRENTINSTRUCTIONNEGATIVE,
-                        41: A_MANUALMANIPULATION_QUESTIONING,
-                        42: A_MANUALMANIPULATION_POSITIVEMODELING,
-                        43: A_MANUALMANIPULATION_FIRSTNAME,
-                        44: A_MANUALMANIPULATION_HUSTLE,
-                        45: A_MANUALMANIPULATION_PRAISE,
-                        46: A_MANUALMANIPULATION_CONSOLE,
-                        47: A_QUESTIONING_POSITIVEMODELING,
-                        48: A_POSITIVEMODELING_POSTINSTRUCTIONPOSITIVE,
-                        49: A_POSITIVEMODELING_QUESTIONING,
-                        50: A_POSITIVEMODELLING_HUSTLE,
-                        51: A_POSITIVEMODELING_PRAISE,
-                        52: A_END}
+    def get_matrix(self):
+        return self.transition_matrix
+
+    def get_eligibility_traces(self):
+        return self.E
+
+    def update(self, state, action, updatedValue):
+        # filename = "/home/martin/PycharmProjects/coachingPolicies/AdaptedPolicies/" + config.participant_filename
+        # f = open(filename, "w")
+        # f.write(str(self.transition_matrix[state][action]) + "\n")
+        self.transition_matrix[state][action] = updatedValue
+        # f.write(str(self.transition_matrix[state][action]) + "\n")
+        # f.write(str(state) + "\n")
+        # f.write(str(action) + "\n")
+        # f.write(str(self.transition_matrix) + "\n")
+        # f.close()
+
+    def update_eligibility_traces(self, state, action, updatedValue):
+        self.E[state][action] = updatedValue
+
+    physioActionDict = {0: config.A_START,
+                        1: config.A_PREINSTRUCTION,
+                        2: config.A_CONCURRENTINSTRUCTIONPOSITIVE,
+                        3: config.A_CONCURRENTINSTRUCTIONNEGATIVE,
+                        4: config.A_POSTINSTRUCTIONPOSITIVE,
+                        5: config.A_POSTINSTRUCTIONNEGATIVE,
+                        6: config.A_MANUALMANIPULATION,
+                        7: config.A_QUESTIONING,
+                        8: config.A_POSITIVEMODELING,
+                        9: config.A_NEGATIVEMODELING,
+                        10: config.A_FIRSTNAME,
+                        11: config.A_HUSTLE,
+                        12: config.A_PRAISE,
+                        13: config.A_SCOLD,
+                        14: config.A_CONSOLE,
+                        15: config.A_PREINSTRUCTION_MANUALMANIPULATION,
+                        16: config.A_PREINSTRUCTION_POSITIVEMODELING,
+                        17: config.A_PREINSTRUCTION_NEGATIVEMODELING,
+                        18: config.A_PREINSTRUCTION_FIRSTNAME,
+                        19: config.A_CONCURRENTINSTRUCTIONPOSITIVE_CONCURRENTINSTRUCTIONPOSITIVE,
+                        20: config.A_CONCURRENTINSTRUCTIONPOSITIVE_MANUALMANIPULATION,
+                        21: config.A_CONCURRENTINSTRUCTIONPOSITIVE_POSITIVEMODELING,
+                        22: config.A_CONCURRENTINSTRUCTIONPOSITIVE_FIRSTNAME,
+                        23: config.A_CONCURRENTINSTRUCTIONPOSITIVE_PRAISE,
+                        24: config.A_CONCURRENTINSTRUCTIONNEGATIVE_MANUALMANIPULATION,
+                        25: config.A_CONCURRENTINSTRUCTIONNEGATIVE_NEGATIVEMODELING,
+                        26: config.A_CONCURRENTINSTRUCTIONNEGATIVE_FIRSTNAME,
+                        27: config.A_POSTINSTRUCTIONPOSITIVE_MANUALMANIPULATION,
+                        28: config.A_POSTINSTRUCTIONPOSITIVE_POSITIVE_MODELING,
+                        29: config.A_POSTINSTRUCTIONPOSITIVE_NEGATIVE_MODELING,
+                        30: config.A_POSTINSTRUCTIONPOSITIVE_FIRSTNAME,
+                        31: config.A_POSTINSTRUCTIONNEGATIVE_NEGATIVEMODELING,
+                        32: config.A_POSTINSTRUCTIONNEGATIVE_FIRSTNAME,
+                        33: config.A_MANUALMANIPULATION_PREINSTRUCTION,
+                        34: config.A_MANUALMANIPULATION_CONCURRENTINSTRUCTIONPOSITIVE,
+                        35: config.A_MANUALMANIPULATION_CONCURRENTINSTRUCTIONNEGATIVE,
+                        36: config.A_MANUALMANIPULATION_POSTINSTRUCTIONPOSITIVE,
+                        37: config.A_MANUALMANIPULATION_POSTINSTRUCTIONNEGATIVE,
+                        38: config.A_MANUALMANIPULATION_QUESTIONING,
+                        39: config.A_MANUALMANIPULATION_POSITIVEMODELING,
+                        40: config.A_MANUALMANIPULATION_FIRSTNAME,
+                        41: config.A_MANUALMANIPULATION_HUSTLE,
+                        42: config.A_MANUALMANIPULATION_PRAISE,
+                        43: config.A_MANUALMANIPULATION_CONSOLE,
+                        44: config.A_QUESTIONING_POSITIVEMODELING,
+                        45: config.A_QUESTIONING_NEGATIVEMODELING,
+                        46: config.A_QUESTIONING_FIRSTNAME,
+                        47: config.A_POSITIVEMODELING_CONCURRENTINSTRUCTIONPOSITIVE,
+                        48: config.A_POSITIVEMODELING_QUESTIONING,
+                        49: config.A_POSITIVEMODELING_HUSTLE,
+                        50: config.A_POSITIVEMODELING_PRAISE,
+                        51: config.A_HUSTLE_FIRSTNAME,
+                        52: config.A_PRAISE_FIRSTNAME,
+                        53: config.A_END}
 
     '''def _get_prob_matrix_from_reward(self, style):
         """
@@ -2495,8 +2556,8 @@ class Policy:
         total_rewards = sum(non_neg_rewards)
 
         prob_matrix = [[0 for x in range(68)] for x in range(68)]
-        # print('before')
-        # print(len(prob_matrix), len(prob_matrix[0]))
+        # logging.debug('before')
+        # logging.debug(len(prob_matrix), len(prob_matrix[0]))
         # Set transition probability for valid actions to be:
         # the non-neg reward associated with that action / sum of all rewards in that style.
         if style < 7:
@@ -2512,8 +2573,8 @@ class Policy:
                 for reward in non_neg_rewards:
                     prob_matrix[self.physioActionDict[state]][count] = reward / total_rewards if reward > 0 else 0.00000001
                     count += 1
-        # print('after')
-        # print(len(prob_matrix), len(prob_matrix[0]))
+        # logging.debug('after')
+        # logging.debug(len(prob_matrix), len(prob_matrix[0]))
 
         return prob_matrix'''
 
@@ -2528,4 +2589,4 @@ class Policy:
 
 if __name__ == '__main__':
     p = Policy([x / 100 for x in _constrainedSumSamplePos(12, 100, 0.001)])
-    print(p.sample_observation(429, 18))'''
+    logging.debug(p.sample_observation(429, 18))'''

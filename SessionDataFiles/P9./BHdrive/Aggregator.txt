@@ -1,0 +1,8 @@
+1.06
+4
+followThroughRoll
+0.0, 10.0, 5, 
+approachTiming
+1.0, 0.0, 4, 
+impactSpeed
+18.0, 0.0, 4, 

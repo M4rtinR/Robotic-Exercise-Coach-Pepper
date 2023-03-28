@@ -1,0 +1,120 @@
+racketPreparation
+79.0, 35.0, 5, 
+approachTiming
+49.0, 0.29955822, 
+impactCutAngle
+30.0, 0.35785758, 
+impactSpeed
+18.0, 0.0, 1, 
+followThroughRoll
+81.0, 0.525457, 
+followThroughTime
+0.16, 0.6482892, 
+racketPreparation
+48.0, 0.22580534, 
+approachTiming
+17.0, 0.0, 4, 
+impactCutAngle
+18.0, 0.6916442, 
+impactSpeed
+20.0, 0.16924721, 
+followThroughRoll
+0.0, 12.0, 5, 
+followThroughTime
+0.15, 0.71233726, 
+racketPreparation
+55.0, 0.41137272, 
+approachTiming
+6.0, 0.0, 4, 
+impactCutAngle
+22.0, 0.7434726, 
+impactSpeed
+22.0, 0.2509824, 
+followThroughRoll
+0.0, 4.0, 5, 
+followThroughTime
+0.15, 0.7067378, 
+racketPreparation
+70.0, 0.58124626, 
+approachTiming
+16.0, 0.0, 4, 
+impactCutAngle
+17.0, 0.735623, 
+impactSpeed
+21.0, 0.0, 1, 
+followThroughRoll
+0.0, 0.17301524, 
+followThroughTime
+0.16, 0.6348252, 
+racketPreparation
+27.0, 0.2673487, 
+approachTiming
+9.0, 0.0, 4, 
+impactCutAngle
+26.0, 0.5823848, 
+impactSpeed
+21.0, 0.0, 1, 
+followThroughRoll
+63.0, 0.3272189, 
+followThroughTime
+0.15, 0.6727148, 
+racketPreparation
+38.0, 0.3417827, 
+approachTiming
+14.0, 0.0, 4, 
+impactCutAngle
+18.0, 0.7756355, 
+impactSpeed
+22.0, 0.0, 1, 
+followThroughRoll
+0.0, 0.11969274, 
+followThroughTime
+0.16, 0.6366899, 
+racketPreparation
+51.0, 0.40648538, 
+approachTiming
+29.0, 2.0, 4, 
+impactCutAngle
+21.0, 0.6920014, 
+impactSpeed
+18.0, 0.0, 4, 
+followThroughRoll
+0.0, 0.29025388, 
+followThroughTime
+0.16, 0.6127595, 
+racketPreparation
+57.0, 0.4563079, 
+approachTiming
+23.0, 0.0, 4, 
+impactCutAngle
+36.0, 0.27792174, 
+impactSpeed
+15.0, 0.0, 4, 
+followThroughRoll
+70.0, 0.62635654, 
+followThroughTime
+0.16, 0.6073793, 
+racketPreparation
+36.0, 0.31510347, 
+approachTiming
+20.0, 0.0, 4, 
+impactCutAngle
+38.0, 0.27809298, 
+impactSpeed
+15.0, 0.0, 4, 
+followThroughRoll
+72.0, 0.54680747, 
+followThroughTime
+0.16, 0.602232, 
+racketPreparation
+39.0, 0.40853137, 
+approachTiming
+31.0, 8.0, 1, 
+impactCutAngle
+29.0, 0.5269223, 
+impactSpeed
+14.0, 0.0, 4, 
+followThroughRoll
+71.0, 0.6037394, 
+followThroughTime
+0.15, 0.6633818, 

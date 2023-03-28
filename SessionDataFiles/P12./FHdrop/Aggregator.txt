@@ -1,0 +1,8 @@
+2.85
+4
+approachTiming
+95.0, 0.0, 4, 
+impactCutAngle
+1.0, 0.0, 4, 
+racketPreparation
+89.0, 81.0, 5, 
