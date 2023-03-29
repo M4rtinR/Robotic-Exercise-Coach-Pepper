@@ -19,17 +19,16 @@ NOTE: The demonstrations will only work on the ITT group's Pepper (the one with 
       
       a) Python 2 should already be installed with Ubuntu 16.04. You can check which version you have by typing ```python -V``` into a terminal window.
       
-      b) To install Python 3, use the following commands in a terminal window:
+      b) Python 3.5 may also be installed with Ubuntu 16.04. However, PyCharm has removed support of Python 3.5, so we need a newer version. Installing newer versions of Python is slightly more complicated in 16.04 than in newer versions of Ubuntu, but you can do it using the following commands in a terminal window:
       
-         sudo apt-get update
-         sudo apt-get install build-essential libpq-dev libssl-dev openssl libffi-dev zlib1g-dev
-         sudo apt-get install python3-pip python3-dev
+         sudo apt-get install aptitude
+         sudo aptitude install python3.8
       
-      c) You can verify the installation was successful by typing ```python3 -V``` into a terminal window.
+      c) You can verify the installation was successful by typing ```python3.8 -V``` into a terminal window.
   3. Pycharm v2020.3
     <Instructions on downloading and installing Pycharm>
     
-      a) Visit https://www.jetbrains.com/pycharm/download/#section=linux and download the free community edition.
+      a) Visit https://www.jetbrains.com/pycharm/download/other.html and scroll down to v2020.3. The newest version of PyCharm no longer support the required Python versions used for this project.
       
       b) Extract the contents of the tar file to the location of your choice.
       
@@ -76,6 +75,42 @@ NOTE: The demonstrations will only work on the ITT group's Pepper (the one with 
   For this component you will need to run Pycharm as an administrator. In a terminal, open the folder in which Pycharm is installed (for me this is /snap/pycharm-community/current/bin) and use the following command:
   ```sudo ./pycharm.sh```
   and enter your password when prompted. Now clone the rehab interface repo into your admin-run Pycharm as above and you should be able to select the required branch for the particular demo you wish to run.
+  
+## Running the Demo
+
+   1. Set the Python Interpreter.
+   
+      a) In PyCharm, go to File -> Settings -> Project: coachingPolicies -> Python Interpreter
+      
+      b) Click "Add Interpreter".
+      
+      c) In the popup window, select Python 3.8 that you installed earlier.
+      
+   2. Setup run configurations.
+   
+      a) In the project explorer window on the left, expand coachingBehaviourTree and right click controller.py to select "Modify run configurations".
+      
+      b) It should auto-populate most fields and show Python 3.8 as the interpreter.
+      
+      c) Click "OK" to apply this configuration.
+      
+   3. Install the required libraries.
+   
+      a) The first library to install is required to run the behaviour tree (https://github.com/ToyotaResearchInstitute/task_behavior_engine).
+      
+      (i) It can be installed by entering the following commands in a terminal window:
+      
+          sudo apt-get update -y
+          sudo apt-get install -y \
+              cmake \
+              git \
+              python-catkin-pkg
+          git clone https://github.com/ToyotaResearchInstitute/task_behavior_engine.git
+          cd task_behavior_engine
+          sudo python setup.py install
+       (ii) Next, add the newly installed library as a source folder to your project. Go to File -> Settings -> Project Structure. Click "Add Content Route" and point to <install folder>/task_behaviour_engine/src/task_behaviour_engine.
+       
+       b)
 
 ## Publications
 
