@@ -1,8 +1,10 @@
 # Squash and Stroke Rehabilitation Coaching Robot
 
-This repo contains code for running both the squash coaching and stroke rehabilitation systems on Pepper. Below is the initial steps required for both demonstrations so please follow these first. For detailed instructions on how to install and run each demonstration please see the "long-term squash" and "long-term stroke" branches respectively.
+This repo contains code for running both the squash coaching and stroke rehabilitation systems on Pepper. This README is written with the intention to allow people from Heriot-Watt University and the National Robotarium to run the systems as demonstrations. However, it should also provide enough information for anyone external to this group to get things up and running and start editing the code.
 
-The demonstrations are the same code as was used for the evaluations of the system with participants so should be fairly robust. However, they are a bit complex to set up and run and the code is a bit hacked together in places. A description of the studies run and the background to the project can be found in the demos folder in Dropbox: <Insert Link>.
+Below is the initial steps required for both demonstrations so please follow these first. Specific instructions for running the squash demo can be found below. For detailed instructions on how to install and run the stroke rehabilitation demo, see the "long-term stroke" branch.
+
+The demonstrations are the same code as was used for the evaluations of the system with participants so should be fairly robust. However, they are a bit complex to set up and run and the code is a bit hacked together in places. A description of the studies run and the background to the project can be found in the demos folder in Dropbox: <Insert Link>. For externals, any publications coming from this system will be listed in the publications section below to provide background about the project.
 
 NOTE: The demonstrations will only work on the ITT group's Pepper (the one with the "EM1.69" sticker on the back) due to different tablet versions on the other Peppers. They are set up to work with the ITT Pepper router at the moment. If you wish to run the demos through a different network, you will have to update various IP addresses - this is explained further in the individual README's of the demos.
   
@@ -33,8 +35,11 @@ NOTE: The demonstrations will only work on the ITT group's Pepper (the one with 
       
       c) Run Pycharm by opening a terminal, navigating to {extract_location}/bin, and typing ```./pycharm.sh```.
       
-  4. Android Studio v 2021.3
+  4. Android Studio v 2021.3 (squash only)
     <Instructions on downloading and installing Android Studio>
+    
+      a) For instructions on how to download and install Android Studio, please see the GitHub pages for the racket sensor application: https://github.com/M4rtinR/racketware_app. Due to NDA agreements, this can only be shared with those at Heriot-Watt University or the National Robotarium. If you fall under this category and need access to run the demo, please contact martinross313@gmail.com.
+      
   5. Choregraphe v2.5.10.7
     <Instructions on downloading and installing Choregraphe>
   ### Downloading components
@@ -71,3 +76,7 @@ NOTE: The demonstrations will only work on the ITT group's Pepper (the one with 
   For this component you will need to run Pycharm as an administrator. In a terminal, open the folder in which Pycharm is installed (for me this is /snap/pycharm-community/current/bin) and use the following command:
   ```sudo ./pycharm.sh```
   and enter your password when prompted. Now clone the rehab interface repo into your admin-run Pycharm as above and you should be able to select the required branch for the particular demo you wish to run.
+
+## Publications
+
+* M. K. Ross, F. Broz, and L. Baillie, “Observing and Clustering Coaching Behaviours to Inform the Design of a Personalised Robotic Coach,” in Proceedings of the 23rd International Conference on Human-Computer Interaction with Mobile Devices and Services, Virtual (originally Toulouse, France), Sep. 2021. doi: 10.1145/3447526.3472043.
