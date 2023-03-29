@@ -110,8 +110,31 @@ NOTE: The demonstrations will only work on the ITT group's Pepper (the one with 
           sudo python setup.py install
        (ii) Next, add the newly installed library as a source folder to your project. Go to File -> Settings -> Project Structure. Click "Add Content Route" and point to <install folder>/task_behaviour_engine/src/task_behaviour_engine.
        
-       b)
-
+       b) To install the below packages, you should be able to do it through the GUI of PyCharm. Go to File -> Settings -> Project Interpreter and click the small "+" icon in the bottom left. For each of the following, search for it in the search bar and click "Install Package".
+       
+       (i) numpy
+      
+       (ii) flask
+      
+       (iii) flask_restful
+       
+       (iv) gym
+      
+       c) This process didn't work for me so I had to install each package through the command line:
+      
+           sudo apt install python3.8-distutils
+           curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+           python3.8 get-pip.py
+           pip3 install numpy
+      
+         Repeat the last line for all of the packages listed above i.e. ```pip3 install <package_name>```
+      
+    4. Run the demo.
+      
+        a) Make sure you have the other two parts of the code running (screen interface (link) and robot interface (link)) and have the racket sensor app open on the home page with the sensor turned on.
+        
+        b) Click the "run" button on PyCharm. NOTE: run this code last (after the screen interface and robot interface are already running).
+           
 ## Publications
 
 * M. K. Ross, F. Broz, and L. Baillie, “Observing and Clustering Coaching Behaviours to Inform the Design of a Personalised Robotic Coach,” in Proceedings of the 23rd International Conference on Human-Computer Interaction with Mobile Devices and Services, Virtual (originally Toulouse, France), Sep. 2021. doi: 10.1145/3447526.3472043.
