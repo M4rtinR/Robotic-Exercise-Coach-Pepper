@@ -11,7 +11,6 @@ from typing import Optional
 # from gym.utils.renderer import Renderer
 from CoachingBehaviourTree import controller, nodes, config
 from Policy.policy import Policy
-from task_behavior_engine.tree import NodeStatus
 
 from Policy.policy_wrapper import PolicyWrapper
 
