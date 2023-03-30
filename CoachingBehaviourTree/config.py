@@ -155,12 +155,12 @@ policy_matrix = None
 # post_address = 'http://192.168.1.174:4999/output'
 
 # Robot through ITT Pepper router:
-# post_address = "http://192.168.1.207:4999/output"
-# screen_post_address = "http://192.168.1.207:8000/"
+post_address = "http://192.168.1.207:4999/output"
+screen_post_address = "http://192.168.1.207:8000/"
 
 # Dusty:
-post_address = "http://192.168.1.115:4999/output"
-screen_post_address = "http://192.168.1.115:8000/"
+# post_address = "http://192.168.1.115:4999/output"
+# screen_post_address = "http://192.168.1.115:8000/"
 
 # Robot through hotspot:
 # post_address = "http://192.168.43.19:4999/output"
