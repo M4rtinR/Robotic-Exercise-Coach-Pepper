@@ -17,9 +17,9 @@ import threading
 import time
 import logging
 
-from branch import Sequencer, Selector, Progressor, Runner
-from decorator import Until, While, Negate, Repeat, UntilCount, Succeed
-from tree import NodeStatus, Blackboard
+from task_behavior_engine.branch import Sequencer, Selector, Progressor, Runner
+from task_behavior_engine.decorator import Until, While, Negate, Repeat, UntilCount, Succeed
+from task_behavior_engine.tree import NodeStatus, Blackboard
 
 from API import api_classes
 from CoachingBehaviourTree import nodes, config
