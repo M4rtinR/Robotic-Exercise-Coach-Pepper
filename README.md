@@ -85,11 +85,14 @@ NOTE: The demonstrations will only work on the ITT group's Pepper (the one with 
   and enter your password when prompted. Now clone the rehab interface repo into your admin-run Pycharm as above and you should be able to select the required branch for the particular demo you wish to run.
   
   ### Domain-Dependent Components
-  ### 1. Racket Sensor app <Insert link here>
-      This particular branch contains the code for the squash system, so an additional component is needed. The racket sensor app is where the processing of the raw racket sensor data is done. Written in Kotlin.
+  #### 1. Racket Sensor app: https://github.com/M4rtinR/racketware_app (Squash only)
+  This particular branch contains the code for the squash system, so an additional component is needed. The racket sensor app is where the processing of the raw racket sensor data is done. Written in Kotlin.
+      
+  #### 2. Operator Input: https://github.com/M4rtinR/operatorInput (Stroke Rehabilitation only)
+  The long-term stroke branch contains the code for the stroke rehabilitation system, so an additional component is needed. The operator input replaces any sensing software used in the squash system, and allows the operator to signal completion of each exercise repitition to the robot. Written in Python 3.
   
 ## Running the Demo
-      Now that you have all of the components downloaded on your machine, conduct the following steps to run the squash demo on Pepper:
+   Now that you have all of the components downloaded on your machine, conduct the following steps to run the squash demo on Pepper:
       
    1. Set the Python Interpreter.
    
@@ -142,13 +145,13 @@ NOTE: The demonstrations will only work on the ITT group's Pepper (the one with 
       
          Repeat the last line for all of the packages listed above i.e. ```pip3 install <package_name>```
       
-    4. Run the demo.
+   4. Run the demo.
       
         a) Make sure you have the other two parts of the code running (screen interface (link) and robot interface (link)) and have the racket sensor app open on the home page with the sensor turned on.
         
         b) Click the "run" button on PyCharm. NOTE: run this code last (after the screen interface and robot interface are already running).
       
-    5. You can adjust the volume of Pepper through Choregraphe:
+   5. You can adjust the volume of Pepper through Choregraphe:
         
         a) Click the green "Connect to" button in the top task bar.
       
