@@ -41,6 +41,14 @@ NOTE: The demonstrations will only work on the ITT group's Pepper (the one with 
       
   5. Choregraphe v2.5.10.7
     <Instructions on downloading and installing Choregraphe>
+      
+      a) The version of Choregraphe you install will depend on the version of the Naoqi operating system that is installed on the particular Pepper robot you are using. For the ITT Pepper robot, we want version 2.5.10.7, which can be downloaded via the Heriot-Watt internal Dropbox: https://www.dropbox.com/home/ITT%20Group%20team%20folder/Choregraphe/Alternative/Version%202.5.
+      
+      b) Download and run the Linux file: choregraphe-suite-2.5.10.7-linux64-setup.run. You may need to adjust the permissions of the file to allow it to be executed: right click the downloaded file and select Permissions, and on the permissions tab check the box labelled "Allow executing file as program". Then open the folder in a terminal window and execute ```./choregraphe-suite-2.5.10.7-linux64-setup.run```
+      
+      c) Follow the installation wizard to install Choregraphe.
+      
+      d) Enter the license key when prompted, which can be found in the licensekey.txt file on Dropbox: https://www.dropbox.com/home/ITT%20Group%20team%20folder/Choregraphe/Alternative?preview=license+key.txt
   ### Downloading components
   The demonstrations are split into multiple different components which communicate through API's. The following are all of the dmoain independent components:
   #### 1. Coaching Policies <Need to update this name>
@@ -113,7 +121,7 @@ NOTE: The demonstrations will only work on the ITT group's Pepper (the one with 
           git clone https://github.com/ToyotaResearchInstitute/task_behavior_engine.git
           cd task_behavior_engine
           sudo python setup.py install
-       (ii) Next, add the newly installed library as a source folder to your project. Go to File -> Settings -> Project Structure. Click "Add Content Route" and point to <install folder>/task_behaviour_engine/src/task_behaviour_engine.
+       (ii) Next, add the newly installed library as a source folder to your project. Go to File -> Settings -> Project Structure. Click "Add Content Route" and point to <install folder>/task_behaviour_engine/src. You will need to do this in each branch you want to use the code from.
        
        b) To install the below packages, you should be able to do it through the GUI of PyCharm. Go to File -> Settings -> Project Interpreter and click the small "+" icon in the bottom left. For each of the following, search for it in the search bar and click "Install Package".
        
@@ -139,6 +147,14 @@ NOTE: The demonstrations will only work on the ITT group's Pepper (the one with 
         a) Make sure you have the other two parts of the code running (screen interface (link) and robot interface (link)) and have the racket sensor app open on the home page with the sensor turned on.
         
         b) Click the "run" button on PyCharm. NOTE: run this code last (after the screen interface and robot interface are already running).
+      
+    5. You can adjust the volume of Pepper through Choregraphe:
+        
+        a) Click the green "Connect to" button in the top task bar.
+      
+        b) If you are connected to the same network as Pepper, it should pop up. Simply click it and click "Select" in the bottom right.
+      
+        c) Adjust the volume to the required level using the speaker icon in the top right.
            
 ## Publications
 
