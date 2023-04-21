@@ -54,9 +54,13 @@ NOTE: The demonstrations will only work on the ITT group's Pepper (the one with 
       
       d) Enter a valid license key when prompted
   ### Downloading components
-  Both the squash coaching system and the stroke rehabilitation coaching system are split into multiple different components which communicate through API's. The following are all of the dmoain independent components that you will also have to download if you want to adapt the system for your own purposes:
+  As per the architecture diagram below, both the squash coaching system and the stroke rehabilitation coaching system are split into multiple different components which communicate through API's:
+     
+![Architecture Diagram for the robotic exercise coach](/Architecture%20Diagram%20-%20Generic.png?raw=true)
+      
+  The following are all of the dmoain independent components that you will also have to download if you want to adapt the system for your own purposes:
   #### 1. Robotic Exercise Coach - Pepper
-  This is the current repo and is where the main program is stored. It does everything to do with the policies, deciding what action to take, RL to adapt the policies, behaviour tree to track the place within the session etc. Written in Python 3.
+  This is the current repo and is where the main program is stored. It does everything in the processing layer. It decides what action to take, contains RL to adapt the policies, and includes the behaviour tree to track the place within the session etc. Written in Python 3.
       
   Once you have installed Pycharm, as above, clone this repo into Pycharm as a new project:
   
@@ -78,11 +82,11 @@ NOTE: The demonstrations will only work on the ITT group's Pepper (the one with 
   
   You should now be able to select the required branch for the particular system you wish to run (NOTE: the "long-term squash" branch contains the squash system and the stroke rehabilitation system can be run from the "long-term stroke" branch. If you want to make changes to the code to adapt the system to your own domain, remain in the "master" branch).
   #### 2. Robot Interface for Robotic Exercise Coach: https://github.com/M4rtinR/Robot-Interface-for-Robotic-Exercise-Coach
-  This is where the interaction with the user is done through Pepper. All of the actions are sent here to be conducted by Pepper and any use of Pepper's touch sensors/limbs is dealt with here. Written in Python 2.
+  This is where the interaction with the user is done through Pepper. It is part of the interface layer. All of the actions are sent here to be conducted by Pepper and any use of Pepper's touch sensors/limbs is dealt with here. Written in Python 2.
       
   Similar to component 1 above, clone the robot test repo into a new Pycharm project. You should then be able to select the required branch for the particular system you wish to run. For detailed instructions, see the README in the repo.
   #### 3. Screen Interface for Robotic Exercise Coach: https://github.com/M4rtinR/Screen-Interface-for-Robotic-Exercise-Coach
-  This is where the display on Pepper's tablet computer screen and interaction with the screen from the user is handled. Written in Python 3.
+  This is where the display on Pepper's tablet computer screen and interaction with the screen from the user is handled. It is part of the interface layer. Written in Python 3.
       
   For this component you will need to run Pycharm as an administrator. In a terminal, open the folder in which Pycharm is installed (for me this is /snap/pycharm-community/current/bin) and use the following command:
   ```sudo ./pycharm.sh```
@@ -90,7 +94,7 @@ NOTE: The demonstrations will only work on the ITT group's Pepper (the one with 
   
   ### Domain-Dependent Components
   
-  The sensing of movements on a user is domain-specific, but is an essential part in allowing the system to function properly. The following components were used in the squash and stroke rehabilitation systems respectively. The operator input module for stroke rehabilitation does not contain a sensor and is a WoZ replacement for this part of the architecture. This is therefore the best place to start if you don't have access to a sensing/vision system for your target use case.
+  The sensing of movements on a user is domain-specific, but is an essential part in allowing the system to function properly. These components are part of the tracking layer. The following components were used in the squash and stroke rehabilitation systems respectively. The operator input module for stroke rehabilitation does not contain a sensor and is a WoZ replacement for this part of the architecture. This is therefore the best place to start if you don't have access to a sensing/vision system for your target use case.
   #### 1. Racket Sensor app: https://github.com/M4rtinR/racketware_app (Squash only)
   For the squash system an additional component is needed. The racket sensor app is where the processing of the raw racket sensor data is done. Written in Kotlin.
       
@@ -167,6 +171,36 @@ NOTE: The demonstrations will only work on the ITT group's Pepper (the one with 
         
 ## Code Structure
 
+      The code in this repo is situated within the processing layer of the architecture diagram above. This README gives an overview of the purpose of each directory and file, but more thourough documentation can be found within the code.
+      
+  ### CoachingBehaviourTree
+      
+  This directory contains all the code associated with the Controller block of the architecture diagram. It is made up of 5 python files:
+     
+  * config.py: This file contains all the initial values used by throughout the program, from the name, ability and motivation of the user (used for high-level personalisation) to the ip address and port number used to connect to the other components.
+  * controller.py: This file is where the main behaviour tree skeleton is created. The tree follows a structure similar to this:
+
+![Simple behaviour tree of the robotic coach](/Behaviour%20Tree%20-%20full%20simple.png?raw=true)
+      
+   A much more detailed visualisation of the behaviour tree can be found in the  Diagrams/Behaviour Tree directory.
+  * nodes.py: This file contains all of the leaf nodes which implement the behaviour to be used by the robot coach. All classes in this file are Behaviour Tree Nodes.
+  * action.py: This file contains a data class for storing information about an action which will be performed by the robot.
+  * behaviour_library.py: This script is where all of the different utterance options for the robot are stored.
+  
+  ### Policy
+  
+  This directory contains all the code associated with the Coaching Policy block of the architecture diagram. It is also where the low-level adaption is conducted to modify the starting policy to each individual user. It is made up of 3 python files:
+   
+  * coaching_env.py: A class which acts as a wrapper for the interaction. It steps through each episode (session) by requesting a behaviour from the policy, ticking the behaviour tree with that behaviour, and updating the policy using the reward obtained from the observations made about the current state of the session.
+  * policy_wrapper.py: A class which acts as an interface between the raw policy and the coaching environment. It can return a behaviour cateogry to the coaching environment, which is generated by the policy but which is within a set of defined valid behaviours for a given state.
+  * policy.py: The raw policy class which contains the original transition matrices of the 12 clustered policies learnt from observations of human-human interactions. At each timestep, it selects the next action from the transition matrix, based on the current state distribution. For more information about the observations and clustered policies, see the publications section below.
+      
+  ### API
+  
+  This directory contains the code associated with the link between the processing layer and tracking layer of the architecture diagram. It is made up of a single python file:
+      
+  * api_classes.py: This file contains a Flask API which handles requests from the movement analysis software block, and updates the system's configuration values based on those requests. I.e. it receives performance scores based on the user's exercises which the system can use to formulate appropriate actions.
+      
 ## Adapting the Code to Other Domains/Use Cases
            
 ## Publications
