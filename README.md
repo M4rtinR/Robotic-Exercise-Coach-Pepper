@@ -1,10 +1,10 @@
 # Squash and Stroke Rehabilitation Coaching Robot
 
-This repo contains code for running both the squash coaching and stroke rehabilitation systems on Pepper. This README is written with the intention to allow people from Heriot-Watt University and the National Robotarium to run the systems as demonstrations. However, it should also provide enough information for anyone external to this group to get things up and running and start editing the code.
+This repo contains code for running squash coaching and stroke rehabilitation systems on Pepper. The purpose of these systems and the project as a whole, is to research the effects of using a robot to guide a user through individual exercise across multiple domains, when a coach/physiotherapist is not available. To provide a detailed background of the system, any publications coming from this repo will be listed in the publications section below.
 
-Below is the initial steps required for both demonstrations so please follow these first. Specific instructions for running the squash demo can be found at the bottom of this README. For detailed instructions on how to install and run the stroke rehabilitation demo, see the "long-term stroke" branch.
+This README is written with the intention to guide anyone external to the project in getting the system up and running and starting to edit the code for their own purposes. If you are interested only in running one of the systems, or are from Heriot-Watt University/The National Robotarium and looking to demo the systems, please refer to the "long-term squash" or "long-term stroke" branch.
 
-The demonstrations are the same code as was used for the evaluations of the system with participants so should be fairly robust. However, they are a bit complex to set up and run and the code is a bit hacked together in places. A description of the studies run and the background to the project can be found in the demos folder in Dropbox: https://www.dropbox.com/home/ITT%20Group%20team%20folder/Demos/Squash%20and%20Stroke%20Rehabilitation. For externals, any publications coming from this system will be listed in the publications section below to provide background about the project.
+Below are the initial steps required for both systems so please follow these first. Next is an outline of the code and where changes are required to allow adaption to other domains. The majority of the code (other than the domain specific parts which have been removed from the master branch and can be found in the "long-term squash" and "long-term stroke" branches respectively) was used for evaluations of the system with participants so should be fairly robust. However, it is a bit complex to set up and run and the code is a bit hacked together in places. 
 
 NOTE: The demonstrations will only work on the ITT group's Pepper (the one with the "EM1.69" sticker on the back) due to different tablet versions on the other Peppers. They are set up to work with the ITT Pepper router at the moment. If you wish to run the demos through a different network, you will have to update various IP addresses - this is explained further in the individual README's of the demos.
   
@@ -39,18 +39,22 @@ NOTE: The demonstrations will only work on the ITT group's Pepper (the one with 
     
       a) For instructions on how to download and install Android Studio, please see the GitHub pages for the racket sensor application: https://github.com/M4rtinR/racketware_app. Due to NDA agreements, this can only be shared with those at Heriot-Watt University or the National Robotarium. If you fall under this category and need access to run the demo, please contact martinross313@gmail.com.
       
-  5. Choregraphe v2.5.10.7
+  5. Pepper robot running NAOqi 2.5
+  
+      a) Newer versions of the NAOqi operating system may not work. Additionally, different tablet versions may cause the display to be altered. For more details on this, see the README for the Screen Interface for Robotic Exercise Coach component (https://github.com/M4rtinR/Screen-Interface-for-Robotic-Exercise-Coach).
+      
+  6. Choregraphe v2.5.10.7
     <Instructions on downloading and installing Choregraphe>
       
-      a) The version of Choregraphe you install will depend on the version of the Naoqi operating system that is installed on the particular Pepper robot you are using. For the ITT Pepper robot, we want version 2.5.10.7, which can be downloaded via the Heriot-Watt internal Dropbox: https://www.dropbox.com/home/ITT%20Group%20team%20folder/Choregraphe/Alternative/Version%202.5.
+      a) The version of Choregraphe you install will depend on the version of the NAOqi operating system that is installed on the particular Pepper robot you are using. For the robot used in our research, we used version 2.5.10.7. You can download any version of Choregraphe and the SDK for Python here: https://www.aldebaran.com/en/support/pepper-naoqi-2-9/downloads-softwares/former-versions.
       
       b) Download and run the Linux file: choregraphe-suite-2.5.10.7-linux64-setup.run. You may need to adjust the permissions of the file to allow it to be executed: right click the downloaded file and select Permissions, and on the permissions tab check the box labelled "Allow executing file as program". Then open the folder in a terminal window and execute ```./choregraphe-suite-2.5.10.7-linux64-setup.run```
       
       c) Follow the installation wizard to install Choregraphe.
       
-      d) Enter the license key when prompted, which can be found in the licensekey.txt file on Dropbox: https://www.dropbox.com/home/ITT%20Group%20team%20folder/Choregraphe/Alternative?preview=license+key.txt
+      d) Enter a valid license key when prompted
   ### Downloading components
-  The demonstrations are split into multiple different components which communicate through API's. The following are all of the dmoain independent components:
+  Both the squash coaching system and the stroke rehabilitation coaching system are split into multiple different components which communicate through API's. The following are all of the dmoain independent components that you will also have to download if you want to adapt the system for your own purposes:
   #### 1. Robotic Exercise Coach - Pepper
   This is the current repo and is where the main program is stored. It does everything to do with the policies, deciding what action to take, RL to adapt the policies, behaviour tree to track the place within the session etc. Written in Python 3.
       
@@ -68,31 +72,33 @@ NOTE: The demonstrations will only work on the ITT group's Pepper (the one with 
       sudo apt update
       sudo apt install git
       
-  c) Next, enter the URL of the repository you want to download (e.g. https://github.com/M4rtinR/coachingPolicies.git) and click "clone". You should fork the project first into your own repository if you plan to edit the code.
+  c) Next, enter the URL of the repository you want to download (e.g. https://github.com/M4rtinR/Robotic-Exercise-Coach-Pepper.git) and click "clone". You should fork the project first into your own repository if you plan to edit the code.
       
   d) You may need to click "Trust project" before it will open in PyCharm.
   
-  You should now be able to select the required branch for the particular demo you wish to run (NOTE: the master branch contains the squash system and the stroke rehabilitation system can be run from the long-term stroke branch).
+  You should now be able to select the required branch for the particular system you wish to run (NOTE: the "long-term squash" branch contains the squash system and the stroke rehabilitation system can be run from the "long-term stroke" branch. If you want to make changes to the code to adapt the system to your own domain, remain in the "master" branch).
   #### 2. Robot Interface for Robotic Exercise Coach: https://github.com/M4rtinR/Robot-Interface-for-Robotic-Exercise-Coach
   This is where the interaction with the user is done through Pepper. All of the actions are sent here to be conducted by Pepper and any use of Pepper's touch sensors/limbs is dealt with here. Written in Python 2.
       
-  Similar to component 1 above, clone the robot test repo into a new Pycharm project. You should then be able to select the required branch for the particular demo you wish to run. For detailed instructions, see the README in the repo.
+  Similar to component 1 above, clone the robot test repo into a new Pycharm project. You should then be able to select the required branch for the particular system you wish to run. For detailed instructions, see the README in the repo.
   #### 3. Screen Interface for Robotic Exercise Coach: https://github.com/M4rtinR/Screen-Interface-for-Robotic-Exercise-Coach
   This is where the display on Pepper's tablet computer screen and interaction with the screen from the user is handled. Written in Python 3.
       
   For this component you will need to run Pycharm as an administrator. In a terminal, open the folder in which Pycharm is installed (for me this is /snap/pycharm-community/current/bin) and use the following command:
   ```sudo ./pycharm.sh```
-  and enter your password when prompted. Now clone the rehab interface repo into your admin-run Pycharm as above and you should be able to select the required branch for the particular demo you wish to run. For detailed instructions, see the README in the repo.
+  and enter your password when prompted. Now clone the rehab interface repo into your admin-run Pycharm as above and you should be able to select the required branch for the particular system you wish to run. For detailed instructions, see the README in the repo.
   
   ### Domain-Dependent Components
+  
+  The sensing of movements on a user is domain-specific, but is an essential part in allowing the system to function properly. The following components were used in the squash and stroke rehabilitation systems respectively. The operator input module for stroke rehabilitation does not contain a sensor and is a WoZ replacement for this part of the architecture. This is therefore the best place to start if you don't have access to a sensing/vision system for your target use case.
   #### 1. Racket Sensor app: https://github.com/M4rtinR/racketware_app (Squash only)
-  This particular branch contains the code for the squash system, so an additional component is needed. The racket sensor app is where the processing of the raw racket sensor data is done. Written in Kotlin.
+  For the squash system an additional component is needed. The racket sensor app is where the processing of the raw racket sensor data is done. Written in Kotlin.
       
   #### 2. Operator Input for Robotic Exercise Coach: https://github.com/M4rtinR/Operator-Input-for-Robotic-Exercise-Coach (Stroke Rehabilitation only)
-  The long-term stroke branch contains the code for the stroke rehabilitation system, so an additional component is needed. The operator input replaces any sensing software used in the squash system, and allows the operator to signal completion of each exercise repitition to the robot. Written in Python 3.
+  For the stroke rehabilitation system an additional component is needed. The operator input replaces any sensing software used in the squash system, and allows the operator to signal completion of each exercise repitition to the robot. Written in Python 3.
   
-## Running the Demo
-   Now that you have all of the components downloaded on your machine, conduct the following steps to run the squash demo on Pepper:
+## Running the System
+   Now that you have all of the components downloaded on your machine, conduct the following steps to run the system on Pepper. NOTE: these steps are specific to the "long-term squash" branch but are included here as they contain information that will help you when coding and running your own system.
       
    1. Set the Python Interpreter.
    
@@ -145,7 +151,7 @@ NOTE: The demonstrations will only work on the ITT group's Pepper (the one with 
       
          Repeat the last line for all of the packages listed above i.e. ```pip3 install <package_name>```
       
-   4. Run the demo.
+   4. Run the system.
       
         a) Make sure you have the other two parts of the code running (Screen Interface (https://github.com/M4rtinR/Screen-Interface-for-Robotic-Exercise-Coach) and Robot Interface (https://github.com/M4rtinR/Robot-Interface-for-Robotic-Exercise-Coach)) and have the racket sensor app open on the home page with the sensor turned on.
         
@@ -158,6 +164,10 @@ NOTE: The demonstrations will only work on the ITT group's Pepper (the one with 
         b) If you are connected to the same network as Pepper, it should pop up. Simply click it and click "Select" in the bottom right.
       
         c) Adjust the volume to the required level using the speaker icon in the top right.
+        
+## Code Structure
+
+## Adapting the Code to Other Domains/Use Cases
            
 ## Publications
 
