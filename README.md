@@ -171,7 +171,7 @@ NOTE: The demonstrations will only work on the ITT group's Pepper (the one with 
         
 ## Code Structure
 
-      The code in this repo is situated within the processing layer of the architecture diagram above. This README gives an overview of the purpose of each directory and file, but more thourough documentation can be found within the code.
+  The code in this repo is situated within the processing layer of the architecture diagram above. This README gives an overview of the purpose of each directory and file, but more thourough documentation can be found within the code.
       
   ### CoachingBehaviourTree
       
@@ -202,7 +202,15 @@ NOTE: The demonstrations will only work on the ITT group's Pepper (the one with 
   * api_classes.py: This file contains a Flask API which handles requests from the movement analysis software block, and updates the system's configuration values based on those requests. I.e. it receives performance scores based on the user's exercises which the system can use to formulate appropriate actions.
       
 ## Adapting the Code to Other Domains/Use Cases
-           
+
+  The idea behind this repository is to increase research ouput in the area of robotic coaching by providing a system that can be adapted to different domains and use cases. The structure of the behaviour tree, the coaching policies, and the RL adaption system are all domain independent. However, if you wish to use the system in a new domain, the following changes will be required. A much more detailed explanation of the changes can be found within the python files, and within the other components of the system.
+      
+  * behaviour_library.py: The utterances used by the robot to guide and coach users through a session, must obviously be domain-specific. However, they can follow the same structure as the utterances used by the squash and stroke rehabilitation coaching systems if you wish. This structure selects at random one of four different options for each combination of performance, phase of session (i.e. intro, during, or feedback), goal level and behaviour category. The utterances used by the robotic coaching system have been left in the code to provide a starting point. NOTE: The specific utterances used by the system were not a focus of our research so I'm sure a better structure and better individual utterances can be designed.
+  * config.py: Domain-specific setup is required in the config file. For example, variables such as ```shot``` and ```stat``` should be renamed to something more specific for the given use case. Additionally, the ```post_address``` and ```screen_post_address``` ip address variables will need to be updated, along with the initial ```ability```, ```motivation```, ```name``` etc values for each session that is run.
+  * Robot Interface for Robotic Exercise Coach component (https://github.com/M4rtinR/Robot-Interface-for-Robotic-Exercise-Coach): In this component, the structure of displaying the actions can be kept as is, but new demonstrations will need to be made for the new use case.
+  * Screen Interface for Robotic Exercise Coach component (https://github.com/M4rtinR/Screen-Interface-for-Robotic-Exercise-Coach): The general layout of the screen, and the subtitle process can remain as is. However, new domain-specific pictures of exercises, and options for selecting which exercise to conduct, must be updated for the new use case.
+  * Tracking Layer: This is probably where the most work will be required. A sensing or vision device specific to the current domain will need to be sourced/created. The movement analysis software block of the system architecture will also need to be coded. This code should translate the raw data received from the sensor/vision system into a numeric score and pass this score, through the API defined in api_classes.py, to the coaching environment at appropriate times to use as a performance indicator from which to generate appropriate utterances and actions. NOTE: to get started without a domain-specific sensing/vision system, you can use the Operator Input for Robotic Exercise Coach component: https://github.com/M4rtinR/Operator-Input-for-Robotic-Exercise-Coach. This was used with the stroke rehabilitation system to provide a WoZ bypass to the tracking layer and allows an operator to press enter on each completed repetition of an exercise. Changes to the API are also needed for this component to plug in smoothly, so please see the code in the "long-term stroke" branch for more details.
+      
 ## Publications
 
 * M. K. Ross, F. Broz, and L. Baillie, “Observing and Clustering Coaching Behaviours to Inform the Design of a Personalised Robotic Coach,” in Proceedings of the 23rd International Conference on Human-Computer Interaction with Mobile Devices and Services, Virtual (originally Toulouse, France), Sep. 2021. doi: 10.1145/3447526.3472043.
