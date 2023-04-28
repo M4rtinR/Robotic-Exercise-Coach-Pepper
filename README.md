@@ -56,7 +56,7 @@ NOTE: The demonstrations will only work on the ITT group's Pepper (the one with 
   ### Downloading components
   As per the architecture diagram below, both the squash coaching system and the stroke rehabilitation coaching system are split into multiple different components which communicate through API's:
      
-![Architecture Diagram for the robotic exercise coach](/Architecture%20Diagram%20-%20Generic.png?raw=true)
+![Architecture Diagram for the robotic exercise coach](/Diagrams/Architecture%20Diagram%20-%20Generic.png?raw=true)
       
   The following are all of the dmoain independent components that you will also have to download if you want to adapt the system for your own purposes:
   #### 1. Robotic Exercise Coach - Pepper
@@ -180,7 +180,7 @@ NOTE: The demonstrations will only work on the ITT group's Pepper (the one with 
   * config.py: This file contains all the initial values used by throughout the program, from the name, ability and motivation of the user (used for high-level personalisation) to the ip address and port number used to connect to the other components.
   * controller.py: This file is where the main behaviour tree skeleton is created. The tree follows a structure similar to this:
 
-![Simple behaviour tree of the robotic coach](/Behaviour%20Tree%20-%20full%20simple.png?raw=true)
+![Simple behaviour tree of the robotic coach](/Diagrams/Behaviour%20Tree/Behaviour%20Tree%20-%20full%20simple.png?raw=true)
       
    A much more detailed visualisation of the behaviour tree can be found in the  Diagrams/Behaviour Tree directory.
   * nodes.py: This file contains all of the leaf nodes which implement the behaviour to be used by the robot coach. All classes in this file are Behaviour Tree Nodes.
