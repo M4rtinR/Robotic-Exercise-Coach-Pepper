@@ -1,8 +1,0 @@
-2.51
-5
-impactCutAngle
-38.0, 27.0, 5, 
-racketPreparation
-9.0, 55.0, 1, 
-impactSpeed
-17.0, 1.0, 5, 

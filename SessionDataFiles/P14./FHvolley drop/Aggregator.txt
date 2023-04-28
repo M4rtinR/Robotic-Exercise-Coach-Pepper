@@ -1,6 +1,0 @@
-2.45
-4
-followThroughRoll
-0.0, 2.0, 4, 
-racketPreparation
-23.0, 29.0, 5, 

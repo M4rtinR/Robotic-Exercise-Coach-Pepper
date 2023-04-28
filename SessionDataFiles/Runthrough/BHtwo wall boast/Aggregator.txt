@@ -1,4 +1,0 @@
-3.01
-4
-racketPreparation
-85.0, 44.0, 1, 

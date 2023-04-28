@@ -1,8 +1,0 @@
-3.05
-5
-followThroughTime
-0.18, 0.43, 5, 
-impactSpeed
-23.0, 1.0, 5, 
-racketPreparation
-84.0, 61.0, 4, 

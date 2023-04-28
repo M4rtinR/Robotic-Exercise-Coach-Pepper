@@ -1,6 +1,0 @@
-2.64
-4
-racketPreparation
-98.0, 0.0, 4, 
-impactCutAngle
-18.0, 0.0, 4, 

@@ -1,8 +1,0 @@
-2.51
-4
-impactCutAngle
-15.0, 18.0, 5, 
-racketPreparation
-62.0, 0.0, 4, 
-followThroughRoll
-0.0, 0.0, 4, 

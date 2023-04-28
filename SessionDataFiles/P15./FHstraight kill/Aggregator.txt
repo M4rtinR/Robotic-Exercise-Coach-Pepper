@@ -1,6 +1,0 @@
-1.58
-4
-racketPreparation
-53.0, 0.0, 4, 
-approachTiming
-82.0, 7.0, 4, 

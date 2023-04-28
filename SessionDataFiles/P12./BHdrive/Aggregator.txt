@@ -1,8 +1,0 @@
-1.48
-4
-approachTiming
-24.0, 0.0, 4, 
-impactSpeed
-12.0, 0.0, 4, 
-racketPreparation
-65.0, 23.0, 4, 
