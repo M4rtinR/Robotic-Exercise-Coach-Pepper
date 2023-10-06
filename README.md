@@ -10,12 +10,12 @@ NOTE: The demonstrations will only work on the ITT group's Pepper (the one with 
   
 ## Instructions for Installing and Running (applicable to both squash and rehabilitation)
   ### Requirements
-  1. Ubuntu 16.04 (newer versions might work but I had problems with any version other than this).
+  1. Ubuntu 16.04 (newer versions might work but are untested).
      
      a) You can install Ubuntu alongside Windows (dual-boot) by following the instructions here: https://itsfoss.com/install-ubuntu-1404-dual-boot-mode-windows-8-81-uefi/
      
      b) I found that it wasn't necessary to conduct "Step 4: Make some free space on your disk for Ubuntu installation" because the Ubuntu installer will partition your hard drive automatically during installation.
-  2. Python 2 and Python 3 (not great practice I know, but some parts of the Naoqi SDK only work with Python 2 and some other functionality was a lot easier to implement in Python 3).
+  2. Python 2 and Python 3 (some parts of the Naoqi SDK only work with Python 2 and some other functionality requires Python 3).
       
       a) Python 2 should already be installed with Ubuntu 16.04. You can check which version you have by typing ```python -V``` into a terminal window.
       
@@ -28,7 +28,7 @@ NOTE: The demonstrations will only work on the ITT group's Pepper (the one with 
   3. Pycharm v2020.3
     <Instructions on downloading and installing Pycharm>
     
-      a) Visit https://www.jetbrains.com/pycharm/download/other.html and scroll down to v2020.3. The demos might work with newer versions of PyCharm but I haven't tested it.
+      a) Visit https://www.jetbrains.com/pycharm/download/other.html and scroll down to v2020.3. The should work with newer versions of PyCharm but this is untested.
       
       b) Extract the contents of the tar file to the location of your choice.
       
@@ -96,10 +96,10 @@ NOTE: The demonstrations will only work on the ITT group's Pepper (the one with 
   
   The sensing of movements on a user is domain-specific, but is an essential part in allowing the system to function properly. These components are part of the tracking layer. The following components were used in the squash and stroke rehabilitation systems respectively. The operator input module for stroke rehabilitation does not contain a sensor and is a WoZ replacement for this part of the architecture. This is therefore the best place to start if you don't have access to a sensing/vision system for your target use case.
   #### 1. Racket Sensor app: https://github.com/M4rtinR/racketware_app (Squash only)
-  For the squash system an additional component is needed. The racket sensor app is where the processing of the raw racket sensor data is done. Written in Kotlin.
+  The racket sensor app is where the processing of the raw racket sensor data is done. Written in Kotlin.
       
   #### 2. Operator Input for Robotic Exercise Coach: https://github.com/M4rtinR/Operator-Input-for-Robotic-Exercise-Coach (Stroke Rehabilitation only)
-  For the stroke rehabilitation system an additional component is needed. The operator input replaces any sensing software used in the squash system, and allows the operator to signal completion of each exercise repitition to the robot. Written in Python 3.
+  The operator input replaces any sensing software used in the squash system, and allows the operator to signal completion of each exercise repitition to the robot. Written in Python 3.
   
 ## Running the System
    Now that you have all of the components downloaded on your machine, conduct the following steps to run the system on Pepper. NOTE: these steps are specific to the "long-term squash" branch but are included here as they contain information that will help you when coding and running your own system.
