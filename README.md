@@ -102,7 +102,7 @@ NOTE: The demonstrations will only work on the ITT group's Pepper (the one with 
   The operator input replaces any sensing software used in the squash system, and allows the operator to signal completion of each exercise repitition to the robot. Written in Python 3.
   
 ## Running the System
-   Now that you have all of the components downloaded on your machine, conduct the following steps to run the system on Pepper. NOTE: these steps are specific to the "long-term squash" branch but are included here as they contain information that will help you when coding and running your own system.
+   Now that you have all of the components downloaded on your machine, conduct the following steps to run the system on Pepper. NOTE: we recommend to start with the stroke rehabilitation system because this can be run without an external sensor or squash equipment. Therefore, please refer to the "long-term stroke" branch from now on. The following steps are specific to the "long-term squash" branch but are included here as they contain information that will help you when coding and running your own system.
       
    1. Set the Python Interpreter.
    
