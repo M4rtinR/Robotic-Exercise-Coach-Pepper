@@ -87,6 +87,8 @@ NOTE: The demonstration will only work on the ITT group's Pepper (the one with t
   
 ## Running the Demo
    Now that you have all of the components downloaded on your machine, conduct the following steps to run the squash demo on Pepper:
+
+   ### Running in Simulation
       
    1. Set the Python Interpreter.
    
@@ -138,6 +140,24 @@ NOTE: The demonstration will only work on the ITT group's Pepper (the one with t
            pip3 install numpy
       
          Repeat the last line for all of the packages listed above i.e. ```pip3 install <package_name>```
+
+   4. Run the demo.
+
+        a) Make sure you have the other two parts of the code running (Screen Interface (https://github.com/M4rtinR/Screen-Interface-for-Robotic-Exercise-Coach) and Robot Interface (https://github.com/M4rtinR/Robot-Interface-for-Robotic-Exercise-Coach)) using the local ip address of your computer to connect to the Choregraphe simulation of Pepper, and have the Operator Input (https://github.com/M4rtinR/Operator-Input-for-Robotic-Exercise-Coach) installed and ready to run.
+        
+        b) Click the "run" button on PyCharm. NOTE: run this code after the screen interface and robot interface are already running.
+      
+        c) Run the Operator Input component, and press the enter key for each repetition of an exercise that the user performs, as prompted in the standard output window and explained in the README for the Operator Input component.
+
+      NOTE: The LIMITATIONS of running the demo in simulation are:
+
+       (i) Nothing will appear on the screen of the simulated robot.
+       (ii) There will be no audio - Pepper's speech will be displayed in speech bubbles above the simulated robot's head.
+       (iii) Access to the touch sensors in Pepper's hands and head are unavailable. Questions from Pepper will time out after 5 seconds without response.
+
+  ### Running on a Physical Pepper Robot
+
+   Complete steps 1-3 above, then:
       
    4. Run the demo.
       
@@ -154,4 +174,6 @@ NOTE: The demonstration will only work on the ITT group's Pepper (the one with t
         b) If you are connected to the same network as Pepper, it should pop up. Simply click it and click "Select" in the bottom right.
       
         c) Adjust the volume to the required level using the speaker icon in the top right.
+
+   NOTE: Different versions of the Pepper robot have different tablet versions, meaning the displays on the tablet screen may be skewed or run off the side of the page compared to normal.
 
