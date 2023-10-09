@@ -2,49 +2,65 @@
 
 This repo contains code for running squash coaching and stroke rehabilitation systems on Pepper. The purpose of these systems and the project as a whole, is to research the effects of using a robot to guide a user through individual exercise across multiple domains, when a coach/physiotherapist is not available. To provide a detailed background of the system, any publications coming from this repo will be listed in the publications section below.
 
-This README is written with the intention to guide anyone external to the project in getting the system up and running and starting to edit the code for their own purposes. If you are interested only in running one of the systems, or are from Heriot-Watt University/The National Robotarium and looking to demo the systems, please refer to the "long-term squash" or "long-term stroke" branch.
+This README is written with the intention to guide anyone external to the project in getting the system up and running and starting to edit the code for their own purposes. If you are interested only in running one of the systems, or are from Heriot-Watt University/The National Robotarium and looking to demo the systems, please refer to the "long-term squash" or "long-term stroke" branch. It is recommended to start with the "long-term stroke" branch because this does not require any external sensors.
 
-Below are the initial steps required for both systems so please follow these first. Next is an outline of the code and where changes are required to allow adaption to other domains. The majority of the code (other than the domain specific parts which have been removed from the master branch and can be found in the "long-term squash" and "long-term stroke" branches respectively) was used for evaluations of the system with participants so should be fairly robust. However, it is a bit complex to set up and run and the code is a bit hacked together in places. 
+Below are the initial steps required for both systems so please follow these first. Next is an outline of the code and where changes are required to allow adaption to other domains. The majority of the code (other than the domain specific parts which have been removed from the master branch and can be found in the "long-term squash" and "long-term stroke" branches respectively) was used for evaluations of the system with participants so should be fairly robust.
 
-NOTE: The demonstrations will only work on the ITT group's Pepper (the one with the "EM1.69" sticker on the back) due to different tablet versions on the other Peppers. They are set up to work with the ITT Pepper router at the moment. If you wish to run the demos through a different network, you will have to update various IP addresses - this is explained further in the individual README's of the demos.
+NOTE: There are limitations to running the demonstrations in simulation or with physical robots other than the ITT group's Pepper (the one with the "EM1.69" sticker on the back) due to different tablet versions on other Peppers. These limitations are explained in the "Running the System" section below. The demonstrations are set up to work with the ITT Pepper router at the moment. If you wish to run the demos through a different network, you will have to update various IP addresses - this is explained further in the individual README's of the demos.
   
 ## Instructions for Installing and Running (applicable to both squash and rehabilitation)
   ### Requirements
-  1. Ubuntu 16.04 (newer versions might work but are untested).
+  1. Ubuntu 16.04 (newer versions no longer support the required Naoqi Python SDK for Pepper).
      
-     a) You can install Ubuntu alongside Windows (dual-boot) by following the instructions here: https://itsfoss.com/install-ubuntu-1404-dual-boot-mode-windows-8-81-uefi/
+     a) (Reommended) You can install Ubuntu alongside Windows (dual-boot) by following the instructions here: https://itsfoss.com/install-ubuntu-1404-dual-boot-mode-windows-8-81-uefi/
      
-     b) I found that it wasn't necessary to conduct "Step 4: Make some free space on your disk for Ubuntu installation" because the Ubuntu installer will partition your hard drive automatically during installation.
-  2. Python 2 and Python 3 (some parts of the Naoqi SDK only work with Python 2 and some other functionality requires Python 3).
+      (i) I found that it wasn't necessary to conduct "Step 4: Make some free space on your disk for Ubuntu installation" because the Ubuntu installer will partition your hard drive automatically during installation.
+
+     OR
+
+     b) You can install Ubuntu through a virtual machine by following the instructions here: https://medium.com/@tushar0618/install-ubuntu-16-04-lts-on-virtual-box-desktop-version-30dc6f1958d0
+  3. Python 2 and Python 3 (some parts of the Naoqi SDK only work with Python 2 and some other functionality requires Python 3).
       
       a) Python 2 should already be installed with Ubuntu 16.04. You can check which version you have by typing ```python -V``` into a terminal window.
       
-      b) Python 3.5 may also be installed with Ubuntu 16.04. However, PyCharm has removed support of Python 3.5, so we need a newer version. Installing newer versions of Python is slightly more complicated in 16.04 than in newer versions of Ubuntu, but you can do it using the following commands in a terminal window:
+      b) Python 3.5 may also be installed with Ubuntu 16.04. However, support of Python 3.5 in some of the required modules is no longer available so we need a newer version. Installing newer versions of Python is slightly more complicated in 16.04 than in newer versions of Ubuntu, but you can do it by building from source using the following commands in a terminal window:
       
-         sudo apt-get install aptitude
-         sudo aptitude install python3.8
+         sudo apt update
+         sudo apt install build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev libsqlite3-dev wget libbz2-dev
+         wget https://www.python.org/ftp/python/3.8.0/Python-3.8.0.tgz
+         tar -xf Python-3.8.0.tgz
+         cd Python-3.8.0
+         ./configure --enable-optimizations
+         make -j 8
+         sudo make altinstall
       
       c) You can verify the installation was successful by typing ```python3.8 -V``` into a terminal window.
-  3. Pycharm v2020.3
+  4. Pycharm v2020.3
     <Instructions on downloading and installing Pycharm>
+
+    NOTE: this is not required. You can run the required modules through a terminal window but if you are more used to a GUI then installing PyCharm is recommended. The remainder of this README is written assuming that you are using the PyCharm GUI to run the code.
     
-      a) Visit https://www.jetbrains.com/pycharm/download/other.html and scroll down to v2020.3. The should work with newer versions of PyCharm but this is untested.
+      a) Visit https://www.jetbrains.com/pycharm/download/other.html and scroll down to v2020.3. The code should work with newer versions of PyCharm but this is untested.
       
       b) Extract the contents of the tar file to the location of your choice.
       
       c) Run Pycharm by opening a terminal, navigating to {extract_location}/bin, and typing ```./pycharm.sh```.
       
-  4. Android Studio v 2021.3 (squash only)
+  5. Android Studio v 2021.3 (squash only)
     <Instructions on downloading and installing Android Studio>
     
       a) For instructions on how to download and install Android Studio, please see the GitHub pages for the racket sensor application: https://github.com/M4rtinR/racketware_app. Due to NDA agreements, this can only be shared with those at Heriot-Watt University or the National Robotarium. If you fall under this category and need access to run the demo, please contact martinross313@gmail.com.
       
-  5. Pepper robot running NAOqi 2.5
+  6. Pepper robot running NAOqi 2.5
+
+     NOTE: it is possible to run the code in simulation without a Pepper robot but with limitations. See the "Running the System" section for details.
   
       a) Newer versions of the NAOqi operating system may not work. Additionally, different tablet versions may cause the display to be altered. For more details on this, see the README for the Screen Interface for Robotic Exercise Coach component (https://github.com/M4rtinR/Screen-Interface-for-Robotic-Exercise-Coach).
       
-  6. Choregraphe v2.5.10.7
+  8. Choregraphe v2.5.10.7
     <Instructions on downloading and installing Choregraphe>
+
+    NOTE: Choregraphe is not necessary for running the code on a robot but is necessary if you want to run in simulation, and is also useful for testing and debugging connections with the robot.
       
       a) The version of Choregraphe you install will depend on the version of the NAOqi operating system that is installed on the particular Pepper robot you are using. For the robot used in our research, we used version 2.5.10.7. You can download any version of Choregraphe and the SDK for Python here: https://www.aldebaran.com/en/support/pepper-naoqi-2-9/downloads-softwares/former-versions.
       
