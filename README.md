@@ -229,4 +229,4 @@ NOTE: There are limitations to running the demonstrations in simulation or with 
       
 ## Publications
 
-* M. K. Ross, F. Broz, and L. Baillie, “Observing and Clustering Coaching Behaviours to Inform the Design of a Personalised Robotic Coach,” in Proceedings of the 23rd International Conference on Human-Computer Interaction with Mobile Devices and Services, Virtual (originally Toulouse, France), Sep. 2021. doi: 10.1145/3447526.3472043.
+* XXXX
